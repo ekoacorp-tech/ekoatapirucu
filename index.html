@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#23505F">
+<meta name="description" content="Ekoa Tapiruçu: coleta de manejo do rebanho em campo, offline, com envio sob comando.">
+<title>Ekoa Tapiruçu | Gestão do rebanho</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg-body:#EFE6DA;--bg-surface:#FBF7F1;--bg-sidebar:#23505F;
+  --text-primary:#3A2C24;--text-secondary:#6E5D52;--border-color:#DCCFBF;
+  --brand-gold:#C9922E;--brand-navy:#23505F;--brand-teal:#3B8A97;--brand-orange:#C0714A;
+  --row-hover:#F5EDE2;--row-zebra:#F7F1E8;
+  --ok-bg:#dcfce7;--ok-txt:#166534;--warn-bg:#fef3c7;--warn-txt:#92400e;--bad-bg:#fee2e2;--bad-txt:#991b1b;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg-body);color:var(--text-primary);display:flex;min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font-size:16px;color:inherit}
+:focus-visible{outline:3px solid var(--brand-gold);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Splash */
+#splash{position:fixed;inset:0;background:var(--bg-sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:5000;color:#fff;transition:opacity .35s}
+#splash.off{opacity:0;pointer-events:none}
+#splash svg{width:120px;height:120px;background:#FBF7F1;border-radius:50%;padding:14px}
+#splash b{letter-spacing:3px;font-size:1.2rem;margin-top:12px}
+#splash span{font-size:.72rem;letter-spacing:2px;color:var(--brand-gold)}
+#splash em{font-style:normal;font-size:.75rem;color:#cbd5e1;margin-top:14px}
+
+/* Sidebar */
+.sidebar{width:270px;background:var(--bg-sidebar);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:20px;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0;border-right:2px solid var(--brand-gold)}
+.brand{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:14px}
+.brand svg{width:50px;height:50px;background:#FBF7F1;border-radius:12px;padding:4px;flex-shrink:0}
+.brand h1{font-size:1.02rem;font-weight:800;letter-spacing:.5px}
+.brand p{font-size:.72rem;color:#cbd5e1}
+.farm-pick label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--brand-gold);font-weight:700;margin-bottom:5px}
+.farm-pick select{width:100%;min-height:44px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff}
+.farm-pick select option{background:#23505F}
+.side-nav{display:flex;flex-direction:column;gap:4px;margin-top:14px}
+.side-nav button{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#e2e8f0;cursor:pointer;text-align:left;font-weight:600;font-size:.92rem}
+.side-nav button svg{width:20px;height:20px;flex-shrink:0}
+.side-nav button:hover{background:rgba(255,255,255,.08)}
+.side-nav button.on{background:rgba(201,146,46,.18);color:#fff;box-shadow:inset 3px 0 0 var(--brand-gold)}
+.side-nav .count{margin-left:auto;background:var(--brand-orange);color:#fff;border-radius:10px;font-size:.72rem;padding:1px 7px}
+.ekoa-footer{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15);margin-top:14px}
+.ekoa-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#3B8A97 50%,#C0714A 50%);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-style:italic;font-weight:bold;font-size:20px;color:#fff;flex-shrink:0}
+.ekoa-text{font-weight:800;letter-spacing:1.5px;font-size:.95rem}
+.ekoa-sub{font-size:.68rem;color:#cbd5e1;display:block;letter-spacing:.3px;font-weight:400}
+
+/* Mobile header + bottom nav */
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:58px;background:var(--bg-sidebar);color:#fff;z-index:900;padding:0 12px;align-items:center;justify-content:space-between;border-bottom:2px solid var(--brand-gold)}
+.mobile-header .mh-left{display:flex;align-items:center;gap:10px;min-width:0}
+.mobile-header svg{width:38px;height:38px;background:#FBF7F1;border-radius:10px;padding:3px;flex-shrink:0}
+.mobile-header b{font-size:.95rem;letter-spacing:.5px;display:block}
+.mobile-header small{font-size:.72rem;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:58vw}
+.bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--bg-surface);border-top:1px solid var(--border-color);z-index:900;padding-bottom:var(--safe-bottom);box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+.bottom-nav button{flex:1;min-height:58px;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.7rem;font-weight:600;color:var(--text-secondary);cursor:pointer;position:relative}
+.bottom-nav button svg{width:22px;height:22px}
+.bottom-nav button.on{color:var(--brand-navy)}
+.bottom-nav button.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--brand-gold);border-radius:0 0 3px 3px}
+.bottom-nav .dot{position:absolute;top:8px;right:calc(50% - 18px);background:var(--brand-orange);color:#fff;border-radius:9px;font-size:.62rem;padding:0 5px;line-height:15px}
+
+/* Main */
+.main{flex:1;padding:22px 28px 40px;min-width:0}
+.view{display:none;max-width:1100px;margin:0 auto}
+body[data-view="home"] #v-home,body[data-view="lidas"] #v-lidas,body[data-view="lida"] #v-lida,body[data-view="rebanho"] #v-rebanho,
+body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais{display:block}
+.topbar{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.topbar h2{font-size:1.15rem;color:var(--brand-navy)}
+.topbar p{font-size:.84rem;color:var(--text-secondary);margin-top:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:.98rem;color:var(--brand-navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3 .sub{font-weight:400;font-size:.8rem;color:var(--text-secondary)}
+.muted{color:var(--text-secondary);font-size:.86rem}
+.hint{font-size:.8rem;color:var(--text-secondary);margin-top:6px;line-height:1.45}
+
+/* Buttons */
+.btn{min-height:44px;padding:9px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;font-size:.9rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--brand-teal)}
+.btn.primary{background:var(--brand-navy);color:#fff;border-color:var(--brand-navy)}
+.btn.teal{background:var(--brand-teal);color:#fff;border-color:var(--brand-teal)}
+.btn.gold{background:var(--brand-gold);color:#111827;border-color:var(--brand-gold);font-weight:700}
+.btn.danger{background:#fff;color:#b91c1c;border-color:#fca5a5}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.82rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn svg{width:18px;height:18px}
+
+/* Home tiles */
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.tile{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:12px;padding:16px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:110px;border-top:4px solid var(--brand-teal)}
+.tile:hover{background:var(--row-hover)}
+.tile.main-act{background:var(--brand-navy);color:#fff;border-color:var(--brand-navy);border-top-color:var(--brand-gold)}
+.tile.main-act:hover{background:#1c4452}
+.tile b{font-size:1.02rem}
+.tile span{font-size:.82rem;opacity:.85}
+.tile svg{width:28px;height:28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--bg-surface);border:1px solid var(--border-color);border-left:4px solid var(--brand-gold);border-radius:8px;padding:10px 12px}
+.kpi.teal{border-left-color:var(--brand-teal)}.kpi.orange{border-left-color:var(--brand-orange)}.kpi.navy{border-left-color:var(--brand-navy)}.kpi.red{border-left-color:#dc2626}
+.kpi small{display:block;font-size:.74rem;color:var(--text-secondary)}
+.kpi b{font-size:1.3rem;color:var(--brand-navy)}
+.kpi em{font-style:normal;font-size:.74rem;color:var(--text-secondary);display:block}
+.alert{border-radius:8px;padding:10px 12px;font-size:.86rem;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;line-height:1.4}
+.alert.warn{background:var(--warn-bg);color:var(--warn-txt)}
+.alert.ok{background:var(--ok-bg);color:var(--ok-txt)}
+.alert.bad{background:var(--bad-bg);color:var(--bad-txt)}
+.alert.info{background:#e0f2f1;color:#134e4a}
+.alert .btn{margin-left:auto;flex-shrink:0}
+
+/* Forms */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.field label{display:block;font-size:.78rem;font-weight:700;color:var(--text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field label .req{color:#b91c1c}
+.field input,.field select,.field textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--border-color);border-radius:8px;background:#fff}
+.field textarea{min-height:90px;resize:vertical}
+.field .err{color:#b91c1c;font-size:.78rem;margin-top:4px;display:none}
+.field.has-err input,.field.has-err select,.field.has-err textarea{border-color:#dc2626}
+.field.has-err .err{display:block}
+
+/* Type picker */
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.type-btn{min-height:96px;border:2px solid var(--border-color);border-radius:12px;background:var(--bg-surface);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:.95rem;color:var(--brand-navy);padding:10px}
+.type-btn small{font-weight:400;font-size:.74rem;color:var(--text-secondary);text-align:center}
+.type-btn:hover,.type-btn.on{border-color:var(--brand-gold);background:var(--row-hover)}
+.type-btn svg{width:28px;height:28px}
+
+/* Entry bar */
+.entry{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:2px solid var(--brand-teal);border-radius:10px;padding:12px;margin-bottom:12px}
+.entry .field{flex:1;min-width:130px}
+.entry input{font-size:1.15rem!important;font-weight:600}
+.entry .btn{min-height:48px}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border-color);border-radius:8px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:var(--brand-navy);color:#fff;text-align:left;padding:9px 10px;font-size:.76rem;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;cursor:pointer;user-select:none}
+th.num,td.num{text-align:right}
+td{padding:9px 10px;border-bottom:1px solid var(--border-color);vertical-align:middle}
+tr:nth-child(even) td{background:var(--row-zebra)}
+tbody tr:hover td{background:var(--row-hover)}
+tr.click{cursor:pointer}
+td .btn.sm{min-height:34px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:2px 9px;font-size:.74rem;font-weight:700;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok-txt)}.chip.warn{background:var(--warn-bg);color:var(--warn-txt)}.chip.bad{background:var(--bad-bg);color:var(--bad-txt)}.chip.info{background:#e0f2f1;color:#134e4a}.chip.gray{background:#eee7dd;color:#57483e}
+.lock{color:#b45309}
+.empty{text-align:center;padding:26px 12px;color:var(--text-secondary)}
+.empty svg{width:42px;height:42px;opacity:.5;display:block;margin:0 auto 8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.toolbar input,.toolbar select{min-height:44px;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;background:#fff}
+.toolbar input{flex:1;min-width:160px}
+
+/* Lista de lidas (cartões) */
+.lida-list{display:flex;flex-direction:column;gap:8px}
+.lida-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border-color);border-left:4px solid var(--brand-teal);border-radius:8px;padding:10px 12px;cursor:pointer;min-height:60px}
+.lida-item:hover{background:var(--row-hover)}
+.lida-item.aberta{border-left-color:var(--brand-gold)}
+.lida-item .li-main{flex:1;min-width:0}
+.lida-item b{display:block;font-size:.95rem}
+.lida-item span{font-size:.8rem;color:var(--text-secondary)}
+
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:3000;align-items:center;justify-content:center;padding:14px}
+.modal.open{display:flex}
+.modal-box{background:var(--bg-surface);border-radius:12px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal-box.wide{max-width:860px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border-color);position:sticky;top:0;background:var(--bg-surface);z-index:1}
+.modal-head h3{font-size:1.02rem;color:var(--brand-navy)}
+.modal-body{padding:16px 18px}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--border-color);position:sticky;bottom:0;background:var(--bg-surface)}
+.x-btn{width:44px;height:44px;border:none;background:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);border-radius:8px}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.88rem}
+.dl dt{color:var(--text-secondary)}
+.dl dd{font-weight:600}
+
+/* Toast / update bar / install */
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:#1f2937;color:#fff;padding:12px 16px;border-radius:10px;font-size:.88rem;opacity:0;pointer-events:none;transition:all .25s;z-index:4000;max-width:92vw;display:flex;align-items:center;gap:10px}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast .t-act{background:var(--brand-gold);border:none;border-radius:6px;padding:6px 10px;font-weight:700;cursor:pointer;color:#111827;min-height:36px}
+#updateBar{display:none;background:#fff7e6;border:1px solid var(--brand-gold);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.88rem;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#updateBar.on{display:flex}
+#installBox{display:none}
+#installBox.on{display:flex}
+.saved-ind{font-size:.75rem;color:var(--text-secondary)}
+
+/* Mais (mobile) */
+.menu-list{display:flex;flex-direction:column;gap:8px}
+.menu-list button{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-surface);cursor:pointer;font-weight:600;font-size:.95rem;text-align:left}
+.menu-list button svg{width:22px;height:22px;color:var(--brand-teal)}
+.menu-list button small{display:block;font-weight:400;color:var(--text-secondary);font-size:.78rem}
+
+@media (max-width:900px){
+  body{display:block}
+  .sidebar{display:none}
+  .mobile-header{display:flex}
+  .bottom-nav{display:flex}
+  .main{padding:72px 12px calc(84px + var(--safe-bottom))}
+  .topbar{padding:12px 14px}
+  #toast{bottom:calc(76px + var(--safe-bottom))}
+  .modal{padding:0;align-items:flex-end}
+  .modal-box{max-height:94vh;border-radius:14px 14px 0 0}
+  .hide-m{display:none}
+  .entry .btn{flex:1 1 100%}
+}
+@media (min-width:901px){.only-m{display:none!important}}
+@media print{.sidebar,.mobile-header,.bottom-nav,#toast,.actions,.toolbar{display:none!important}.main{padding:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-view="home">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <linearGradient id="tT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46A9AC"/><stop offset=".55" stop-color="#1E7480"/><stop offset="1" stop-color="#0E4E5E"/></linearGradient>
+  <linearGradient id="tC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2A869"/><stop offset=".5" stop-color="#D07A43"/><stop offset="1" stop-color="#9A4420"/></linearGradient>
+</defs>
+<symbol id="mark" viewBox="0 0 200 200">
+  <path fill="url(#tT)" stroke="#23505F" stroke-width="4" stroke-linejoin="round" d="M80 66 L42 60 L22 22 L54 46 L88 52 Z"/>
+  <path fill="url(#tT)" stroke="#23505F" stroke-width="4" stroke-linejoin="round" d="M120 66 L158 60 L178 22 L146 46 L112 52 Z"/>
+  <path fill="#9A4420" stroke="#23505F" stroke-width="4" stroke-linejoin="round" d="M68 76 L32 86 L62 98 Z"/>
+  <path fill="#9A4420" stroke="#23505F" stroke-width="4" stroke-linejoin="round" d="M132 76 L168 86 L138 98 Z"/>
+  <path fill="url(#tC)" stroke="#23505F" stroke-width="5" stroke-linejoin="round" d="M70 58 L130 58 L140 96 L122 158 L100 178 L78 158 L60 96 Z"/>
+  <path fill="none" stroke="#FBF7F1" stroke-opacity=".45" stroke-width="2.5" d="M100 58 L100 140 M60 96 L100 118 L140 96"/>
+  <path fill="#23505F" d="M76 100 L86 95 L92 102 L82 106 Z"/><path fill="#23505F" d="M124 100 L114 95 L108 102 L118 106 Z"/>
+  <path fill="#23505F" d="M84 142 L116 142 L110 166 L100 176 L90 166 Z"/>
+  <circle cx="93" cy="155" r="3.4" fill="#F2A869"/><circle cx="107" cy="155" r="3.4" fill="#F2A869"/>
+  <path fill="#C9922E" d="M172 112 L175.5 123 L186 126.5 L175.5 130 L172 141 L168.5 130 L158 126.5 L168.5 123 Z"/>
+</symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-lida" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11h6M9 15h4"/></g></symbol>
+<symbol id="i-rebanho" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6 3 3m16 3 2-3M7 6h10l1 5-2 7-4 3-4-3-2-7z"/><path d="M10 16h4"/></g></symbol>
+<symbol id="i-painel" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></g></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></g></symbol>
+<symbol id="i-cad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></g></symbol>
+<symbol id="i-mais" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></symbol>
+<symbol id="i-peso" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l2 12H4z"/><circle cx="12" cy="5" r="2"/><path d="M12 12v3"/></g></symbol>
+<symbol id="i-san" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4M15 5l4 4M17 7 8 16l-4 1 1-4 9-9M3 21l3-3"/></g></symbol>
+<symbol id="i-troca" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-4-4M20 16H6l4 4"/></g></symbol>
+<symbol id="i-baixa" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></g></symbol>
+<symbol id="i-nasc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></g></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/></g></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m-5 5 5-5 5 5M4 4h16"/></g></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></g></symbol>
+</svg>
+
+<div id="splash" aria-hidden="true"><svg viewBox="0 0 200 200"><use href="#mark"/></svg><b>EKOA TAPIRUÇU</b><span>GESTÃO DO REBANHO</span><em>by <strong>EKOA TECH</strong></em></div>
+
+<header class="mobile-header">
+  <div class="mh-left" onclick="goView('home')" style="cursor:pointer">
+    <svg viewBox="0 0 200 200" role="img" aria-label="Ekoa Tapiruçu - Início"><use href="#mark"/></svg>
+    <div><b>TAPIRUÇU</b><small id="mFarm">—</small></div>
+  </div>
+  <span class="saved-ind" id="mSaved" style="color:#cbd5e1"></span>
+</header>
+
+<aside class="sidebar" aria-label="Menu">
+  <div>
+    <div class="brand" onclick="goView('home')" style="cursor:pointer">
+      <svg viewBox="0 0 200 200" role="img" aria-label="Ekoa Tapiruçu"><use href="#mark"/></svg>
+      <div><h1>EKOA TAPIRUÇU</h1><p>Gestão do rebanho · piloto</p></div>
+    </div>
+    <div class="farm-pick"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
+    <nav class="side-nav">
+      <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg><span>Início</span></button>
+      <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span>Lidas</span><span class="count" id="cAbertas" hidden></span></button>
+      <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span>Rebanho</span></button>
+      <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span>Painel</span></button>
+      <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
+      <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span>Fazenda e lotes</span></button>
+      <button data-nav="sobre" onclick="openAbout()"><svg><use href="#i-info"/></svg><span>Sobre e versão</span></button>
+    </nav>
+  </div>
+  <div>
+    <p class="saved-ind" id="dSaved" style="color:#cbd5e1"></p>
+    <div class="ekoa-footer"><div class="ekoa-icon">e</div><div><span class="ekoa-text">EKOA</span><span class="ekoa-sub">Gestão e Processo · Ekoa Tech</span></div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div id="updateBar" role="status"></div>
+
+  <!-- INÍCIO -->
+  <section class="view" id="v-home" aria-labelledby="hTitle">
+    <div class="topbar">
+      <div><h2 id="hTitle">Bom trabalho no campo</h2><p id="hSub">Tudo o que você lança fica salvo neste aparelho, mesmo sem internet.</p></div>
+      <div id="installBox" class="actions"><span class="muted" id="installHint" style="align-self:center"></span><button class="btn gold" id="installBtn" onclick="installApp()">Instalar app</button></div>
+    </div>
+    <div id="homeAlerts"></div>
+    <div class="hero">
+      <button class="tile main-act" onclick="newLida()"><svg><use href="#i-lida"/></svg><b>Nova lida</b><span>Pesagem, sanitário, troca de lote, baixa ou nascimento</span></button>
+      <button class="tile" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><b>Rebanho</b><span id="tRebanho">Animais e lotes</span></button>
+      <button class="tile" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><b>Painel</b><span>Peso, GMD, lotação e alertas</span></button>
+      <button class="tile" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><b>Sincronizar</b><span id="tSync">Exportar e importar dados</span></button>
+    </div>
+    <div class="kpis" id="homeKpis"></div>
+    <div class="card"><h3>Últimas lidas</h3><div id="homeLidas"></div></div>
+  </section>
+
+  <!-- LIDAS -->
+  <section class="view" id="v-lidas">
+    <div class="topbar">
+      <div><h2>Lidas</h2><p>Cada lida é um manejo em campo. Só a lida finalizada altera o rebanho e entra na exportação.</p></div>
+      <div class="actions"><button class="btn primary" onclick="newLida()"><svg><use href="#i-lida"/></svg>Nova lida</button></div>
+    </div>
+    <div class="toolbar">
+      <select id="lfStatus" onchange="renderLidas()" aria-label="Situação"><option value="">Todas</option><option value="aberta">Em aberto</option><option value="finalizada">Finalizadas</option><option value="pend">Não exportadas</option></select>
+      <select id="lfTipo" onchange="renderLidas()" aria-label="Tipo"><option value="">Todos os tipos</option></select>
+    </div>
+    <div id="lidasList"></div>
+  </section>
+
+  <!-- EDITOR DE LIDA -->
+  <section class="view" id="v-lida"><div id="lidaEditor"></div></section>
+
+  <!-- REBANHO -->
+  <section class="view" id="v-rebanho">
+    <div class="topbar">
+      <div><h2>Rebanho</h2><p id="rbSub"></p></div>
+      <div class="actions">
+        <button class="btn primary" onclick="openAddAnimals()">Adicionar animais</button>
+        <button class="btn" onclick="exportInventarioCSV()"><svg><use href="#i-down"/></svg>Inventário CSV</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input id="rbBusca" type="search" placeholder="Buscar brinco, raça ou categoria" oninput="renderRebanho()" aria-label="Buscar">
+      <select id="rbLote" onchange="renderRebanho()" aria-label="Lote"></select>
+      <select id="rbSit" onchange="renderRebanho()" aria-label="Situação"><option value="ativos">Ativos</option><option value="carencia">Em carência</option><option value="atraso">Sem manejo há +30 dias</option><option value="baixados">Baixados</option><option value="todos">Todos</option></select>
+    </div>
+    <div id="rbTable"></div>
+  </section>
+
+  <!-- PAINEL -->
+  <section class="view" id="v-painel">
+    <div class="topbar">
+      <div><h2>Painel</h2><p id="pnSub">Indicadores calculados a partir das lidas finalizadas.</p></div>
+      <div class="actions"><button class="btn" onclick="exportLotesCSV()"><svg><use href="#i-down"/></svg>Lotes CSV</button><button class="btn" onclick="exportEventosCSV()"><svg><use href="#i-down"/></svg>Eventos CSV</button></div>
+    </div>
+    <div id="painel"></div>
+  </section>
+
+  <!-- SINCRONIZAR -->
+  <section class="view" id="v-sync">
+    <div class="topbar">
+      <div><h2>Sincronizar</h2><p>Sem internet obrigatória: os aparelhos trocam um arquivo. Exportar é o envio.</p></div>
+    </div>
+    <div id="syncBody"></div>
+  </section>
+
+  <!-- CADASTROS -->
+  <section class="view" id="v-cadastros">
+    <div class="topbar">
+      <div><h2>Fazenda e lotes</h2><p>Cadastros base. A área (ha) habilita o cálculo de lotação (UA/ha).</p></div>
+      <div class="actions"><button class="btn" onclick="openFarm()">Nova fazenda</button><button class="btn primary" onclick="openLote()">Novo lote</button></div>
+    </div>
+    <div id="cadBody"></div>
+  </section>
+
+  <!-- MAIS (mobile) -->
+  <section class="view" id="v-mais">
+    <div class="topbar"><div><h2>Mais</h2><p id="maisFarm"></p></div></div>
+    <div class="menu-list">
+      <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
+      <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda e lotes<small>Cadastros base e fazenda ativa</small></div></button>
+      <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
+      <button onclick="openAbout()"><svg><use href="#i-info"/></svg><div>Sobre e versão<small>Novidades, atualização e instalação</small></div></button>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="Navegação">
+  <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg>Início</button>
+  <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg>Lidas<span class="dot" id="bAbertas" hidden></span></button>
+  <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg>Rebanho</button>
+  <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg>Sincronizar<span class="dot" id="bPend" hidden></span></button>
+  <button data-nav="mais" onclick="goView('mais')"><svg><use href="#i-mais"/></svg>Mais</button>
+</nav>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head"><h3 id="mTitle"></h3><button class="x-btn" onclick="closeModal()" aria-label="Fechar">×</button></div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-foot" id="mFoot"></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="importFile" accept=".json,application/json" class="sr" onchange="onImportFile(event)">
+
+<script>
+'use strict';
+/* =========================================================================
+   Ekoa Tapiruçu · App Piloto
+   PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
+   Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
+   ========================================================================= */
+const APP_VERSION = 1;
+const APP_ID = 'ekoa-tapirucu';
+const SYNC_FORMAT = 1;
+const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
+const STORE = 'kv';
+const UA_KG = 450;                    // R05: 1 UA = 450 kg de peso vivo
+const DIAS_ATRASO = 30;               // R19
+const ID_OK = /^[A-Za-z0-9-]{8,64}$/;
+
+const TIPOS = {
+  pesagem:   { nome: 'Pesagem',        icon: 'i-peso',  desc: 'Peso individual dos animais' },
+  sanitario: { nome: 'Sanitário',      icon: 'i-san',   desc: 'Vacina, vermífugo, medicamento' },
+  troca:     { nome: 'Troca de lote',  icon: 'i-troca', desc: 'Mover animais para outro lote' },
+  baixa:     { nome: 'Baixa',          icon: 'i-baixa', desc: 'Morte, perda ou venda' },
+  nascimento:{ nome: 'Nascimento',     icon: 'i-nasc',  desc: 'Bezerro ao pé da vaca' }
+};
+const SEXOS = { M: 'Macho', F: 'Fêmea' };
+const MOTIVOS_BAIXA = { morte: 'Morte', perda: 'Perda / desaparecimento', venda: 'Venda' };
+const PROCEDIMENTOS = { vacina: 'Vacina', vermifugo: 'Vermífugo', medicamento: 'Medicamento', outro: 'Outro' };
+const MOTIVOS_PESAGEM = { rotina: 'Rotina', entrada: 'Entrada', desmame: 'Desmame', venda: 'Pré-venda', outro: 'Outro' };
+
+/* ---------------- Estado ---------------- */
+let S = { fazendas: [], lotes: [], animais: [], lidas: [], lixeira: [], excluidos: [], fazendaAtiva: null };
+let syncMeta = { device: null, exports: [], imports: [], importedIds: [], lastFrom: {}, lastSeenVersion: 0 };
+let calc = null;           // estado derivado (recalculado a cada mudança)
+let editLidaId = null;     // lida aberta no editor
+let keepEntryFocus = false; // devolve o foco ao brinco após cada lançamento (celular)
+let pendingImport = null;
+let deferredInstall = null, remoteInfo = null, lastCheck = 0;
+
+/* ---------------- Utilitários ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(16) + '-' + Math.random().toString(16).slice(2, 14));
+const nowISO = () => new Date().toISOString();
+function hoje() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function fmtD(s) { if (!s) return '—'; const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}/${m[2]}/${m[1]}` : '—'; }
+function fmtDT(s) { if (!s) return '—'; const d = new Date(s); if (isNaN(d)) return '—'; return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+function fmtN(n, dec = 0) { return (n == null || !isFinite(n)) ? '—' : Number(n).toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+function diasEntre(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000); }
+function slug(s) { return String(s || 'dispositivo').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'dispositivo'; }
+function str(v, max = 120) { return v == null ? '' : String(v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max); }
+/* Postel: aceita 450,5 · 450.5 · 1.050 · 1.050,5 · " 480 " */
+function parseNum(v) {
+  let s = String(v == null ? '' : v).trim().replace(/\s/g, '').replace(/kg$/i, '');
+  if (!s) return NaN;
+  const hasC = s.includes(','), hasD = s.includes('.');
+  if (hasC && hasD) { s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, ''); }
+  else if (hasC) s = s.replace(',', '.');
+  else if (hasD && (/^\d{1,3}\.\d{3}$/.test(s) || (s.match(/\./g) || []).length > 1)) s = s.replace(/\./g, '');
+  return /^-?\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
+}
+function normBrinco(v) { return String(v == null ? '' : v).trim().replace(/\s+/g, ''); }
+function validDate(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T12:00:00')); }
+function deviceRef() { return syncMeta.device ? { id: syncMeta.device.id, nome: syncMeta.device.nome } : null; }
+
+/* ---------------- IndexedDB ---------------- */
+function idb() { return new Promise((ok, fail) => { const r = indexedDB.open(DB_NAME, 1); r.onupgradeneeded = () => r.result.createObjectStore(STORE); r.onsuccess = () => ok(r.result); r.onerror = () => fail(r.error); }); }
+async function idbGet(k) { const db = await idb(); return new Promise((ok, fail) => { const q = db.transaction(STORE).objectStore(STORE).get(k); q.onsuccess = () => ok(q.result); q.onerror = () => fail(q.error); }); }
+async function idbSet(k, v) { const db = await idb(); return new Promise((ok, fail) => { const t = db.transaction(STORE, 'readwrite'); t.objectStore(STORE).put(v, k); t.oncomplete = ok; t.onerror = () => fail(t.error); }); }
+let saveChain = Promise.resolve();
+function save() {
+  calc = null;
+  const snap = JSON.parse(JSON.stringify(S));
+  saveChain = saveChain.then(() => idbSet('dados', snap)).then(() => setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })))
+    .catch(() => { setSaved('Falha ao salvar'); alert('Não foi possível salvar neste aparelho. Verifique o espaço livre e não feche o app até conseguir exportar.'); });
+  updateCounts();
+  return saveChain;
+}
+function saveSyncMeta() { return idbSet('syncMeta', JSON.parse(JSON.stringify(syncMeta))).catch(() => {}); }
+function setSaved(t) { $('dSaved').textContent = t; $('mSaved').textContent = t.startsWith('Salvo') ? '✓ salvo' : t; }
+
+/* ---------------- Metadados de registro (rastreabilidade) ---------------- */
+function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), exportadoEm: null }); }
+function touch(o) { o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); }
+function isPend(o) { return !o.exportadoEm || o.exportadoEm < o.editadoEm; }
+
+/* ---------------- Fazenda ativa ---------------- */
+const farm = () => S.fazendas.find(f => f.id === S.fazendaAtiva) || null;
+const lotesF = () => S.lotes.filter(l => l.fazendaId === S.fazendaAtiva);
+const animaisF = () => S.animais.filter(a => a.fazendaId === S.fazendaAtiva);
+const lidasF = () => S.lidas.filter(l => l.fazendaId === S.fazendaAtiva);
+const loteNome = id => { const l = S.lotes.find(x => x.id === id); return l ? l.nome : '—'; };
+function setFarm(id) { S.fazendaAtiva = id; save(); refreshAll(); }
+
+/* =========================================================================
+   Estado derivado: o rebanho atual é recalculado a partir do cadastro
+   + lidas finalizadas, em ordem de data. É o mesmo princípio da futura
+   integração: a lida é o evento, o Sankhya é quem oficializa.
+   ========================================================================= */
+function compute() {
+  if (calc) return calc;
+  const map = {};
+  animaisF().forEach(a => {
+    map[a.id] = { a, lote: a.loteId, pesos: [], eventos: [], carenciaAte: null, ultimoManejo: null, baixa: null };
+    if (a.pesoEntrada > 0 && a.entradaEm) map[a.id].pesos.push({ data: a.entradaEm, peso: a.pesoEntrada, lidaId: null });
+  });
+  const fin = lidasF().filter(l => l.status === 'finalizada').sort((x, y) => (x.data + (x.finalizadaEm || '')).localeCompare(y.data + (y.finalizadaEm || '')));
+  fin.forEach(l => {
+    (l.registros || []).forEach(r => {
+      const st = map[r.animalId];
+      if (l.tipo === 'nascimento') { const m = map[r.animalId]; if (m) m.eventos.push({ data: l.data, tipo: 'parto', lidaId: l.id, txt: 'Pariu ' + (r.bezerroBrinco || '') }); return; }
+      if (!st) return;
+      if (st.baixa && l.data >= st.baixa.data) return; // nada acontece depois da baixa
+      if (l.tipo === 'pesagem') {
+        if (r.peso > 0) st.pesos.push({ data: l.data, peso: r.peso, lidaId: l.id });
+        st.ultimoManejo = l.data; if (r.mover && l.loteId) st.lote = l.loteId;
+        st.eventos.push({ data: l.data, tipo: 'pesagem', lidaId: l.id, txt: fmtN(r.peso, 1) + ' kg' });
+      } else if (l.tipo === 'sanitario') {
+        const c = l.cab || {};
+        if (c.carenciaAte && (!st.carenciaAte || c.carenciaAte > st.carenciaAte)) st.carenciaAte = c.carenciaAte;
+        st.ultimoManejo = l.data; if (r.mover && l.loteId) st.lote = l.loteId;
+        st.eventos.push({ data: l.data, tipo: 'sanitario', lidaId: l.id, txt: (PROCEDIMENTOS[c.procedimento] || 'Sanitário') + (c.produto ? ': ' + c.produto : '') });
+      } else if (l.tipo === 'troca') {
+        const de = st.lote; st.lote = (l.cab || {}).loteDestinoId || st.lote;
+        st.eventos.push({ data: l.data, tipo: 'troca', lidaId: l.id, txt: loteNome(de) + ' → ' + loteNome(st.lote) });
+      } else if (l.tipo === 'baixa') {
+        st.baixa = { data: l.data, motivo: (l.cab || {}).motivo, lidaId: l.id };
+        st.eventos.push({ data: l.data, tipo: 'baixa', lidaId: l.id, txt: 'Baixa: ' + (MOTIVOS_BAIXA[(l.cab || {}).motivo] || '') + (r.obs ? ' (' + r.obs + ')' : '') });
+      }
+    });
+  });
+  const hj = hoje();
+  Object.values(map).forEach(st => {
+    st.pesos.sort((x, y) => x.data.localeCompare(y.data));
+    const p = st.pesos, n = p.length;
+    st.ultimoPeso = n ? p[n - 1].peso : null;
+    st.ultimaPesagem = n ? p[n - 1].data : null;
+    st.gmd = null;  // GMD só com duas ou mais pesagens, entre as duas últimas com intervalo > 0
+    if (n >= 2) { const d = diasEntre(p[n - 2].data, p[n - 1].data); if (d > 0) st.gmd = (p[n - 1].peso - p[n - 2].peso) / d; }
+    st.gmdTotal = (n >= 2 && diasEntre(p[0].data, p[n - 1].data) > 0) ? (p[n - 1].peso - p[0].peso) / diasEntre(p[0].data, p[n - 1].data) : null;
+    st.ativo = !st.baixa;
+    st.emCarencia = !!(st.ativo && st.carenciaAte && st.carenciaAte >= hj);
+    const base = st.ultimoManejo || st.a.entradaEm;
+    st.diasSemManejo = base ? diasEntre(base, hj) : null;
+    st.atrasado = st.ativo && st.diasSemManejo != null && st.diasSemManejo > DIAS_ATRASO;
+    st.eventos.sort((x, y) => y.data.localeCompare(x.data));
+  });
+  calc = map;
+  return map;
+}
+
+/* ---------------- Navegação ---------------- */
+let currentView = 'home';
+function goView(v) {
+  if (!farm() && v !== 'cadastros' && v !== 'mais' && v !== 'sync') { v = 'home'; }
+  currentView = v; document.body.dataset.view = v;
+  document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === v || (v === 'lida' && b.dataset.nav === 'lidas')));
+  if (v === 'home') renderHome();
+  if (v === 'lidas') renderLidas();
+  if (v === 'lida') renderLidaEditor();
+  if (v === 'rebanho') renderRebanho();
+  if (v === 'painel') renderPainel();
+  if (v === 'sync') renderSync();
+  if (v === 'cadastros') renderCadastros();
+  if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
+  window.scrollTo({ top: 0 });
+}
+function refreshAll() { renderFarmSel(); updateCounts(); goView(currentView); }
+function renderFarmSel() {
+  const sel = $('farmSel');
+  sel.innerHTML = S.fazendas.length ? S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('') : '<option>Nenhuma fazenda</option>';
+  $('mFarm').textContent = farm() ? farm().nome : 'Cadastre a fazenda';
+}
+function pendentesCount() {
+  return S.fazendas.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status === 'finalizada' && isPend(l)).length;
+}
+function updateCounts() {
+  const ab = lidasF().filter(l => l.status === 'aberta').length, pd = pendentesCount();
+  [['cAbertas', ab], ['bAbertas', ab], ['cPend', pd], ['bPend', pd]].forEach(([id, n]) => { const e = $(id); if (e) { e.hidden = !n; e.textContent = n; } });
+}
+
+/* ---------------- Modal ---------------- */
+let lastFocus = null;
+function openModal(title, body, foot, wide) {
+  lastFocus = document.activeElement;
+  $('mTitle').textContent = title; $('mBody').innerHTML = body; $('mFoot').innerHTML = foot || '<button class="btn" onclick="closeModal()">Fechar</button>';
+  $('modalBox').classList.toggle('wide', !!wide);
+  $('modal').classList.add('open');
+  setTimeout(() => { const f = $('mBody').querySelector('input,select,textarea') || $('mFoot').querySelector('button'); if (f) f.focus(); }, 30);
+}
+function closeModal() { $('modal').classList.remove('open'); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal').classList.contains('open')) closeModal(); });
+function fieldErr(id, msg) { const el = $(id); if (!el) return; const f = el.closest('.field'); if (f) { f.classList.toggle('has-err', !!msg); const er = f.querySelector('.err'); if (er) er.textContent = msg || ''; } }
+const fld = (id, label, input, req, hint) => `<div class="field"><label for="${id}">${label}${req ? ' <span class="req">*</span>' : ''}</label>${input}<div class="err"></div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
+const opts = (obj, sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + Object.entries(obj).map(([k, v]) => `<option value="${esc(k)}"${k === sel ? ' selected' : ''}>${esc(v)}</option>`).join('');
+const loteOpts = (sel, blank, soAtivos = true) => (blank ? `<option value="">${blank}</option>` : '') + lotesF().filter(l => !soAtivos || l.ativo !== false || l.id === sel).map(l => `<option value="${esc(l.id)}"${l.id === sel ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
+
+/* ---------------- Toast ---------------- */
+function showToast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(showToast._t); showToast._t = setTimeout(() => t.classList.remove('on'), 3800); }
+function showToastAction(msg, label, fn) { const t = $('toast'); t.innerHTML = `${esc(msg)} <button class="t-act" type="button">${esc(label)}</button>`; t.querySelector('.t-act').onclick = () => { t.classList.remove('on'); fn(); }; t.classList.add('on'); clearTimeout(showToast._t); showToast._t = setTimeout(() => t.classList.remove('on'), 7000); }
+
+/* =========================================================================
+   INÍCIO
+   ========================================================================= */
+function renderHome() {
+  const f = farm(), al = $('homeAlerts');
+  if (!f) {
+    $('hTitle').textContent = 'Bem-vindo ao Ekoa Tapiruçu';
+    $('hSub').textContent = 'Comece cadastrando a fazenda. Depois os lotes e os animais.';
+    al.innerHTML = `<div class="alert info"><span>Nenhuma fazenda cadastrada neste aparelho. Se outro aparelho já tem os dados, importe o arquivo de sincronização.</span></div>
+      <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
+    $('homeKpis').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
+  }
+  $('hTitle').textContent = f.nome;
+  $('hSub').textContent = 'Tudo o que você lança fica salvo neste aparelho, mesmo sem internet.';
+  const st = Object.values(compute()), at = st.filter(x => x.ativo);
+  const ab = lidasF().filter(l => l.status === 'aberta'), pd = pendentesCount();
+  let h = '';
+  if (!lotesF().length) h += `<div class="alert warn"><span>Cadastre ao menos um lote para lançar animais.</span><button class="btn sm" onclick="openLote()">Novo lote</button></div>`;
+  else if (!animaisF().length) h += `<div class="alert warn"><span>Nenhum animal cadastrado. Faça a carga inicial do rebanho.</span><button class="btn sm" onclick="goView('rebanho');openAddAnimals()">Adicionar animais</button></div>`;
+  if (ab.length) h += `<div class="alert warn"><span>${ab.length} lida(s) em aberto. Elas só valem depois de finalizadas.</span><button class="btn sm" onclick="$('lfStatus').value='aberta';goView('lidas')">Ver</button></div>`;
+  if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
+  al.innerHTML = h;
+  const pesos = at.filter(x => x.ultimoPeso > 0), gmds = at.filter(x => x.gmd != null);
+  $('homeKpis').innerHTML = kpi('Animais ativos', fmtN(at.length), 'navy', lotesF().length + ' lote(s)')
+    + kpi('Peso médio', pesos.length ? fmtN(avg(pesos.map(x => x.ultimoPeso)), 1) + ' kg' : '—', 'teal', pesos.length + ' com peso')
+    + kpi('GMD médio', gmds.length ? fmtN(avg(gmds.map(x => x.gmd)), 3) + ' kg/dia' : '—', 'gold', gmds.length + ' com 2+ pesagens')
+    + kpi('Em carência', fmtN(at.filter(x => x.emCarencia).length), 'orange', 'não podem sair')
+    + kpi('Sem manejo +30 dias', fmtN(at.filter(x => x.atrasado).length), 'red', 'pesagem ou sanitário');
+  $('tRebanho').textContent = `${at.length} animais ativos em ${lotesF().length} lote(s)`;
+  $('tSync').textContent = pd ? `${pd} para exportar` : 'Tudo exportado';
+  const ult = lidasF().slice().sort((a, b) => (b.editadoEm || '').localeCompare(a.editadoEm || '')).slice(0, 5);
+  $('homeLidas').innerHTML = ult.length ? `<div class="lida-list">${ult.map(lidaItem).join('')}</div>` : '<div class="empty">Nenhuma lida ainda. Toque em <b>Nova lida</b> para começar.</div>';
+}
+const kpi = (l, v, c, e) => `<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</div>`;
+const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
+
+/* =========================================================================
+   LIDAS
+   ========================================================================= */
+function lidaStatusChip(l) {
+  if (l.status === 'aberta') return '<span class="chip warn">Em aberto</span>';
+  return isPend(l) ? '<span class="chip info">Finalizada · não exportada</span>' : '<span class="chip ok">Finalizada · exportada</span>';
+}
+function lidaResumo(l) {
+  const n = (l.registros || []).length, c = l.cab || {};
+  if (l.tipo === 'troca') return `${n} animal(is) → ${loteNome(c.loteDestinoId)}`;
+  if (l.tipo === 'baixa') return `${n} animal(is) · ${MOTIVOS_BAIXA[c.motivo] || ''}`;
+  if (l.tipo === 'nascimento') return `${n} nascimento(s)`;
+  if (l.tipo === 'sanitario') return `${n} animal(is) · ${PROCEDIMENTOS[c.procedimento] || ''}${c.produto ? ' ' + c.produto : ''}`;
+  const ps = (l.registros || []).filter(r => r.peso > 0);
+  return `${n} animal(is)` + (ps.length ? ` · média ${fmtN(avg(ps.map(r => r.peso)), 1)} kg` : '');
+}
+function lidaItem(l) {
+  return `<div class="lida-item ${l.status === 'aberta' ? 'aberta' : ''}" role="button" tabindex="0" onclick="openLida('${l.id}')" onkeydown="if(event.key==='Enter')openLida('${l.id}')">
+    <svg width="26" height="26" style="color:var(--brand-teal);flex-shrink:0"><use href="#${TIPOS[l.tipo].icon}"/></svg>
+    <div class="li-main"><b>${esc(TIPOS[l.tipo].nome)} · ${fmtD(l.data)}${l.loteId ? ' · ' + esc(loteNome(l.loteId)) : ''}</b><span>${esc(lidaResumo(l))}${l.versao > 1 ? ' · v' + l.versao : ''}</span></div>
+    ${lidaStatusChip(l)}</div>`;
+}
+function renderLidas() {
+  const tsel = $('lfTipo'); if (tsel.options.length < 2) tsel.innerHTML += Object.entries(TIPOS).map(([k, v]) => `<option value="${k}">${v.nome}</option>`).join('');
+  const fs = $('lfStatus').value, ft = tsel.value;
+  let ls = lidasF().filter(l => (!ft || l.tipo === ft) && (!fs || (fs === 'pend' ? (l.status === 'finalizada' && isPend(l)) : l.status === fs)));
+  ls.sort((a, b) => (a.status === 'aberta' ? 0 : 1) - (b.status === 'aberta' ? 0 : 1) || b.data.localeCompare(a.data) || (b.editadoEm || '').localeCompare(a.editadoEm || ''));
+  $('lidasList').innerHTML = ls.length ? `<div class="lida-list">${ls.map(lidaItem).join('')}</div>` : '<div class="card empty"><svg><use href="#i-lida"/></svg>Nenhuma lida com esse filtro.</div>';
+}
+function newLida() {
+  if (!farm()) { openFarm(); return; }
+  if (!syncMeta.device) { openDeviceModal(newLida); return; } // rastreabilidade: quem coletou
+  if (!lotesF().length) { alert('Cadastre ao menos um lote antes de lançar uma lida.'); openLote(); return; }
+  openModal('Nova lida: qual manejo?', `<div class="types">${Object.entries(TIPOS).map(([k, v]) => `<button class="type-btn" onclick="createLida('${k}')"><svg><use href="#${v.icon}"/></svg>${v.nome}<small>${v.desc}</small></button>`).join('')}</div>
+    <p class="hint">Dica: o lote escolhido na lida é o lote do manejo. Animais de outro lote podem entrar; ao finalizar, o app pergunta se deve trocá-los de lote (R04).</p>`, '<button class="btn" onclick="closeModal()">Cancelar</button>');
+}
+function createLida(tipo) {
+  const l = stampNew({ fazendaId: S.fazendaAtiva, tipo, data: hoje(), loteId: '', status: 'aberta', cab: {}, registros: [], obs: '', finalizadaEm: null });
+  if (tipo === 'pesagem') l.cab.motivo = 'rotina';
+  if (tipo === 'sanitario') l.cab.procedimento = 'vacina';
+  if (tipo === 'baixa') l.cab.motivo = 'morte';
+  S.lidas.push(l); save(); closeModal(); openLida(l.id);
+}
+function openLida(id) { editLidaId = id; goView('lida'); }
+const curLida = () => S.lidas.find(l => l.id === editLidaId);
+
+function renderLidaEditor() {
+  const l = curLida(), box = $('lidaEditor');
+  if (!l) { goView('lidas'); return; }
+  const ro = l.status === 'finalizada', c = l.cab, T = TIPOS[l.tipo], dis = ro ? ' disabled' : '';
+  const precisaLote = l.tipo !== 'baixa' && l.tipo !== 'nascimento';
+  let head = fld('lData', 'Data do manejo', `<input type="date" id="lData" value="${esc(l.data)}" max="${hoje()}"${dis} onchange="setCab('data',this.value)">`, true)
+    + fld('lLote', l.tipo === 'troca' ? 'Lote de origem (opcional)' : 'Lote do manejo', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, precisaLote && l.tipo !== 'troca' ? 'Selecione' : 'Qualquer lote')}</select>`, precisaLote && l.tipo !== 'troca');
+  if (l.tipo === 'pesagem') head += fld('lMot', 'Motivo', `<select id="lMot"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_PESAGEM, c.motivo)}</select>`);
+  if (l.tipo === 'sanitario') head += fld('lProc', 'Procedimento', `<select id="lProc"${dis} onchange="setCab('cab.procedimento',this.value)">${opts(PROCEDIMENTOS, c.procedimento)}</select>`, true)
+    + fld('lProd', 'Produto', `<input id="lProd" value="${esc(c.produto || '')}" maxlength="80"${dis} onchange="setCab('cab.produto',this.value)" placeholder="Ex.: Aftosa, Ivermectina">`, true)
+    + fld('lDose', 'Dose', `<input id="lDose" value="${esc(c.dose || '')}" maxlength="40"${dis} onchange="setCab('cab.dose',this.value)" placeholder="Ex.: 5 ml">`)
+    + fld('lCar', 'Carência até', `<input type="date" id="lCar" value="${esc(c.carenciaAte || '')}"${dis} onchange="setCab('cab.carenciaAte',this.value)">`, false, 'Animais ficam em quarentena até esta data (R14).')
+    + fld('lProx', 'Próxima aplicação', `<input type="date" id="lProx" value="${esc(c.proximaEm || '')}"${dis} onchange="setCab('cab.proximaEm',this.value)">`);
+  if (l.tipo === 'troca') head += fld('lDest', 'Lote de destino', `<select id="lDest"${dis} onchange="setCab('cab.loteDestinoId',this.value)">${loteOpts(c.loteDestinoId, 'Selecione')}</select>`, true);
+  if (l.tipo === 'baixa') head += fld('lMotB', 'Motivo da baixa', `<select id="lMotB"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_BAIXA, c.motivo)}</select>`, true, 'A baixa tira o animal do inventário. Para cadastro errado, use Remover no animal (R03).');
+  head += `<div class="field" style="grid-column:1/-1"><label for="lObs">Observação</label><textarea id="lObs" maxlength="500"${dis} onchange="setCab('obs',this.value)">${esc(l.obs || '')}</textarea></div>`;
+
+  const regs = l.registros || [];
+  let entry = '';
+  if (!ro) {
+    if (l.tipo === 'nascimento') {
+      entry = `<div class="entry" id="entryBox">
+        ${fld('eMae', 'Brinco da vaca', `<input id="eMae" autocomplete="off" autocapitalize="characters" enterkeyhint="next">`, true)}
+        ${fld('eBez', 'Brinco do bezerro', `<input id="eBez" autocomplete="off" placeholder="Automático se vazio">`)}
+        ${fld('eSexo', 'Sexo', `<select id="eSexo">${opts(SEXOS, 'M')}</select>`, true)}
+        ${fld('ePeso', 'Peso (kg)', `<input id="ePeso" inputmode="decimal" autocomplete="off" enterkeyhint="done">`)}
+        <button class="btn teal" onclick="addRegistro()">Adicionar</button></div>`;
+    } else {
+      entry = `<div class="entry" id="entryBox">
+        ${fld('eBrinco', 'Brinco', `<input id="eBrinco" autocomplete="off" autocapitalize="characters" enterkeyhint="${l.tipo === 'pesagem' ? 'next' : 'done'}">`, true)}
+        ${l.tipo === 'pesagem' ? fld('ePeso', 'Peso (kg)', `<input id="ePeso" inputmode="decimal" autocomplete="off" enterkeyhint="done">`, true) : ''}
+        ${l.tipo === 'baixa' ? fld('eObs', 'Causa / obs.', `<input id="eObs" maxlength="80" autocomplete="off">`) : ''}
+        <button class="btn teal" onclick="addRegistro()">Adicionar</button>
+        ${(l.tipo === 'sanitario' || l.tipo === 'troca') ? `<button class="btn" onclick="addTodosLote()">Todos do lote</button>` : ''}</div>`;
+    }
+  }
+  const st = compute();
+  const rows = regs.map((r, i) => {
+    const s = st[r.animalId], br = r.brinco || (s ? s.a.brinco : '?');
+    let extra = '';
+    if (l.tipo === 'pesagem') extra = `<td class="num"><b>${fmtN(r.peso, 1)}</b></td><td class="num hide-m">${s && s.ultimoPeso && !ro ? fmtN(r.peso - s.ultimoPeso, 1) : '—'}</td>`;
+    if (l.tipo === 'nascimento') extra = `<td>${esc(r.bezerroBrinco)}</td><td>${esc(SEXOS[r.sexo] || '')}</td><td class="num">${r.peso ? fmtN(r.peso, 1) : '—'}</td>`;
+    if (l.tipo === 'baixa') extra = `<td>${esc(r.obs || '')}</td>`;
+    const outro = !ro && s && l.loteId && s.lote !== l.loteId && l.tipo !== 'troca' && l.tipo !== 'nascimento' ? ` <span class="chip warn">lote ${esc(loteNome(s.lote))}</span>` : '';
+    return `<tr><td>${regs.length - i}</td><td><b>${esc(br)}</b>${outro}</td>${extra}<td>${ro ? '' : `<button class="btn sm danger" onclick="rmRegistro('${r.id}')" aria-label="Remover ${esc(br)}">Remover</button>`}</td></tr>`;
+  }).reverse().join('');
+  let ths = '<th>#</th><th>' + (l.tipo === 'nascimento' ? 'Vaca' : 'Brinco') + '</th>';
+  if (l.tipo === 'pesagem') ths += '<th class="num">Peso (kg)</th><th class="num hide-m">Ganho desde a última</th>';
+  if (l.tipo === 'nascimento') ths += '<th>Bezerro</th><th>Sexo</th><th class="num">Peso</th>';
+  if (l.tipo === 'baixa') ths += '<th>Causa</th>';
+  ths += '<th></th>';
+
+  box.innerHTML = `<div class="topbar">
+      <div><h2>${esc(T.nome)} · ${fmtD(l.data)}</h2><p>${lidaStatusChip(l)} <span class="muted">${regs.length} registro(s) · v${l.versao}${l.finalizadaEm ? ' · finalizada em ' + fmtDT(l.finalizadaEm) : ''}</span></p></div>
+      <div class="actions">
+        <button class="btn" onclick="goView('lidas')">Voltar</button>
+        ${ro ? `<button class="btn" onclick="reopenLida()">Reabrir para corrigir</button>` : `<button class="btn primary" onclick="finalizeLida()" ${regs.length ? '' : 'disabled'}>Finalizar lida</button>`}
+        <button class="btn danger" onclick="deleteLida()"><svg><use href="#i-trash"/></svg>Excluir</button>
+      </div></div>
+    ${ro ? '<div class="alert ok"><span>Lida finalizada: já está refletida no rebanho. Para corrigir, reabra; ela volta a valer quando for finalizada de novo (nova versão).</span></div>' : '<div class="alert info"><span>A lida é salva a cada registro. Enquanto estiver em aberto, não altera o rebanho e não entra na exportação.</span></div>'}
+    ${(() => {
+      const dados = `<div class="card"><h3>Dados do manejo</h3><div class="grid">${head}</div></div>`;
+      const anim = `<div class="card"><h3>Animais <span class="sub">${regs.length} registro(s)</span></h3>${entry}
+      ${regs.length ? `<div class="tbl-wrap"><table><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">Nenhum animal lançado nesta lida.</div>'}</div>`;
+      return regs.length ? anim + dados : dados + anim; // com lançamentos, a lista vem primeiro
+    })()}`;
+  const first = $('eBrinco') || $('eMae');
+  if (first) {
+    first.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return; e.preventDefault();
+      const p = $('ePeso');
+      if (p && l.tipo === 'pesagem') { // valida o brinco antes de pedir o peso
+        const b = normBrinco(first.value); fieldErr('eBrinco', '');
+        if (!b) { fieldErr('eBrinco', 'Informe o brinco.'); return; }
+        const f = findAnimalByBrinco(b);
+        if (!f) { fieldErr('eBrinco', `Brinco ${b} não está cadastrado nesta fazenda. Cadastre em Rebanho.`); return; }
+        if (l.registros.some(r => r.animalId === f.a.id)) { fieldErr('eBrinco', `O brinco ${f.a.brinco} já está nesta lida.`); return; }
+        const s = compute()[f.a.id]; fieldErr('ePeso', ''); $('ePeso').placeholder = s && s.ultimoPeso ? 'último: ' + fmtN(s.ultimoPeso, 1) : '';
+        p.focus();
+      } else addRegistro();
+    });
+    const p = $('ePeso'); if (p) p.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRegistro(); } });
+    const o = $('eObs'); if (o) o.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRegistro(); } });
+    if (window.innerWidth > 900 || keepEntryFocus) first.focus();
+    keepEntryFocus = false;
+  }
+}
+function setCab(path, val) {
+  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  if (path === 'data' && val > hoje()) { alert('A data do manejo não pode ser futura.'); renderLidaEditor(); return; }
+  if (path.startsWith('cab.')) l.cab[path.slice(4)] = str(val, 80); else l[path] = path === 'obs' ? str(val, 500) : val;
+  l.editadoEm = nowISO(); save();
+  if (path === 'data' || path === 'loteId') renderLidaEditor();
+}
+function findAnimalByBrinco(b) {
+  const all = animaisF(), ex = all.find(a => a.brinco === b);
+  if (ex) return { a: ex };
+  const ci = all.filter(a => a.brinco.toLowerCase() === b.toLowerCase());
+  if (ci.length === 1) return { a: ci[0], caseHint: true };
+  return null;
+}
+function addRegistro() {
+  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  const st = compute();
+  if (l.tipo === 'nascimento') {
+    const mb = normBrinco($('eMae').value); fieldErr('eMae', ''); fieldErr('ePeso', ''); fieldErr('eBez', '');
+    if (!mb) { fieldErr('eMae', 'Informe o brinco da vaca.'); return; }
+    const f = findAnimalByBrinco(mb);
+    if (!f) { fieldErr('eMae', `Brinco ${mb} não está cadastrado nesta fazenda.`); return; }
+    const m = st[f.a.id];
+    if (f.a.sexo !== 'F') { fieldErr('eMae', `O brinco ${f.a.brinco} está cadastrado como macho.`); return; }
+    if (!m || !m.ativo) { fieldErr('eMae', `A vaca ${f.a.brinco} está baixada.`); return; }
+    const pRaw = $('ePeso').value.trim(), peso = pRaw ? parseNum(pRaw) : null;
+    if (pRaw && (!(peso > 0) || peso > 120)) { fieldErr('ePeso', 'Peso de bezerro inválido (use até 120 kg).'); return; }
+    let bz = normBrinco($('eBez').value);
+    if (!bz) { // R17: brinco da vaca + mês e ano de nascimento
+      const [y, mo] = l.data.split('-'); bz = f.a.brinco + '-' + mo + y.slice(2);
+      let k = 2; while (brincoEmUso(bz) || l.registros.some(r => r.bezerroBrinco === bz)) bz = f.a.brinco + '-' + mo + y.slice(2) + '-' + (k++);
+    } else if (brincoEmUso(bz) || l.registros.some(r => r.bezerroBrinco === bz)) { fieldErr('eBez', `O brinco ${bz} já existe.`); return; }
+    l.registros.push({ id: uuid(), animalId: f.a.id, brinco: f.a.brinco, bezerroBrinco: bz, sexo: $('eSexo').value === 'F' ? 'F' : 'M', peso: peso || null });
+    l.editadoEm = nowISO(); save(); keepEntryFocus = true; renderLidaEditor(); showToast(`Nascimento lançado: bezerro ${bz}.`); return;
+  }
+  const raw = normBrinco($('eBrinco').value); fieldErr('eBrinco', ''); fieldErr('ePeso', '');
+  if (!raw) { fieldErr('eBrinco', 'Informe o brinco.'); return; }
+  const f = findAnimalByBrinco(raw);
+  if (!f) { fieldErr('eBrinco', `Brinco ${raw} não está cadastrado nesta fazenda. Cadastre em Rebanho.`); return; }
+  const a = f.a, s = st[a.id];
+  if (!s || !s.ativo) { fieldErr('eBrinco', `O animal ${a.brinco} está baixado desde ${fmtD(s && s.baixa && s.baixa.data)}.`); return; }
+  if (l.registros.some(r => r.animalId === a.id)) { fieldErr('eBrinco', `O brinco ${a.brinco} já está nesta lida.`); return; }
+  if (s.a.entradaEm && l.data < s.a.entradaEm) { fieldErr('eBrinco', `O animal ${a.brinco} entrou na fazenda em ${fmtD(s.a.entradaEm)}, depois da data desta lida.`); return; }
+  const reg = { id: uuid(), animalId: a.id, brinco: a.brinco };
+  if (l.tipo === 'pesagem') {
+    const p = parseNum($('ePeso').value);
+    if (!(p > 0)) { fieldErr('ePeso', 'Informe o peso em kg (ex.: 452,5).'); $('ePeso').focus(); return; }
+    if (p > 1500) { fieldErr('ePeso', 'Peso acima de 1.500 kg. Confira o valor.'); return; }
+    if ((p < 20 || (s.ultimoPeso && Math.abs(p - s.ultimoPeso) > s.ultimoPeso * 0.35)) && !confirm(`Peso ${fmtN(p, 1)} kg para ${a.brinco}${s.ultimoPeso ? ` (último: ${fmtN(s.ultimoPeso, 1)} kg)` : ''}. Confirma?`)) return;
+    reg.peso = Math.round(p * 10) / 10;
+  }
+  if (l.tipo === 'baixa') reg.obs = str($('eObs').value, 80);
+  if (l.tipo === 'baixa' && s.emCarencia && l.cab.motivo === 'venda' && !confirm(`O animal ${a.brinco} está em carência até ${fmtD(s.carenciaAte)}. Lançar venda mesmo assim?`)) return;
+  l.registros.push(reg); l.editadoEm = nowISO(); save(); keepEntryFocus = true; renderLidaEditor();
+  showToast(`${a.brinco} adicionado${f.caseHint ? ' (maiúsculas/minúsculas diferentes do cadastro)' : ''}.`);
+}
+function brincoEmUso(b) { return animaisF().some(a => a.brinco === b); }
+function addTodosLote() {
+  const l = curLida(); if (!l) return;
+  if (!l.loteId) { alert('Escolha o lote do manejo primeiro.'); return; }
+  const st = compute(); let n = 0;
+  Object.values(st).filter(s => s.ativo && s.lote === l.loteId && !l.registros.some(r => r.animalId === s.a.id)).forEach(s => { l.registros.push({ id: uuid(), animalId: s.a.id, brinco: s.a.brinco }); n++; });
+  l.editadoEm = nowISO(); save(); renderLidaEditor(); showToast(n ? `${n} animal(is) do lote adicionados.` : 'Todos os animais do lote já estão na lida.');
+}
+function rmRegistro(rid) { const l = curLida(); if (!l || l.status !== 'aberta') return; l.registros = l.registros.filter(r => r.id !== rid); l.editadoEm = nowISO(); save(); renderLidaEditor(); }
+function finalizeLida() {
+  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  const c = l.cab, errs = [];
+  if (!validDate(l.data)) errs.push('Data do manejo inválida.');
+  if (l.data > hoje()) errs.push('A data do manejo não pode ser futura.');
+  if ((l.tipo === 'pesagem' || l.tipo === 'sanitario') && !l.loteId) errs.push('Escolha o lote do manejo.');
+  if (l.tipo === 'sanitario' && !c.produto) errs.push('Informe o produto aplicado.');
+  if (l.tipo === 'sanitario' && c.carenciaAte && c.carenciaAte < l.data) errs.push('A carência termina antes da data do manejo.');
+  if (l.tipo === 'troca' && !c.loteDestinoId) errs.push('Escolha o lote de destino.');
+  if (!l.registros.length) errs.push('Nenhum animal lançado.');
+  const st = compute();
+  if (l.tipo === 'troca') { const mesmos = l.registros.filter(r => st[r.animalId] && st[r.animalId].lote === c.loteDestinoId); if (mesmos.length === l.registros.length) errs.push('Todos os animais já estão no lote de destino.'); }
+  const baix = l.registros.filter(r => l.tipo !== 'nascimento' && st[r.animalId] && st[r.animalId].baixa && st[r.animalId].baixa.data <= l.data);
+  if (baix.length) errs.push('Animal(is) já baixado(s): ' + baix.map(r => r.brinco).join(', ') + '.');
+  if (errs.length) { alert('Não foi possível finalizar:\n\n• ' + errs.join('\n• ')); return; }
+  // R04: animais de outro lote no manejo
+  if ((l.tipo === 'pesagem' || l.tipo === 'sanitario') && l.loteId) {
+    const outros = l.registros.filter(r => st[r.animalId] && st[r.animalId].lote !== l.loteId);
+    if (outros.length) { const mv = confirm(`${outros.length} animal(is) estão em outro lote (${outros.slice(0, 5).map(r => r.brinco).join(', ')}${outros.length > 5 ? '…' : ''}).\n\nOK = trocar para o lote ${loteNome(l.loteId)}\nCancelar = manter no lote atual`); outros.forEach(r => r.mover = mv); }
+  }
+  if (l.tipo === 'baixa' && !confirm(`Confirmar a baixa de ${l.registros.length} animal(is) por ${MOTIVOS_BAIXA[c.motivo]}? Eles saem do inventário.`)) return;
+  if (l.tipo === 'nascimento') {
+    l.registros.forEach(r => {
+      if (S.animais.some(a => a.id === r.id)) return; // idempotente: o bezerro usa o ID do registro
+      const mae = S.animais.find(a => a.id === r.animalId), lt = (st[r.animalId] && st[r.animalId].lote) || (mae && mae.loteId);
+      S.animais.push(stampNew({ id: r.id, fazendaId: l.fazendaId, brinco: r.bezerroBrinco, sexo: r.sexo, loteId: lt, nascimento: l.data, entradaEm: l.data, raca: mae ? mae.raca : '', categoria: 'Bezerro', pesoEntrada: r.peso || null, maeId: r.animalId, origemEntrada: 'nascimento', lidaOrigemId: l.id }));
+    });
+  }
+  l.status = 'finalizada'; l.finalizadaEm = nowISO(); touch(l);
+  save(); renderLidaEditor(); showToast(`Lida finalizada: ${l.registros.length} registro(s). Exporte quando puder.`);
+}
+function reopenLida() {
+  const l = curLida(); if (!l) return;
+  if (!confirm('Reabrir a lida? Ela deixa de valer no rebanho até ser finalizada de novo, e precisará ser exportada outra vez.')) return;
+  l.status = 'aberta'; touch(l); save(); renderLidaEditor();
+}
+function deleteLida() {
+  const l = curLida(); if (!l) return;
+  if (l.tipo === 'nascimento' && l.status === 'finalizada') {
+    const st = compute(); const usados = l.registros.filter(r => S.lidas.some(x => x.id !== l.id && x.status === 'finalizada' && x.registros.some(y => y.animalId === r.id)));
+    if (usados.length) { alert('Os bezerros desta lida já aparecem em outras lidas finalizadas. Exclua ou corrija essas lidas antes.'); return; }
+  }
+  if (!confirm(`Excluir esta lida (${TIPOS[l.tipo].nome}, ${l.registros.length} registro(s))? Ela vai para a lixeira e pode ser restaurada.`)) return;
+  moveToTrash('lida', l);
+  if (l.tipo === 'nascimento' && l.status === 'finalizada') l.registros.forEach(r => { const b = S.animais.find(a => a.id === r.id); if (b) moveToTrash('animal', b); });
+  save(); editLidaId = null; goView('lidas');
+  showToastAction('Lida enviada para a lixeira.', 'Desfazer', () => { restoreFromTrash(l.id); if (l.tipo === 'nascimento') l.registros.forEach(r => restoreFromTrash(r.id, true)); });
+}
+
+/* =========================================================================
+   LIXEIRA e registro de exclusão (viaja na sincronização)
+   ========================================================================= */
+const COL = { lida: 'lidas', animal: 'animais', lote: 'lotes', fazenda: 'fazendas' };
+function moveToTrash(tipo, item, em, no) {
+  S[COL[tipo]] = S[COL[tipo]].filter(x => x.id !== item.id);
+  S.lixeira = S.lixeira.filter(x => x.item.id !== item.id);
+  S.lixeira.unshift({ tipo, item, em: em || nowISO() });
+  if (!S.excluidos.some(t => t.id === item.id)) S.excluidos.push({ id: item.id, tipo, em: em || nowISO(), no: no || deviceRef() });
+}
+function restoreFromTrash(id, quiet) {
+  const k = S.lixeira.findIndex(x => x.item.id === id); if (k < 0) return;
+  const { tipo, item } = S.lixeira[k];
+  S.lixeira.splice(k, 1); S.excluidos = S.excluidos.filter(t => t.id !== id);
+  touch(item); S[COL[tipo]].push(item); save();
+  if (!quiet) { showToast('Restaurado.'); refreshAll(); }
+}
+function emptyTrash() {
+  if (!S.lixeira.length) return;
+  if (!confirm(`Apagar definitivamente ${S.lixeira.length} item(ns) da lixeira deste aparelho? O registro de exclusão continua valendo na sincronização.`)) return;
+  S.lixeira = []; save(); renderSync();
+}
+
+/* =========================================================================
+   REBANHO
+   ========================================================================= */
+let rbSort = { k: 'brinco', d: 1 };
+function renderRebanho() {
+  const ls = $('rbLote'), cur = ls.value;
+  ls.innerHTML = '<option value="">Todos os lotes</option>' + lotesF().map(l => `<option value="${esc(l.id)}"${l.id === cur ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
+  const st = Object.values(compute()), q = $('rbBusca').value.trim().toLowerCase(), sit = $('rbSit').value, lt = ls.value;
+  let rows = st.filter(s => {
+    if (sit === 'ativos' && !s.ativo) return false;
+    if (sit === 'baixados' && s.ativo) return false;
+    if (sit === 'carencia' && !s.emCarencia) return false;
+    if (sit === 'atraso' && !s.atrasado) return false;
+    if (lt && s.lote !== lt) return false;
+    if (q && ![s.a.brinco, s.a.raca, s.a.categoria].some(v => String(v || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const key = { brinco: s => s.a.brinco, lote: s => loteNome(s.lote), sexo: s => s.a.sexo, peso: s => s.ultimoPeso || 0, gmd: s => s.gmd == null ? -99 : s.gmd, manejo: s => s.diasSemManejo || 0 }[rbSort.k];
+  rows.sort((x, y) => { const a = key(x), b = key(y); return (typeof a === 'number' ? a - b : String(a).localeCompare(String(b), 'pt-BR', { numeric: true })) * rbSort.d; });
+  const at = st.filter(s => s.ativo).length;
+  $('rbSub').textContent = `${at} ativo(s) · ${st.length - at} baixado(s) · mostrando ${rows.length}`;
+  const th = (k, t, num) => `<th class="${num ? 'num' : ''}" onclick="sortRb('${k}')" aria-sort="${rbSort.k === k ? (rbSort.d > 0 ? 'ascending' : 'descending') : 'none'}">${t}${rbSort.k === k ? (rbSort.d > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  $('rbTable').innerHTML = rows.length ? `<div class="tbl-wrap"><table><thead><tr>${th('brinco', 'Brinco')}${th('lote', 'Lote')}${th('sexo', 'Sexo')}<th class="hide-m">Raça / categoria</th>${th('peso', 'Último peso', 1)}${th('gmd', 'GMD', 1)}${th('manejo', 'Situação')}</tr></thead><tbody>
+    ${rows.slice(0, 1000).map(s => `<tr class="click" tabindex="0" onclick="openAnimal('${s.a.id}')" onkeydown="if(event.key==='Enter')openAnimal('${s.a.id}')">
+      <td><b>${esc(s.a.brinco)}</b>${s.emCarencia ? ' <span class="lock" title="Em carência até ' + fmtD(s.carenciaAte) + '">🔒</span>' : ''}</td>
+      <td>${esc(loteNome(s.lote))}</td><td>${esc(SEXOS[s.a.sexo] || '')}</td><td class="hide-m">${esc([s.a.raca, s.a.categoria].filter(Boolean).join(' · ') || '—')}</td>
+      <td class="num">${s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg' : '—'}</td><td class="num">${s.gmd != null ? fmtN(s.gmd, 3) : '—'}</td>
+      <td>${sitChip(s)}</td></tr>`).join('')}</tbody></table></div>${rows.length > 1000 ? '<p class="hint">Mostrando os primeiros 1.000. Use a busca ou o filtro de lote.</p>' : ''}`
+    : `<div class="card empty"><svg><use href="#i-rebanho"/></svg>${animaisF().length ? 'Nenhum animal com esse filtro.' : 'Nenhum animal cadastrado. Use <b>Adicionar animais</b> para a carga inicial.'}</div>`;
+}
+function sortRb(k) { rbSort = { k, d: rbSort.k === k ? -rbSort.d : 1 }; renderRebanho(); }
+function sitChip(s) {
+  if (!s.ativo) return `<span class="chip gray">Baixado · ${esc(MOTIVOS_BAIXA[s.baixa.motivo] || '')}</span>`;
+  if (s.emCarencia) return `<span class="chip warn">🔒 Carência até ${fmtD(s.carenciaAte)}</span>`;
+  if (s.atrasado) return `<span class="chip bad">⚠ ${s.diasSemManejo} dias sem manejo</span>`;
+  return '<span class="chip ok">✓ Ativo</span>';
+}
+function openAnimal(id) {
+  const s = compute()[id]; if (!s) return; const a = s.a;
+  const usado = S.lidas.some(l => l.status === 'finalizada' && l.registros.some(r => r.animalId === id));
+  const mae = a.maeId ? S.animais.find(x => x.id === a.maeId) : null;
+  openModal('Animal ' + a.brinco, `
+    <div style="margin-bottom:12px">${sitChip(s)}</div>
+    <dl class="dl">
+      <dt>Lote atual</dt><dd>${esc(loteNome(s.lote))}</dd>
+      <dt>Sexo</dt><dd>${esc(SEXOS[a.sexo] || '')}</dd>
+      <dt>Raça / categoria</dt><dd>${esc([a.raca, a.categoria].filter(Boolean).join(' · ') || '—')}</dd>
+      <dt>Nascimento</dt><dd>${fmtD(a.nascimento)}${mae ? ' · mãe ' + esc(mae.brinco) : ''}</dd>
+      <dt>Entrada na fazenda</dt><dd>${fmtD(a.entradaEm)}${a.origemEntrada === 'nascimento' ? ' (nascimento)' : ''}</dd>
+      <dt>Último peso</dt><dd>${s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg em ' + fmtD(s.ultimaPesagem) : '—'}</dd>
+      <dt>GMD (últimas 2)</dt><dd>${s.gmd != null ? fmtN(s.gmd, 3) + ' kg/dia' : 'precisa de 2 pesagens'}</dd>
+      <dt>GMD (período)</dt><dd>${s.gmdTotal != null ? fmtN(s.gmdTotal, 3) + ' kg/dia' : '—'}</dd>
+      <dt>Último manejo</dt><dd>${s.ultimoManejo ? fmtD(s.ultimoManejo) + ' (' + s.diasSemManejo + ' dias)' : 'nenhum'}</dd>
+    </dl>
+    <h4 style="margin:16px 0 8px;color:var(--brand-navy)">Histórico</h4>
+    ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
+    <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
+    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+}
+function removeAnimal(id) {
+  const a = S.animais.find(x => x.id === id); if (!a) return;
+  if (S.lidas.some(l => l.registros.some(r => r.animalId === id))) { alert('Este animal está em lidas (em aberto ou finalizadas). Remova-o dessas lidas antes, ou use uma lida de Baixa se ele saiu da fazenda.'); return; }
+  if (!confirm(`Remover ${a.brinco}? Use só para cadastro errado. Vai para a lixeira.`)) return;
+  moveToTrash('animal', a); save(); closeModal(); renderRebanho(); showToastAction(`${a.brinco} removido.`, 'Desfazer', () => restoreFromTrash(id));
+}
+function openEditAnimal(id) {
+  const a = S.animais.find(x => x.id === id); if (!a) return;
+  openModal('Editar ' + a.brinco, `<div class="grid">
+    ${fld('aBr', 'Brinco', `<input id="aBr" value="${esc(a.brinco)}" maxlength="30">`, true)}
+    ${fld('aSexo', 'Sexo', `<select id="aSexo">${opts(SEXOS, a.sexo)}</select>`, true)}
+    ${fld('aRaca', 'Raça', `<input id="aRaca" value="${esc(a.raca || '')}" maxlength="40" list="dlRaca">`)}
+    ${fld('aCat', 'Categoria', `<input id="aCat" value="${esc(a.categoria || '')}" maxlength="40" list="dlCat">`)}
+    ${fld('aNasc', 'Nascimento', `<input type="date" id="aNasc" value="${esc(a.nascimento || '')}" max="${hoje()}">`)}
+    ${fld('aEnt', 'Entrada na fazenda', `<input type="date" id="aEnt" value="${esc(a.entradaEm || '')}" max="${hoje()}">`, true)}
+    </div>${datalists()}<p class="hint">O lote muda só por lida de Troca de lote, para manter o histórico rastreável.</p>`,
+    `<button class="btn" onclick="openAnimal('${id}')">Cancelar</button><button class="btn primary" onclick="saveEditAnimal('${id}')">Salvar</button>`);
+}
+function saveEditAnimal(id) {
+  const a = S.animais.find(x => x.id === id); if (!a) return;
+  const br = normBrinco($('aBr').value), ent = $('aEnt').value, nas = $('aNasc').value;
+  fieldErr('aBr', ''); fieldErr('aEnt', '');
+  if (!br) { fieldErr('aBr', 'Informe o brinco.'); return; }
+  if (animaisF().some(x => x.id !== id && x.brinco === br)) { fieldErr('aBr', 'Já existe animal com este brinco.'); return; }
+  if (!validDate(ent)) { fieldErr('aEnt', 'Informe a data de entrada.'); return; }
+  if (nas && nas > ent) { fieldErr('aEnt', 'A entrada não pode ser antes do nascimento.'); return; }
+  Object.assign(a, { brinco: br, sexo: $('aSexo').value === 'F' ? 'F' : 'M', raca: str($('aRaca').value, 40), categoria: str($('aCat').value, 40), nascimento: nas || null, entradaEm: ent });
+  S.lidas.forEach(l => l.registros.forEach(r => { if (r.animalId === id) r.brinco = br; }));
+  touch(a); save(); openAnimal(id); renderRebanho(); showToast('Cadastro atualizado.');
+}
+function datalists() {
+  const u = k => [...new Set(animaisF().map(a => a[k]).filter(Boolean))].slice(0, 30);
+  const racas = [...new Set(['Nelore', 'Angus', 'Brangus', 'Cruzado', 'Senepol', 'Tabapuã', ...u('raca')])];
+  const cats = [...new Set(['Bezerro', 'Bezerra', 'Garrote', 'Novilha', 'Boi', 'Vaca', 'Touro', ...u('categoria')])];
+  return `<datalist id="dlRaca">${racas.map(r => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dlCat">${cats.map(r => `<option value="${esc(r)}">`).join('')}</datalist>`;
+}
+/* Carga inicial / entrada: lista de brincos ou faixas (100-120, AB100-AB120) */
+function parseBrincos(txt) {
+  const out = [], bad = [];
+  String(txt || '').split(/[\n,;\t]+/).map(s => s.trim()).filter(Boolean).forEach(tok => {
+    const m = tok.replace(/\s+/g, '').match(/^([A-Za-z]*)(\d+)-(?:\1)?(\d+)$/);
+    if (m) {
+      const a = parseInt(m[2], 10), b = parseInt(m[3], 10), w = m[2].length;
+      if (b < a || b - a > 999) { bad.push(tok); return; }
+      for (let i = a; i <= b; i++) out.push(m[1] + String(i).padStart(w, '0'));
+    } else tok.split(/\s+/).forEach(t => { const n = normBrinco(t); if (n.length > 30) bad.push(n); else if (n) out.push(n); });
+  });
+  return { out, bad };
+}
+function openAddAnimals() {
+  if (!syncMeta.device) { openDeviceModal(openAddAnimals); return; }
+  if (!lotesF().length) { alert('Cadastre um lote primeiro.'); openLote(); return; }
+  openModal('Adicionar animais', `<div class="grid">
+    ${fld('nLote', 'Lote', `<select id="nLote">${loteOpts('', 'Selecione')}</select>`, true)}
+    ${fld('nSexo', 'Sexo', `<select id="nSexo">${opts(SEXOS, 'M')}</select>`, true)}
+    ${fld('nEnt', 'Entrada na fazenda', `<input type="date" id="nEnt" value="${hoje()}" max="${hoje()}">`, true, 'Só animais com data de entrada entram no rateio de custos (R07, fase futura).')}
+    ${fld('nRaca', 'Raça', `<input id="nRaca" maxlength="40" list="dlRaca">`)}
+    ${fld('nCat', 'Categoria', `<input id="nCat" maxlength="40" list="dlCat">`)}
+    ${fld('nNasc', 'Nascimento', `<input type="date" id="nNasc" max="${hoje()}">`)}
+    ${fld('nPeso', 'Peso de entrada (kg)', `<input id="nPeso" inputmode="decimal" placeholder="Opcional, igual para todos">`)}
+    </div>
+    ${fld('nBr', 'Brincos', `<textarea id="nBr" placeholder="Um por linha, ou separados por vírgula.\nFaixas: 1001-1020 ou NL050-NL080"></textarea>`, true, 'Brinco aceita letras e números e diferencia maiúsculas de minúsculas (R02). Padronize na equipe.')}
+    ${datalists()}<div id="nPrev" class="hint"></div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAnimals()">Cadastrar</button>`, true);
+  $('nBr').addEventListener('input', () => { const { out, bad } = parseBrincos($('nBr').value); $('nPrev').textContent = out.length ? `${out.length} brinco(s): ${out.slice(0, 8).join(', ')}${out.length > 8 ? '…' : ''}${bad.length ? ' · ignorados: ' + bad.join(', ') : ''}` : ''; });
+}
+function saveAnimals() {
+  const lote = $('nLote').value, ent = $('nEnt').value, nas = $('nNasc').value, pRaw = $('nPeso').value.trim();
+  ['nLote', 'nEnt', 'nBr', 'nPeso'].forEach(i => fieldErr(i, ''));
+  let ok = true;
+  if (!lote) { fieldErr('nLote', 'Escolha o lote.'); ok = false; }
+  if (!validDate(ent)) { fieldErr('nEnt', 'Informe a data de entrada.'); ok = false; }
+  if (nas && nas > ent) { fieldErr('nEnt', 'A entrada não pode ser antes do nascimento.'); ok = false; }
+  const peso = pRaw ? parseNum(pRaw) : null;
+  if (pRaw && !(peso > 0 && peso <= 1500)) { fieldErr('nPeso', 'Peso inválido.'); ok = false; }
+  const { out, bad } = parseBrincos($('nBr').value);
+  if (!out.length) { fieldErr('nBr', 'Informe ao menos um brinco.'); ok = false; }
+  if (out.length > 1000) { fieldErr('nBr', 'Máximo de 1.000 por vez.'); ok = false; }
+  if (!ok) return;
+  const dupLista = out.filter((b, i) => out.indexOf(b) !== i), existe = out.filter(brincoEmUso);
+  if (dupLista.length || existe.length) { fieldErr('nBr', [dupLista.length ? 'Repetidos na lista: ' + [...new Set(dupLista)].join(', ') : '', existe.length ? 'Já cadastrados: ' + existe.slice(0, 15).join(', ') + (existe.length > 15 ? '…' : '') : ''].filter(Boolean).join(' · ')); return; }
+  if (bad.length && !confirm('Itens ignorados: ' + bad.join(', ') + '. Continuar com os demais?')) return;
+  const base = { fazendaId: S.fazendaAtiva, sexo: $('nSexo').value === 'F' ? 'F' : 'M', loteId: lote, entradaEm: ent, nascimento: nas || null, raca: str($('nRaca').value, 40), categoria: str($('nCat').value, 40), pesoEntrada: peso ? Math.round(peso * 10) / 10 : null, origemEntrada: 'cadastro' };
+  out.forEach(b => S.animais.push(stampNew(Object.assign({ brinco: b }, base))));
+  save(); closeModal(); renderRebanho(); showToast(`${out.length} animal(is) cadastrado(s) no lote ${loteNome(lote)}.`);
+}
+
+/* =========================================================================
+   PAINEL
+   ========================================================================= */
+function lotesResumo() {
+  const st = Object.values(compute()).filter(s => s.ativo);
+  return lotesF().map(l => {
+    const an = st.filter(s => s.lote === l.id), ps = an.filter(s => s.ultimoPeso > 0), gm = an.filter(s => s.gmd != null);
+    const soma = ps.reduce((t, s) => t + s.ultimoPeso, 0);
+    const ua = soma / UA_KG, uaha = l.areaHa > 0 && ps.length ? ua / l.areaHa : null;
+    return { l, qtd: an.length, machos: an.filter(s => s.a.sexo === 'M').length, femeas: an.filter(s => s.a.sexo === 'F').length,
+      pesoMedio: ps.length ? soma / ps.length : null, comPeso: ps.length, gmd: gm.length ? avg(gm.map(s => s.gmd)) : null,
+      ua: ps.length ? ua : null, uaha, ocup: uaha != null && l.lotacaoMax > 0 ? Math.round(uaha / l.lotacaoMax * 100) : null,
+      carencia: an.filter(s => s.emCarencia).length, atraso: an.filter(s => s.atrasado).length };
+  });
+}
+function renderPainel() {
+  const f = farm(); if (!f) return;
+  const st = Object.values(compute()), at = st.filter(s => s.ativo), ps = at.filter(s => s.ultimoPeso > 0), gm = at.filter(s => s.gmd != null);
+  const soma = ps.reduce((t, s) => t + s.ultimoPeso, 0), uaha = f.areaHa > 0 && ps.length ? soma / UA_KG / f.areaHa : null;
+  const mes = hoje().slice(0, 7), bx = st.filter(s => s.baixa && s.baixa.data.slice(0, 7) === mes);
+  const nasc = animaisF().filter(a => a.origemEntrada === 'nascimento' && (a.nascimento || '').slice(0, 7) === mes).length;
+  const rl = lotesResumo();
+  let h = `<div class="kpis">
+    ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`)}
+    ${kpi('Peso médio', ps.length ? fmtN(soma / ps.length, 1) + ' kg' : '—', 'teal', `${ps.length} de ${at.length} com peso`)}
+    ${kpi('GMD médio', gm.length ? fmtN(avg(gm.map(s => s.gmd)), 3) + ' kg/dia' : '—', 'gold', `${gm.length} com 2+ pesagens`)}
+    ${kpi('Lotação da fazenda', uaha != null ? fmtN(uaha, 2) + ' UA/ha' : '—', 'teal', f.areaHa ? fmtN(f.areaHa, 1) + ' ha de pastagem' : 'informe a área da fazenda')}
+    ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária')}
+    ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19')}
+    ${kpi('Baixas no mês', fmtN(bx.length), 'orange', Object.entries(MOTIVOS_BAIXA).map(([k, v]) => bx.filter(s => s.baixa.motivo === k).length + ' ' + v.split(' ')[0].toLowerCase()).join(' · '))}
+    ${kpi('Nascimentos no mês', fmtN(nasc), 'navy', '')}
+  </div>
+  <div class="card"><h3>Por lote <span class="sub">peso e GMD consideram só animais com pesagem</span></h3>
+  ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">Carência</th><th class="num">Sem manejo</th></tr></thead><tbody>
+  ${rl.map(r => `<tr class="click" onclick="$('rbLote').value='${r.l.id}';$('rbSit').value='ativos';goView('rebanho')"><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.qtd}<br><small class="muted">${r.machos}M · ${r.femeas}F</small></td>
+    <td class="num">${r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—'}</td><td class="num">${r.gmd != null ? fmtN(r.gmd, 3) : '—'}</td>
+    <td class="num">${r.uaha != null ? fmtN(r.uaha, 2) : (r.l.areaHa ? '—' : '<small class="muted">sem área</small>')}</td>
+    <td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td>
+    <td class="num">${r.carencia || '—'}</td><td class="num">${r.atraso ? `<span class="chip bad">${r.atraso}</span>` : '—'}</td></tr>`).join('')}
+  </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
+  <p class="hint">UA = peso vivo ÷ 450 kg (R05). UA/ha = UA do lote ÷ área do lote. Ocupação = UA/ha ÷ lotação máxima (R06). GMD = ganho entre as duas últimas pesagens ÷ dias.</p></div>`;
+  const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
+  h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
+  h += `<div class="alert info"><span>Os indicadores de gestão definitivos serão fechados na <b>chave mestra</b> com o gestor (os "números de segunda-feira"). Este painel é o ponto de partida do piloto.</span></div>`;
+  $('painel').innerHTML = h;
+}
+
+/* =========================================================================
+   CADASTROS: fazenda e lotes
+   ========================================================================= */
+function renderCadastros() {
+  const f = farm();
+  let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
+  if (f) {
+    const rl = lotesResumo();
+    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${r.l.areaHa ? fmtN(r.l.areaHa, 1) : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
+  }
+  $('cadBody').innerHTML = h;
+}
+function openFarm(id) {
+  if (!syncMeta.device) { openDeviceModal(() => openFarm(id)); return; }
+  const x = id ? S.fazendas.find(f => f.id === id) : null;
+  openModal(x ? 'Editar fazenda' : 'Nova fazenda', `<div class="grid">
+    ${fld('fNome', 'Nome da fazenda', `<input id="fNome" maxlength="80" value="${esc(x ? x.nome : '')}">`, true)}
+    ${fld('fMun', 'Município / UF', `<input id="fMun" maxlength="80" value="${esc(x ? x.municipio || '' : '')}">`)}
+    ${fld('fArea', 'Área de pastagem (ha)', `<input id="fArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`, false, 'Base do UA/ha da fazenda.')}
+    </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveFarm('${id || ''}')">Salvar</button>`);
+}
+function saveFarm(id) {
+  const nome = str($('fNome').value, 80), aRaw = $('fArea').value.trim(), area = aRaw ? parseNum(aRaw) : null;
+  fieldErr('fNome', ''); fieldErr('fArea', '');
+  if (!nome) { fieldErr('fNome', 'Informe o nome.'); return; }
+  if (S.fazendas.some(f => f.id !== id && f.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('fNome', 'Já existe fazenda com este nome.'); return; }
+  if (aRaw && !(area > 0)) { fieldErr('fArea', 'Área inválida.'); return; }
+  let x = id ? S.fazendas.find(f => f.id === id) : null;
+  if (x) { Object.assign(x, { nome, municipio: str($('fMun').value, 80), areaHa: area }); touch(x); }
+  else { x = stampNew({ nome, municipio: str($('fMun').value, 80), areaHa: area }); S.fazendas.push(x); S.fazendaAtiva = x.id; }
+  save(); closeModal(); refreshAll(); showToast('Fazenda salva.');
+}
+function openLote(id) {
+  if (!farm()) { openFarm(); return; }
+  const x = id ? S.lotes.find(l => l.id === id) : null;
+  openModal(x ? 'Editar lote' : 'Novo lote', `<div class="grid">
+    ${fld('loNome', 'Nome do lote', `<input id="loNome" maxlength="60" value="${esc(x ? x.nome : '')}">`, true)}
+    ${fld('loPasto', 'Pasto / área', `<input id="loPasto" maxlength="60" value="${esc(x ? x.pasto || '' : '')}" placeholder="Ex.: Retiro 3">`)}
+    ${fld('loArea', 'Área do pasto (ha)', `<input id="loArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`)}
+    ${fld('loLot', 'Lotação máxima (UA/ha)', `<input id="loLot" inputmode="decimal" value="${x && x.lotacaoMax ? fmtN(x.lotacaoMax, 2) : ''}">`)}
+    ${x ? fld('loAtivo', 'Situação', `<select id="loAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
+    </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
+}
+function saveLote(id) {
+  const nome = str($('loNome').value, 60); ['loNome', 'loArea', 'loLot'].forEach(i => fieldErr(i, ''));
+  const aR = $('loArea').value.trim(), lR = $('loLot').value.trim(), area = aR ? parseNum(aR) : null, lot = lR ? parseNum(lR) : null;
+  if (!nome) { fieldErr('loNome', 'Informe o nome.'); return; }
+  if (lotesF().some(l => l.id !== id && l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('loNome', 'Já existe lote com este nome.'); return; }
+  if (aR && !(area > 0)) { fieldErr('loArea', 'Área inválida.'); return; }
+  if (lR && !(lot > 0)) { fieldErr('loLot', 'Valor inválido.'); return; }
+  let x = id ? S.lotes.find(l => l.id === id) : null;
+  if (x) {
+    const ativo = $('loAtivo') ? $('loAtivo').value === '1' : true;
+    if (!ativo && Object.values(compute()).some(s => s.ativo && s.lote === x.id)) { alert('O lote ainda tem animais ativos. Troque-os de lote antes de inativar.'); return; }
+    Object.assign(x, { nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo }); touch(x);
+  } else S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo: true }));
+  save(); closeModal(); refreshAll(); showToast('Lote salvo.');
+}
+
+/* =========================================================================
+   EXPORTAÇÃO CSV (para leitura no Excel)
+   Boas práticas: UTF-8 com BOM, separador ";", decimal com vírgula,
+   datas dd/mm/aaaa, proteção contra fórmula (CSV injection), IDs no final
+   para rastreabilidade.
+   ========================================================================= */
+function csvCell(v) {
+  let s = v == null ? '' : String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+([.,]\d+)?$/.test(s)) s = "'" + s;
+  return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+const csvNum = (n, d) => n == null || !isFinite(n) ? '' : Number(n).toFixed(d).replace('.', ',');
+function downloadCSV(nome, header, rows) {
+  const body = [header, ...rows].map(r => r.map(csvCell).join(';')).join('\r\n');
+  const file = new File(['﻿' + body], nome, { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  showToast(`${nome} gerado com ${rows.length} linha(s).`);
+}
+const stampFile = () => new Date().toISOString().slice(0, 16).replace('T', '_').replace(':', 'h');
+function exportInventarioCSV() {
+  const st = Object.values(compute()).sort((a, b) => a.a.brinco.localeCompare(b.a.brinco, 'pt-BR', { numeric: true }));
+  downloadCSV(`Tapirucu_${slug(farm().nome)}_Inventario_${stampFile()}.csv`,
+    ['Fazenda', 'Brinco', 'Lote atual', 'Sexo', 'Raca', 'Categoria', 'Nascimento', 'Entrada', 'Ultimo peso (kg)', 'Data ultimo peso', 'GMD ultimas 2 (kg/dia)', 'GMD periodo (kg/dia)', 'Situacao', 'Data baixa', 'Motivo baixa', 'Carencia ate', 'Dias sem manejo', 'ID animal', 'Versao'],
+    st.map(s => [farm().nome, s.a.brinco, loteNome(s.lote), SEXOS[s.a.sexo], s.a.raca, s.a.categoria, fmtD(s.a.nascimento).replace('—', ''), fmtD(s.a.entradaEm).replace('—', ''),
+      csvNum(s.ultimoPeso, 1), fmtD(s.ultimaPesagem).replace('—', ''), csvNum(s.gmd, 3), csvNum(s.gmdTotal, 3), s.ativo ? 'Ativo' : 'Baixado',
+      s.baixa ? fmtD(s.baixa.data) : '', s.baixa ? MOTIVOS_BAIXA[s.baixa.motivo] : '', s.carenciaAte ? fmtD(s.carenciaAte) : '', s.ativo ? (s.diasSemManejo ?? '') : '', s.a.id, s.a.versao]));
+}
+function exportEventosCSV() {
+  const rows = [];
+  lidasF().filter(l => l.status === 'finalizada').sort((a, b) => a.data.localeCompare(b.data)).forEach(l => (l.registros || []).forEach(r => {
+    const c = l.cab || {};
+    rows.push([farm().nome, fmtD(l.data), TIPOS[l.tipo].nome, loteNome(l.loteId).replace('—', ''), r.brinco, csvNum(r.peso, 1),
+      l.tipo === 'sanitario' ? PROCEDIMENTOS[c.procedimento] : l.tipo === 'baixa' ? MOTIVOS_BAIXA[c.motivo] : l.tipo === 'pesagem' ? MOTIVOS_PESAGEM[c.motivo] : '',
+      c.produto || '', c.dose || '', c.carenciaAte ? fmtD(c.carenciaAte) : '', l.tipo === 'troca' ? loteNome(c.loteDestinoId) : (r.mover ? loteNome(l.loteId) : ''),
+      l.tipo === 'nascimento' ? r.bezerroBrinco : '', l.tipo === 'nascimento' ? SEXOS[r.sexo] : '', r.obs || l.obs || '', l.origem ? l.origem.nome : '', fmtDT(l.finalizadaEm), l.id, r.id, l.versao]);
+  }));
+  downloadCSV(`Tapirucu_${slug(farm().nome)}_Eventos_${stampFile()}.csv`,
+    ['Fazenda', 'Data', 'Manejo', 'Lote do manejo', 'Brinco', 'Peso (kg)', 'Motivo / procedimento', 'Produto', 'Dose', 'Carencia ate', 'Lote destino', 'Bezerro', 'Sexo bezerro', 'Observacao', 'Dispositivo', 'Finalizada em', 'ID lida', 'ID registro', 'Versao lida'], rows);
+}
+function exportLotesCSV() {
+  downloadCSV(`Tapirucu_${slug(farm().nome)}_Lotes_${stampFile()}.csv`,
+    ['Fazenda', 'Lote', 'Pasto', 'Area (ha)', 'Animais', 'Machos', 'Femeas', 'Com peso', 'Peso medio (kg)', 'GMD medio (kg/dia)', 'UA', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Em carencia', 'Sem manejo +30 dias', 'ID lote'],
+    lotesResumo().map(r => [farm().nome, r.l.nome, r.l.pasto, csvNum(r.l.areaHa, 2), r.qtd, r.machos, r.femeas, r.comPeso, csvNum(r.pesoMedio, 1), csvNum(r.gmd, 3), csvNum(r.ua, 2), csvNum(r.uaha, 2), csvNum(r.l.lotacaoMax, 2), r.ocup ?? '', r.carencia, r.atraso, r.l.id]));
+}
+
+/* =========================================================================
+   SINCRONIZAÇÃO ENTRE APARELHOS (arquivo JSON, sem servidor)
+   Mesmo desenho do Ekoa Saber: integridade SHA-256, mesclagem por versão,
+   registro de exclusão, prévia, cópia de segurança e "desfazer".
+   Só lidas FINALIZADAS viajam (R16). Rascunhos ficam no aparelho.
+   ========================================================================= */
+async function sha256(txt) {
+  if (!(crypto && crypto.subtle)) return null;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const payloadOf = pkg => JSON.stringify({ dados: pkg.dados, excluidos: pkg.excluidos });
+function openDeviceModal(next) {
+  openModal('Nome deste aparelho', `${fld('devNome', 'Como identificar este aparelho?', `<input id="devNome" maxlength="40" value="${esc(syncMeta.device ? syncMeta.device.nome : '')}" placeholder="Ex.: Celular do João, Escritório">`, true, 'O nome vai em cada registro e em cada arquivo exportado, para saber quem coletou e onde.')}`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="devOk">Salvar</button>`);
+  $('devOk').onclick = () => {
+    const n = str($('devNome').value, 40); if (!n) { fieldErr('devNome', 'Informe um nome.'); return; }
+    syncMeta.device = { id: syncMeta.device ? syncMeta.device.id : uuid(), nome: n }; saveSyncMeta(); closeModal(); renderSync();
+    if (typeof next === 'function') next();
+  };
+}
+async function exportSync() {
+  if (!syncMeta.device) { openDeviceModal(exportSync); return; }
+  if (!S.fazendas.length) { alert('Ainda não há dados para exportar.'); return; }
+  const abertas = S.lidas.filter(l => l.status === 'aberta');
+  if (abertas.length && !confirm(`${abertas.length} lida(s) em aberto NÃO entram na exportação (só lidas finalizadas viajam). Exportar mesmo assim?`)) return;
+  const agora = nowISO();
+  const lidas = S.lidas.filter(l => l.status === 'finalizada');
+  const pkg = {
+    app: APP_ID, formato: SYNC_FORMAT, versaoApp: APP_VERSION, exportadoEm: agora, exportId: uuid(), dispositivo: deviceRef(),
+    resumo: { fazendas: S.fazendas.length, lotes: S.lotes.length, animais: S.animais.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
+    dados: { fazendas: S.fazendas, lotes: S.lotes, animais: S.animais, lidas },
+    excluidos: S.excluidos
+  };
+  // marca exportado antes de gerar a integridade, para o arquivo refletir o estado final
+  const mark = o => { if (isPend(o)) o.exportadoEm = agora; };
+  const prev = JSON.parse(JSON.stringify({ f: S.fazendas, lo: S.lotes, a: S.animais, li: S.lidas }));
+  [...S.fazendas, ...S.lotes, ...S.animais, ...lidas].forEach(mark);
+  pkg.integridade = await sha256(payloadOf(pkg));
+  const name = `Tapirucu_${slug(syncMeta.device.nome)}_${stampFile()}.json`;
+  const file = new File([JSON.stringify(pkg)], name, { type: 'application/json' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: name });
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+  } catch (e) {
+    S.fazendas = prev.f; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; calc = null; // nada saiu: nada marcado
+    if (e && e.name === 'AbortError') return;
+    alert('Não foi possível exportar agora. Seus dados continuam salvos neste aparelho.'); return;
+  }
+  save();
+  syncMeta.exports.unshift({ em: agora, arquivo: name, dispositivo: syncMeta.device.nome, ...pkg.resumo }); syncMeta.exports = syncMeta.exports.slice(0, 3);
+  saveSyncMeta(); renderSync(); showToast(`Exportação pronta: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).`);
+}
+function wrongFileHint(name, text) {
+  const n = String(name || '').toLowerCase();
+  if (n.endsWith('.pdf') || text.startsWith('%PDF')) return 'Este arquivo é um PDF. Escolha o arquivo de sincronização: Tapirucu_<aparelho>_<data>.json.';
+  if (n.endsWith('.csv') || text.slice(1, 40).includes('Fazenda;')) return 'Este arquivo é um CSV (planilha). Ele serve para abrir no Excel, não para importar. Escolha o arquivo Tapirucu_<aparelho>_<data>.json.';
+  if (n.endsWith('.xlsx') || text.startsWith('PK')) return 'Este arquivo é uma planilha do Excel. Escolha o arquivo Tapirucu_<aparelho>_<data>.json.';
+  return null;
+}
+/* Entrada não confiável: cada campo é validado e limitado */
+const okId = v => ID_OK.test(String(v || ''));
+const okDate = v => validDate(String(v || '')) ? String(v) : null;
+const okIso = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOString() : null; };
+const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && n <= max ? n : null; };
+const okDev = d => d && okId(d.id) ? { id: String(d.id), nome: str(d.nome, 40) } : null;
+function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm) }; }
+const SAN = {
+  fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6) }); },
+  lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null; return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pasto: str(r.pasto, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), ativo: r.ativo !== false }); },
+  animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
+    return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
+  lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || r.status !== 'finalizada') return null;
+    const c = r.cab || {};
+    const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null };
+    const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined) } : null).filter(Boolean);
+    return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm) }); }
+};
+const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; return JSON.stringify(c); };
+const stampOf = o => o.editadoEm || o.criadoEm || '';
+const tombOf = id => S.excluidos.find(t => t.id === id);
+async function onImportFile(ev) {
+  const fileIn = ev.target, f = fileIn.files && fileIn.files[0]; fileIn.value = '';
+  if (!f) return;
+  if (f.size > 30 * 1024 * 1024) { alert('Arquivo grande demais (limite de 30 MB).'); return; }
+  const text = await f.text();
+  const wrong = wrongFileHint(f.name, text); if (wrong) { alert(wrong); return; }
+  let pkg; try { pkg = JSON.parse(text); } catch (e) { alert('O arquivo não é um JSON válido ou está corrompido.'); return; }
+  if (!pkg || pkg.app !== APP_ID) { alert(pkg && pkg.app === 'sankhya-sapiens' ? 'Este arquivo é do Ekoa Saber, não do Tapiruçu.' : 'Este arquivo não é de sincronização do Ekoa Tapiruçu.'); return; }
+  if (pkg.formato > SYNC_FORMAT) { alert('Este arquivo foi gerado por uma versão mais nova do app. Atualize o app neste aparelho e tente de novo.'); return; }
+  if (!pkg.dados || typeof pkg.dados !== 'object') { alert('Arquivo sem dados.'); return; }
+  if (pkg.integridade) { const h = await sha256(payloadOf(pkg)); if (h && h !== pkg.integridade) { alert('A verificação de integridade falhou: o arquivo foi alterado ou está corrompido. Peça uma nova exportação.'); return; } }
+  else { alert('Arquivo sem verificação de integridade. Por segurança, ele não será importado.'); return; }
+  const plan = planImport(pkg);
+  const avisos = [];
+  if (syncMeta.device && pkg.dispositivo && pkg.dispositivo.id === syncMeta.device.id) avisos.push('Este arquivo foi exportado por ESTE aparelho. Normalmente não há nada a importar.');
+  if (pkg.exportId && (syncMeta.importedIds || []).some(x => x.id === pkg.exportId)) avisos.push('Este arquivo já foi importado antes.');
+  if (pkg.dispositivo && syncMeta.lastFrom && syncMeta.lastFrom[pkg.dispositivo.id] && pkg.exportadoEm < syncMeta.lastFrom[pkg.dispositivo.id]) avisos.push(`Há um arquivo mais recente de ${pkg.dispositivo.nome} já importado (${fmtDT(syncMeta.lastFrom[pkg.dispositivo.id])}). Este é mais antigo.`);
+  if (S.lidas.some(l => l.status === 'aberta' && l.id === editLidaId) && currentView === 'lida') avisos.push('Há uma lida aberta no editor. Ela não será afetada.');
+  pendingImport = { pkg, plan, arquivo: f.name, avisos };
+  renderImportPreview();
+}
+function planImport(pkg) {
+  const plan = { cols: {}, tombs: [], excluirAqui: [], mantidosEditados: [], invalidos: 0 };
+  ['fazendas', 'lotes', 'animais', 'lidas'].forEach(col => {
+    const p = { novos: [], atualizados: [], iguais: [], locais: [], conflitosImp: [], conflitosLoc: [], restaurados: [], excluidosAqui: [] }, seen = new Set();
+    (Array.isArray(pkg.dados[col]) ? pkg.dados[col] : []).forEach(raw => {
+      const inc = SAN[col](raw);
+      if (!inc || seen.has(inc.id)) { plan.invalidos++; return; }
+      seen.add(inc.id);
+      const loc = S[col].find(x => x.id === inc.id), tb = tombOf(inc.id);
+      if (!loc && tb) { if (stampOf(inc) > tb.em) p.restaurados.push(inc); else p.excluidosAqui.push(inc); return; }
+      if (!loc) { p.novos.push(inc); return; }
+      if (col === 'lidas' && loc.status === 'aberta') { // reaberta aqui: a edição local em andamento vence
+        if (inc.versao > loc.versao) p.conflitosImp.push(inc); else p.locais.push(inc); return; }
+      if (inc.versao > (loc.versao || 1)) p.atualizados.push(inc);
+      else if (inc.versao < (loc.versao || 1)) p.locais.push(inc);
+      else if (sig(inc) === sig(loc)) p.iguais.push(inc);
+      else if (stampOf(inc) > stampOf(loc)) p.conflitosImp.push(inc);
+      else p.conflitosLoc.push(inc);
+    });
+    plan.cols[col] = p;
+  });
+  (Array.isArray(pkg.excluidos) ? pkg.excluidos : []).forEach(t => {
+    if (!t || !okId(t.id) || !okIso(t.em) || !COL[t.tipo]) return;
+    const tt = { id: String(t.id), tipo: t.tipo, em: okIso(t.em), no: okDev(t.no) };
+    if (tombOf(tt.id)) return;
+    const col = COL[tt.tipo], loc = S[col].find(x => x.id === tt.id);
+    if (loc && stampOf(loc) > tt.em) { plan.mantidosEditados.push({ tipo: tt.tipo, item: loc }); return; }
+    if (loc) plan.excluirAqui.push({ tipo: tt.tipo, item: loc, t: tt });
+    plan.tombs.push(tt);
+    const pc = plan.cols[col]; pc.novos = pc.novos.filter(x => x.id !== tt.id);
+  });
+  return plan;
+}
+function renderImportPreview() {
+  const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas' };
+  const rows = Object.entries(plan.cols).map(([c, p]) => `<tr><td><b>${NOM[c]}</b></td><td class="num">${p.novos.length + p.restaurados.length}</td><td class="num">${p.atualizados.length + p.conflitosImp.length}</td><td class="num">${p.iguais.length}</td><td class="num">${p.locais.length + p.conflitosLoc.length}</td></tr>`).join('');
+  const conf = Object.values(plan.cols).reduce((t, p) => t + p.conflitosImp.length + p.conflitosLoc.length, 0);
+  const total = Object.values(plan.cols).reduce((t, p) => t + p.novos.length + p.restaurados.length + p.atualizados.length + p.conflitosImp.length, 0) + plan.excluirAqui.length;
+  openModal('Prévia da importação', `
+    <dl class="dl" style="margin-bottom:12px"><dt>Arquivo</dt><dd>${esc(arquivo)}</dd><dt>De</dt><dd>${esc(pkg.dispositivo ? pkg.dispositivo.nome : 'Aparelho sem nome')}</dd><dt>Exportado em</dt><dd>${fmtDT(pkg.exportadoEm)}</dd><dt>Integridade</dt><dd><span class="chip ok">✓ verificada</span></dd></dl>
+    ${avisos.map(a => `<div class="alert warn"><span>${esc(a)}</span></div>`).join('')}
+    <div class="tbl-wrap"><table><thead><tr><th></th><th class="num">Entram</th><th class="num">Atualizam</th><th class="num">Iguais</th><th class="num">Ficam como aqui</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${conf ? `<div class="alert warn" style="margin-top:10px"><span>${conf} conflito(s): mesma versão editada nos dois aparelhos. Vale a edição mais recente.</span></div>` : ''}
+    ${plan.excluirAqui.length ? `<div class="alert warn" style="margin-top:10px"><span>${plan.excluirAqui.length} item(ns) excluído(s) no outro aparelho vão para a lixeira aqui.</span></div>` : ''}
+    ${plan.mantidosEditados.length ? `<div class="alert info" style="margin-top:10px"><span>${plan.mantidosEditados.length} item(ns) excluído(s) lá foram editados aqui depois e serão mantidos.</span></div>` : ''}
+    ${plan.invalidos ? `<div class="alert bad" style="margin-top:10px"><span>${plan.invalidos} registro(s) inválido(s) ou repetido(s) no arquivo serão ignorados.</span></div>` : ''}
+    <p class="hint">Antes de aplicar, o app faz uma cópia de segurança. Você pode desfazer depois.</p>`,
+    `<button class="btn" onclick="pendingImport=null;closeModal()">Cancelar</button><button class="btn primary" onclick="applyImport()" ${total ? '' : 'disabled'}>${total ? `Aplicar (${total})` : 'Nada a importar'}</button>`, true);
+}
+async function applyImport() {
+  if (!pendingImport) return;
+  const { pkg, plan, arquivo } = pendingImport;
+  try { await idbSet('backupPreImport', { em: nowISO(), de: pkg.dispositivo ? pkg.dispositivo.nome : null, dados: JSON.parse(JSON.stringify(S)) }); }
+  catch (e) { alert('Não foi possível criar a cópia de segurança. A importação foi cancelada para proteger seus dados.'); return; }
+  const res = { novos: 0, atualizados: 0 };
+  Object.entries(plan.cols).forEach(([col, p]) => {
+    const rep = inc => { const k = S[col].findIndex(x => x.id === inc.id); if (k >= 0) S[col][k] = inc; res.atualizados++; };
+    p.novos.forEach(x => { S[col].push(x); res.novos++; });
+    p.restaurados.forEach(x => { S.excluidos = S.excluidos.filter(t => t.id !== x.id); S.lixeira = S.lixeira.filter(l => l.item.id !== x.id); S[col].push(x); res.novos++; });
+    p.atualizados.forEach(rep); p.conflitosImp.forEach(rep);
+  });
+  plan.excluirAqui.forEach(x => moveToTrash(x.tipo, x.item, x.t.em, x.t.no));
+  plan.tombs.forEach(t => { if (!tombOf(t.id)) S.excluidos.push(t); });
+  if (!S.fazendaAtiva || !farm()) S.fazendaAtiva = S.fazendas[0] ? S.fazendas[0].id : null;
+  await save();
+  syncMeta.imports.unshift({ em: nowISO(), arquivo, de: pkg.dispositivo ? pkg.dispositivo.nome : 'Aparelho sem nome', exportadoEm: pkg.exportadoEm, ...res, excluidos: plan.excluirAqui.length }); syncMeta.imports = syncMeta.imports.slice(0, 3);
+  if (pkg.exportId) syncMeta.importedIds = [{ id: pkg.exportId, em: nowISO() }, ...(syncMeta.importedIds || [])].slice(0, 30);
+  if (pkg.dispositivo && pkg.exportadoEm) { syncMeta.lastFrom = syncMeta.lastFrom || {}; if (!syncMeta.lastFrom[pkg.dispositivo.id] || pkg.exportadoEm > syncMeta.lastFrom[pkg.dispositivo.id]) syncMeta.lastFrom[pkg.dispositivo.id] = pkg.exportadoEm; }
+  saveSyncMeta(); pendingImport = null; closeModal(); refreshAll();
+  showToast(`Importação concluída: ${res.novos} novo(s), ${res.atualizados} atualizado(s).`);
+}
+async function undoImport() {
+  let b = null; try { b = await idbGet('backupPreImport'); } catch (e) {}
+  if (!b || !b.dados) { alert('Não há importação para desfazer.'); return; }
+  if (!confirm(`Desfazer a importação de ${fmtDT(b.em)}${b.de ? ' (vinda de ' + b.de + ')' : ''}?\n\nOs dados voltam a ser exatamente como estavam antes dela. O que foi lançado aqui depois disso também volta ao estado anterior.`)) return;
+  S = b.dados; await save(); try { await idbSet('backupPreImport', null); } catch (e) {}
+  if (syncMeta.imports[0]) { syncMeta.imports[0].desfeita = true; saveSyncMeta(); }
+  refreshAll(); showToast('Importação desfeita.');
+}
+function renderSync() {
+  const pd = pendentesCount(), ab = S.lidas.filter(l => l.status === 'aberta').length;
+  const exp = syncMeta.exports || [], imp = syncMeta.imports || [];
+  $('syncBody').innerHTML = `
+    <div class="card"><h3>Este aparelho</h3>
+      <p>${syncMeta.device ? `<b>${esc(syncMeta.device.nome)}</b> <span class="muted">· ID ${esc(syncMeta.device.id.slice(0, 8))}</span>` : '<span class="muted">Sem nome definido.</span>'} <button class="btn sm" onclick="openDeviceModal()">${syncMeta.device ? 'Renomear' : 'Definir nome'}</button></p></div>
+    <div class="card"><h3>Exportar (enviar)</h3>
+      ${pd ? `<div class="alert info"><span>${pd} registro(s) novos ou alterados ainda não exportados.</span></div>` : '<div class="alert ok"><span>✓ Tudo o que foi finalizado já foi exportado.</span></div>'}
+      ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}
+      <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>Exportar dados</button>
+      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade. Envie por WhatsApp, e-mail ou Drive para quem consolida. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
+    <div class="card"><h3>Importar (receber)</h3>
+      <div class="actions"><button class="btn teal" onclick="$('importFile').click()"><svg><use href="#i-down"/></svg>Importar arquivo</button><button class="btn" onclick="undoImport()">Desfazer última importação</button></div>
+      <p class="hint">Mostra uma prévia antes de aplicar. A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.</p></div>
+    <div class="card"><h3>Histórico</h3>
+      ${exp.length || imp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Quando</th><th>Operação</th><th>Detalhe</th></tr></thead><tbody>
+        ${exp.map(e => `<tr><td>${fmtDT(e.em)}</td><td><span class="chip info">Exportação</span></td><td>${e.lidas} lida(s), ${e.animais} animal(is) · ${esc(e.arquivo)}</td></tr>`).join('')}
+        ${imp.map(i => `<tr><td>${fmtDT(i.em)}</td><td><span class="chip ${i.desfeita ? 'gray' : 'ok'}">Importação${i.desfeita ? ' desfeita' : ''}</span></td><td>de ${esc(i.de)} · ${i.novos} novo(s), ${i.atualizados} atualizado(s)${i.excluidos ? ', ' + i.excluidos + ' excluído(s)' : ''}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="muted">Nenhuma exportação ou importação ainda.</p>'}</div>
+    <div class="card"><h3><svg width="18" height="18"><use href="#i-trash"/></svg>Lixeira <span class="sub">${S.lixeira.length} item(ns)</span></h3>
+      ${S.lixeira.length ? `<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Excluído em</th><th></th></tr></thead><tbody>${S.lixeira.slice(0, 100).map(x => `<tr><td>${esc(trashLabel(x))}</td><td>${fmtDT(x.em)}</td><td><button class="btn sm" onclick="restoreFromTrash('${x.item.id}')">Restaurar</button></td></tr>`).join('')}</tbody></table></div>
+      <div class="actions" style="margin-top:10px"><button class="btn danger sm" onclick="emptyTrash()">Esvaziar lixeira</button></div>` : '<p class="muted">Vazia.</p>'}</div>`;
+}
+function trashLabel(x) {
+  const i = x.item;
+  if (x.tipo === 'lida') return `Lida ${TIPOS[i.tipo] ? TIPOS[i.tipo].nome : ''} de ${fmtD(i.data)} (${(i.registros || []).length} reg.)`;
+  if (x.tipo === 'animal') return `Animal ${i.brinco}`;
+  if (x.tipo === 'lote') return `Lote ${i.nome}`;
+  return `Fazenda ${i.nome}`;
+}
+
+/* =========================================================================
+   SOBRE, INSTALAÇÃO E ATUALIZAÇÃO ASSISTIDA
+   ========================================================================= */
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; refreshInstallUI(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; refreshInstallUI(); showToast('App instalado. Ele funciona sem internet.'); });
+function refreshInstallUI() {
+  const box = $('installBox'); let show = false;
+  if (isStandalone()) show = false;
+  else if (deferredInstall) { show = true; $('installBtn').style.display = ''; $('installHint').textContent = 'Use no campo, mesmo sem internet.'; }
+  else if (isIOS()) { show = true; $('installBtn').style.display = 'none'; $('installHint').innerHTML = 'No Safari: <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.'; }
+  box.classList.toggle('on', show);
+}
+async function installApp() {
+  if (!deferredInstall) { alert(isIOS() ? 'No iPhone: abra no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".' : 'Abra pelo Chrome e use o menu (três pontinhos) > "Instalar app".'); return; }
+  deferredInstall.prompt(); try { await deferredInstall.userChoice; } catch (e) {} deferredInstall = null; refreshInstallUI();
+}
+async function openAbout() {
+  let notes = null; try { const r = await fetch('version.json', { cache: 'no-store' }); if (r.ok) notes = await r.json(); } catch (e) {}
+  const n = notes && notes.notas ? Object.entries(notes.notas).sort((a, b) => b[0] - a[0]).slice(0, 3) : [];
+  openModal('Sobre o Ekoa Tapiruçu', `
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px"><svg width="64" height="64" style="background:#FBF7F1;border-radius:14px;border:1px solid var(--border-color)"><use href="#mark"/></svg>
+      <div><b style="font-size:1.1rem;color:var(--brand-navy)">Ekoa Tapiruçu</b><br><span class="muted">App piloto de gestão do rebanho · versão ${APP_VERSION} beta</span></div></div>
+    <p class="muted" style="margin-bottom:10px">Coleta de manejo em campo, offline, com envio sob comando. Fase 1 do plano: o piloto roda sozinho; a integração com o ERP vem depois, a partir dos mesmos registros.</p>
+    ${n.length ? n.map(([v, x]) => `<h4 style="margin:12px 0 6px;color:var(--brand-navy)">Versão ${esc(v)} · ${fmtD(x.data)} · ${esc(x.titulo)}</h4><ul style="margin-left:18px;font-size:.88rem;line-height:1.5">${x.itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('') : '<p class="hint">As novidades aparecem aqui quando o app está conectado.</p>'}
+    <p class="hint" style="margin-top:14px">© 2026 Ekoa Tech · Gestão e Processo. Produto Grupo Blendcoffee, desenvolvido pela Ekoa.</p>`,
+    `<button class="btn" onclick="checkUpdates(true)">Verificar atualizações</button>${deferredInstall ? '<button class="btn gold" onclick="installApp()">Instalar app</button>' : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+}
+async function checkUpdates(manual) {
+  if (!location.protocol.startsWith('http')) { if (manual) alert('A verificação funciona no app publicado (link do GitHub).'); return; }
+  if (!manual && (!navigator.onLine || Date.now() - lastCheck < 30 * 60 * 1000)) return;
+  lastCheck = Date.now();
+  try {
+    const r = await fetch('version.json?ts=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json(), v = parseInt(j.versao, 10);
+    if (v > APP_VERSION) { remoteInfo = j; showUpdateBar(); if (manual) closeModal(); }
+    else if (manual) alert(`Você já está na versão mais recente (${APP_VERSION} beta).`);
+  } catch (e) { if (manual) alert('Não foi possível verificar agora. Confira a internet e tente de novo.'); }
+}
+function showUpdateBar() {
+  const bar = $('updateBar'); if (!remoteInfo) return;
+  bar.innerHTML = `<span><b>Nova versão ${esc(remoteInfo.rotulo || remoteInfo.versao)} disponível.</b> ${esc(remoteInfo.titulo || '')}</span><span class="actions"><button class="btn gold" onclick="applyUpdate()">Atualizar agora</button></span>`;
+  bar.classList.add('on');
+}
+const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+async function applyUpdate() {
+  const bar = $('updateBar'); bar.innerHTML = '<span><b>Atualizando…</b> seus dados permanecem salvos neste aparelho.</span>';
+  try {
+    await saveChain;
+    await idbSet('backupPreUpdate', { em: nowISO(), versaoAnterior: APP_VERSION, dados: JSON.parse(JSON.stringify(S)) });
+    if ('caches' in window) {
+      const fresh = await Promise.all(SHELL.map(u => fetch(u, { cache: 'reload' }).then(r => { if (!r.ok) throw new Error(u); return [u, r]; })));
+      for (const n of await caches.keys()) { const c = await caches.open(n); for (const [u, r] of fresh) await c.put(u, r.clone()); }
+    }
+    if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); if (reg) { try { await reg.update(); } catch (e) {} } }
+    location.reload();
+  } catch (e) { showUpdateBar(); alert('Não foi possível atualizar agora (verifique a internet). Nada foi alterado nos seus dados.'); }
+}
+async function showWhatsNew() {
+  if (!syncMeta.lastSeenVersion) { syncMeta.lastSeenVersion = APP_VERSION; saveSyncMeta(); return; }
+  if (syncMeta.lastSeenVersion >= APP_VERSION) return;
+  syncMeta.lastSeenVersion = APP_VERSION; saveSyncMeta();
+  showToastAction(`App atualizado para a versão ${APP_VERSION}. Seus dados foram mantidos.`, 'Ver novidades', openAbout);
+}
+
+/* =========================================================================
+   INICIALIZAÇÃO
+   ========================================================================= */
+async function init() {
+  try {
+    const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
+    const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);
+  } catch (e) { alert('Este navegador bloqueou o armazenamento local (modo anônimo?). Os dados não serão guardados.'); }
+  if (!farm() && S.fazendas.length) S.fazendaAtiva = S.fazendas[0].id;
+  renderFarmSel(); updateCounts(); refreshInstallUI(); goView('home');
+  setTimeout(() => $('splash').classList.add('off'), 450);
+  if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }
+  showWhatsNew(); checkUpdates(false);
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdates(false); });
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+init();
+</script>
+</body>
+</html>

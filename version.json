@@ -1,0 +1,20 @@
+{
+  "versao": 1,
+  "rotulo": "1 beta",
+  "data": "2026-11-21",
+  "titulo": "App piloto: lidas de campo offline",
+  "notas": {
+    "1": {
+      "data": "2026-11-21",
+      "titulo": "App piloto: lidas de campo offline",
+      "itens": [
+        "Cadastro de fazenda, lotes (com área e lotação) e carga inicial do rebanho por lista ou faixa de brincos.",
+        "Lidas de campo: pesagem, sanitário (com carência), troca de lote, baixa e nascimento. Só a lida finalizada altera o rebanho.",
+        "Rebanho com último peso, GMD, lote atual, carência e alerta de animal sem manejo há mais de 30 dias.",
+        "Painel com peso médio, GMD, UA/ha e ocupação por lote, baixas e nascimentos do mês e próximas aplicações.",
+        "Sincronização entre aparelhos por arquivo, com integridade SHA-256, prévia, lixeira e desfazer.",
+        "Exportação CSV (inventário, eventos e lotes) pronta para o Excel."
+      ]
+    }
+  }
+}
