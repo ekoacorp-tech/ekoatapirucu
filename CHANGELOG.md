@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [7 beta] · 21/11/2026 · Exportação corrigida no computador
+- **Corrigido:** "Exportar dados" no computador falhava com "Não foi possível exportar agora" quando havia lida em aberto. A confirmação consumia o clique recente e o compartilhamento nativo do Windows era recusado, sem plano B.
+- Computador: baixa o arquivo direto. Celular: compartilhamento nativo e, se o sistema recusar (exceto cancelamento), download.
+- Sincronizar movido para o fim do menu lateral.
+
 ## [6 beta] · 21/11/2026 · Mapa da fazenda e dos piquetes
 - **Mapa da fazenda** (nova tela): cartões das fazendas, perímetro, piquetes coloridos pela ocupação (até 85%, 85 a 100%, acima de 100%), ponto da sede e dos pastos, rótulos com animais e ocupação. Toque no piquete abre o resumo e a lista de animais.
 - **Motor de mapa próprio, sem bibliotecas:** projeção Web Mercator, arrastar, aproximar (botões, roda do mouse, dois dedos), fundo OpenStreetMap ou satélite com internet e desenho em SVG sempre disponível. Os blocos de fundo já vistos ficam guardados para uso offline.

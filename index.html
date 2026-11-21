@@ -422,8 +422,8 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span>Rebanho</span></button>
       <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span>Mapa da fazenda</span></button>
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span>Painel</span></button>
-      <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span>Fazenda e lotes</span></button>
+      <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
     </nav>
   </div>
   <div>
@@ -561,7 +561,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1993,9 +1993,16 @@ async function exportSync() {
   pkg.integridade = await sha256(payloadOf(pkg));
   const name = `Tapirucu_${slug(syncMeta.device.nome)}_${stampFile()}.json`;
   const file = new File([JSON.stringify(pkg)], name, { type: 'application/json' });
+  /* Computador: baixa o arquivo. Celular: tenta o compartilhamento (WhatsApp, e-mail, Drive) e, se o
+     sistema recusar por qualquer motivo que não seja o usuário cancelar, baixa o arquivo (plano B). */
+  const baixar = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000); };
+  const celular = window.matchMedia('(pointer:coarse)').matches;
+  let via = 'download';
   try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: name });
-    else { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+    if (celular && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); via = 'compartilhamento'; }
+      catch (e) { if (e && e.name === 'AbortError') throw e; baixar(); }
+    } else baixar();
   } catch (e) {
     S.fazendas = prev.f; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; calc = null; // nada saiu: nada marcado
     if (e && e.name === 'AbortError') return;
@@ -2003,7 +2010,7 @@ async function exportSync() {
   }
   save();
   syncMeta.exports.unshift({ em: agora, arquivo: name, dispositivo: syncMeta.device.nome, ...pkg.resumo }); syncMeta.exports = syncMeta.exports.slice(0, 3);
-  saveSyncMeta(); renderSync(); showToast(`Exportação pronta: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).`);
+  saveSyncMeta(); renderSync(); showToast(via === 'download' ? `Arquivo ${name} salvo em Downloads: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).` : `Exportação pronta: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).`);
 }
 function wrongFileHint(name, text) {
   const n = String(name || '').toLowerCase();

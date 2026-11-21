@@ -1,9 +1,18 @@
 {
-  "versao": 6,
-  "rotulo": "6 beta",
+  "versao": 7,
+  "rotulo": "7 beta",
   "data": "2026-11-21",
-  "titulo": "Mapa da fazenda e dos piquetes",
+  "titulo": "Exportação corrigida no computador",
   "notas": {
+    "7": {
+      "data": "2026-11-21",
+      "titulo": "Exportação corrigida no computador",
+      "itens": [
+        "Corrigido: no computador, \"Exportar dados\" podia mostrar \"Não foi possível exportar agora\". Agora o arquivo é baixado direto para a pasta Downloads.",
+        "No celular, se o compartilhamento falhar, o app baixa o arquivo no lugar.",
+        "Sincronizar passa a ser o último item do menu."
+      ]
+    },
     "6": {
       "data": "2026-11-21",
       "titulo": "Mapa da fazenda e dos piquetes",
