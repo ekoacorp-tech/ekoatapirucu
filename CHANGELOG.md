@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [10] — 2026-11-21 — Pasto e lote separados, painéis em árvore e foto do animal
+- Pasto e lote deixam de ser a mesma coisa: o pasto é o lugar (área, contorno, lotação e metas de manejo) e o lote é o grupo de animais que o ocupa. A atualização converte os cadastros atuais sozinha, sem perder nada.
+- Rotação de pastagem: "Mover de pasto" registra a saída e a entrada com data. O app passa a mostrar dias de ocupação, dias de descanso, ciclos e quando o pasto está pronto para receber o lote.
+- Metas por forrageira (Mombaça, Marandu, Xaraés e outras) com ocupação, descanso e altura de entrada e saída, nas referências da Embrapa. O app também indica quantos pastos a rotação pediria.
+- Painéis em árvore: todas as fazendas → fazenda → pasto, lote ou rebanho. Cada nível com seus próprios indicadores, incluindo @/ha por pasto e composição do rebanho por faixa de peso.
+- Navegação: trilha no alto da tela com a fazenda que você está vendo e um botão Voltar que devolve exatamente para onde você estava.
+- Menu lateral recolhido nas telas largas, só com ícones; o nome aparece ao passar o mouse. O botão ☰ fixa a sua preferência.
+- Mapa com todas as fazendas numa visão só, cada uma com o nome e quantas cabeças tem.
+- Foto do animal ou do brinco e campo de característica (chifre, mancha, temperamento). A foto é reduzida no aparelho e viaja na sincronização.
+- Novo Pastos CSV e colunas de pasto no Inventário e nos Lotes CSV.
+- Arquivos da versão 9 continuam sendo importados: o lote antigo vira pasto + lote com a mesma regra, sem conflito.
+
 ## [9] — 2026-11-21 — Modo escuro e sincronização mais clara
 - Modo escuro nos tons do Ekoa Saber. O botão de tema alterna Automático (segue o celular), Claro e Escuro, e a escolha fica guardada no aparelho.
 - Corrigido: importar o próprio arquivo mostrava registros "em conflito" sem diferença real. Agora eles aparecem como iguais.

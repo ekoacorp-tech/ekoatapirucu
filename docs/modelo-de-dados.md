@@ -21,17 +21,56 @@ Campos-chave do piloto, com origem no **Escopo de Validação Ekoa Tapiruçu** (
 | `car` | texto (60) | Não | Número do recibo do CAR (Cadastro Ambiental Rural) | Campo AD_ na empresa ou na tabela de fazendas |
 | `geo` | objeto | Não | Ver **Geolocalização** abaixo; `perimetro` = limite da propriedade | Campos AD_ (lat, lng) + CLOB com GeoJSON |
 
-## Lote (B.5 + B.4 simplificado)
+## Pasto e Lote — duas entidades (desde a versão 10)
+
+Até a versão 9 o "lote" guardava ao mesmo tempo o **lugar** (área, contorno, lotação) e o **grupo de animais**. Isso impedia medir rotação: quando o gado mudava de pasto, não havia como separar o que era do lugar e o que era do grupo. A partir da versão 10:
+
+- **Pasto (piquete):** o lugar. Não se move.
+- **Lote:** o grupo de animais. Ocupa um pasto hoje e outro amanhã, continuando o mesmo lote.
+
+### Pasto
 
 | Campo | Tipo | Obrig. | Observação |
 |---|---|---|---|
 | `fazendaId` | ID | Sim | |
 | `nome` | texto (60) | Sim | Único na fazenda |
-| `pasto` | texto (60) | Não | Nome da área de pastagem. O polígono no mapa ficou fora do piloto. |
-| `areaHa` | decimal | Não | Base do UA/ha do lote |
+| `areaHa` | decimal | Não | Base do UA/ha. O contorno no mapa (`geo.areaHa`) prevalece sobre o valor digitado |
 | `lotacaoMax` | decimal (UA/ha) | Não | Base da ocupação (R06) |
+| `forrageira` | texto (40) | Não | Preenche as metas sugeridas |
+| `diasOcupacao` | inteiro | Não | Meta de dias com o lote dentro (referência Embrapa: 1 a 7) |
+| `diasDescanso` | inteiro | Não | Meta de dias sem animais, para a rebrota |
+| `alturaEntrada`, `alturaSaida` | inteiro (cm) | Não | Régua de manejo: o sinal de campo |
+| `ativo` | booleano | Sim | Pasto ocupado não pode ser inativado nem excluído |
+| `geo` | objeto | Não | Ver **Geolocalização**; `poligono` = limite do pasto |
+
+### Lote
+
+| Campo | Tipo | Obrig. | Observação |
+|---|---|---|---|
+| `fazendaId` | ID | Sim | |
+| `nome` | texto (60) | Sim | Único na fazenda |
+| `pastoId` | ID | Não | Espelho da ocupação aberta: o pasto de hoje |
+| `ocupacoes[]` | lista | Sim | `{ p: pastoId, de: data, ate: data ou null }`, ordenada por `de`. A ocupação sem `ate` é a atual |
 | `ativo` | booleano | Sim | Lote com animais ativos não pode ser inativado |
-| `geo` | objeto | Não | Ver **Geolocalização** abaixo; `poligono` = limite do piquete |
+
+### Migração e compatibilidade
+
+Cada lote antigo vira um pasto mais o lote que o ocupa. A regra é **determinística**: o id do pasto é `pa-<id do lote>` e os carimbos (`versao`, `criadoEm`, `editadoEm`, `origem`) são copiados do lote. Dois aparelhos que migram o mesmo lote produzem registros idênticos, então a sincronização não duplica nem gera conflito. A mesma função converte arquivos de formato 1 e 2 na importação (`migraPkg`), o que mantém a versão 9 interoperável com a 10 na direção antiga → nova.
+
+Para o histórico, datas anteriores à primeira ocupação são atribuídas ao primeiro pasto do lote. Sem essa regra, todo o ganho anterior à migração ficaria sem pasto.
+
+### Rotação — como os números nascem
+
+| Indicador | Cálculo |
+|---|---|
+| Dias de ocupação | hoje − `de` da ocupação aberta |
+| Dias de descanso | hoje − maior `ate` entre as ocupações encerradas, quando não há ocupação aberta |
+| Ciclos | ocupações do pasto que tocam o período |
+| Descanso médio | média dos intervalos entre uma saída e a entrada seguinte |
+| Pastos recomendados | (descanso ÷ ocupação) + 1, média dos pastos com meta — referência Embrapa |
+| @/ha do pasto | ganho atribuído ao pasto no período ÷ 30 kg ÷ área do pasto |
+
+O ganho é atribuído ao pasto onde o animal estava **na data da pesagem final** de cada intervalo, pela cadeia animal → lote (histórico de trocas) → pasto (histórico de ocupações).
 
 ## Geolocalização (preparação do mapa)
 
@@ -65,9 +104,12 @@ geo: {
 | `entradaEm` | data | Sim | Só animais com entrada participam do rateio de custos (R07, fase futura) |
 | `nascimento` | data | Não | |
 | `raca`, `categoria` | texto (40) | Não | Sugestões em lista, texto livre aceito |
+| `caracteristica` | texto (120) | Não | Sinal físico ou de comportamento que ajuda a confirmar o animal no curral |
 | `pesoEntrada` | decimal (kg) | Não | Primeiro ponto do histórico de peso |
 | `origemEntrada` | `cadastro` / `nascimento` | Sim | |
 | `maeId`, `lidaOrigemId` | ID | Cond. | Preenchidos quando o animal nasce por lida de nascimento |
+
+A **foto** do animal não fica no registro: vive em `fotos[animalId] = { d, em, por }`, fora das coleções versionadas, para não pesar na comparação de versões. É reduzida no aparelho (720 px, JPEG) antes de ser guardada, viaja no arquivo de sincronização e a mais recente (`em`) vence.
 
 Remover um animal só é permitido para cadastro errado e se ele não estiver em nenhuma lida (R03). Saída da fazenda é sempre por lida de **Baixa**.
 

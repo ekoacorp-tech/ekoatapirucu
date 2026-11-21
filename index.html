@@ -123,7 +123,7 @@ body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view
 
 /* Forms */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.field label{display:block;font-size:.78rem;font-weight:700;color:var(--text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field label{display:block;font-size:.82rem;font-weight:700;color:var(--text-secondary);margin-bottom:5px;letter-spacing:.1px}
 .field label .req{color:#b91c1c}
 .field input,.field select,.field textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--card-bg)}
 .field textarea{min-height:90px;resize:vertical}
@@ -430,6 +430,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 /* ===== Modo escuro — tokens do Ekoa Saber (tons de café) ===== */
 .dark-mode{
   --bg-body:#17120f;--bg-surface:#251d18;--bg-sidebar:#1c2f36;--text-primary:#F3EBDF;--text-secondary:#B9A898;--border-color:#46372D;
+  background:#17120f;
   --row-hover:#30261f;--row-zebra:#1f1814;--card-bg:#2c231d;--title-ink:#F3EBDF;--nav-glass:rgba(37,29,24,.94);--grid-line:#3a2e26;
   --ok-bg:#123a2c;--ok-txt:#86efac;--warn-bg:#4a3512;--warn-txt:#F0C77A;--bad-bg:#4a1d1d;--bad-txt:#fca5a5;
   color-scheme:dark;
@@ -460,8 +461,38 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 .dark-mode .farm-card.on,.dark-mode input:focus,.dark-mode select:focus,.dark-mode textarea:focus{box-shadow:0 0 0 3px rgba(69,160,168,.28)}
 .dark-mode img.home-mark,.dark-mode #splash img{filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
 .dark-mode ::-webkit-scrollbar-thumb{background:#4a3b30;background-clip:content-box}
+/* ===== Menu recolhido (só ícones) e trilha de navegação ===== */
+@media (min-width:901px){
+  body.side-min .sidebar{position:fixed;left:0;top:0;width:68px;padding:16px 10px;z-index:60;overflow:visible;transition:width var(--ek-dur-base) var(--ek-ease-out),padding var(--ek-dur-base) var(--ek-ease-out)}
+  body.side-min .sidebar:hover,body.side-min .sidebar:focus-within{width:290px;padding:20px;box-shadow:18px 0 44px rgba(0,0,0,.35)}
+  body.side-min .main{margin-left:68px}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .s-lbl{display:none}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .side-nav button{justify-content:center;padding:11px 0}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .brand{justify-content:center;border-bottom:0;padding-bottom:0}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .brand img{width:40px;height:40px}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .side-nav .count{position:absolute;top:2px;right:4px;min-width:16px;font-size:.6rem;line-height:16px;padding:0 4px}
+  body.side-min .side-nav button{position:relative}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .ekoa-footer,body.side-min .sidebar:not(:hover):not(:focus-within) .client-row{justify-content:center}
+  body.side-min .sidebar:not(:hover):not(:focus-within) .tema-btn{justify-content:center;padding:6px 0}
+}
+/* ===== Foto do animal ===== */
+.am-foto{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.am-foto img{width:132px;height:132px;object-fit:cover;border-radius:14px;border:1px solid var(--border-color);cursor:zoom-in;background:var(--row-zebra)}
+.am-foto-vazia{width:132px;height:132px;border-radius:14px;border:1px dashed var(--border-color);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.8rem;flex-shrink:0}
+.am-foto label.btn{display:inline-flex;cursor:pointer}
+.rb-foto{width:26px;height:26px;border-radius:7px;object-fit:cover;vertical-align:middle;margin-right:7px;border:1px solid var(--border-color)}
+.menu-btn{width:100%;display:flex;align-items:center;gap:8px;justify-content:center;min-height:36px;margin-bottom:10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e6eef0;font:inherit;font-size:.8rem;cursor:pointer}
+.menu-btn:hover{background:rgba(255,255,255,.14)}
+.navbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.84rem;min-height:34px}
+.navbar .nb-trail{display:flex;align-items:center;gap:6px;color:var(--text-secondary);flex-wrap:wrap}
+.navbar .nb-trail b{color:var(--text-primary)}
+.navbar .nb-sep{opacity:.5}
+.nb-link{background:none;border:0;padding:0;font:inherit;color:var(--brand-teal);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.nb-farm{font:inherit;font-weight:700;color:var(--text-primary);border:1px solid var(--border-color);background:var(--bg-surface);border-radius:999px;padding:5px 12px;max-width:min(54vw,320px);cursor:pointer}
+@media (max-width:900px){.navbar{margin-bottom:10px}.nb-menu{display:none}}
 .tema-btn{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;margin-bottom:8px;padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e6eef0;font:inherit;font-size:.82rem;cursor:pointer}
 .tema-btn:hover{background:rgba(255,255,255,.12)}
+.tema-btn,.menu-btn{white-space:nowrap;overflow:hidden}
 .mh-tema{width:44px;height:44px;border:0;background:none;color:#fff;font-size:1.25rem;cursor:pointer;border-radius:10px}
 </style>
 </head>
@@ -501,29 +532,31 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   <div>
     <div class="brand">
       <img src="assets/tapirucu-logo.png" alt="Ekoa Tapiruçu - Início" onclick="goView('home')" style="cursor:pointer">
-      <div><h1>Ekoa Tapiruçu</h1><a href="#" class="about-link" onclick="event.stopPropagation();openAbout();return false;">Versão <span class="app-ver"></span> beta • Sobre</a> <a href="#" class="about-link" onclick="event.stopPropagation();openAjuda(null);return false;">• Ajuda</a></div>
+      <div class="s-lbl"><h1>Ekoa Tapiruçu</h1><a href="#" class="about-link" onclick="event.stopPropagation();openAbout();return false;">Versão <span class="app-ver"></span> beta • Sobre</a> <a href="#" class="about-link" onclick="event.stopPropagation();openAjuda(null);return false;">• Ajuda</a></div>
     </div>
-    <div class="farm-pick"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
+    <div class="farm-pick s-lbl"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
     <nav class="side-nav">
-      <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg><span>Início</span></button>
-      <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span>Lidas</span><span class="count" id="cAbertas" hidden></span></button>
-      <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span>Rebanho</span></button>
-      <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span>Mapa da fazenda</span></button>
-      <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span>Painel</span></button>
-      <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span>Fazenda e lotes</span></button>
-      <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
+      <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg><span class="s-lbl">Início</span></button>
+      <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span class="s-lbl">Lidas</span><span class="count" id="cAbertas" hidden></span></button>
+      <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span class="s-lbl">Rebanho</span></button>
+      <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span class="s-lbl">Mapa da fazenda</span></button>
+      <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Painel</span></button>
+      <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
+      <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
     </nav>
   </div>
   <div>
+    <button type="button" class="menu-btn" id="menuBtn" onclick="alternaMenu()" aria-label="Recolher ou expandir o menu"></button>
     <button type="button" class="tema-btn" id="temaBtn" onclick="ciclaTema()" aria-label="Alternar tema"></button>
-    <p class="saved-ind" id="dSaved" style="color:#cbd5e1"></p>
-    <div class="ekoa-footer"><img class="ekoa-mark" src="icons/ekoa-mark.png" alt="Ekoa"><div><span class="ekoa-text">EKOA TECH</span><span class="ekoa-sub">Processos • Tecnologia • Resultado</span></div></div>
-    <div class="client-row"><span>Cliente</span><span class="blend-slot"><img src="icons/logo-blend.png" alt="Blendcoffee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="blend-fb"><b>BLEND</b><i>COFFEE</i></span></span></div>
+    <p class="saved-ind s-lbl" id="dSaved" style="color:#cbd5e1"></p>
+    <div class="ekoa-footer"><img class="ekoa-mark" src="icons/ekoa-mark.png" alt="Ekoa"><div class="s-lbl"><span class="ekoa-text">EKOA TECH</span><span class="ekoa-sub">Processos • Tecnologia • Resultado</span></div></div>
+    <div class="client-row s-lbl"><span>Cliente</span><span class="blend-slot"><img src="icons/logo-blend.png" alt="Blendcoffee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="blend-fb"><b>BLEND</b><i>COFFEE</i></span></span></div>
   </div>
 </aside>
 
 <main class="main">
   <div id="updateBar" role="status"></div>
+  <div id="navBar" class="navbar"></div>
 
   <!-- INÍCIO -->
   <section class="view" id="v-home" aria-label="Início">
@@ -584,7 +617,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   <section class="view" id="v-painel">
     <div class="topbar">
       <div><h2>Painel</h2><p id="pnSub">Indicadores calculados a partir das lidas finalizadas.</p></div>
-      <div class="actions"><button class="btn" onclick="exportLotesCSV()"><svg><use href="#i-down"/></svg>Lotes CSV</button><button class="btn" onclick="exportEventosCSV()"><svg><use href="#i-down"/></svg>Eventos CSV</button></div>
+      <div class="actions"><button class="btn" onclick="exportPastosCSV()"><svg><use href="#i-down"/></svg>Pastos CSV</button><button class="btn" onclick="exportLotesCSV()"><svg><use href="#i-down"/></svg>Lotes CSV</button><button class="btn" onclick="exportEventosCSV()"><svg><use href="#i-down"/></svg>Eventos CSV</button></div>
     </div>
     <div id="painel"></div>
   </section>
@@ -600,15 +633,15 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   <!-- CADASTROS -->
   <section class="view" id="v-cadastros">
     <div class="topbar">
-      <div><h2>Fazenda e lotes</h2><p>Cadastros base. A área (ha) habilita o cálculo de lotação (UA/ha).</p></div>
-      <div class="actions"><button class="btn" onclick="openFarm()">Nova fazenda</button><button class="btn primary" onclick="openLote()">Novo lote</button></div>
+      <div><h2>Fazenda, pastos e lotes</h2><p>O pasto é o lugar (área, contorno e metas de manejo). O lote é o grupo de animais que ocupa um pasto.</p></div>
+      <div class="actions"><button class="btn" onclick="openFarm()">Nova fazenda</button><button class="btn" onclick="openPasto()">Novo pasto</button><button class="btn primary" onclick="openLote()">Novo lote</button></div>
     </div>
     <div id="cadBody"></div>
   </section>
 
   <!-- MAPA DA FAZENDA -->
   <section class="view" id="v-mapa">
-    <div class="topbar"><div><h2>Mapa da fazenda</h2><p>Fazendas, piquetes e onde está o rebanho. Toque num piquete para ver os animais.</p></div></div>
+    <div class="topbar"><div><h2>Mapa da fazenda</h2><p>Fazendas, pastos e onde está o rebanho. Toque num pasto para ver quem está nele.</p></div></div>
     <div id="mapaBody"></div>
   </section>
 
@@ -617,8 +650,8 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
     <div class="topbar"><div><h2>Mais</h2><p id="maisFarm"></p></div></div>
     <div class="menu-list">
       <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
-      <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, piquetes e o rebanho no mapa</small></div></button>
-      <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda e lotes<small>Cadastros base e fazenda ativa</small></div></button>
+      <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, pastos e o rebanho no mapa</small></div></button>
+      <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
       <button onclick="openAjuda(null)"><svg><use href="#i-info"/></svg><div>Ekoa Ajuda<small>Passo a passo, regras e dúvidas de cada tela</small></div></button>
       <button onclick="ciclaTema()"><svg><use href="#i-info"/></svg><div>Tema: <span class="tema-nome"></span><small>Claro, escuro ou automático (segue o celular)</small></div></button>
@@ -653,9 +686,9 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 const APP_ID = 'ekoa-tapirucu';
-const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
+const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
 const STORE = 'kv';
 const UA_KG = 450;                    // R05: 1 UA = 450 kg de peso vivo
@@ -675,7 +708,7 @@ const PROCEDIMENTOS = { vacina: 'Vacina', vermifugo: 'Vermífugo', medicamento: 
 const MOTIVOS_PESAGEM = { rotina: 'Rotina', entrada: 'Entrada', desmame: 'Desmame', venda: 'Pré-venda', outro: 'Outro' };
 
 /* ---------------- Estado ---------------- */
-let S = { fazendas: [], lotes: [], animais: [], lidas: [], lixeira: [], excluidos: [], fazendaAtiva: null };
+let S = { fazendas: [], pastos: [], lotes: [], animais: [], lidas: [], fotos: {}, lixeira: [], excluidos: [], fazendaAtiva: null };
 let syncMeta = { device: null, exports: [], imports: [], importedIds: [], lastFrom: {}, lastSeenVersion: 0 };
 let calc = null;           // estado derivado (recalculado a cada mudança)
 let editLidaId = null;     // lida aberta no editor
@@ -715,6 +748,7 @@ async function idbGet(k) { const db = await idb(); return new Promise((ok, fail)
 async function idbSet(k, v) { const db = await idb(); return new Promise((ok, fail) => { const t = db.transaction(STORE, 'readwrite'); t.objectStore(STORE).put(v, k); t.oncomplete = ok; t.onerror = () => fail(t.error); }); }
 let saveChain = Promise.resolve();
 function save() {
+  migraPastos();   // rede de segurança: todo lote tem pasto e histórico de ocupação
   calc = null;
   const snap = JSON.parse(JSON.stringify(S));
   saveChain = saveChain.then(() => idbSet('dados', snap)).then(() => setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })))
@@ -737,6 +771,103 @@ const animaisF = () => S.animais.filter(a => a.fazendaId === S.fazendaAtiva);
 const lidasF = () => S.lidas.filter(l => l.fazendaId === S.fazendaAtiva);
 const loteNome = id => { const l = S.lotes.find(x => x.id === id); return l ? l.nome : '—'; };
 function setFarm(id) { S.fazendaAtiva = id; save(); refreshAll(); }
+
+/* ---------------- Pasto (o lugar) x Lote (o grupo de animais) ----------------
+   O pasto é a área: contorno, hectares, lotação máxima e metas de manejo.
+   O lote é o grupo de animais, que ocupa um pasto hoje e pode mudar amanhã.
+   O histórico de ocupações do lote é o que permite medir rotação: dias de
+   ocupação, dias de descanso e ciclos por pasto.
+   Referência das metas: Embrapa — ocupação de 1 a 7 dias, descanso conforme a
+   forrageira, nº de piquetes = (descanso ÷ ocupação) + 1.                      */
+const FORRAGEIRAS = {
+  'Mombaça':    { oc: 3, de: 28, he: 90, hs: 40 },
+  'Tanzânia':   { oc: 3, de: 35, he: 70, hs: 35 },
+  'BRS Zuri':   { oc: 3, de: 30, he: 70, hs: 35 },
+  'Xaraés':     { oc: 3, de: 30, he: 45, hs: 20 },
+  'Marandu':    { oc: 3, de: 35, he: 35, hs: 20 },
+  'Piatã':      { oc: 3, de: 35, he: 35, hs: 20 },
+  'Decumbens':  { oc: 3, de: 35, he: 30, hs: 15 },
+  'Humidícola': { oc: 3, de: 35, he: 20, hs: 10 }
+};
+const pastoDe = id => S.pastos.find(p => p.id === id) || null;
+const pastosF = () => S.pastos.filter(p => p.fazendaId === S.fazendaAtiva);
+const pastosAtivosF = () => pastosF().filter(p => p.ativo !== false);
+const pastoNome = id => { const p = pastoDe(id); return p ? p.nome : '—'; };
+const areaPasto = p => p ? ((p.geo && p.geo.areaHa) || p.areaHa || null) : null;
+const areaLote = l => areaPasto(pastoDe(l && l.pastoId));
+const lotacaoDe = l => { const p = pastoDe(l && l.pastoId); return p ? p.lotacaoMax : null; };
+const ocupAberta = l => (l && l.ocupacoes || []).find(o => !o.ate) || null;
+const lotesDoPasto = pid => S.lotes.filter(l => l.pastoId === pid && l.ativo !== false);
+function pastoEmData(l, d) { const oc = (l && l.ocupacoes) || []; if (!oc.length) return null; let r = null; oc.forEach(o => { if (o.de <= d && (!o.ate || o.ate > d)) r = o.p; }); return r || (d < oc[0].de ? oc[0].p : null); }
+function pastoDoLoteId(lid, d) { const l = S.lotes.find(x => x.id === lid); if (!l) return null; return d ? pastoEmData(l, d) : l.pastoId; }
+
+/* Migração: cada lote antigo guardava o lugar e o grupo juntos. Vira um pasto
+   (com a área, o contorno e a lotação) + o lote que o ocupa. O id do pasto é
+   derivado do id do lote, então todos os aparelhos geram exatamente o mesmo
+   registro e a sincronização não duplica nada. */
+function pastoDoLoteAntigo(l) {
+  return { id: 'pa-' + l.id, fazendaId: l.fazendaId, nome: str(l.pasto, 60) || str(l.nome, 60), areaHa: l.areaHa || null, lotacaoMax: l.lotacaoMax || null,
+    forrageira: '', diasOcupacao: null, diasDescanso: null, alturaEntrada: null, alturaSaida: null, ativo: l.ativo !== false, geo: l.geo || null,
+    versao: l.versao || 1, criadoEm: l.criadoEm || nowISO(), editadoEm: l.editadoEm || l.criadoEm || nowISO(), origem: l.origem || null, editadoNo: l.editadoNo || null, exportadoEm: l.exportadoEm || null };
+}
+function migraLote(l, pastos) {
+  if (!l || !l.id || (l.pastoId && Array.isArray(l.ocupacoes))) return;
+  const p = pastoDoLoteAntigo(l);
+  if (!pastos.some(x => x && x.id === p.id)) pastos.push(p);
+  l.pastoId = p.id;
+  l.ocupacoes = [{ p: p.id, de: String(l.criadoEm || nowISO()).slice(0, 10), ate: null }];
+  delete l.pasto; delete l.areaHa; delete l.lotacaoMax; delete l.geo;
+}
+/* ---------------- Foto do animal (rastreabilidade) ----------------
+   A foto fica fora do registro do animal, numa lista à parte por id, para não
+   pesar nas comparações de versão. Entra no arquivo de sincronização já
+   reduzida (720 px, JPEG), e vence sempre a foto mais recente.             */
+const FOTO_MAX_PX = 720, FOTO_Q = 0.62;
+const fotoDe = id => (S.fotos && S.fotos[id]) || null;
+function comprimeImagem(file) {
+  return new Promise((ok, fail) => {
+    if (!file || !/^image\//.test(file.type)) return fail(new Error('Formato não suportado.'));
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const e = Math.min(1, FOTO_MAX_PX / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width * e)); c.height = Math.max(1, Math.round(img.height * e));
+      const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      try { ok(c.toDataURL('image/jpeg', FOTO_Q)); } catch (err) { fail(err); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); fail(new Error('Não foi possível ler a imagem.')); };
+    img.src = url;
+  });
+}
+async function escolheFoto(id, input) {
+  const file = input.files && input.files[0]; input.value = '';
+  if (!file) return;
+  if (file.size > 25e6) { alert('Imagem muito grande (máx. 25 MB).'); return; }
+  try {
+    const d = await comprimeImagem(file);
+    S.fotos = S.fotos || {};
+    S.fotos[id] = { d, em: nowISO(), por: deviceRef() };
+    await save(); openAnimal(id); renderRebanho(); showToast('Foto salva (' + fmtN(d.length / 1400, 0) + ' KB).');
+  } catch (e) { alert('Não foi possível usar esta imagem. Tente outra foto.'); }
+}
+function removeFoto(id) {
+  if (!fotoDe(id) || !confirm('Remover a foto deste animal?')) return;
+  delete S.fotos[id]; save(); openAnimal(id); renderRebanho(); showToast('Foto removida.');
+}
+function ampliaFoto(id) {
+  const f = fotoDe(id), a = S.animais.find(x => x.id === id); if (!f) return;
+  openModal('Foto · ' + (a ? a.brinco : ''), `<img src="${f.d}" alt="Foto do animal ${esc(a ? a.brinco : '')}" style="width:100%;border-radius:12px">
+    <p class="hint">Registrada em ${fmtDT(f.em)}${f.por ? ' no aparelho ' + esc(f.por.nome) : ''}.</p>`,
+    `<button class="btn primary" onclick="openAnimal('${id}')">Voltar à ficha</button>`, true);
+}
+const tamanhoFotos = () => Object.values(S.fotos || {}).reduce((t, f) => t + (f && f.d ? f.d.length : 0), 0);
+
+function migraPastos() {
+  if (!S.fotos || typeof S.fotos !== 'object') S.fotos = {};
+  if (!Array.isArray(S.pastos)) S.pastos = [];
+  S.lotes.forEach(l => migraLote(l, S.pastos));
+}
 
 /* =========================================================================
    Estado derivado: o rebanho atual é recalculado a partir do cadastro
@@ -796,12 +927,53 @@ function computeF(fid) {
   return map;
 }
 
-/* ---------------- Navegação ---------------- */
-let currentView = 'home';
-function goView(v) {
+/* ---------------- Navegação ----------------
+   Trilha + voltar: quem está num painel pode abrir o cadastro, corrigir e
+   voltar exatamente para onde estava, sem repassar pelo menu.              */
+let currentView = 'home', navHist = [];
+const VIEW_NOME = { home: 'Início', lidas: 'Lidas', lida: 'Lida', rebanho: 'Rebanho', mapa: 'Mapa da fazenda', painel: 'Painel', cadastros: 'Fazenda, pastos e lotes', sync: 'Sincronizar', mais: 'Mais' };
+const TELAS_LARGAS = ['painel', 'mapa', 'rebanho', 'cadastros'];
+function estadoNav() { return { v: currentView, pn: Object.assign({}, pnNivel), sel: mapSel, todas: mapaTodas, rb: rbPending }; }
+function voltar() {
+  const h = navHist.pop(); if (!h) return;
+  pnNivel = h.pn; mapSel = h.sel; mapaTodas = h.todas;
+  goView(h.v, true);
+}
+function nivelNome(pn) {
+  if (pn.tipo === 'todas') return 'Todas as fazendas';
+  if (pn.tipo === 'pasto') return 'Pasto ' + pastoNome(pn.id);
+  if (pn.tipo === 'lote') return 'Lote ' + loteNome(pn.id);
+  if (pn.tipo === 'rebanho') return 'Rebanho';
+  return 'Fazenda';
+}
+function rotuloEstado(h) { return h.v !== 'painel' ? (VIEW_NOME[h.v] || '') : 'Painel · ' + nivelNome(h.pn); }
+function renderNavBar() {
+  const bar = $('navBar'); if (!bar) return;
+  const h = navHist[navHist.length - 1];
+  const trilha = [];
+  if (currentView === 'painel' && pnNivel.tipo !== 'fazenda' && pnNivel.tipo !== 'todas') {
+    trilha.push(`<button class="nb-link" onclick="irPainel('fazenda')">Painel da fazenda</button>`);
+    trilha.push(`<b>${esc(nivelNome(pnNivel))}</b>`);
+  } else trilha.push(`<b>${esc(currentView === 'painel' ? 'Painel · ' + nivelNome(pnNivel) : (VIEW_NOME[currentView] || ''))}</b>`);
+  const sel = S.fazendas.length ? `<select class="nb-farm" aria-label="Fazenda que você está vendo" onchange="setFarm(this.value)">${S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('')}</select>` : '';
+  bar.innerHTML = `${h ? `<button class="btn sm" onclick="voltar()" title="Voltar para ${esc(rotuloEstado(h))}">‹ Voltar para ${esc(rotuloEstado(h))}</button>` : ''}
+    <button class="btn sm nb-menu" onclick="alternaMenu()" id="navMenuBtn" title="Recolher ou expandir o menu">☰</button>
+    ${sel}<span class="nb-trail">${sel ? '<span class="nb-sep">›</span>' : ''}${trilha.join('<span class="nb-sep">›</span>')}</span>`;
+}
+/* Menu: automático (recolhe nas telas largas) até o usuário escolher */
+let menuPref = (() => { try { return localStorage.getItem('tapirucu-menu') || ''; } catch (e) { return ''; } })();
+const menuMin = () => menuPref ? menuPref === 'min' : TELAS_LARGAS.includes(currentView);
+function aplicaMenu() {
+  document.body.classList.toggle('side-min', menuMin());
+  const b = $('menuBtn'); if (b) b.innerHTML = menuMin() ? '<span aria-hidden="true">»</span><span class="s-lbl">Expandir menu</span>' : '<span aria-hidden="true">«</span><span class="s-lbl">Recolher menu</span>';
+}
+function alternaMenu() { menuPref = menuMin() ? 'aberto' : 'min'; try { localStorage.setItem('tapirucu-menu', menuPref); } catch (e) {} aplicaMenu(); showToast(menuMin() ? 'Menu recolhido: passe o mouse para ver os nomes.' : 'Menu expandido.'); }
+function goView(v, semHistorico) {
   if (draw && v !== 'mapa') cancelDraw(true);
   if (!farm() && v !== 'cadastros' && v !== 'mais' && v !== 'sync') { v = 'home'; }
+  if (!semHistorico && currentView && currentView !== v) { navHist.push(estadoNav()); if (navHist.length > 20) navHist.shift(); }
   currentView = v; document.body.dataset.view = v;
+  aplicaMenu();
   document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === v || (v === 'lida' && b.dataset.nav === 'lidas')));
   if (v === 'home') renderHome();
   if (v === 'lidas') renderLidas();
@@ -812,6 +984,7 @@ function goView(v) {
   if (v === 'cadastros') renderCadastros();
   if (v === 'mapa') renderMapa();
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
+  renderNavBar();
   poeAjuda();
   window.scrollTo({ top: 0 });
 }
@@ -822,7 +995,7 @@ function renderFarmSel() {
   $('mFarm').textContent = farm() ? farm().nome : 'Cadastre a fazenda';
 }
 function pendentesCount() {
-  return S.fazendas.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status === 'finalizada' && isPend(l)).length;
+  return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status === 'finalizada' && isPend(l)).length;
 }
 function updateCounts() {
   const ab = lidasF().filter(l => l.status === 'aberta').length, pd = pendentesCount();
@@ -844,6 +1017,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal')
 function fieldErr(id, msg) { const el = $(id); if (!el) return; const f = el.closest('.field'); if (f) { f.classList.toggle('has-err', !!msg); const er = f.querySelector('.err'); if (er) er.textContent = msg || ''; } }
 const fld = (id, label, input, req, hint) => `<div class="field"><label for="${id}">${label}${req ? ' <span class="req">*</span>' : ''}</label>${input}<div class="err"></div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
 const opts = (obj, sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + Object.entries(obj).map(([k, v]) => `<option value="${esc(k)}"${k === sel ? ' selected' : ''}>${esc(v)}</option>`).join('');
+const pastoOpts = (sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + pastosAtivosF().map(p => `<option value="${esc(p.id)}"${p.id === sel ? ' selected' : ''}>${esc(p.nome)}</option>`).join('');
 const loteOpts = (sel, blank, soAtivos = true) => (blank ? `<option value="">${blank}</option>` : '') + lotesF().filter(l => !soAtivos || l.ativo !== false || l.id === sel).map(l => `<option value="${esc(l.id)}"${l.id === sel ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
 
 /* ---------------- Toast ---------------- */
@@ -856,7 +1030,7 @@ function showToastAction(msg, label, fn) { const t = $('toast'); t.innerHTML = `
 function renderHome() {
   const f = farm(), al = $('homeAlerts');
   if (!f) {
-    $('hFarm').innerHTML = 'Comece cadastrando a fazenda. Depois os lotes e os animais.';
+    $('hFarm').innerHTML = 'Comece cadastrando a fazenda. Depois os pastos (o lugar), os lotes (o grupo) e os animais.';
     al.innerHTML = `<div class="alert info"><span>Nenhuma fazenda cadastrada neste aparelho. Se outro aparelho já tem os dados, importe o arquivo de sincronização.</span></div>
       <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
     $('homeKpis').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
@@ -865,19 +1039,22 @@ function renderHome() {
   const st = Object.values(compute()), at = st.filter(x => x.ativo);
   const ab = lidasF().filter(l => l.status === 'aberta'), pd = pendentesCount();
   let h = '';
-  if (!lotesF().length) h += `<div class="alert warn"><span>Cadastre ao menos um lote para lançar animais.</span><button class="btn sm" onclick="openLote()">Novo lote</button></div>`;
+  if (!pastosAtivosF().length) h += `<div class="alert warn"><span>Cadastre ao menos um pasto: ele é o lugar onde os lotes ficam.</span><button class="btn sm" onclick="openPasto()">Novo pasto</button></div>`;
+  else if (!lotesF().length) h += `<div class="alert warn"><span>Cadastre ao menos um lote (o grupo de animais) para lançar o rebanho.</span><button class="btn sm" onclick="openLote()">Novo lote</button></div>`;
   else if (!animaisF().length) h += `<div class="alert warn"><span>Nenhum animal cadastrado. Faça a carga inicial do rebanho.</span><button class="btn sm" onclick="goView('rebanho');openAddAnimals()">Adicionar animais</button></div>`;
   if (ab.length) h += `<div class="alert warn"><span>${ab.length} lida(s) em aberto. Elas só valem depois de finalizadas.</span><button class="btn sm" onclick="$('lfStatus').value='aberta';goView('lidas')">Ver</button></div>`;
   if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
   al.innerHTML = h;
   const pesos = at.filter(x => x.ultimoPeso > 0), gmds = at.filter(x => x.gmd != null);
-  $('homeKpis').innerHTML = kpi('Fazendas', fmtN(S.fazendas.length), 'teal', 'ver no mapa', "goView('mapa')")
+  const rpH = pastosResumo();
+  $('homeKpis').innerHTML = kpi('Fazendas', fmtN(S.fazendas.length), 'teal', 'ver todas no mapa', "mapaTodas=S.fazendas.length>1;goView('mapa')")
+    + kpi('Pastos', fmtN(rpH.length), 'teal', `${rpH.filter(x => x.ocupado).length} ocupado(s) · ${rpH.filter(x => x.situacao === 'pronto').length} pronto(s)`, "irPainel('fazenda')")
     + kpi('Animais ativos', fmtN(at.length), 'navy', lotesF().length + ' lote(s)', "goRebanho('ativos')")
     + kpi('Peso médio', pesos.length ? fmtN(avg(pesos.map(x => x.ultimoPeso)), 1) + ' kg' : '—', 'teal', pesos.length + ' com peso')
     + kpi('GMD médio', gmds.length ? fmtN(avg(gmds.map(x => x.gmd)), 3) + ' kg/dia' : '—', 'gold', gmds.length + ' com 2+ pesagens')
     + kpi('Em carência', fmtN(at.filter(x => x.emCarencia).length), 'orange', 'não podem sair', "goRebanho('carencia')")
     + kpi('Sem manejo +30 dias', fmtN(at.filter(x => x.atrasado).length), 'red', 'pesagem ou sanitário', "goRebanho('atraso')");
-  $('tRebanho').textContent = `${at.length} animais ativos em ${lotesF().length} lote(s)`;
+  $('tRebanho').textContent = `${at.length} animais ativos em ${lotesF().length} lote(s) e ${pastosAtivosF().length} pasto(s)`;
   $('tSync').textContent = pd ? `${pd} para exportar` : 'Tudo exportado';
   const ult = lidasF().slice().sort((a, b) => (b.editadoEm || '').localeCompare(a.editadoEm || '')).slice(0, 5);
   $('homeLidas').innerHTML = ult.length ? `<div class="lida-list">${ult.map(lidaItem).join('')}</div>` : '<div class="empty">Nenhuma lida ainda. Toque em <b>Nova lida</b> para começar.</div>';
@@ -944,7 +1121,7 @@ function renderLidaEditor() {
   const fzOpts = S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === l.fazendaId ? ' selected' : ''}>${esc(f.nome)}</option>`).join('');
   let head = fld('lFaz', 'Fazenda', `<select id="lFaz"${ro || regs0(l) ? ' disabled' : ''} onchange="setLidaFazenda(this.value)">${fzOpts}</select>`, true, !ro && regs0(l) ? 'Para trocar a fazenda, remova os animais lançados.' : '')
     + fld('lData', 'Data do manejo', `<input type="date" id="lData" value="${esc(l.data)}" max="${hoje()}"${dis} onchange="setCab('data',this.value)">`, true)
-    + fld('lLote', l.tipo === 'troca' ? 'Lote / piquete de origem' : 'Lote / piquete', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, 'Definir pelo primeiro brinco')}</select>`, precisaLote && l.tipo !== 'troca', ro ? '' : 'Escolha o lote, ou leia o primeiro brinco: o lote dele vira o lote da lida e os demais animais entram na fila.');
+    + fld('lLote', l.tipo === 'troca' ? 'Lote de origem' : 'Lote', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, 'Definir pelo primeiro brinco')}</select>`, precisaLote && l.tipo !== 'troca', ro ? '' : 'Escolha o lote, ou leia o primeiro brinco: o lote dele vira o lote da lida e os demais animais entram na fila.');
   if (l.tipo === 'pesagem') head += fld('lMot', 'Motivo', `<select id="lMot"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_PESAGEM, c.motivo)}</select>`);
   if (l.tipo === 'sanitario') head += fld('lProc', 'Procedimento', `<select id="lProc"${dis} onchange="setCab('cab.procedimento',this.value)">${opts(PROCEDIMENTOS, c.procedimento)}</select>`, true)
     + fld('lProd', 'Produto', `<input id="lProd" value="${esc(c.produto || '')}" maxlength="80"${dis} onchange="setCab('cab.produto',this.value)" placeholder="Ex.: Aftosa, Ivermectina">`, true)
@@ -1212,7 +1389,7 @@ function deleteLida() {
 /* =========================================================================
    LIXEIRA e registro de exclusão (viaja na sincronização)
    ========================================================================= */
-const COL = { lida: 'lidas', animal: 'animais', lote: 'lotes', fazenda: 'fazendas' };
+const COL = { lida: 'lidas', animal: 'animais', lote: 'lotes', pasto: 'pastos', fazenda: 'fazendas' };
 function moveToTrash(tipo, item, em, no) {
   S[COL[tipo]] = S[COL[tipo]].filter(x => x.id !== item.id);
   S.lixeira = S.lixeira.filter(x => x.item.id !== item.id);
@@ -1247,7 +1424,7 @@ function renderRebanho() {
     if (sit === 'carencia' && !s.emCarencia) return false;
     if (sit === 'atraso' && !s.atrasado) return false;
     if (lt && s.lote !== lt) return false;
-    if (q && ![s.a.brinco, s.a.raca, s.a.categoria].some(v => String(v || '').toLowerCase().includes(q))) return false;
+    if (q && ![s.a.brinco, s.a.raca, s.a.categoria, s.a.caracteristica, pastoNome(pastoDoLoteId(s.lote))].some(v => String(v || '').toLowerCase().includes(q))) return false;
     return true;
   });
   const key = { brinco: s => s.a.brinco, lote: s => loteNome(s.lote), sexo: s => s.a.sexo, peso: s => s.ultimoPeso || 0, gmd: s => s.gmd == null ? -99 : s.gmd, manejo: s => s.diasSemManejo || 0 }[rbSort.k];
@@ -1255,10 +1432,10 @@ function renderRebanho() {
   const at = st.filter(s => s.ativo).length;
   $('rbSub').textContent = `${at} ativo(s) · ${st.length - at} baixado(s) · mostrando ${rows.length}`;
   const th = (k, t, num) => `<th class="${num ? 'num' : ''}" onclick="sortRb('${k}')" aria-sort="${rbSort.k === k ? (rbSort.d > 0 ? 'ascending' : 'descending') : 'none'}">${t}${rbSort.k === k ? (rbSort.d > 0 ? ' ▲' : ' ▼') : ''}</th>`;
-  $('rbTable').innerHTML = rows.length ? `<div class="tbl-wrap"><table><thead><tr>${th('brinco', 'Brinco')}${th('lote', 'Lote')}${th('sexo', 'Sexo')}<th class="hide-m">Raça / categoria</th>${th('peso', 'Último peso', 1)}${th('gmd', 'GMD', 1)}${th('manejo', 'Situação')}</tr></thead><tbody>
+  $('rbTable').innerHTML = rows.length ? `<div class="tbl-wrap"><table><thead><tr>${th('brinco', 'Brinco')}${th('lote', 'Lote')}<th class="hide-m">Pasto</th>${th('sexo', 'Sexo')}<th class="hide-m">Raça / categoria</th>${th('peso', 'Último peso', 1)}${th('gmd', 'GMD', 1)}${th('manejo', 'Situação')}</tr></thead><tbody>
     ${rows.slice(0, 1000).map(s => `<tr class="click" tabindex="0" onclick="openAnimal('${s.a.id}')" onkeydown="if(event.key==='Enter')openAnimal('${s.a.id}')">
-      <td><b>${esc(s.a.brinco)}</b>${s.emCarencia ? ' <span class="lock" title="Em carência até ' + fmtD(s.carenciaAte) + '">🔒</span>' : ''}</td>
-      <td>${esc(loteNome(s.lote))}</td><td>${esc(SEXOS[s.a.sexo] || '')}</td><td class="hide-m">${esc([s.a.raca, s.a.categoria].filter(Boolean).join(' · ') || '—')}</td>
+      <td>${fotoDe(s.a.id) ? `<img class="rb-foto" src="${fotoDe(s.a.id).d}" alt="">` : ''}<b>${esc(s.a.brinco)}</b>${s.emCarencia ? ' <span class="lock" title="Em carência até ' + fmtD(s.carenciaAte) + '">🔒</span>' : ''}${s.a.caracteristica ? ' <span class="muted" title="' + esc(s.a.caracteristica) + '">ⓘ</span>' : ''}</td>
+      <td>${esc(loteNome(s.lote))}</td><td class="hide-m">${esc(pastoNome(pastoDoLoteId(s.lote)))}</td><td>${esc(SEXOS[s.a.sexo] || '')}</td><td class="hide-m">${esc([s.a.raca, s.a.categoria].filter(Boolean).join(' · ') || '—')}</td>
       <td class="num">${s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg' : '—'}</td><td class="num">${s.gmd != null ? fmtN(s.gmd, 3) : '—'}</td>
       <td>${sitChip(s)}</td></tr>`).join('')}</tbody></table></div>${rows.length > 1000 ? '<p class="hint">Mostrando os primeiros 1.000. Use a busca ou o filtro de lote.</p>' : ''}`
     : `<div class="card empty"><svg><use href="#i-rebanho"/></svg>${animaisF().length ? 'Nenhum animal com esse filtro.' : 'Nenhum animal cadastrado. Use <b>Adicionar animais</b> para a carga inicial.'}</div>`;
@@ -1274,17 +1451,28 @@ function openAnimal(id) {
   const s = compute()[id]; if (!s) return; const a = s.a;
   const usado = S.lidas.some(l => l.status === 'finalizada' && l.registros.some(r => r.animalId === id));
   const mae = a.maeId ? S.animais.find(x => x.id === a.maeId) : null;
-  const fz = S.fazendas.find(x => x.id === a.fazendaId), lt = S.lotes.find(x => x.id === s.lote);
+  const fz = S.fazendas.find(x => x.id === a.fazendaId), lt = S.lotes.find(x => x.id === s.lote), pst = pastoDe(lt ? lt.pastoId : null);
+  const ft = fotoDe(id);
   openModal('Animal ' + a.brinco, `
     <div style="margin-bottom:12px">${sitChip(s)}</div>
+    <div class="am-foto">
+      ${ft ? `<img src="${ft.d}" alt="Foto de ${esc(a.brinco)}" onclick="ampliaFoto('${id}')" title="Ampliar">` : '<div class="am-foto-vazia">Sem foto</div>'}
+      <div>
+        <label class="btn sm">${ft ? 'Trocar foto' : '📷 Adicionar foto'}<input type="file" accept="image/*" capture="environment" hidden onchange="escolheFoto('${id}',this)"></label>
+        ${ft ? `<button class="btn sm danger" onclick="removeFoto('${id}')">Remover foto</button>` : ''}
+        <p class="hint" style="margin:6px 0 0">${a.caracteristica ? '<b>' + esc(a.caracteristica) + '</b>' : 'Use a foto e a característica (chifre, mancha, temperamento) para confirmar o animal no curral.'}</p>
+      </div>
+    </div>
     <div id="amMap" class="am-map"></div>
-    <p class="hint" id="amMapHint" hidden>Este lote ainda não tem localização. <a href="#" onclick="closeModal();mapSel='${esc(s.lote || '')}';goView('mapa');return false;">Desenhe o piquete no mapa</a> ou capture o ponto no cadastro do lote.</p>
+    <p class="hint" id="amMapHint" hidden>O pasto deste lote ainda não tem localização. <a href="#" onclick="closeModal();${pst ? `mapSel='${esc(pst.id)}';` : ''}goView('mapa');return false;">Desenhe o pasto no mapa</a> ou capture o ponto no cadastro do pasto.</p>
     <dl class="dl">
       <dt>Fazenda</dt><dd>${esc(fz ? fz.nome : '—')}</dd>
-      <dt>Lote atual</dt><dd>${esc(loteNome(s.lote))}${lt && lt.pasto ? ' · ' + esc(lt.pasto) : ''}</dd>
-      <dt>Localização</dt><dd>${lt && lt.geo && lt.geo.poligono ? 'Piquete com contorno · ' + fmtN(areaLote(lt), 2) + ' ha' : lt && lt.geo && lt.geo.ponto ? '📍 ' + esc(fmtCoord(lt.geo.ponto)) : 'Lote sem localização'}</dd>
+      <dt>Lote atual</dt><dd>${esc(loteNome(s.lote))}</dd>
+      <dt>Pasto</dt><dd>${pst ? esc(pst.nome) + (pst.forrageira ? ' · ' + esc(pst.forrageira) : '') : '—'}</dd>
+      <dt>Localização</dt><dd>${pst && pst.geo && pst.geo.poligono ? 'Pasto com contorno · ' + fmtN(areaPasto(pst), 2) + ' ha' : pst && pst.geo && pst.geo.ponto ? '📍 ' + esc(fmtCoord(pst.geo.ponto)) : 'Pasto sem localização'}</dd>
       <dt>Sexo</dt><dd>${esc(SEXOS[a.sexo] || '')}</dd>
       <dt>Raça / categoria</dt><dd>${esc([a.raca, a.categoria].filter(Boolean).join(' · ') || '—')}</dd>
+      <dt>Característica</dt><dd>${esc(a.caracteristica || '—')}</dd>
       <dt>Nascimento</dt><dd>${fmtD(a.nascimento)}${mae ? ' · mãe ' + esc(mae.brinco) : ''}</dd>
       <dt>Entrada na fazenda</dt><dd>${fmtD(a.entradaEm)}${a.origemEntrada === 'nascimento' ? ' (nascimento)' : ''}</dd>
       <dt>Último peso</dt><dd>${s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg em ' + fmtD(s.ultimaPesagem) : '—'}</dd>
@@ -1295,7 +1483,7 @@ function openAnimal(id) {
     <h4 style="margin:16px 0 8px;color:var(--brand-navy)">Histórico</h4>
     ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
     <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
-    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${s.lote ? `<button class="btn" onclick="closeModal();mapSel='${s.lote}';goView('mapa')">Ver no mapa</button>` : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${pst ? `<button class="btn" onclick="closeModal();selectPasto('${pst.id}',true);goView('mapa')">Ver no mapa</button>` : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
   if (!(s.ativo && miniMapa($('amMap'), s.lote))) { $('amMap').hidden = true; $('amMapHint').hidden = !s.ativo; }
 }
 function removeAnimal(id) {
@@ -1311,6 +1499,7 @@ function openEditAnimal(id) {
     ${fld('aSexo', 'Sexo', `<select id="aSexo">${opts(SEXOS, a.sexo)}</select>`, true)}
     ${fld('aRaca', 'Raça', `<input id="aRaca" value="${esc(a.raca || '')}" maxlength="40" list="dlRaca">`)}
     ${fld('aCat', 'Categoria', `<input id="aCat" value="${esc(a.categoria || '')}" maxlength="40" list="dlCat">`)}
+    ${fld('aCarac', 'Característica (opcional)', `<input id="aCarac" value="${esc(a.caracteristica || '')}" maxlength="120" placeholder="Ex.: chifre torto à esquerda, mancha branca na anca">`, false, 'Ajuda a confirmar o animal no curral, junto com a foto.')}
     ${fld('aNasc', 'Nascimento', `<input type="date" id="aNasc" value="${esc(a.nascimento || '')}" max="${hoje()}">`)}
     ${fld('aEnt', 'Entrada na fazenda', `<input type="date" id="aEnt" value="${esc(a.entradaEm || '')}" max="${hoje()}">`, true)}
     </div>${datalists()}<p class="hint">O lote muda só por lida de Troca de lote, para manter o histórico rastreável.</p>`,
@@ -1324,7 +1513,7 @@ function saveEditAnimal(id) {
   if (animaisF().some(x => x.id !== id && x.brinco === br)) { fieldErr('aBr', 'Já existe animal com este brinco.'); return; }
   if (!validDate(ent)) { fieldErr('aEnt', 'Informe a data de entrada.'); return; }
   if (nas && nas > ent) { fieldErr('aEnt', 'A entrada não pode ser antes do nascimento.'); return; }
-  Object.assign(a, { brinco: br, sexo: $('aSexo').value === 'F' ? 'F' : 'M', raca: str($('aRaca').value, 40), categoria: str($('aCat').value, 40), nascimento: nas || null, entradaEm: ent });
+  Object.assign(a, { brinco: br, sexo: $('aSexo').value === 'F' ? 'F' : 'M', raca: str($('aRaca').value, 40), categoria: str($('aCat').value, 40), caracteristica: str($('aCarac').value, 120), nascimento: nas || null, entradaEm: ent });
   S.lidas.forEach(l => l.registros.forEach(r => { if (r.animalId === id) r.brinco = br; }));
   touch(a); save(); openAnimal(id); renderRebanho(); showToast('Cadastro atualizado.');
 }
@@ -1388,26 +1577,65 @@ function saveAnimals() {
 /* =========================================================================
    PAINEL
    ========================================================================= */
+/* ---------------- Ciclo do pasto: ocupação, descanso e rotação ----------------
+   Base (Embrapa): o piquete alterna ocupação (1 a 7 dias) e descanso (conforme
+   a forrageira). O número de piquetes necessário = (descanso ÷ ocupação) + 1. */
+const SIT_PASTO = { ocupado: { t: 'Ocupado', c: 'info' }, descanso: { t: 'Em descanso', c: 'gray' }, pronto: { t: 'Pronto para entrar', c: 'ok' }, livre: { t: 'Nunca ocupado', c: 'gray' } };
+function pastoCiclo(p, hj) {
+  hj = hj || hoje();
+  let desde = null, ultimaSaida = null, ocupado = false; const ciclos = [];
+  S.lotes.forEach(l => ((l.ocupacoes) || []).forEach(o => {
+    if (o.p !== p.id) return;
+    ciclos.push({ lote: l, de: o.de, ate: o.ate });
+    if (!o.ate) { ocupado = true; if (!desde || o.de < desde) desde = o.de; }
+    else if (!ultimaSaida || o.ate > ultimaSaida) ultimaSaida = o.ate;
+  }));
+  ciclos.sort((a, b) => b.de.localeCompare(a.de));
+  const fechados = ciclos.filter(c => c.ate), diasOcup = ocupado && desde ? diasEntre(desde, hj) : null, diasDesc = !ocupado && ultimaSaida ? diasEntre(ultimaSaida, hj) : null;
+  let situacao = 'livre', aviso = null;
+  if (ocupado) { situacao = 'ocupado'; if (p.diasOcupacao && diasOcup > p.diasOcupacao) aviso = 'passou da meta de saída (' + p.diasOcupacao + ' dias)'; }
+  else if (ultimaSaida) situacao = p.diasDescanso && diasDesc >= p.diasDescanso ? 'pronto' : 'descanso';
+  return { ocupado, desde, ultimaSaida, diasOcup, diasDesc, ciclos, situacao, aviso,
+    mediaOcup: fechados.length ? avg(fechados.map(c => diasEntre(c.de, c.ate))) : null };
+}
+function pastosResumo(hj) {
+  const rl = lotesResumo();
+  return pastosF().map(p => {
+    const ls = rl.filter(r => r.l.pastoId === p.id);
+    const qtd = ls.reduce((t, x) => t + x.qtd, 0), comPeso = ls.reduce((t, x) => t + x.comPeso, 0);
+    const somaPeso = ls.reduce((t, x) => t + (x.pesoMedio ? x.pesoMedio * x.comPeso : 0), 0);
+    const ar = areaPasto(p), uaha = ar > 0 && comPeso ? (somaPeso / UA_KG) / ar : null;
+    return Object.assign({ p, lotes: ls, qtd, comPeso, pesoMedio: comPeso ? somaPeso / comPeso : null, ar, uaha,
+      ocup: uaha != null && p.lotacaoMax > 0 ? Math.round(uaha / p.lotacaoMax * 100) : null,
+      carencia: ls.reduce((t, x) => t + x.carencia, 0), atraso: ls.reduce((t, x) => t + x.atraso, 0) }, pastoCiclo(p, hj));
+  });
+}
+function sitPastoChip(r) { const d = SIT_PASTO[r.situacao]; const ex = r.situacao === 'ocupado' && r.diasOcup != null ? ` há ${r.diasOcup} d` : r.situacao === 'descanso' || r.situacao === 'pronto' ? ` há ${r.diasDesc} d` : ''; return `<span class="chip ${r.aviso ? 'warn' : d.c}">${d.t}${ex}</span>`; }
+function piquetesRecomendados(fid) {
+  const ps = S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false && p.diasDescanso > 0 && p.diasOcupacao > 0);
+  if (!ps.length) return null;
+  return { n: Math.ceil(avg(ps.map(p => p.diasDescanso / p.diasOcupacao)) + 1), total: S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false).length };
+}
 function lotesResumo() {
   const st = Object.values(compute()).filter(s => s.ativo);
-  return lotesF().map(l => {
+  return lotesF().filter(l => l.ativo !== false).map(l => {
     const an = st.filter(s => s.lote === l.id), ps = an.filter(s => s.ultimoPeso > 0), gm = an.filter(s => s.gmd != null);
     const soma = ps.reduce((t, s) => t + s.ultimoPeso, 0);
     const ar = areaLote(l), ua = soma / UA_KG, uaha = ar > 0 && ps.length ? ua / ar : null;
-    return { l, qtd: an.length, machos: an.filter(s => s.a.sexo === 'M').length, femeas: an.filter(s => s.a.sexo === 'F').length,
+    return { l, p: pastoDe(l.pastoId), qtd: an.length, machos: an.filter(s => s.a.sexo === 'M').length, femeas: an.filter(s => s.a.sexo === 'F').length,
       pesoMedio: ps.length ? soma / ps.length : null, comPeso: ps.length, gmd: gm.length ? avg(gm.map(s => s.gmd)) : null,
-      ua: ps.length ? ua : null, uaha, ocup: uaha != null && l.lotacaoMax > 0 ? Math.round(uaha / l.lotacaoMax * 100) : null,
+      ua: ps.length ? ua : null, uaha, ocup: uaha != null && lotacaoDe(l) > 0 ? Math.round(uaha / lotacaoDe(l) * 100) : null,
       carencia: an.filter(s => s.emCarencia).length, atraso: an.filter(s => s.atrasado).length };
   });
 }
 /* =========================================================================
-   PAINEL DA FAZENDA — macro (fazenda ou todas) e micro (piquete)
+   PAINÉIS — do macro (todas as fazendas) ao micro (pasto, lote, animal)
    Ganhos e perdas no período, evolução de 12 meses, comparativo de
-   fazendas e produtividade por piquete. Só lidas finalizadas.
+   fazendas, rotação de pastos e produtividade. Só lidas finalizadas.
    Gráficos: uma série por gráfico, um eixo, cores validadas (teal #00909F,
    cobre #C86A2C), dica ao passar o mouse e tabela com os mesmos números.
    ========================================================================= */
-let painelTodas = false, painelDias = 90;
+let painelDias = 90;
 const COR_CAB = '#00909F', COR_PESO = '#C86A2C', KG_ARROBA_VIVO = 30;
 const addDias = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
 const fimMes = (y, m) => new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
@@ -1416,54 +1644,66 @@ function vivoEm(s, d) { return !!s.a.entradaEm && s.a.entradaEm <= d && (!s.baix
 function pesoEm(s, d) { let p = null; for (const x of s.pesos) { if (x.data <= d) p = x.peso; else break; } return p; }
 function loteEm(s, d) { let l = s.a.loteId; for (const h of s.loteHist || []) { if (h.data <= d) l = h.lote; else break; } return l; }
 /* Ganho entre pesagens consecutivas, proporcional aos dias que caem no período; atribuído ao lote da pesagem final */
+function pastoEmS(s, d) { return pastoDoLoteId(loteEm(s, d), d); }
 function ganhoPeriodo(s, d0, d1) {
-  const p = s.pesos; let kg = 0, dias = 0; const porLote = {};
+  const p = s.pesos; let kg = 0, dias = 0; const porLote = {}, porPasto = {};
   for (let i = 1; i < p.length; i++) {
     const t1 = p[i - 1].data, t2 = p[i].data, tot = diasEntre(t1, t2); if (tot <= 0) continue;
     const ov = diasEntre(t1 > d0 ? t1 : d0, t2 < d1 ? t2 : d1); if (ov <= 0) continue;
     const g = (p[i].peso - p[i - 1].peso) * ov / tot; kg += g; dias += ov;
     const lt = loteEm(s, t2); porLote[lt] = (porLote[lt] || 0) + g;
+    const pt = pastoDoLoteId(lt, t2); if (pt) porPasto[pt] = (porPasto[pt] || 0) + g;
   }
-  return { kg, dias, porLote };
+  return { kg, dias, porLote, porPasto };
 }
-function areaPastagemF(fid) { const f = S.fazendas.find(x => x.id === fid); if (f && f.areaHa) return f.areaHa; return S.lotes.filter(l => l.fazendaId === fid).reduce((t, l) => t + (areaLote(l) || 0), 0) || null; }
-function analise(fids, d0, d1, loteId) {
-  const r = { ini: 0, fim: 0, entCad: 0, entNasc: 0, venda: 0, morte: 0, perda: 0, kgVenda: 0, kgPerda: 0, ganho: 0, gmdS: 0, gmdN: 0, area: 0, lote: {} };
-  const dIni = addDias(d0, -1), noLote = (s, d) => !loteId || loteEm(s, d) === loteId;
+function areaPastagemF(fid) { const f = S.fazendas.find(x => x.id === fid); if (f && f.areaHa) return f.areaHa; return S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false).reduce((t, p) => t + (areaPasto(p) || 0), 0) || null; }
+function analise(fids, d0, d1, filtro) {
+  const fil = typeof filtro === 'string' ? { lote: filtro } : (filtro || {}), escopo = fil.lote || fil.pasto;
+  const r = { ini: 0, fim: 0, entCad: 0, entNasc: 0, venda: 0, morte: 0, perda: 0, kgVenda: 0, kgPerda: 0, ganho: 0, gmdS: 0, gmdN: 0, area: 0, lote: {}, pasto: {} };
+  const dIni = addDias(d0, -1);
+  const dentro = (s, d) => (!fil.lote || loteEm(s, d) === fil.lote) && (!fil.pasto || pastoEmS(s, d) === fil.pasto);
   fids.forEach(fid => {
-    if (!loteId) r.area += areaPastagemF(fid) || 0;
+    if (!escopo) r.area += areaPastagemF(fid) || 0;
     Object.values(computeF(fid)).forEach(s => {
-      if (vivoEm(s, dIni) && noLote(s, dIni)) r.ini++;
-      if (vivoEm(s, d1) && noLote(s, d1)) r.fim++;
-      if (s.a.entradaEm >= d0 && s.a.entradaEm <= d1 && noLote(s, s.a.entradaEm)) s.a.origemEntrada === 'nascimento' ? r.entNasc++ : r.entCad++;
-      if (s.baixa && s.baixa.data >= d0 && s.baixa.data <= d1 && noLote(s, s.baixa.data)) {
+      if (vivoEm(s, dIni) && dentro(s, dIni)) r.ini++;
+      if (vivoEm(s, d1) && dentro(s, d1)) r.fim++;
+      if (s.a.entradaEm >= d0 && s.a.entradaEm <= d1 && dentro(s, s.a.entradaEm)) s.a.origemEntrada === 'nascimento' ? r.entNasc++ : r.entCad++;
+      if (s.baixa && s.baixa.data >= d0 && s.baixa.data <= d1 && dentro(s, s.baixa.data)) {
         const kg = pesoEm(s, s.baixa.data) || 0;
         if (s.baixa.motivo === 'venda') { r.venda++; r.kgVenda += kg; } else { s.baixa.motivo === 'morte' ? r.morte++ : r.perda++; r.kgPerda += kg; }
       }
       const g = ganhoPeriodo(s, d0, d1);
       Object.entries(g.porLote).forEach(([l, kg]) => { const o = r.lote[l] = r.lote[l] || { kg: 0, gS: 0, gN: 0 }; o.kg += kg; });
-      const lFim = loteEm(s, d1);
-      if (g.dias > 0) { const o = r.lote[lFim] = r.lote[lFim] || { kg: 0, gS: 0, gN: 0 }; o.gS += g.kg / g.dias; o.gN++; }
-      if (!loteId) { r.ganho += g.kg; if (g.dias > 0) { r.gmdS += g.kg / g.dias; r.gmdN++; } }
+      Object.entries(g.porPasto).forEach(([l, kg]) => { const o = r.pasto[l] = r.pasto[l] || { kg: 0, gS: 0, gN: 0 }; o.kg += kg; });
+      if (g.dias > 0) {
+        const lFim = loteEm(s, d1), ol = r.lote[lFim] = r.lote[lFim] || { kg: 0, gS: 0, gN: 0 }; ol.gS += g.kg / g.dias; ol.gN++;
+        const pFim = pastoEmS(s, d1); if (pFim) { const op = r.pasto[pFim] = r.pasto[pFim] || { kg: 0, gS: 0, gN: 0 }; op.gS += g.kg / g.dias; op.gN++; }
+      }
+      if (!escopo) { r.ganho += g.kg; if (g.dias > 0) { r.gmdS += g.kg / g.dias; r.gmdN++; } }
     });
   });
-  if (loteId) { const o = r.lote[loteId] || { kg: 0, gS: 0, gN: 0 }; r.ganho = o.kg; r.gmdS = o.gS; r.gmdN = o.gN; const l = S.lotes.find(x => x.id === loteId); r.area = l ? areaLote(l) || 0 : 0; }
+  if (escopo) {
+    const o = (fil.lote ? r.lote[fil.lote] : r.pasto[fil.pasto]) || { kg: 0, gS: 0, gN: 0 };
+    r.ganho = o.kg; r.gmdS = o.gS; r.gmdN = o.gN;
+    r.area = fil.lote ? (areaLote(S.lotes.find(x => x.id === fil.lote)) || 0) : (areaPasto(pastoDe(fil.pasto)) || 0);
+  }
   r.gmd = r.gmdN ? r.gmdS / r.gmdN : null; r.arrobas = r.ganho / KG_ARROBA_VIVO;
   r.medio = (r.ini + r.fim) / 2; r.mort = r.medio ? (r.morte + r.perda) / r.medio * 100 : null;
   r.arHa = r.area ? r.arrobas / r.area : null;
   return r;
 }
-function evolucao(fids, loteId) {
+function evolucao(fids, filtro) {
+  const fil = typeof filtro === 'string' ? { lote: filtro } : (filtro || {});
   const out = [], h = hoje(), base = new Date(h + 'T12:00:00');
   for (let k = 11; k >= 0; k--) {
     const y = base.getFullYear(), m = base.getMonth() - k, dt = new Date(Date.UTC(y, m, 1));
     const ini = dt.toISOString().slice(0, 10), fim = fimMes(dt.getUTCFullYear(), dt.getUTCMonth()), ate = fim < h ? fim : h;
     let cab = 0, pS = 0, pN = 0;
     fids.forEach(fid => Object.values(computeF(fid)).forEach(s => {
-      if (!vivoEm(s, ate) || (loteId && loteEm(s, ate) !== loteId)) return; cab++;
+      if (!vivoEm(s, ate) || (fil.lote && loteEm(s, ate) !== fil.lote) || (fil.pasto && pastoEmS(s, ate) !== fil.pasto)) return; cab++;
       const p = pesoEm(s, ate); if (p) { pS += p; pN++; }
     }));
-    const g = analise(fids, ini, ate, loteId).ganho;
+    const g = analise(fids, ini, ate, fil).ganho;
     out.push({ rot: MESES[dt.getUTCMonth()] + '/' + String(dt.getUTCFullYear()).slice(2), cab, peso: pN ? pS / pN : null, ganho: g });
   }
   return out;
@@ -1545,59 +1785,169 @@ function ganhosHtml(r) {
     ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' : 'informe a área para @/ha')}
   </div>`;
 }
+/* ---------- Painéis em árvore: todas → fazenda → pasto / lote / rebanho ---------- */
+let pnNivel = { tipo: 'fazenda', id: null };
+function irPainel(tipo, id) { if (currentView === 'painel') { navHist.push(estadoNav()); if (navHist.length > 20) navHist.shift(); } pnNivel = { tipo, id: id || null }; goView('painel', true); }
+const openPastoPainel = id => irPainel('pasto', id);
+const openLotePainel = id => irPainel('lote', id);
+const openPiquete = id => irPainel('lote', id);
+function pnEscopoSel() {
+  const f = farm(), todas = pnNivel.tipo === 'todas';
+  return `<select id="pnEsc" onchange="if(this.value==='__todas'){irPainel('todas')}else{pnNivel={tipo:'fazenda',id:null};setFarm(this.value)}" aria-label="Escopo">${S.fazendas.map(x => `<option value="${esc(x.id)}"${!todas && x.id === f.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}${S.fazendas.length > 1 ? `<option value="__todas"${todas ? ' selected' : ''}>Todas as fazendas</option>` : ''}</select>`;
+}
+function pnPeriodoSel() {
+  return `<select id="pnPer" onchange="painelDias=+this.value;renderPainel()" aria-label="Período">${[[30, 'Últimos 30 dias'], [90, 'Últimos 90 dias'], [180, 'Últimos 6 meses'], [365, 'Últimos 12 meses'], [0, 'Desde o início']].map(([v, t]) => `<option value="${v}"${v === painelDias ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+}
 function renderPainel() {
   const f = farm(); if (!f) return;
   for (const k in CHARTS) delete CHARTS[k];
+  if (pnNivel.tipo === 'pasto' && !pastoDe(pnNivel.id)) pnNivel = { tipo: 'fazenda', id: null };
+  if (pnNivel.tipo === 'lote' && !S.lotes.find(l => l.id === pnNivel.id)) pnNivel = { tipo: 'fazenda', id: null };
   const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
-  const fids = painelTodas ? S.fazendas.map(x => x.id) : [f.id];
-  const r = analise(fids, d0, d1), ev = evolucao(fids);
-  const escopo = `<select id="pnEsc" onchange="if(this.value==='__todas'){painelTodas=true;renderPainel()}else{painelTodas=false;setFarm(this.value)}" aria-label="Escopo">${S.fazendas.map(x => `<option value="${esc(x.id)}"${!painelTodas && x.id === f.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}${S.fazendas.length > 1 ? `<option value="__todas"${painelTodas ? ' selected' : ''}>Todas as fazendas</option>` : ''}</select>`;
-  const periodo = `<select id="pnPer" onchange="painelDias=+this.value;renderPainel()" aria-label="Período">${[[30, 'Últimos 30 dias'], [90, 'Últimos 90 dias'], [180, 'Últimos 6 meses'], [365, 'Últimos 12 meses'], [0, 'Desde o início']].map(([v, t]) => `<option value="${v}"${v === painelDias ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
-  let h = `<div class="toolbar pn-bar">${escopo}${periodo}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span></div>
-    <div class="card"><h3>Ganhos e perdas no período <span class="sub">${painelTodas ? 'todas as fazendas' : esc(f.nome)}</span></h3>${ganhosHtml(r)}
-      <p class="hint">Ganho de peso: diferença entre pesagens, proporcional aos dias dentro do período. Arrobas estimadas = ganho de peso vivo ÷ ${KG_ARROBA_VIVO} kg (rendimento de carcaça de 50%); é estimativa, não pesagem de carcaça. Perdas em % do rebanho médio do período.</p></div>
-    <div class="card"><h3>Evolução <span class="sub">últimos 12 meses</span></h3>${evolHtml(ev, 'evF')}</div>`;
-  if (painelTodas) {
-    const linhas = S.fazendas.map(x => ({ f: x, r: analise([x.id], d0, d1), st: Object.values(computeF(x.id)).filter(s => s.ativo) }));
-    h += `<div class="card"><h3>Comparativo de fazendas <span class="sub">toque para abrir a fazenda</span></h3><div class="tbl-wrap"><table><thead><tr><th>Fazenda</th><th class="num">Cabeças</th><th class="num">Pastagem (ha)</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">GMD</th><th class="num">Perdas</th></tr></thead><tbody>
-      ${linhas.map(o => `<tr class="click" onclick="painelTodas=false;setFarm('${o.f.id}')"><td><b>${esc(o.f.nome)}</b></td><td class="num">${o.r.fim}</td><td class="num">${o.r.area ? fmtN(o.r.area, 1) : '—'}</td><td class="num">${fmtN(o.r.ganho, 0)}</td><td class="num">${fmtN(o.r.arrobas, 1)}</td><td class="num">${o.r.arHa != null ? fmtN(o.r.arHa, 2) : '—'}</td><td class="num">${o.r.gmd != null ? fmtN(o.r.gmd, 3) : '—'}</td><td class="num">${o.r.morte + o.r.perda ? `<span class="chip bad">${o.r.morte + o.r.perda}</span>` : '—'}</td></tr>`).join('')}
-      </tbody></table></div></div>`;
-  } else {
-    const st = Object.values(compute()), at = st.filter(s => s.ativo), rl = lotesResumo();
-    h += `<div class="card"><h3>Situação atual</h3><div class="kpis">
-      ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
-      ${kpi('Lotação da fazenda', (() => { const ar = areaPastagem(f), ps = at.filter(s => s.ultimoPeso > 0), so = ps.reduce((t, s) => t + s.ultimoPeso, 0); return ar && ps.length ? fmtN(so / UA_KG / ar, 2) + ' UA/ha' : '—'; })(), 'teal', areaPastagem(f) ? fmtN(areaPastagem(f), 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos piquetes)') : 'informe a área')}
-      ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
-      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
-    </div></div>
-    <div class="card"><h3>Piquetes e lotes <span class="sub">período em ${painelDias ? 'últimos ' + painelDias + ' dias' : 'todo o histórico'} · toque para o detalhe</span></h3>
-    ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote / piquete</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD período</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">Alertas</th></tr></thead><tbody>
-    ${rl.map(x => { const o = r.lote[x.l.id] || { kg: 0, gS: 0, gN: 0 }, ar = areaLote(x.l), arr = o.kg / KG_ARROBA_VIVO; return `<tr class="click" tabindex="0" onclick="openPiquete('${x.l.id}')" onkeydown="if(event.key==='Enter')openPiquete('${x.l.id}')"><td><b>${esc(x.l.nome)}</b>${x.l.pasto ? '<br><small class="muted">' + esc(x.l.pasto) + '</small>' : ''}</td><td class="num">${x.qtd}</td><td class="num">${x.pesoMedio ? fmtN(x.pesoMedio, 1) : '—'}</td><td class="num">${o.gN ? fmtN(o.gS / o.gN, 3) : '—'}</td><td class="num">${fmtN(o.kg, 0)}</td><td class="num">${fmtN(arr, 1)}</td><td class="num">${ar ? fmtN(arr / ar, 2) : '—'}</td><td class="num">${x.uaha != null ? fmtN(x.uaha, 2) : '—'}</td><td class="num">${x.ocup != null ? `<span class="chip ${x.ocup > 100 ? 'bad' : x.ocup > 85 ? 'warn' : 'ok'}">${x.ocup}%</span>` : '—'}</td><td class="num">${x.carencia ? `<span class="chip warn">🔒 ${x.carencia}</span> ` : ''}${x.atraso ? `<span class="chip bad">⚠ ${x.atraso}</span>` : ''}${!x.carencia && !x.atraso ? '—' : ''}</td></tr>`; }).join('')}
-    </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
-    <p class="hint">@/ha = arrobas estimadas do piquete no período ÷ área do piquete. UA = peso vivo ÷ 450 kg (R05); ocupação = UA/ha ÷ lotação máxima (R06).</p></div>`;
-    const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
-    h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
-  }
+  const todas = pnNivel.tipo === 'todas', fids = todas ? S.fazendas.map(x => x.id) : [f.id];
+  let h = `<div class="toolbar pn-bar">${pnEscopoSel()}${pnPeriodoSel()}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span>
+    ${pnNivel.tipo === 'pasto' || pnNivel.tipo === 'lote' || pnNivel.tipo === 'rebanho' ? `<span class="grow"></span><button class="btn sm" onclick="irPainel('fazenda')">‹ Painel da fazenda</button>` : ''}</div>`;
+  if (todas) h += pnTodasHtml(fids, d0, d1);
+  else if (pnNivel.tipo === 'pasto') h += pnPastoHtml(pnNivel.id, d0, d1);
+  else if (pnNivel.tipo === 'lote') h += pnLoteHtml(pnNivel.id, d0, d1);
+  else if (pnNivel.tipo === 'rebanho') h += pnRebanhoHtml(f, d0, d1);
+  else h += pnFazendaHtml(f, d0, d1);
   h += `<div class="alert info"><span>Os indicadores definitivos de gestão serão fechados na <b>chave mestra</b> com o gestor. Este painel é o ponto de partida do piloto.</span></div>`;
   $('painel').innerHTML = h;
   requestAnimationFrame(drawCharts);
 }
-function openPiquete(id) {
-  const l = S.lotes.find(x => x.id === id); if (!l) return;
-  for (const k in CHARTS) if (k.startsWith('pq')) delete CHARTS[k];
-  const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
-  const r = analise([l.fazendaId], d0, d1, id), x = lotesResumo().find(o => o.l.id === id) || {};
-  openModal('Piquete ' + l.nome, `
-    <p class="muted" style="margin-bottom:10px">${esc(farm() ? farm().nome : '')}${l.pasto ? ' · ' + esc(l.pasto) : ''} · ${areaLote(l) ? fmtN(areaLote(l), 2) + ' ha' : 'sem área'} · período ${fmtD(d0)} a ${fmtD(d1)}</p>
-    ${ganhosHtml(r)}
-    <div class="kpis">${kpi('Ocupação atual', x.ocup != null ? x.ocup + '%' : '—', x.ocup > 100 ? 'red' : x.ocup > 85 ? 'orange' : 'teal', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '')}${kpi('Peso médio atual', x.pesoMedio ? fmtN(x.pesoMedio, 1) + ' kg' : '—', 'teal', '')}</div>
-    <h4 class="aj-h">Evolução do piquete</h4>${evolHtml(evolucao([l.fazendaId], id), 'pq')}
-    <p class="hint">Os números do piquete seguem o lote em que cada animal estava em cada data (trocas de lote incluídas).</p>`,
-    `<button class="btn" onclick="closeModal();mapSel='${id}';goView('mapa')">Ver no mapa</button><button class="btn" onclick="closeModal();goRebanho('ativos','${id}')">Ver animais</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
-  requestAnimationFrame(drawCharts);
+/* Nível 1: todas as fazendas */
+function pnTodasHtml(fids, d0, d1) {
+  const r = analise(fids, d0, d1), ev = evolucao(fids);
+  const cab = fids.reduce((t, id) => t + cabecasF(id), 0), area = fids.reduce((t, id) => t + (areaPastagemF(id) || 0), 0);
+  const peso = fids.flatMap(id => Object.values(computeF(id)).filter(s => s.ativo && s.ultimoPeso > 0)).reduce((t, s) => t + s.ultimoPeso, 0);
+  const linhas = S.fazendas.map(x => ({ f: x, r: analise([x.id], d0, d1) }));
+  return `<div class="card"><h3>Visão geral <span class="sub">${S.fazendas.length} fazenda(s)</span></h3><div class="kpis">
+      ${kpi('Cabeças', fmtN(cab), 'navy', fids.length + ' fazenda(s)')}
+      ${kpi('Pastagem', area ? fmtN(area, 1) + ' ha' : '—', 'teal', 'soma das fazendas')}
+      ${kpi('Lotação geral', area && peso ? fmtN(peso / UA_KG / area, 2) + ' UA/ha' : '—', 'teal', 'peso vivo ÷ 450 kg')}
+      ${kpi('Arrobas no período (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha' : '')}
+      ${kpi('GMD médio', r.gmd != null ? fmtN(r.gmd, 3) + ' kg/dia' : '—', 'gold', fmtN(r.ganho, 0) + ' kg no período')}
+      ${kpi('Perdas', fmtN(r.morte + r.perda), 'red', r.mort != null ? fmtN(r.mort, 1) + '% do rebanho médio' : '')}
+    </div></div>
+    <div class="card"><h3>Ganhos e perdas no período <span class="sub">todas as fazendas</span></h3>${ganhosHtml(r)}</div>
+    <div class="card"><h3>Evolução <span class="sub">últimos 12 meses, consolidado</span></h3>${evolHtml(ev, 'evT')}</div>
+    <div class="card"><h3>Comparativo de fazendas <span class="sub">toque para abrir a fazenda</span></h3><div class="tbl-wrap"><table><thead><tr><th>Fazenda</th><th class="num">Cabeças</th><th class="num">Pastagem (ha)</th><th class="num">Pastos</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">GMD</th><th class="num">Perdas</th></tr></thead><tbody>
+      ${linhas.map(o => `<tr class="click" tabindex="0" onclick="pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')" onkeydown="if(event.key==='Enter'){pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')}"><td><b>${esc(o.f.nome)}</b></td><td class="num">${o.r.fim}</td><td class="num">${o.r.area ? fmtN(o.r.area, 1) : '—'}</td><td class="num">${S.pastos.filter(p => p.fazendaId === o.f.id && p.ativo !== false).length}</td><td class="num">${fmtN(o.r.ganho, 0)}</td><td class="num">${fmtN(o.r.arrobas, 1)}</td><td class="num">${o.r.arHa != null ? fmtN(o.r.arHa, 2) : '—'}</td><td class="num">${o.r.gmd != null ? fmtN(o.r.gmd, 3) : '—'}</td><td class="num">${o.r.morte + o.r.perda ? `<span class="chip bad">${o.r.morte + o.r.perda}</span>` : '—'}</td></tr>`).join('')}
+      </tbody></table></div></div>`;
 }
-
-
+/* Nível 2: a fazenda */
+function pnFazendaHtml(f, d0, d1) {
+  const fids = [f.id], r = analise(fids, d0, d1), ev = evolucao(fids);
+  const st = Object.values(compute()), at = st.filter(s => s.ativo), rp = pastosResumo(), rl = lotesResumo(), rec = piquetesRecomendados(f.id);
+  const ar = areaPastagem(f), ps = at.filter(s => s.ultimoPeso > 0), so = ps.reduce((t, s) => t + s.ultimoPeso, 0);
+  let h = `<div class="card"><h3>Ganhos e perdas no período <span class="sub">${esc(f.nome)}</span></h3>${ganhosHtml(r)}
+      <p class="hint">Ganho de peso: diferença entre pesagens, proporcional aos dias dentro do período. Arrobas estimadas = ganho de peso vivo ÷ ${KG_ARROBA_VIVO} kg (rendimento de carcaça de 50%); é estimativa, não pesagem de carcaça. Perdas em % do rebanho médio do período.</p></div>
+    <div class="card"><h3>Situação atual</h3><div class="kpis">
+      ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "irPainel('rebanho')")}
+      ${kpi('Lotação da fazenda', ar && ps.length ? fmtN(so / UA_KG / ar, 2) + ' UA/ha' : '—', 'teal', ar ? fmtN(ar, 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos pastos)') : 'informe a área')}
+      ${kpi('Pastos ocupados', `${rp.filter(x => x.ocupado).length} de ${rp.length}`, 'teal', rp.filter(x => x.situacao === 'pronto').length + ' pronto(s) para entrar')}
+      ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
+      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
+    </div></div>
+    <div class="card"><h3>Evolução <span class="sub">últimos 12 meses</span></h3>${evolHtml(ev, 'evF')}</div>`;
+  h += `<div class="card"><h3>Pastos <span class="sub">o lugar · rotação e produtividade · toque para o painel do pasto</span></h3>
+    ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th>Situação</th><th class="num">Animais</th><th class="num">Área (ha)</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">Ciclos</th></tr></thead><tbody>
+    ${rp.map(x => { const o = r.pasto[x.p.id] || { kg: 0 }, arr = o.kg / KG_ARROBA_VIVO; return `<tr class="click" tabindex="0" onclick="openPastoPainel('${x.p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${x.p.id}')"><td><b>${esc(x.p.nome)}</b>${x.p.forrageira ? '<br><small class="muted">' + esc(x.p.forrageira) + '</small>' : ''}</td><td>${sitPastoChip(x)}</td><td class="num">${x.qtd}</td><td class="num">${x.ar ? fmtN(x.ar, 1) : '—'}</td><td class="num">${x.uaha != null ? fmtN(x.uaha, 2) : '—'}</td><td class="num">${x.ocup != null ? `<span class="chip ${x.ocup > 100 ? 'bad' : x.ocup > 85 ? 'warn' : 'ok'}">${x.ocup}%</span>` : '—'}</td><td class="num">${fmtN(arr, 1)}</td><td class="num">${x.ar ? fmtN(arr / x.ar, 2) : '—'}</td><td class="num">${x.ciclos.length}</td></tr>`; }).join('')}
+    </tbody></table></div>` : '<div class="empty">Nenhum pasto cadastrado.</div>'}
+    ${rec ? `<p class="hint">Pelas metas informadas, o pastejo rotacionado pediria cerca de <b>${rec.n} pastos</b> (descanso ÷ ocupação + 1, referência Embrapa). Hoje a fazenda tem ${rec.total}.</p>` : ''}</div>`;
+  h += `<div class="card"><h3>Lotes <span class="sub">o grupo de animais · toque para o painel do lote</span></h3>
+    ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto atual</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD período</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">Alertas</th></tr></thead><tbody>
+    ${rl.map(x => { const o = r.lote[x.l.id] || { kg: 0, gS: 0, gN: 0 }; return `<tr class="click" tabindex="0" onclick="openLotePainel('${x.l.id}')" onkeydown="if(event.key==='Enter')openLotePainel('${x.l.id}')"><td><b>${esc(x.l.nome)}</b></td><td>${x.p ? esc(x.p.nome) : '<span class="chip warn">sem pasto</span>'}</td><td class="num">${x.qtd}</td><td class="num">${x.pesoMedio ? fmtN(x.pesoMedio, 1) : '—'}</td><td class="num">${o.gN ? fmtN(o.gS / o.gN, 3) : '—'}</td><td class="num">${fmtN(o.kg, 0)}</td><td class="num">${fmtN(o.kg / KG_ARROBA_VIVO, 1)}</td><td class="num">${x.carencia ? `<span class="chip warn">🔒 ${x.carencia}</span> ` : ''}${x.atraso ? `<span class="chip bad">⚠ ${x.atraso}</span>` : ''}${!x.carencia && !x.atraso ? '—' : ''}</td></tr>`; }).join('')}
+    </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
+    <p class="hint">@/ha do pasto = arrobas estimadas produzidas ali no período ÷ área do pasto. UA = peso vivo ÷ 450 kg (R05); ocupação = UA/ha ÷ lotação máxima (R06).</p></div>`;
+  const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
+  h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
+  return h;
+}
+/* Nível 3: o pasto (o lugar) */
+function pnPastoHtml(id, d0, d1) {
+  const x = pastosResumo().find(o => o.p.id === id); if (!x) return '';
+  const p = x.p, r = analise([p.fazendaId], d0, d1, { pasto: id });
+  const noPeriodo = x.ciclos.filter(c => (c.ate || hoje()) >= d0 && c.de <= d1);
+  const fechados = noPeriodo.filter(c => c.ate);
+  const descansos = [];
+  const ord = x.ciclos.slice().sort((a, b) => a.de.localeCompare(b.de));
+  for (let i = 1; i < ord.length; i++) if (ord[i - 1].ate && ord[i].de > ord[i - 1].ate) descansos.push(diasEntre(ord[i - 1].ate, ord[i].de));
+  const metaOk = (v, meta) => meta ? (v > meta ? 'red' : 'teal') : 'teal';
+  return `<div class="card"><h3>${esc(p.nome)} <span class="sub">pasto · ${esc(p.forrageira || 'forrageira não informada')}</span></h3>
+    <p class="muted" style="margin-bottom:10px">${sitPastoChip(x)} ${x.lotes.length ? '· ocupado por <b>' + x.lotes.map(o => esc(o.l.nome)).join(', ') + '</b>' : ''}${x.aviso ? ' · <span class="lock">' + esc(x.aviso) + '</span>' : ''}</p>
+    <div class="kpis">
+      ${kpi(x.ocupado ? 'Dias de ocupação' : 'Dias de descanso', fmtN(x.ocupado ? x.diasOcup : x.diasDesc), x.aviso ? 'red' : metaOk(x.ocupado ? x.diasOcup : 0, x.ocupado ? p.diasOcupacao : 0), x.ocupado ? (p.diasOcupacao ? 'meta ' + p.diasOcupacao + ' dias' : 'sem meta de ocupação') : (p.diasDescanso ? 'meta ' + p.diasDescanso + ' dias' : 'sem meta de descanso'))}
+      ${kpi('Animais hoje', fmtN(x.qtd), 'navy', x.lotes.length ? x.lotes.map(o => o.l.nome).join(', ') : 'nenhum lote', x.qtd && x.lotes[0] ? `goRebanho('ativos','${x.lotes[0].l.id}')` : null)}
+      ${kpi('Área', x.ar ? fmtN(x.ar, 2) + ' ha' : '—', 'teal', p.geo && p.geo.areaHa ? 'calculada no mapa' : p.areaHa ? 'informada' : 'sem área')}
+      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : x.ocup > 85 ? 'orange' : 'teal', p.lotacaoMax ? 'máx. ' + fmtN(p.lotacaoMax, 2) + ' UA/ha' + (x.ocup != null ? ' · ' + x.ocup + '%' : '') : 'informe a lotação máxima')}
+      ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' : 'informe a área')}
+      ${kpi('Ciclos no período', fmtN(noPeriodo.length), 'teal', fechados.length ? 'ocupação média de ' + fmtN(avg(fechados.map(c => diasEntre(c.de, c.ate))), 0) + ' dias' : 'ciclo em andamento')}
+      ${kpi('Descanso médio', descansos.length ? fmtN(avg(descansos), 0) + ' dias' : '—', 'teal', p.diasDescanso ? 'meta ' + p.diasDescanso + ' dias' : 'entre uma saída e a entrada seguinte')}
+      ${kpi('Ganho no pasto', (r.ganho >= 0 ? '+' : '') + fmtN(r.ganho, 0) + ' kg', 'teal', r.gmd != null ? 'GMD ' + fmtN(r.gmd, 3) + ' kg/dia' : 'sem pesagens no período')}
+    </div>
+    ${p.alturaEntrada || p.alturaSaida ? `<p class="hint">Metas de altura: entrar com <b>${p.alturaEntrada || '—'} cm</b> e sair com <b>${p.alturaSaida || '—'} cm</b>. A régua de manejo é o sinal de campo; os dias são a previsão.</p>` : '<p class="hint">Informe forrageira e metas no cadastro do pasto para o app acompanhar entrada, saída e descanso.</p>'}
+    <div class="actions"><button class="btn primary" onclick="selectPasto('${id}',true);goView('mapa')">Ver no mapa</button><button class="btn" onclick="openPasto('${id}')">Editar pasto</button>${x.lotes[0] ? `<button class="btn" onclick="moverLote('${x.lotes[0].l.id}')">Mover lote de pasto</button>` : ''}</div></div>
+    <div class="card"><h3>Evolução do pasto <span class="sub">últimos 12 meses</span></h3>${evolHtml(evolucao([p.fazendaId], { pasto: id }), 'pq')}</div>
+    <div class="card"><h3>Histórico de ocupação <span class="sub">quem passou por aqui</span></h3>
+      ${x.ciclos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Entrada</th><th>Saída</th><th class="num">Dias</th><th>Situação</th></tr></thead><tbody>
+      ${x.ciclos.slice(0, 40).map(c => `<tr><td><b>${esc(c.lote.nome)}</b></td><td>${fmtD(c.de)}</td><td>${c.ate ? fmtD(c.ate) : '—'}</td><td class="num">${diasEntre(c.de, c.ate || hoje())}</td><td>${c.ate ? '<span class="chip gray">encerrada</span>' : '<span class="chip info">em curso</span>'}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Sem ocupação registrada.</div>'}
+      <p class="hint">Cada linha nasce de "Mover de pasto". É esse histórico que vira dias de ocupação, descanso e ciclos.</p></div>`;
+}
+/* Nível 3: o lote (o grupo) */
+function pnLoteHtml(id, d0, d1) {
+  const x = lotesResumo().find(o => o.l.id === id); if (!x) return '';
+  const l = x.l, r = analise([l.fazendaId], d0, d1, { lote: id }), o = ocupAberta(l);
+  return `<div class="card"><h3>${esc(l.nome)} <span class="sub">lote · ${x.p ? 'no pasto ' + esc(x.p.nome) : 'sem pasto'}</span></h3>
+    <p class="muted" style="margin-bottom:10px">${o ? 'Neste pasto há <b>' + diasEntre(o.de, hoje()) + ' dia(s)</b>, desde ' + fmtD(o.de) + '.' : 'Sem ocupação aberta.'} Período ${fmtD(d0)} a ${fmtD(d1)}.</p>
+    ${ganhosHtml(r)}
+    <div class="kpis">
+      ${kpi('Animais', fmtN(x.qtd), 'navy', `${x.machos} M · ${x.femeas} F`, `goRebanho('ativos','${id}')`)}
+      ${kpi('Peso médio atual', x.pesoMedio ? fmtN(x.pesoMedio, 1) + ' kg' : '—', 'teal', x.comPeso + ' com peso')}
+      ${kpi('GMD atual', x.gmd != null ? fmtN(x.gmd, 3) + ' kg/dia' : '—', 'gold', 'entre as duas últimas pesagens')}
+      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : 'teal', x.ocup != null ? x.ocup + '% da lotação máxima' : 'informe a lotação do pasto')}
+      ${kpi('Em carência', fmtN(x.carencia), 'orange', '', x.carencia ? `goRebanho('carencia','${id}')` : null)}
+      ${kpi('Sem manejo +30 dias', fmtN(x.atraso), 'red', '', x.atraso ? `goRebanho('atraso','${id}')` : null)}
+    </div>
+    <div class="actions"><button class="btn primary" onclick="goRebanho('ativos','${id}')">Ver animais</button><button class="btn" onclick="moverLote('${id}')">Mover de pasto</button>${x.p ? `<button class="btn" onclick="openPastoPainel('${x.p.id}')">Painel do pasto</button>` : ''}<button class="btn" onclick="createLida('pesagem')">Nova pesagem</button></div></div>
+    <div class="card"><h3>Evolução do lote <span class="sub">últimos 12 meses</span></h3>${evolHtml(evolucao([l.fazendaId], { lote: id }), 'pq')}</div>
+    <div class="card"><h3>Por onde passou <span class="sub">pastos ocupados</span></h3>
+      ${(l.ocupacoes || []).length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th>Entrada</th><th>Saída</th><th class="num">Dias</th></tr></thead><tbody>
+      ${l.ocupacoes.slice().reverse().map(c => `<tr class="click" onclick="openPastoPainel('${c.p}')"><td><b>${esc(pastoNome(c.p))}</b></td><td>${fmtD(c.de)}</td><td>${c.ate ? fmtD(c.ate) : '—'}</td><td class="num">${diasEntre(c.de, c.ate || hoje())}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Sem histórico.</div>'}</div>`;
+}
+/* Nível 3: o rebanho (composição) */
+function pnRebanhoHtml(f, d0, d1) {
+  const at = Object.values(compute()).filter(s => s.ativo), comP = at.filter(s => s.ultimoPeso > 0), comG = at.filter(s => s.gmd != null);
+  const faixa = v => Math.floor(v / 50) * 50;
+  const buckets = {};
+  comP.forEach(s => { const k = faixa(s.ultimoPeso); buckets[k] = (buckets[k] || 0) + 1; });
+  const ks = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+  const cats = {}; at.forEach(s => { const k = str(s.a.categoria, 40) || '(sem categoria)'; cats[k] = (cats[k] || 0) + 1; });
+  const idade = at.filter(s => s.a.nascimento).map(s => diasEntre(s.a.nascimento, hoje()) / 30.44);
+  const melhores = comG.slice().sort((a, b) => b.gmd - a.gmd).slice(0, 5), piores = comG.slice().sort((a, b) => a.gmd - b.gmd).slice(0, 5);
+  const linha = s => `<tr class="click" onclick="openAnimal('${s.a.id}')"><td><b>${esc(s.a.brinco)}</b></td><td>${esc(loteNome(s.lote))}</td><td class="num">${fmtN(s.ultimoPeso, 1)}</td><td class="num">${fmtN(s.gmd, 3)}</td></tr>`;
+  return `<div class="card"><h3>Rebanho de ${esc(f.nome)} <span class="sub">composição de hoje</span></h3><div class="kpis">
+      ${kpi('Ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
+      ${kpi('Peso médio', comP.length ? fmtN(avg(comP.map(s => s.ultimoPeso)), 1) + ' kg' : '—', 'teal', comP.length + ' com pesagem')}
+      ${kpi('GMD médio', comG.length ? fmtN(avg(comG.map(s => s.gmd)), 3) + ' kg/dia' : '—', 'gold', comG.length + ' com 2+ pesagens')}
+      ${kpi('Idade média', idade.length ? fmtN(avg(idade), 0) + ' meses' : '—', 'teal', idade.length + ' com nascimento informado')}
+      ${kpi('Sem pesagem', fmtN(at.length - comP.length), 'orange', 'nunca pesados', at.length - comP.length ? "goRebanho('ativos')" : null)}
+      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
+    </div></div>
+    <div class="card"><h3>Distribuição por faixa de peso <span class="sub">último peso conhecido</span></h3>
+      ${ks.length ? chartBox('rbFaixa', { titulo: 'Animais por faixa de peso', tipo: 'colunas', cor: COR_CAB, dados: ks.map(k => ({ rot: k + '–' + (k + 49), v: buckets[k] })), fmt: v => fmtN(v) + ' cab.' }) : '<div class="empty">Nenhum animal pesado ainda.</div>'}
+      <p class="hint">Faixas de 50 kg. Serve para ver se o lote está uniforme: muitas faixas no mesmo lote significa gado desigual, que rende menos no mesmo pasto.</p></div>
+    <div class="card"><h3>Por categoria</h3><div class="tbl-wrap"><table><thead><tr><th>Categoria</th><th class="num">Animais</th><th class="num">% do rebanho</th></tr></thead><tbody>
+      ${Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td><td class="num">${fmtN(v / at.length * 100, 1)}%</td></tr>`).join('')}
+      </tbody></table></div></div>
+    <div class="ch-grid">
+      <div class="card"><h3>Maiores ganhos <span class="sub">GMD das duas últimas pesagens</span></h3>${melhores.length ? `<div class="tbl-wrap"><table><thead><tr><th>Brinco</th><th>Lote</th><th class="num">Peso</th><th class="num">GMD</th></tr></thead><tbody>${melhores.map(linha).join('')}</tbody></table></div>` : '<div class="empty">Sem GMD ainda.</div>'}</div>
+      <div class="card"><h3>Menores ganhos <span class="sub">candidatos a olhar de perto</span></h3>${piores.length ? `<div class="tbl-wrap"><table><thead><tr><th>Brinco</th><th>Lote</th><th class="num">Peso</th><th class="num">GMD</th></tr></thead><tbody>${piores.map(linha).join('')}</tbody></table></div>` : '<div class="empty">Sem GMD ainda.</div>'}</div>
+    </div>`;
+}
 
 /* =========================================================================
    GEOLOCALIZAÇÃO (preparação para o mapa de piquetes)
@@ -1709,8 +2059,7 @@ function polyAreaHa(g) {
 const allCoords = g => { const out = []; (g.type === 'Polygon' ? [g.coordinates] : g.coordinates).forEach(p => p.forEach(r => r.forEach(c => out.push(c)))); return out; };
 function centroid(g) { const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; const big = polys.slice().sort((a, b) => ringAreaM2(b[0]) - ringAreaM2(a[0]))[0][0]; const n = big.length - 1; return [big.slice(0, n).reduce((t, c) => t + c[0], 0) / n, big.slice(0, n).reduce((t, c) => t + c[1], 0) / n]; }
 function distM(a, b) { const r = Math.PI / 180, dLat = (b[1] - a[1]) * r, dLng = (b[0] - a[0]) * r, h = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dLng / 2) ** 2; return 2 * R_TERRA * Math.asin(Math.sqrt(h)); }
-const areaLote = l => (l.geo && l.geo.areaHa) || l.areaHa || null;
-function areaPastagem(f) { if (f && f.areaHa) return f.areaHa; const s = lotesF().reduce((t, l) => t + (areaLote(l) || 0), 0); return s || null; }
+function areaPastagem(f) { return areaPastagemF(f ? f.id : S.fazendaAtiva); }
 
 class GeoMap {
   constructor(el, o = {}) {
@@ -1921,22 +2270,39 @@ async function readGeoFile(file) {
 }
 
 /* ---------- Tela do mapa ---------- */
-let gmMain = null, mapSel = null, draw = null, geoImport = null;
+let gmMain = null, mapaTodas = false, mapSel = null, draw = null, geoImport = null;
 const mapBase = () => syncMeta.mapBase || 'satelite';
 function ocupCor(r) {
+  if (r && r.situacao && !r.ocupado) return r.situacao === 'pronto' ? { fill: '#8FB8A0', stroke: '#4b7a5e' } : { fill: '#B9A898', stroke: '#6E5D52' };
   if (!r || r.ocup == null) return { fill: '#3B8A97', stroke: '#1d5660' };
   if (r.ocup > 100) return { fill: '#dc2626', stroke: '#991b1b' };
   if (r.ocup > 85) return { fill: '#f59e0b', stroke: '#92400e' };
   return { fill: '#22c55e', stroke: '#166534' };
 }
+function cabecasF(fid) { return Object.values(computeF(fid)).filter(s => s.ativo).length; }
+/* Visão geral: todas as fazendas no mesmo mapa, com as cabeças de cada uma */
+function mapLayersTodas() {
+  const L = [];
+  S.fazendas.forEach(x => {
+    const cab = cabecasF(x.id), at = x.id === S.fazendaAtiva, g = x.geo || {};
+    const label = `${x.nome}\n${cab} cab.`;
+    const click = () => { mapaTodas = false; mapSel = null; setFarm(x.id); };
+    if (g.perimetro) L.push({ geom: g.perimetro, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: at ? 0.22 : 0.16, stroke: at ? '#E0A83A' : '#2E6672', width: at ? 3 : 2 }, label, onClick: click });
+    else if (g.ponto) L.push({ point: [g.ponto.lng, g.ponto.lat], style: { fill: at ? '#C9922E' : '#3B8A97', r: at ? 10 : 8 }, label, onClick: click });
+    else S.pastos.filter(p => p.fazendaId === x.id && p.geo && p.geo.poligono).slice(0, 1).forEach(p => L.push({ geom: p.geo.poligono, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: 0.18, stroke: '#2E6672', width: 2 }, label, onClick: click }));
+  });
+  return L;
+}
 function mapLayers(o = {}) {
   const f = farm(), L = []; if (!f) return L;
-  const rl = lotesResumo();
+  if (mapaTodas && !o.mini) return mapLayersTodas();
+  const rl = pastosResumo();
   if (f.geo && f.geo.perimetro) L.push({ geom: f.geo.perimetro, style: { fill: '#C9922E', fillOpacity: o.mini ? 0.05 : 0.07, stroke: '#E0A83A', width: 2.5, dash: '9 6' } });
   rl.forEach(r => {
-    const g = r.l.geo || {}, cor = ocupCor(r), sel = o.sel === r.l.id, apag = o.mini && !sel;
-    const label = o.mini ? (sel ? r.l.nome : null) : `${r.l.nome}\n${r.qtd} cab.${r.ocup != null ? ' · ' + r.ocup + '%' : ''}`;
-    const click = o.mini ? null : () => selectLote(r.l.id);
+    const g = r.p.geo || {}, cor = ocupCor(r), sel = o.sel === r.p.id, apag = o.mini && !sel;
+    const quem = r.lotes.map(x => x.l.nome).join(', ');
+    const label = o.mini ? (sel ? r.p.nome : null) : `${r.p.nome}\n${r.qtd ? r.qtd + ' cab.' + (quem ? ' · ' + quem : '') : (r.situacao === 'ocupado' ? 'ocupado' : r.situacao === 'pronto' ? 'pronto' : 'em descanso')}`;
+    const click = o.mini ? null : () => selectPasto(r.p.id);
     if (g.poligono) L.push({ geom: g.poligono, style: { fill: apag ? '#94a3b8' : cor.fill, fillOpacity: sel ? 0.5 : (apag ? 0.15 : 0.32), stroke: sel ? '#FBF7F1' : (apag ? '#64748b' : cor.stroke), width: sel ? 3.5 : 2 }, label, onClick: click });
     else if (g.ponto) L.push({ point: [g.ponto.lng, g.ponto.lat], style: { fill: sel ? '#13234A' : (apag ? '#94a3b8' : cor.fill), r: sel ? 10 : 8 }, label, onClick: click });
   });
@@ -1949,90 +2315,99 @@ const layerCoords = L => { const out = []; L.forEach(l => { if (l.geom) out.push
 function renderMapa() {
   const f = farm(), box = $('mapaBody');
   if (!f) { box.innerHTML = '<div class="empty">Cadastre a fazenda primeiro.</div>'; return; }
-  const st = Object.values(calcAll()), rl = lotesResumo();
+  const rp = pastosResumo();
   const farmCards = S.fazendas.map(x => {
-    const an = st.filter(s => s.ativo && s.a.fazendaId === x.id).length, nl = S.lotes.filter(l => l.fazendaId === x.id).length;
+    const an = cabecasF(x.id), nl = S.pastos.filter(p => p.fazendaId === x.id && p.ativo !== false).length;
     const at = x.geo && x.geo.perimetro ? polyAreaHa(x.geo.perimetro) : null;
-    return `<button type="button" class="farm-card${x.id === S.fazendaAtiva ? ' on' : ''}" onclick="setFarm('${x.id}');goView('mapa')">
+    return `<button type="button" class="farm-card${!mapaTodas && x.id === S.fazendaAtiva ? ' on' : ''}" onclick="mapaTodas=false;setFarm('${x.id}');goView('mapa')">
       <b>${esc(x.nome)}</b><span>${esc(x.municipio || '')}</span>
-      <span class="fc-nums"><i>${an}</i> animais · <i>${nl}</i> lote(s)${at ? ` · <i>${fmtN(at, 0)}</i> ha` : ''}</span>${geoChip(x.geo)}</button>`;
+      <span class="fc-nums"><i>${an}</i> animais · <i>${nl}</i> pasto(s)${at ? ` · <i>${fmtN(at, 0)}</i> ha` : ''}</span>${geoChip(x.geo)}</button>`;
   }).join('');
-  const temGeo = !!((f.geo && (f.geo.perimetro || f.geo.ponto)) || rl.some(r => r.l.geo));
-  const nPol = rl.filter(r => r.l.geo && r.l.geo.poligono).length;
+  const temGeo = !!((f.geo && (f.geo.perimetro || f.geo.ponto)) || rp.some(r => r.p.geo));
+  const nPol = rp.filter(r => r.p.geo && r.p.geo.poligono).length;
+  const semGeoTodas = mapaTodas && !S.fazendas.some(x => x.geo && (x.geo.perimetro || x.geo.ponto));
   box.innerHTML = `
     <div class="farm-cards">${farmCards}<button type="button" class="farm-card add" onclick="openFarm()"><b>+ Nova fazenda</b><span>Cadastrar outra propriedade</span></button></div>
     <div class="card map-card">
       <div class="map-tools">
+        ${S.fazendas.length > 1 ? `<div class="seg" role="group" aria-label="Abrangência"><button type="button" class="${mapaTodas ? '' : 'on'}" onclick="setMapaTodas(false)">Esta fazenda</button><button type="button" class="${mapaTodas ? 'on' : ''}" onclick="setMapaTodas(true)">Todas (${S.fazendas.length})</button></div>` : ''}
         <div class="seg" role="group" aria-label="Fundo do mapa">${Object.entries(BASES).map(([k, b]) => `<button type="button" class="${mapBase() === k ? 'on' : ''}" onclick="setMapBase('${k}')">${b.nome}</button>`).join('')}</div>
         <span class="grow"></span>
-        <button class="btn sm" onclick="openGeoImport()">⬆ Importar contorno</button>
+        ${mapaTodas ? '' : `<button class="btn sm" onclick="openGeoImport()">⬆ Importar contorno</button>
         <button class="btn sm teal" onclick="askDraw('toque')">✎ Desenhar</button>
-        <button class="btn sm" onclick="askDraw('gps')">📍 Percorrer cerca</button>
+        <button class="btn sm" onclick="askDraw('gps')">📍 Percorrer cerca</button>`}
         <button class="btn sm" onclick="fitMapa()">⤢ Centralizar</button>
       </div>
       <div id="drawBar"></div>
       <div id="gmMain"></div>
-      <div class="map-legend"><span><i style="background:#22c55e"></i>até 85%</span><span><i style="background:#f59e0b"></i>85 a 100%</span><span><i style="background:#dc2626"></i>acima de 100%</span><span><i style="background:#3B8A97"></i>sem lotação máx.</span><span><i class="dash"></i>perímetro</span></div>
+      ${mapaTodas
+        ? `<div class="map-legend"><span><i style="background:#C9922E"></i>fazenda ativa</span><span><i style="background:#3B8A97"></i>demais fazendas</span></div>
+           <p class="hint">Cada contorno traz o nome da fazenda e quantas cabeças estão nela. Toque numa fazenda para abrir os pastos dela.${semGeoTodas ? ' Nenhuma fazenda tem contorno ou sede ainda: cadastre a localização para aparecerem aqui.' : ''}</p>`
+        : `<div class="map-legend"><span><i style="background:#22c55e"></i>até 85%</span><span><i style="background:#f59e0b"></i>85 a 100%</span><span><i style="background:#dc2626"></i>acima de 100%</span><span><i style="background:#3B8A97"></i>sem lotação máx.</span><span><i style="background:#8FB8A0"></i>pronto para entrar</span><span><i style="background:#B9A898"></i>em descanso</span><span><i class="dash"></i>perímetro</span></div>
       ${temGeo ? '' : `<div class="alert info" style="margin-top:12px"><span>Esta fazenda ainda não tem contorno. Comece importando o perímetro do CAR (.zip baixado da consulta pública do SICAR), desenhando sobre o satélite ou percorrendo a cerca com o GPS.</span></div>`}
-      <p class="hint">${f.geo && f.geo.perimetro ? `Perímetro: ${fmtN(polyAreaHa(f.geo.perimetro), 2)} ha (${esc(FONTE_POL[f.geo.fontePoligono] || '')}). ` : ''}${nPol} de ${rl.length} lote(s) com contorno. A imagem de fundo precisa de internet; os blocos já vistos ficam guardados para uso no campo.</p>
+      <p class="hint">${f.geo && f.geo.perimetro ? `Perímetro: ${fmtN(polyAreaHa(f.geo.perimetro), 2)} ha (${esc(FONTE_POL[f.geo.fontePoligono] || '')}). ` : ''}${nPol} de ${rp.length} pasto(s) com contorno. A imagem de fundo precisa de internet; os blocos já vistos ficam guardados para uso no campo.</p>`}
     </div>
-    <div class="card" id="gmInfo"></div>
-    <div class="card"><h3>Lotes e piquetes <span class="sub">toque para ver no mapa</span></h3>
-      ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Animais</th><th class="num">Área (ha)</th><th>Origem da área</th><th class="num">Ocupação</th><th>Contorno</th></tr></thead><tbody>
-      ${rl.map(r => `<tr class="click${mapSel === r.l.id ? ' sel' : ''}" tabindex="0" onclick="selectLote('${r.l.id}',true)" onkeydown="if(event.key==='Enter')selectLote('${r.l.id}',true)"><td><b>${esc(r.l.nome)}</b>${r.l.pasto ? '<br><small class="muted">' + esc(r.l.pasto) + '</small>' : ''}</td><td class="num">${r.qtd}</td><td class="num">${areaLote(r.l) ? fmtN(areaLote(r.l), 2) : '—'}</td><td>${r.l.geo && r.l.geo.areaHa ? 'Calculada no mapa' : r.l.areaHa ? 'Informada' : '—'}</td><td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td><td>${geoChip(r.l.geo)}</td></tr>`).join('')}
-      </tbody></table></div>` : '<div class="empty">Nenhum lote. Importe os piquetes ou crie em Fazenda e lotes.</div>'}</div>`;
+    ${mapaTodas ? `<div class="card"><h3>Fazendas <span class="sub">toque para abrir</span></h3><div class="tbl-wrap"><table><thead><tr><th>Fazenda</th><th class="num">Cabeças</th><th class="num">Pastos</th><th class="num">Pastagem (ha)</th><th class="num">UA/ha</th><th>Localização</th></tr></thead><tbody>
+      ${S.fazendas.map(x => { const ps = Object.values(computeF(x.id)).filter(s => s.ativo && s.ultimoPeso > 0), ar = areaPastagemF(x.id); return `<tr class="click" tabindex="0" onclick="mapaTodas=false;setFarm('${x.id}')" onkeydown="if(event.key==='Enter'){mapaTodas=false;setFarm('${x.id}')}"><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}</td><td class="num">${cabecasF(x.id)}</td><td class="num">${S.pastos.filter(p => p.fazendaId === x.id && p.ativo !== false).length}</td><td class="num">${ar ? fmtN(ar, 1) : '—'}</td><td class="num">${ar && ps.length ? fmtN(ps.reduce((t, s) => t + s.ultimoPeso, 0) / UA_KG / ar, 2) : '—'}</td><td>${geoChip(x.geo)}</td></tr>`; }).join('')}
+      </tbody></table></div></div>`
+    : `<div class="card" id="gmInfo"></div>
+    <div class="card"><h3>Pastos <span class="sub">toque para ver no mapa</span></h3>
+      ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th>Quem ocupa</th><th class="num">Animais</th><th class="num">Área (ha)</th><th class="num">Ocupação</th><th>Situação</th><th>Contorno</th></tr></thead><tbody>
+      ${rp.map(r => `<tr class="click${mapSel === r.p.id ? ' sel' : ''}" tabindex="0" onclick="selectPasto('${r.p.id}',true)" onkeydown="if(event.key==='Enter')selectPasto('${r.p.id}',true)"><td><b>${esc(r.p.nome)}</b>${r.p.forrageira ? '<br><small class="muted">' + esc(r.p.forrageira) + '</small>' : ''}</td><td>${r.lotes.length ? r.lotes.map(x => esc(x.l.nome)).join(', ') : '<span class="muted">—</span>'}</td><td class="num">${r.qtd}</td><td class="num">${r.ar ? fmtN(r.ar, 2) : '—'}</td><td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td><td>${sitPastoChip(r)}</td><td>${geoChip(r.p.geo)}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Nenhum pasto. Importe os contornos ou cadastre em Fazenda, pastos e lotes.</div>'}</div>`}`;
   if (gmMain && gmMain.ro) gmMain.ro.disconnect();
   gmMain = new GeoMap($('gmMain'), { base: mapBase(), onMapClick: onMapTap, drawing: () => !!draw });
   gmMain.setLayers(mapLayers({ sel: mapSel }));
   fitMapa(true);
-  renderDrawBar(); renderLoteInfo();
+  renderDrawBar(); if (!mapaTodas) renderPastoInfo();
 }
+function setMapaTodas(v) { mapaTodas = v; mapSel = null; renderMapa(); }
 const FONTE_POL = { car: 'CAR', desenho: 'desenhado no mapa', gps: 'percorrido com GPS', arquivo: 'arquivo importado' };
 function calcAll() { return compute(); }
 function fitMapa(inicial) {
   if (!gmMain) return; const L = mapLayers({});
-  const f = farm(), sel = mapSel && S.lotes.find(l => l.id === mapSel);
+  const f = farm();
   let coords = layerCoords(L.filter(l => !l.line));
   if (inicial && draw && draw.pts.length) coords = coords.concat(draw.pts);
   if (!coords.length) { gmMain.z = 4; gmMain.cx = lng2x(-52, 4); gmMain.cy = lat2y(-14, 4); gmMain.render(); return; }
   gmMain.fit(coords, gmMain.size()[0] < 520 ? 12 : 36, coords.length === 1 ? 16 : 18);
 }
 function setMapBase(b) { syncMeta.mapBase = b; saveSyncMeta(); document.querySelectorAll('.map-tools .seg button').forEach((x, i) => x.classList.toggle('on', Object.keys(BASES)[i] === b)); if (gmMain) gmMain.setBase(b); }
-function selectLote(id, centrar) {
+function selectPasto(id, centrar) {
   mapSel = mapSel === id && !centrar ? null : id;
   if (gmMain) gmMain.setLayers(mapLayers({ sel: mapSel }));
   document.querySelectorAll('#mapaBody tr.click').forEach(tr => tr.classList.toggle('sel', tr.getAttribute('onclick').includes(`'${mapSel}'`)));
-  if (centrar && mapSel && gmMain) { const l = S.lotes.find(x => x.id === mapSel), g = l && l.geo; if (g && g.poligono) gmMain.fit(allCoords(g.poligono), 50, 18); else if (g && g.ponto) { gmMain.fit([[g.ponto.lng, g.ponto.lat]], 50, 16); } $('gmMain').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-  renderLoteInfo();
+  if (centrar && mapSel && gmMain) { const l = pastoDe(mapSel), g = l && l.geo; if (g && g.poligono) gmMain.fit(allCoords(g.poligono), 50, 18); else if (g && g.ponto) { gmMain.fit([[g.ponto.lng, g.ponto.lat]], 50, 16); } $('gmMain').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  renderPastoInfo();
 }
-function renderLoteInfo() {
+function renderPastoInfo() {
   const box = $('gmInfo'); if (!box) return;
-  const r = mapSel && lotesResumo().find(x => x.l.id === mapSel);
-  if (!r) { box.innerHTML = '<h3>Selecione um piquete</h3><p class="muted">Toque num contorno ou ponto do mapa, ou num lote da lista, para ver o rebanho daquele lugar.</p>'; return; }
-  const g = r.l.geo || {};
-  box.innerHTML = `<h3>${esc(r.l.nome)} ${r.l.pasto ? `<span class="sub">${esc(r.l.pasto)}</span>` : ''}</h3>
+  const r = mapSel && pastosResumo().find(x => x.p.id === mapSel);
+  if (!r) { box.innerHTML = '<h3>Selecione um pasto</h3><p class="muted">Toque num contorno ou ponto do mapa, ou num pasto da lista, para ver quem está lá.</p>'; return; }
+  const g = r.p.geo || {};
+  box.innerHTML = `<h3>${esc(r.p.nome)} ${r.p.forrageira ? `<span class="sub">${esc(r.p.forrageira)}</span>` : ''}</h3>
+    <p class="muted" style="margin-bottom:10px">${sitPastoChip(r)} ${r.lotes.length ? '· ocupado por <b>' + r.lotes.map(x => esc(x.l.nome)).join(', ') + '</b>' : ''}${r.aviso ? ' · <span class="lock">' + esc(r.aviso) + '</span>' : ''}</p>
     <div class="kpis">
-      ${kpi('Animais', fmtN(r.qtd), 'navy', `${r.machos} M · ${r.femeas} F`, `goRebanho('ativos','${r.l.id}')`)}
+      ${kpi('Animais', fmtN(r.qtd), 'navy', r.lotes.length ? r.lotes.map(x => x.l.nome).join(', ') : 'nenhum lote', r.qtd && r.lotes[0] ? `goRebanho('ativos','${r.lotes[0].l.id}')` : null)}
       ${kpi('Peso médio', r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—', 'teal', r.comPeso + ' com peso')}
-      ${kpi('GMD', r.gmd != null ? fmtN(r.gmd, 3) + ' kg/dia' : '—', 'gold', '')}
-      ${kpi('Área', areaLote(r.l) ? fmtN(areaLote(r.l), 2) + ' ha' : '—', 'teal', g.areaHa ? 'calculada no mapa' : r.l.areaHa ? 'informada' : 'sem área')}
-      ${kpi('Ocupação', r.ocup != null ? r.ocup + '%' : (r.uaha != null ? fmtN(r.uaha, 2) + ' UA/ha' : '—'), r.ocup > 100 ? 'red' : r.ocup > 85 ? 'orange' : 'teal', r.l.lotacaoMax ? 'máx. ' + fmtN(r.l.lotacaoMax, 2) + ' UA/ha' : 'informe a lotação máxima')}
-      ${kpi('Em carência', fmtN(r.carencia), 'orange', '', r.carencia ? `goRebanho('carencia','${r.l.id}')` : null)}
-      ${kpi('Sem manejo +30 dias', fmtN(r.atraso), 'red', '', r.atraso ? `goRebanho('atraso','${r.l.id}')` : null)}
+      ${kpi('Área', r.ar ? fmtN(r.ar, 2) + ' ha' : '—', 'teal', g.areaHa ? 'calculada no mapa' : r.p.areaHa ? 'informada' : 'sem área')}
+      ${kpi('Ocupação', r.ocup != null ? r.ocup + '%' : (r.uaha != null ? fmtN(r.uaha, 2) + ' UA/ha' : '—'), r.ocup > 100 ? 'red' : r.ocup > 85 ? 'orange' : 'teal', r.p.lotacaoMax ? 'máx. ' + fmtN(r.p.lotacaoMax, 2) + ' UA/ha' : 'informe a lotação máxima')}
+      ${kpi(r.ocupado ? 'Dias de ocupação' : 'Dias de descanso', fmtN(r.ocupado ? r.diasOcup : r.diasDesc), r.aviso ? 'orange' : 'gold', r.ocupado ? (r.p.diasOcupacao ? 'meta ' + r.p.diasOcupacao + ' dias' : 'sem meta') : (r.p.diasDescanso ? 'meta ' + r.p.diasDescanso + ' dias' : 'sem meta'))}
     </div>
     <div class="actions">
-      <button class="btn primary" onclick="goRebanho('ativos','${r.l.id}')">Ver animais</button>
-      <button class="btn teal" onclick="startDraw({tipo:'lote',id:'${r.l.id}'},'toque')">✎ ${g.poligono ? 'Redesenhar' : 'Desenhar'} contorno</button>
-      <button class="btn" onclick="startDraw({tipo:'lote',id:'${r.l.id}'},'gps')">📍 Percorrer cerca</button>
-      <button class="btn" onclick="openLote('${r.l.id}')">Editar lote</button>
-      ${g.poligono ? `<button class="btn danger" onclick="removeGeom({tipo:'lote',id:'${r.l.id}'})">Remover contorno</button>` : ''}
+      <button class="btn primary" onclick="openPastoPainel('${r.p.id}')">Painel do pasto</button>
+      ${r.qtd && r.lotes[0] ? `<button class="btn" onclick="goRebanho('ativos','${r.lotes[0].l.id}')">Ver animais</button>` : ''}
+      <button class="btn teal" onclick="startDraw({tipo:'pasto',id:'${r.p.id}'},'toque')">✎ ${g.poligono ? 'Redesenhar' : 'Desenhar'} contorno</button>
+      <button class="btn" onclick="startDraw({tipo:'pasto',id:'${r.p.id}'},'gps')">📍 Percorrer cerca</button>
+      <button class="btn" onclick="openPasto('${r.p.id}')">Editar pasto</button>
+      ${g.poligono ? `<button class="btn danger" onclick="removeGeom({tipo:'pasto',id:'${r.p.id}'})">Remover contorno</button>` : ''}
     </div>`;
 }
 function onMapTap(p) {
   if (!draw || draw.modo !== 'toque') return false;
   draw.pts.push([Math.round(p[0] * 1e7) / 1e7, Math.round(p[1] * 1e7) / 1e7]); gmMain.setLayers(mapLayers({ sel: mapSel })); renderDrawBar(); return true;
 }
-function alvoNome(a) { if (!a) return ''; if (a.tipo === 'fazenda') return 'Perímetro da fazenda'; const l = S.lotes.find(x => x.id === a.id); return l ? l.nome : 'Novo lote'; }
+function alvoNome(a) { if (!a) return ''; if (a.tipo === 'fazenda') return 'Perímetro da fazenda'; const l = pastoDe(a.id); return l ? l.nome : 'Novo pasto'; }
 function askDraw(modo) {
   const opts = `<option value="fazenda">Perímetro da fazenda</option>${lotesF().map(l => `<option value="${esc(l.id)}"${l.id === mapSel ? ' selected' : ''}>${esc(l.nome)}${l.geo && l.geo.poligono ? ' (substituir contorno)' : ''}</option>`).join('')}<option value="__novo">+ Novo lote/piquete…</option>`;
   openModal(modo === 'gps' ? 'Percorrer a cerca com o GPS' : 'Desenhar contorno no mapa', `
@@ -2092,16 +2467,16 @@ function applyGeometry(alvo, geom, fonte) {
     const f = farm(); if (f.geo && f.geo.perimetro && !confirm(`Substituir o perímetro atual (${fmtN(polyAreaHa(f.geo.perimetro), 2)} ha) por este (${fmtN(ha, 2)} ha)?`)) return false;
     f.geo = Object.assign({ ponto: null, perimetro: null, fontePoligono: null }, f.geo, { perimetro: geom, fontePoligono: fonte, areaHa: ha }); touch(f);
   } else {
-    const l = S.lotes.find(x => x.id === alvo.id); if (!l) return false;
+    const l = pastoDe(alvo.id); if (!l) return false;
     if (l.geo && l.geo.poligono && !confirm(`Substituir o contorno atual de ${l.nome} (${fmtN(l.geo.areaHa, 2)} ha) por este (${fmtN(ha, 2)} ha)?`)) return false;
     l.geo = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, l.geo, { poligono: geom, fontePoligono: fonte, areaHa: ha }); touch(l); mapSel = l.id;
   }
   save(); showToast(`Contorno salvo: ${fmtN(ha, 2)} ha.`); return true;
 }
 function removeGeom(alvo) {
-  const l = alvo.tipo === 'lote' ? S.lotes.find(x => x.id === alvo.id) : farm(); if (!l || !l.geo) return;
-  if (!confirm(`Remover o contorno de ${alvo.tipo === 'lote' ? l.nome : 'perímetro da fazenda'}? O ponto de referência é mantido.`)) return;
-  if (alvo.tipo === 'lote') Object.assign(l.geo, { poligono: null, fontePoligono: null, areaHa: null }); else Object.assign(l.geo, { perimetro: null, fontePoligono: null, areaHa: null });
+  const l = alvo.tipo === 'pasto' ? pastoDe(alvo.id) : farm(); if (!l || !l.geo) return;
+  if (!confirm(`Remover o contorno de ${alvo.tipo === 'pasto' ? l.nome : 'perímetro da fazenda'}? O ponto de referência é mantido.`)) return;
+  if (alvo.tipo === 'pasto') Object.assign(l.geo, { poligono: null, fontePoligono: null, areaHa: null }); else Object.assign(l.geo, { perimetro: null, fontePoligono: null, areaHa: null });
   touch(l); save(); renderMapa();
 }
 
@@ -2121,7 +2496,7 @@ function openGeoImport() {
 }
 function renderGeoImport() {
   const gi = geoImport, L = gi.layers[gi.camada], car = L.car && /im[oó]vel/i.test(L.nome);
-  const destino = gi.destino || (car ? 'fazenda' : L.feats.length > 1 ? 'piquetes' : (mapSel ? 'lote' : 'fazenda'));
+  const destino = gi.destino || (car ? 'fazenda' : L.feats.length > 1 ? 'piquetes' : (mapSel ? 'pasto' : 'fazenda'));
   gi.destino = destino;
   $('giPrev').innerHTML = `
     ${gi.layers.length > 1 ? fld('giCam', 'Camada do arquivo', `<select id="giCam" onchange="geoImport.camada=+this.value;geoImport.destino=null;renderGeoImport()">${gi.layers.map((l, i) => `<option value="${i}"${i === gi.camada ? ' selected' : ''}>${esc(l.nome)} (${l.feats.length})</option>`).join('')}</select>`, false, 'O .zip do CAR traz várias camadas: a do imóvel (perímetro), APP, reserva legal e outras. Para o perímetro, use a camada do imóvel.') : ''}
@@ -2132,8 +2507,8 @@ function renderGeoImport() {
     <div class="field"><label>Usar como</label>
       <div class="rm-types">
         <label><input type="radio" name="giDest" value="fazenda" ${destino === 'fazenda' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Perímetro da fazenda</b>Todos os polígonos formam o limite da propriedade.</span></label>
-        <label><input type="radio" name="giDest" value="piquetes" ${destino === 'piquetes' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Piquetes (um lote por polígono)</b>Casa pelo nome com os lotes existentes; os demais viram lotes novos.</span></label>
-        <label><input type="radio" name="giDest" value="lote" ${destino === 'lote' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Contorno de um lote</b><select id="giLote" onclick="event.stopPropagation()">${loteOpts(mapSel || '', 'Selecione o lote')}</select></span></label>
+        <label><input type="radio" name="giDest" value="piquetes" ${destino === 'piquetes' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Pastos (um por polígono)</b>Casa pelo nome com os pastos existentes; os demais viram pastos novos.</span></label>
+        <label><input type="radio" name="giDest" value="pasto" ${destino === 'pasto' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Contorno de um pasto</b><select id="giPasto" onclick="event.stopPropagation()">${pastoOpts(mapSel || '', 'Selecione o pasto')}</select></span></label>
       </div></div>`;
   $('giOk').disabled = false;
 }
@@ -2142,27 +2517,27 @@ function applyGeoImport() {
   const fonte = L.car && /im[oó]vel/i.test(L.nome) ? 'car' : 'arquivo';
   const juntar = feats => feats.length === 1 ? feats[0].geom : okGeoJSON({ type: 'MultiPolygon', coordinates: feats.flatMap(f => f.geom.type === 'Polygon' ? [f.geom.coordinates] : f.geom.coordinates) });
   if (gi.destino === 'fazenda') { if (!applyGeometry({ tipo: 'fazenda' }, juntar(L.feats), fonte)) return; }
-  else if (gi.destino === 'lote') { const id = $('giLote').value; if (!id) { alert('Escolha o lote.'); return; } if (!applyGeometry({ tipo: 'lote', id }, juntar(L.feats), 'arquivo')) return; }
+  else if (gi.destino === 'pasto') { const id = $('giPasto').value; if (!id) { alert('Escolha o pasto.'); return; } if (!applyGeometry({ tipo: 'pasto', id }, juntar(L.feats), 'arquivo')) return; }
   else {
     let novos = 0, atual = 0;
     L.feats.forEach((f, i) => {
-      let nome = f.nome || `Piquete ${i + 1}`;
-      let l = lotesF().find(x => x.nome.toLowerCase() === nome.toLowerCase());
+      const nome = f.nome || `Pasto ${i + 1}`;
+      const l = pastosF().find(x => x.nome.toLowerCase() === nome.toLowerCase());
       if (l) { l.geo = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, l.geo, { poligono: f.geom, fontePoligono: 'arquivo', areaHa: f.areaHa }); touch(l); atual++; }
-      else { S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: '', areaHa: null, lotacaoMax: null, ativo: true, geo: { ponto: null, poligono: f.geom, fontePoligono: 'arquivo', areaHa: f.areaHa } })); novos++; }
+      else { S.pastos.push(stampNew({ fazendaId: S.fazendaAtiva, nome, areaHa: null, lotacaoMax: null, forrageira: '', diasOcupacao: null, diasDescanso: null, alturaEntrada: null, alturaSaida: null, ativo: true, geo: { ponto: null, poligono: f.geom, fontePoligono: 'arquivo', areaHa: f.areaHa } })); novos++; }
     });
-    save(); showToast(`${atual} lote(s) atualizados e ${novos} criado(s).`);
+    save(); showToast(`${atual} pasto(s) atualizados e ${novos} criado(s).`);
   }
   geoImport = null; closeModal(); renderMapa();
 }
 
 /* ---------- Minimapa (ficha do animal) ---------- */
 function miniMapa(el, loteId) {
-  const l = S.lotes.find(x => x.id === loteId), f = farm(), g = l && l.geo;
+  const lo = S.lotes.find(x => x.id === loteId), l = pastoDe(lo ? lo.pastoId : loteId) || pastoDe(loteId), f = farm(), g = l && l.geo;
   const foco = g && g.poligono ? allCoords(g.poligono) : g && g.ponto ? [[g.ponto.lng, g.ponto.lat]] : f && f.geo && f.geo.perimetro ? allCoords(f.geo.perimetro) : [];
   if (!foco.length) return false;
   const m = new GeoMap(el, { interactive: false, base: navigator.onLine ? mapBase() : 'nenhum', cls: 'mini' });
-  m.setLayers(mapLayers({ sel: loteId, mini: true }));
+  m.setLayers(mapLayers({ sel: l.id, mini: true }));
   requestAnimationFrame(() => m.fit(foco, 28, g && g.poligono ? 17 : 15));
   return true;
 }
@@ -2225,13 +2600,13 @@ const AJUDA = {
     s: 'Todos os animais da fazenda ativa, com lote atual, peso, GMD e situação.',
     p: ['Busque por brinco, raça ou categoria; filtre por lote e situação.', 'Toque no cabeçalho para ordenar.', 'Toque no animal para abrir a ficha: localização, minimapa e histórico.', 'Adicionar animais: carga inicial por lista ou faixa (NL001-NL050).', 'Inventário CSV leva tudo para o Excel.'],
     r: ['Brinco único por fazenda.', 'O lote só muda por lida de Troca de lote.', 'Remover é só para cadastro errado e sem lidas; saída é Baixa.'],
-    d: [['Como cadastro 200 animais de uma vez?', 'Adicionar animais → Brincos: digite a faixa, por exemplo NL001-NL200.']],
+    d: [['Posso guardar a foto do animal?', 'Sim. Abra a ficha do animal e toque em Adicionar foto: ela é reduzida no aparelho, viaja na sincronização e aparece na lista. A característica (chifre, mancha, temperamento) é um campo livre ao lado.'], ['Como cadastro 200 animais de uma vez?', 'Adicionar animais → Brincos: digite a faixa, por exemplo NL001-NL200.']],
     b: ['H03', 'H28'] },
   mapa: { t: 'Mapa da fazenda', g: 'Mapa',
     s: 'Fazendas, perímetro, piquetes coloridos pela ocupação e onde está o rebanho.',
     p: ['Escolha a fazenda nos cartões do topo.', 'Fundo: Mapa, Satélite ou Sem fundo.', 'Toque num piquete para ver animais, peso, GMD, área e ocupação.', 'Importar contorno: perímetro do CAR ou piquetes de arquivo.', 'Desenhar: toque nos cantos do piquete sobre o satélite.', 'Percorrer cerca: grave o contorno andando com o GPS.'],
     r: ['Cores: verde até 85% da lotação máxima, amarelo até 100%, vermelho acima, azul sem lotação máxima.', 'A área do piquete é calculada pelo contorno e entra no UA/ha.', 'O fundo precisa de internet; o que já foi visto fica guardado no aparelho.'],
-    d: [['O mapa está vazio.', 'Importe o perímetro do CAR, desenhe um piquete ou capture o ponto do lote em Fazenda e lotes.'], ['Por que o animal não tem ponto no mapa?', 'A localização é a do piquete. A posição individual exigiria coleira com rastreador.']],
+    d: [['O mapa está vazio.', 'Importe o perímetro do CAR, desenhe um pasto ou capture o ponto do pasto no cadastro.'], ['Quero ver todas as fazendas juntas.', 'Use o botão "Todas" na barra do mapa: cada fazenda aparece com o nome e quantas cabeças tem.'], ['Por que o animal não tem ponto no mapa?', 'A localização é a do pasto. A posição individual exigiria coleira com rastreador.']],
     b: ['H23', 'H25', 'H27'] },
   importar: { t: 'Importar contorno (CAR, KML, GeoJSON)', g: 'Mapa', sub: 'mapa',
     s: 'Traz o perímetro oficial do CAR ou piquetes já desenhados em outro programa.',
@@ -2245,18 +2620,24 @@ const AJUDA = {
     r: ['São necessários pelo menos 3 pontos.', 'O GPS só grava com precisão de até 30 m. Funciona sem internet.', 'Substituir um contorno existente pede confirmação.'],
     d: [['O GPS diz "aguardando precisão melhor".', 'Vá para um local aberto e espere alguns segundos.']],
     b: ['H25', 'H26'] },
-  painel: { t: 'Painel da fazenda', g: 'Gestão',
-    s: 'Visão macro da fazenda (ou de todas) no período, e o detalhe micro de cada piquete.',
-    p: ['Escolha o escopo (uma fazenda ou todas) e o período.', 'Leia os ganhos e perdas: rebanho no início e no fim, entradas, saídas, peso ganho e arrobas estimadas.', 'Veja a evolução mês a mês.', 'Toque num piquete para o detalhe: produtividade por hectare, ocupação e animais.'],
+  painel: { t: 'Painéis', g: 'Gestão',
+    s: 'Do macro ao micro: todas as fazendas → fazenda → pasto, lote ou rebanho.',
+    p: ['Escolha o escopo (uma fazenda ou todas) e o período.', 'Leia os ganhos e perdas: rebanho no início e no fim, entradas, saídas, peso ganho e arrobas estimadas.', 'Toque num pasto para ver rotação e @/ha; num lote para ver GMD e por onde passou; no indicador de animais ativos para o painel do rebanho.', 'Use "‹ Voltar" na trilha para retornar exatamente de onde veio.'],
     r: ['Arrobas estimadas = ganho de peso vivo ÷ 30 (rendimento de carcaça de 50%). É estimativa, não pesagem de carcaça.', 'Mortalidade = mortes e perdas ÷ rebanho médio do período.', 'Só entram lidas finalizadas.'],
-    d: [['Os números do período estão zerados.', 'Precisa haver pesagens finalizadas dentro do período escolhido.']],
-    b: ['H30'] },
-  cadastros: { t: 'Fazenda e lotes', g: 'Cadastros',
-    s: 'O pilar da árvore: fazendas e seus lotes/piquetes.',
-    p: ['Nova fazenda: nome, município, área de pastagem, recibo do CAR e localização da sede.', 'Novo lote: nome, pasto, área, lotação máxima (UA/ha) e ponto pelo GPS.', 'Use a fazenda certa antes de criar lotes: eles pertencem à fazenda ativa.'],
-    r: ['Nome de lote único por fazenda.', 'Lote com animais ativos não pode ser inativado.', 'Sem lotação máxima, a ocupação não é calculada.'],
-    d: [['A área digitada e a do mapa são diferentes.', 'Com contorno, vale a área do mapa.']],
-    b: ['H02', 'H19', 'H20'] },
+    d: [['Os números do período estão zerados.', 'Precisa haver pesagens finalizadas dentro do período escolhido.'], ['O ganho do pasto está menor que o do lote.', 'O ganho é atribuído ao pasto onde o animal estava na data da pesagem. Se o lote rodou entre pastos, o ganho se divide entre eles.']],
+    b: ['H30', 'H36'] },
+  cadastros: { t: 'Fazenda, pastos e lotes', g: 'Cadastros',
+    s: 'A árvore do cadastro: fazenda → pasto (o lugar) → lote (o grupo de animais).',
+    p: ['Nova fazenda: nome, município, área de pastagem, recibo do CAR e localização da sede.', 'Novo pasto: o lugar. Nome, área, lotação máxima (UA/ha), forrageira e metas de ocupação, descanso e altura.', 'Novo lote: o grupo de animais. Nome e o pasto que ele ocupa hoje.', 'Mover de pasto: registra a saída de um pasto e a entrada no outro, com data.'],
+    r: ['Pasto é lugar; lote é grupo. O mesmo lote muda de pasto sem deixar de ser o mesmo lote.', 'Nome de pasto e de lote únicos por fazenda.', 'Pasto ocupado não pode ser inativado nem excluído: mova o lote antes.', 'Sem lotação máxima, a ocupação (%) não é calculada.'],
+    d: [['Onde foi parar a área do lote?', 'A área, o contorno e a lotação são do pasto. Na atualização, cada lote antigo virou um pasto com esses dados mais o lote que o ocupa; nada se perdeu.'], ['A área digitada e a do mapa são diferentes.', 'Com contorno, vale a área do mapa.']],
+    b: ['H02', 'H19', 'H20', 'H34'] },
+  pastos: { t: 'Pastos e rotação', g: 'Gestão', sub: 'cadastros',
+    s: 'Dias de ocupação, dias de descanso e quando o pasto está pronto para receber o lote.',
+    p: ['No cadastro do pasto, escolha a forrageira: o app sugere as metas de ocupação, descanso e altura.', 'Ajuste as metas à sua realidade (solo, adubação, chuva, categoria do gado).', 'Quando mudar o gado de lugar, use "Mover de pasto" com a data real.', 'Acompanhe no painel do pasto: ocupação, descanso, ciclos, @/ha e histórico de quem passou.'],
+    r: ['Ocupação: tempo com o lote dentro. Referência Embrapa: 1 a 7 dias.', 'Descanso: tempo sem animais, para a rebrota. Varia com a forrageira, em geral de 21 a 35 dias.', 'Número de pastos necessário = (descanso ÷ ocupação) + 1.', 'Altura de entrada e saída é o sinal de campo (régua de manejo); os dias são a previsão.', 'O app avisa quando a ocupação passa da meta e quando o descanso foi cumprido.'],
+    d: [['De onde vêm as metas sugeridas?', 'De publicações da Embrapa sobre pastejo rotacionado. São ponto de partida, não receita: confirme com o técnico da fazenda.'], ['Mudei o gado e os dias não mudaram.', 'Os dias vêm de "Mover de pasto". Trocar o lote no cadastro sem data não gera ciclo com histórico.']],
+    b: ['H35'] },
   sync: { t: 'Sincronizar', g: 'Dados',
     s: 'Leva os dados de um aparelho para outro por arquivo, sem servidor.',
     p: ['Dê a cada aparelho um nome próprio (ex.: Celular do João, Computador do escritório). Não use o nome da fazenda.', 'Exportar dados: no computador o arquivo vai para Downloads; no celular abre o compartilhamento (WhatsApp, e-mail, Drive).', 'No outro aparelho: Importar arquivo, confira a prévia e aplique.', 'Se algo der errado: Desfazer última importação.'],
@@ -2266,7 +2647,7 @@ const AJUDA = {
   app: { t: 'Instalar e atualizar', g: 'Dados',
     s: 'Como ter o app na tela inicial e receber as novas versões.',
     p: ['Android/computador: botão Instalar app ou menu do navegador → Instalar app.', 'iPhone: Safari → Compartilhar → Adicionar à Tela de Início.', 'Abra uma vez com internet; depois funciona offline.', 'Nova versão: aparece a barra "Atualizar agora". Os dados ficam salvos.'],
-    r: ['Tema: Automático segue o modo claro/escuro do aparelho; o botão de tema alterna Automático, Claro e Escuro.', 'Abrir com internet já traz a versão mais nova.', 'Se a versão ainda estiver sendo publicada, o app pede para tentar em alguns minutos.'],
+    r: ['Tema: Automático segue o modo claro/escuro do aparelho; o botão de tema alterna Automático, Claro e Escuro.', 'Menu: recolhe sozinho nas telas largas (painéis, mapa, rebanho e cadastros) e mostra os nomes ao passar o mouse. O botão ☰ fixa a sua preferência.', 'Abrir com internet já traz a versão mais nova.', 'Se a versão ainda estiver sendo publicada, o app pede para tentar em alguns minutos.'],
     d: [['A barra de atualização não some.', 'Feche o app por completo e abra de novo com internet.']],
     b: ['H01', 'H17'] }
 };
@@ -2318,8 +2699,17 @@ function renderCadastros() {
   const f = farm();
   let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
-    const rl = lotesResumo();
-    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th>Localização</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${areaLote(r.l) ? fmtN(areaLote(r.l), 1) + (r.l.geo && r.l.geo.areaHa ? ' <small class="muted">mapa</small>' : '') : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td>${geoChip(r.l.geo)}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
+    const rp = pastosResumo(), rl = lotesResumo(), rec = piquetesRecomendados(f.id);
+    h += `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
+      ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th>Forrageira</th><th>Metas (dias)</th><th>Ocupação atual</th><th>Contorno</th><th></th></tr></thead><tbody>
+      ${rp.map(r => `<tr class="click" tabindex="0" onclick="openPastoPainel('${r.p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${r.p.id}')"><td><b>${esc(r.p.nome)}</b>${r.p.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.ar ? fmtN(r.ar, 1) + (r.p.geo && r.p.geo.areaHa ? ' <small class="muted">mapa</small>' : '') : '—'}</td><td class="num">${r.p.lotacaoMax ? fmtN(r.p.lotacaoMax, 2) : '—'}</td><td>${esc(r.p.forrageira || '—')}</td><td>${r.p.diasOcupacao || r.p.diasDescanso ? `${r.p.diasOcupacao || '—'} dias de ocupação / ${r.p.diasDescanso || '—'} de descanso` : '—'}</td><td>${sitPastoChip(r)}${r.lotes.length ? '<br><small class="muted">' + r.lotes.map(x => esc(x.l.nome) + ' · ' + x.qtd + ' cab.').join(', ') + '</small>' : ''}</td><td>${geoChip(r.p.geo)}</td><td><button class="btn sm" onclick="event.stopPropagation();openPasto('${r.p.id}')">Editar</button></td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Nenhum pasto. <button class="btn primary" onclick="openPasto()">Cadastrar pasto</button></div>'}
+      ${rec ? `<p class="hint">Pelas metas informadas, o pastejo rotacionado pediria cerca de <b>${rec.n} pastos</b> (descanso ÷ ocupação + 1, referência Embrapa). Hoje a fazenda tem ${rec.total}.</p>` : '<p class="hint">Informe forrageira e metas de ocupação e descanso para o app acompanhar a rotação e indicar quando o pasto está pronto para receber um lote.</p>'}</div>`;
+    h += `<div class="card"><h3>Lotes de ${esc(f.nome)} <span class="sub">o grupo de animais e o pasto que ele ocupa</span></h3>
+      ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto atual</th><th class="num">Dias no pasto</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">UA/ha</th><th></th></tr></thead><tbody>
+      ${rl.map(r => { const o = ocupAberta(r.l), dd = o ? diasEntre(o.de, hoje()) : null, cl = r.p ? pastoCiclo(r.p) : null; return `<tr><td><b>${esc(r.l.nome)}</b></td><td>${r.p ? `<button class="btn sm" onclick="openPastoPainel('${r.p.id}')">${esc(r.p.nome)}</button>` : '<span class="chip warn">sem pasto</span>'}</td><td class="num">${dd != null ? dd + (cl && cl.aviso ? ' <span class="chip warn">meta</span>' : '') : '—'}</td><td class="num">${r.qtd}</td><td class="num">${r.pesoMedio ? fmtN(r.pesoMedio, 1) : '—'}</td><td class="num">${r.uaha != null ? fmtN(r.uaha, 2) : '—'}</td><td><button class="btn sm" onclick="moverLote('${r.l.id}')">Mover de pasto</button> <button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`; }).join('')}
+      </tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}
+      <p class="hint">Mover o lote de pasto registra a saída de um e a entrada no outro. É esse histórico que vira dias de ocupação, descanso e ciclos no painel do pasto.</p></div>`;
   }
   $('cadBody').innerHTML = h;
 }
@@ -2351,34 +2741,117 @@ function saveFarm(id) {
 }
 function openLote(id) {
   if (!farm()) { openFarm(); return; }
-  const x = id ? S.lotes.find(l => l.id === id) : null;
+  const x = id ? S.lotes.find(l => l.id === id) : null, ps = pastosAtivosF();
+  if (!ps.length && !x) { alert('Cadastre primeiro um pasto: ele é o lugar onde o lote fica.'); openPasto(); return; }
   openModal(x ? 'Editar lote' : 'Novo lote', `<div class="grid">
-    ${fld('loNome', 'Nome do lote', `<input id="loNome" maxlength="60" value="${esc(x ? x.nome : '')}">`, true)}
-    ${fld('loPasto', 'Pasto / área', `<input id="loPasto" maxlength="60" value="${esc(x ? x.pasto || '' : '')}" placeholder="Ex.: Retiro 3">`)}
-    ${fld('loArea', 'Área do pasto (ha)', `<input id="loArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`)}
-    ${fld('loLot', 'Lotação máxima (UA/ha)', `<input id="loLot" inputmode="decimal" value="${x && x.lotacaoMax ? fmtN(x.lotacaoMax, 2) : ''}">`)}
+    ${fld('loNome', 'Nome do lote', `<input id="loNome" maxlength="60" value="${esc(x ? x.nome : '')}" placeholder="Ex.: Recria 2026">`, true, 'O grupo de animais, não o lugar.')}
+    ${fld('loPasto', 'Pasto que o lote ocupa', `<select id="loPasto">${ps.map(p => `<option value="${esc(p.id)}"${x && x.pastoId === p.id ? ' selected' : ''}>${esc(p.nome)}</option>`).join('')}</select>`, true, x ? 'Para registrar a rotação com data, use "Mover de pasto".' : 'Onde o lote começa.')}
     ${x ? fld('loAtivo', 'Situação', `<select id="loAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
-    ${geoField('loGeo', x && x.geo ? x.geo.ponto : null, 'Ponto de referência do pasto')}
-    </div><p class="hint">Dica: capture no centro do pasto ou na porteira. O desenho do piquete no mapa vem na próxima etapa e aproveita este ponto.</p>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
+    </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
 }
 function saveLote(id) {
-  const nome = str($('loNome').value, 60); ['loNome', 'loArea', 'loLot'].forEach(i => fieldErr(i, ''));
-  const aR = $('loArea').value.trim(), lR = $('loLot').value.trim(), area = aR ? parseNum(aR) : null, lot = lR ? parseNum(lR) : null;
+  const nome = str($('loNome').value, 60); ['loNome'].forEach(i => fieldErr(i, ''));
   if (!nome) { fieldErr('loNome', 'Informe o nome.'); return; }
   if (lotesF().some(l => l.id !== id && l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('loNome', 'Já existe lote com este nome.'); return; }
-  if (aR && !(area > 0)) { fieldErr('loArea', 'Área inválida.'); return; }
-  if (lR && !(lot > 0)) { fieldErr('loLot', 'Valor inválido.'); return; }
-  const gp = readGeoField('loGeo'); if (!gp.ok) return;
-  if (gp.ponto && foraDoBrasil(gp.ponto) && !confirm('A localização está fora do Brasil. Salvar mesmo assim?')) return;
+  const pid = $('loPasto') ? $('loPasto').value : null;
   let x = id ? S.lotes.find(l => l.id === id) : null;
-  const geoL = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, x && x.geo, { ponto: gp.ponto });
-  const geo = geoL.ponto || geoL.poligono ? geoL : null;
   if (x) {
     const ativo = $('loAtivo') ? $('loAtivo').value === '1' : true;
     if (!ativo && Object.values(compute()).some(s => s.ativo && s.lote === x.id)) { alert('O lote ainda tem animais ativos. Troque-os de lote antes de inativar.'); return; }
-    Object.assign(x, { nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo, geo }); touch(x);
-  } else S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo: true, geo }));
+    Object.assign(x, { nome, ativo });
+    if (pid && pid !== x.pastoId) aplicaMudancaPasto(x, pid, hoje());
+    if (!ativo) { const o = ocupAberta(x); if (o) o.ate = hoje(); }
+    touch(x);
+  } else {
+    const l = stampNew({ fazendaId: S.fazendaAtiva, nome, pastoId: pid || null, ocupacoes: [], ativo: true });
+    if (pid) l.ocupacoes = [{ p: pid, de: hoje(), ate: null }];
+    S.lotes.push(l);
+  }
   save(); closeModal(); refreshAll(); showToast('Lote salvo.');
+}
+/* Rotação: fecha a ocupação atual e abre a nova. É o evento que gera os dias
+   de ocupação e de descanso de cada pasto. */
+function aplicaMudancaPasto(l, pid, data) {
+  const o = ocupAberta(l);
+  if (o && o.p === pid) return false;
+  if (o) o.ate = data < o.de ? o.de : data;
+  l.ocupacoes = (l.ocupacoes || []).concat([{ p: pid, de: data, ate: null }]).sort((a, b) => a.de.localeCompare(b.de));
+  l.pastoId = pid;
+  return true;
+}
+function moverLote(id) {
+  const l = S.lotes.find(x => x.id === id); if (!l) return;
+  const ps = pastosAtivosF().filter(p => p.id !== l.pastoId);
+  if (!ps.length) { alert('Não há outro pasto cadastrado nesta fazenda.'); return; }
+  const o = ocupAberta(l);
+  openModal('Mover ' + l.nome + ' de pasto', `<div class="grid">
+    ${fld('mvPasto', 'Pasto de destino', `<select id="mvPasto">${ps.map(p => { const c = pastoCiclo(p); return `<option value="${esc(p.id)}">${esc(p.nome)}${c.situacao === 'pronto' ? ' · pronto' : c.situacao === 'descanso' ? ' · descansando há ' + c.diasDesc + ' d' : c.situacao === 'ocupado' ? ' · ocupado' : ''}</option>`; }).join('')}</select>`, true)}
+    ${fld('mvData', 'Data da mudança', `<input id="mvData" type="date" value="${hoje()}" max="${hoje()}">`, true)}
+    </div><p class="hint">Hoje o lote está em <b>${esc(pastoNome(l.pastoId))}</b>${o ? ' há ' + diasEntre(o.de, hoje()) + ' dia(s)' : ''}. O pasto de origem entra em descanso a partir desta data.</p>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="confirmaMoverLote('${id}')">Mover</button>`);
+}
+function confirmaMoverLote(id) {
+  const l = S.lotes.find(x => x.id === id), pid = $('mvPasto').value, d = $('mvData').value;
+  fieldErr('mvData', '');
+  if (!l || !pid) return;
+  if (!validDate(d) || d > hoje()) { fieldErr('mvData', 'Data inválida.'); return; }
+  const o = ocupAberta(l);
+  if (o && d < o.de) { fieldErr('mvData', 'A data não pode ser anterior à entrada no pasto atual (' + fmtD(o.de) + ').'); return; }
+  const de = pastoNome(l.pastoId);
+  aplicaMudancaPasto(l, pid, d); touch(l); save(); closeModal(); refreshAll();
+  showToast(`${l.nome}: ${de} → ${pastoNome(pid)}.`);
+}
+function openPasto(id) {
+  if (!farm()) { openFarm(); return; }
+  const x = id ? pastoDe(id) : null;
+  openModal(x ? 'Editar pasto' : 'Novo pasto', `<div class="grid">
+    ${fld('paNome', 'Nome do pasto', `<input id="paNome" maxlength="60" value="${esc(x ? x.nome : '')}" placeholder="Ex.: Retiro 3">`, true, 'O lugar na fazenda.')}
+    ${fld('paArea', 'Área (ha)', `<input id="paArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`, false, x && x.geo && x.geo.areaHa ? 'O contorno no mapa já dá ' + fmtN(x.geo.areaHa, 2) + ' ha, que prevalece.' : 'Ou desenhe o contorno no mapa.')}
+    ${fld('paLot', 'Lotação máxima (UA/ha)', `<input id="paLot" inputmode="decimal" value="${x && x.lotacaoMax ? fmtN(x.lotacaoMax, 2) : ''}">`, false, 'Base do alerta de superlotação (R06).')}
+    ${fld('paForr', 'Forrageira', `<select id="paForr" onchange="sugereMetas()"><option value="">—</option>${Object.keys(FORRAGEIRAS).map(k => `<option value="${esc(k)}"${x && x.forrageira === k ? ' selected' : ''}>${esc(k)}</option>`).join('')}<option value="Outra"${x && x.forrageira === 'Outra' ? ' selected' : ''}>Outra</option></select>`, false, 'Preenche as metas sugeridas.')}
+    ${fld('paOc', 'Dias de ocupação (meta)', `<input id="paOc" inputmode="numeric" value="${x && x.diasOcupacao || ''}">`, false, 'Tempo com o lote dentro. Referência: 1 a 7 dias.')}
+    ${fld('paDe', 'Dias de descanso (meta)', `<input id="paDe" inputmode="numeric" value="${x && x.diasDescanso || ''}">`, false, 'Tempo sem animais para a rebrota.')}
+    ${fld('paHe', 'Altura de entrada (cm)', `<input id="paHe" inputmode="numeric" value="${x && x.alturaEntrada || ''}">`)}
+    ${fld('paHs', 'Altura de saída (cm)', `<input id="paHs" inputmode="numeric" value="${x && x.alturaSaida || ''}">`)}
+    ${x ? fld('paAtivo', 'Situação', `<select id="paAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
+    ${geoField('paGeo', x && x.geo ? x.geo.ponto : null, 'Ponto de referência do pasto')}
+    </div><p class="hint">As metas vêm das recomendações da Embrapa para pastejo rotacionado e devem ser ajustadas à sua realidade: solo, adubação, chuva e categoria do gado mudam o ponto certo.</p>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button>${x ? `<button class="btn danger" onclick="removePasto('${x.id}')">Excluir</button>` : ''}<button class="btn primary" onclick="savePasto('${id || ''}')">Salvar</button>`);
+}
+function sugereMetas() {
+  const k = $('paForr').value, d = FORRAGEIRAS[k]; if (!d) return;
+  if (!$('paOc').value) $('paOc').value = d.oc;
+  if (!$('paDe').value) $('paDe').value = d.de;
+  if (!$('paHe').value) $('paHe').value = d.he;
+  if (!$('paHs').value) $('paHs').value = d.hs;
+}
+function savePasto(id) {
+  const nome = str($('paNome').value, 60); ['paNome', 'paArea', 'paLot'].forEach(i => fieldErr(i, ''));
+  const aR = $('paArea').value.trim(), lR = $('paLot').value.trim(), area = aR ? parseNum(aR) : null, lot = lR ? parseNum(lR) : null;
+  if (!nome) { fieldErr('paNome', 'Informe o nome.'); return; }
+  if (pastosF().some(p => p.id !== id && p.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('paNome', 'Já existe pasto com este nome.'); return; }
+  if (aR && !(area > 0)) { fieldErr('paArea', 'Área inválida.'); return; }
+  if (lR && !(lot > 0)) { fieldErr('paLot', 'Valor inválido.'); return; }
+  const gp = readGeoField('paGeo'); if (!gp.ok) return;
+  if (gp.ponto && foraDoBrasil(gp.ponto) && !confirm('A localização está fora do Brasil. Salvar mesmo assim?')) return;
+  const num = (el, max) => { const v = parseInt($(el).value, 10); return v > 0 && v <= max ? v : null; };
+  let x = id ? pastoDe(id) : null;
+  const gAnt = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, x && x.geo, { ponto: gp.ponto });
+  const dados = { nome, areaHa: area, lotacaoMax: lot, forrageira: str($('paForr').value, 40), diasOcupacao: num('paOc', 120), diasDescanso: num('paDe', 365),
+    alturaEntrada: num('paHe', 300), alturaSaida: num('paHs', 300), geo: gAnt.ponto || gAnt.poligono ? gAnt : null };
+  if (x) {
+    const ativo = $('paAtivo') ? $('paAtivo').value === '1' : true;
+    if (!ativo && lotesDoPasto(x.id).length) { alert('Há lote ocupando este pasto. Mova o lote antes de inativar.'); return; }
+    Object.assign(x, dados, { ativo }); touch(x);
+  } else S.pastos.push(stampNew(Object.assign({ fazendaId: S.fazendaAtiva, ativo: true }, dados)));
+  save(); closeModal(); refreshAll(); showToast('Pasto salvo.');
+}
+function removePasto(id) {
+  const x = pastoDe(id); if (!x) return;
+  if (lotesDoPasto(id).length) { alert('Há lote ocupando este pasto. Mova o lote antes de excluir.'); return; }
+  if (S.lotes.some(l => (l.ocupacoes || []).some(o => o.p === id))) { if (!confirm('Este pasto tem histórico de ocupação. Excluir mesmo assim? O histórico deixa de ser exibido.')) return; }
+  else if (!confirm('Excluir o pasto ' + x.nome + '?')) return;
+  moveToTrash('pasto', x); save(); closeModal(); refreshAll(); showToast('Pasto enviado para a lixeira.');
 }
 
 /* =========================================================================
@@ -2407,8 +2880,8 @@ function offsetTxt(d) { const m = -new Date(d || Date.now()).getTimezoneOffset()
 function exportInventarioCSV() {
   const st = Object.values(compute()).sort((a, b) => a.a.brinco.localeCompare(b.a.brinco, 'pt-BR', { numeric: true }));
   downloadCSV(`Tapirucu_${slug(farm().nome)}_Inventario_${stampFile()}.csv`,
-    ['Fazenda', 'Brinco', 'Lote atual', 'Sexo', 'Raca', 'Categoria', 'Nascimento', 'Entrada', 'Ultimo peso (kg)', 'Data ultimo peso', 'GMD ultimas 2 (kg/dia)', 'GMD periodo (kg/dia)', 'Situacao', 'Data baixa', 'Motivo baixa', 'Carencia ate', 'Dias sem manejo', 'ID animal', 'Versao'],
-    st.map(s => [farm().nome, s.a.brinco, loteNome(s.lote), SEXOS[s.a.sexo], s.a.raca, s.a.categoria, fmtD(s.a.nascimento).replace('—', ''), fmtD(s.a.entradaEm).replace('—', ''),
+    ['Fazenda', 'Brinco', 'Lote atual', 'Pasto atual', 'Caracteristica', 'Sexo', 'Raca', 'Categoria', 'Nascimento', 'Entrada', 'Ultimo peso (kg)', 'Data ultimo peso', 'GMD ultimas 2 (kg/dia)', 'GMD periodo (kg/dia)', 'Situacao', 'Data baixa', 'Motivo baixa', 'Carencia ate', 'Dias sem manejo', 'ID animal', 'Versao'],
+    st.map(s => [farm().nome, s.a.brinco, loteNome(s.lote), pastoNome(pastoDoLoteId(s.lote)), s.a.caracteristica || '', SEXOS[s.a.sexo], s.a.raca, s.a.categoria, fmtD(s.a.nascimento).replace('—', ''), fmtD(s.a.entradaEm).replace('—', ''),
       csvNum(s.ultimoPeso, 1), fmtD(s.ultimaPesagem).replace('—', ''), csvNum(s.gmd, 3), csvNum(s.gmdTotal, 3), s.ativo ? 'Ativo' : 'Baixado',
       s.baixa ? fmtD(s.baixa.data) : '', s.baixa ? MOTIVOS_BAIXA[s.baixa.motivo] : '', s.carenciaAte ? fmtD(s.carenciaAte) : '', s.ativo ? (s.diasSemManejo ?? '') : '', s.a.id, s.a.versao]));
 }
@@ -2426,8 +2899,19 @@ function exportEventosCSV() {
 }
 function exportLotesCSV() {
   downloadCSV(`Tapirucu_${slug(farm().nome)}_Lotes_${stampFile()}.csv`,
-    ['Fazenda', 'Lote', 'Pasto', 'Area (ha)', 'Animais', 'Machos', 'Femeas', 'Com peso', 'Peso medio (kg)', 'GMD medio (kg/dia)', 'UA', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Em carencia', 'Sem manejo +30 dias', 'Latitude', 'Longitude', 'Origem da localizacao', 'Tem poligono', 'ID lote'],
-    lotesResumo().map(r => [farm().nome, r.l.nome, r.l.pasto, csvNum(r.l.areaHa, 2), r.qtd, r.machos, r.femeas, r.comPeso, csvNum(r.pesoMedio, 1), csvNum(r.gmd, 3), csvNum(r.ua, 2), csvNum(r.uaha, 2), csvNum(r.l.lotacaoMax, 2), r.ocup ?? '', r.carencia, r.atraso, csvCoord(r.l.geo && r.l.geo.ponto, 'lat'), csvCoord(r.l.geo && r.l.geo.ponto, 'lng'), r.l.geo && r.l.geo.ponto ? GEO_FONTES[r.l.geo.ponto.fonte] : '', r.l.geo && r.l.geo.poligono ? 'Sim' : 'Nao', r.l.id]));
+    ['Fazenda', 'Lote', 'Pasto atual', 'Dias no pasto', 'Animais', 'Machos', 'Femeas', 'Com peso', 'Peso medio (kg)', 'GMD medio (kg/dia)', 'UA', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Em carencia', 'Sem manejo +30 dias', 'ID lote', 'ID pasto'],
+    lotesResumo().map(r => { const o = ocupAberta(r.l); return [farm().nome, r.l.nome, r.p ? r.p.nome : '', o ? diasEntre(o.de, hoje()) : '', r.qtd, r.machos, r.femeas, r.comPeso, csvNum(r.pesoMedio, 1), csvNum(r.gmd, 3), csvNum(r.ua, 2), csvNum(r.uaha, 2), csvNum(lotacaoDe(r.l), 2), r.ocup ?? '', r.carencia, r.atraso, r.l.id, r.l.pastoId || '']; }));
+}
+function exportPastosCSV() {
+  const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
+  const an = analise([S.fazendaAtiva], d0, d1);
+  downloadCSV(`Tapirucu_${slug(farm().nome)}_Pastos_${stampFile()}.csv`,
+    ['Fazenda', 'Pasto', 'Area (ha)', 'Origem da area', 'Forrageira', 'Meta ocupacao (dias)', 'Meta descanso (dias)', 'Altura entrada (cm)', 'Altura saida (cm)', 'Situacao', 'Dias na situacao', 'Lotes ocupando', 'Animais', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Ganho no periodo (kg)', 'Arrobas (est.)', 'Arrobas por ha', 'Ciclos', 'Latitude', 'Longitude', 'Tem poligono', 'ID pasto'],
+    pastosResumo().map(r => { const g = (an.pasto[r.p.id] || { kg: 0 }).kg, arr = g / KG_ARROBA_VIVO;
+      return [farm().nome, r.p.nome, csvNum(r.ar, 2), r.p.geo && r.p.geo.areaHa ? 'Calculada no mapa' : r.p.areaHa ? 'Informada' : '', r.p.forrageira, r.p.diasOcupacao ?? '', r.p.diasDescanso ?? '', r.p.alturaEntrada ?? '', r.p.alturaSaida ?? '',
+        SIT_PASTO[r.situacao].t, (r.ocupado ? r.diasOcup : r.diasDesc) ?? '', r.lotes.map(x => x.l.nome).join(' + '), r.qtd, csvNum(r.uaha, 2), csvNum(r.p.lotacaoMax, 2), r.ocup ?? '',
+        csvNum(g, 0), csvNum(arr, 2), r.ar ? csvNum(arr / r.ar, 2) : '', r.ciclos.length,
+        csvCoord(r.p.geo && r.p.geo.ponto, 'lat'), csvCoord(r.p.geo && r.p.geo.ponto, 'lng'), r.p.geo && r.p.geo.poligono ? 'Sim' : 'Nao', r.p.id]; }));
 }
 
 /* =========================================================================
@@ -2441,7 +2925,7 @@ async function sha256(txt) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
-const payloadOf = pkg => JSON.stringify({ dados: pkg.dados, excluidos: pkg.excluidos });
+const payloadOf = pkg => JSON.stringify({ dados: pkg.dados, excluidos: pkg.excluidos, fotos: pkg.fotos });
 function openDeviceModal(next) {
   const sugestao = window.matchMedia('(pointer:coarse)').matches ? 'Celular de ' : 'Computador do escritório';
   openModal('Nome deste aparelho', `${fld('devNome', 'Como identificar este aparelho?', `<input id="devNome" maxlength="40" value="${esc(syncMeta.device ? syncMeta.device.nome : sugestao)}" placeholder="Ex.: Celular do João, Computador do escritório">`, true, 'Nome do <b>aparelho</b>, não da fazenda. Ele vai em cada registro e em cada arquivo exportado, para saber quem coletou e em qual aparelho. Use um nome diferente em cada celular e computador.')}`,
@@ -2462,14 +2946,15 @@ async function exportSync() {
   const lidas = S.lidas.filter(l => l.status === 'finalizada');
   const pkg = {
     app: APP_ID, formato: SYNC_FORMAT, versaoApp: APP_VERSION, exportadoEm: agora, exportadoEmLocal: fmtDT(agora) + ' (' + offsetTxt(agora) + ')', fusoHorario: FUSO, exportId: uuid(), dispositivo: deviceRef(),
-    resumo: { fazendas: S.fazendas.length, lotes: S.lotes.length, animais: S.animais.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
-    dados: { fazendas: S.fazendas, lotes: S.lotes, animais: S.animais, lidas },
+    resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
+    dados: { fazendas: S.fazendas, pastos: S.pastos, lotes: S.lotes, animais: S.animais, lidas },
+    fotos: S.fotos && Object.keys(S.fotos).length ? S.fotos : undefined,
     excluidos: S.excluidos
   };
   // marca exportado antes de gerar a integridade, para o arquivo refletir o estado final
   const mark = o => { if (isPend(o)) o.exportadoEm = agora; };
-  const prev = JSON.parse(JSON.stringify({ f: S.fazendas, lo: S.lotes, a: S.animais, li: S.lidas }));
-  [...S.fazendas, ...S.lotes, ...S.animais, ...lidas].forEach(mark);
+  const prev = JSON.parse(JSON.stringify({ f: S.fazendas, pa: S.pastos, lo: S.lotes, a: S.animais, li: S.lidas }));
+  [...S.fazendas, ...S.pastos, ...S.lotes, ...S.animais, ...lidas].forEach(mark);
   pkg.integridade = await sha256(payloadOf(pkg));
   const name = `Tapirucu_${slug(syncMeta.device.nome)}_${stampFile()}.json`;
   const file = new File([JSON.stringify(pkg)], name, { type: 'application/json' });
@@ -2484,7 +2969,7 @@ async function exportSync() {
       catch (e) { if (e && e.name === 'AbortError') throw e; baixar(); }
     } else baixar();
   } catch (e) {
-    S.fazendas = prev.f; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; calc = null; // nada saiu: nada marcado
+    S.fazendas = prev.f; S.pastos = prev.pa; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; calc = null; // nada saiu: nada marcado
     if (e && e.name === 'AbortError') return;
     alert('Não foi possível exportar agora. Seus dados continuam salvos neste aparelho.'); return;
   }
@@ -2505,12 +2990,19 @@ const okDate = v => validDate(String(v || '')) ? String(v) : null;
 const okIso = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOString() : null; };
 const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && n <= max ? n : null; };
 const okDev = d => d && okId(d.id) ? { id: String(d.id), nome: str(d.nome, 40) } : null;
+const okInt = (v, max) => { const n = parseInt(v, 10); return isFinite(n) && n > 0 && n <= max ? n : null; };
 function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm) }; }
 const SAN = {
   fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
-  lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null; return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pasto: str(r.pasto, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), ativo: r.ativo !== false, geo: okGeo(r.geo, 'poligono') }); },
+  pastos: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
+    return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), forrageira: str(r.forrageira, 40),
+      diasOcupacao: okInt(r.diasOcupacao, 120), diasDescanso: okInt(r.diasDescanso, 365), alturaEntrada: okInt(r.alturaEntrada, 300), alturaSaida: okInt(r.alturaSaida, 300),
+      ativo: r.ativo !== false, geo: okGeo(r.geo, 'poligono') }); },
+  lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
+    const oc = (Array.isArray(r.ocupacoes) ? r.ocupacoes : []).slice(0, 500).map(o => o && okId(o.p) && okDate(o.de) ? { p: String(o.p), de: okDate(o.de), ate: okDate(o.ate) } : null).filter(Boolean).sort((a, b) => a.de.localeCompare(b.de));
+    return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pastoId: okId(r.pastoId) ? String(r.pastoId) : null, ocupacoes: oc, ativo: r.ativo !== false }); },
   animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
-    return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
+    return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || r.status !== 'finalizada') return null;
     const c = r.cab || {};
     const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null };
@@ -2541,9 +3033,19 @@ async function onImportFile(ev) {
   pendingImport = { pkg, plan, arquivo: f.name, avisos };
   renderImportPreview();
 }
+/* Arquivo de formato 1 ou 2: o lote antigo é desdobrado em pasto + lote com a
+   mesma regra da migração local, então os dois lados chegam ao mesmo registro. */
+function migraPkg(pkg) {
+  if (!pkg || !pkg.dados || (parseInt(pkg.formato, 10) || 1) >= 3) return pkg;
+  const ps = Array.isArray(pkg.dados.pastos) ? pkg.dados.pastos : [];
+  (Array.isArray(pkg.dados.lotes) ? pkg.dados.lotes : []).forEach(l => migraLote(l, ps));
+  pkg.dados.pastos = ps;
+  return pkg;
+}
 function planImport(pkg) {
+  migraPkg(pkg);
   const plan = { cols: {}, tombs: [], excluirAqui: [], mantidosEditados: [], invalidos: 0 };
-  ['fazendas', 'lotes', 'animais', 'lidas'].forEach(col => {
+  ['fazendas', 'pastos', 'lotes', 'animais', 'lidas'].forEach(col => {
     const p = { novos: [], atualizados: [], iguais: [], locais: [], conflitosImp: [], conflitosLoc: [], restaurados: [], excluidosAqui: [] }, seen = new Set();
     (Array.isArray(pkg.dados[col]) ? pkg.dados[col] : []).forEach(raw => {
       const inc = SAN[col](raw);
@@ -2562,6 +3064,14 @@ function planImport(pkg) {
     });
     plan.cols[col] = p;
   });
+  plan.fotos = {};
+  const F = pkg.fotos && typeof pkg.fotos === 'object' ? pkg.fotos : {};
+  Object.keys(F).slice(0, 5000).forEach(k => {
+    const v = F[k], em = v ? okIso(v.em) : null;
+    if (!okId(k) || !v || typeof v.d !== 'string' || !/^data:image\/(jpeg|png|webp);base64,/.test(v.d) || v.d.length > 900000 || !em) return;
+    const loc = fotoDe(k);
+    if (!loc || em > loc.em) plan.fotos[k] = { d: v.d, em, por: okDev(v.por) };
+  });
   (Array.isArray(pkg.excluidos) ? pkg.excluidos : []).forEach(t => {
     if (!t || !okId(t.id) || !okIso(t.em) || !COL[t.tipo]) return;
     const tt = { id: String(t.id), tipo: t.tipo, em: okIso(t.em), no: okDev(t.no) };
@@ -2575,7 +3085,7 @@ function planImport(pkg) {
   return plan;
 }
 function renderImportPreview() {
-  const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas' };
+  const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', pastos: 'Pastos', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas' };
   const rows = Object.entries(plan.cols).map(([c, p]) => `<tr><td><b>${NOM[c]}</b></td><td class="num">${p.novos.length + p.restaurados.length}</td><td class="num">${p.atualizados.length + p.conflitosImp.length}</td><td class="num">${p.iguais.length}</td><td class="num">${p.locais.length + p.conflitosLoc.length}</td></tr>`).join('');
   const conf = Object.values(plan.cols).reduce((t, p) => t + p.conflitosImp.length + p.conflitosLoc.length, 0);
   const total = Object.values(plan.cols).reduce((t, p) => t + p.novos.length + p.restaurados.length + p.atualizados.length + p.conflitosImp.length, 0) + plan.excluirAqui.length;
@@ -2602,6 +3112,7 @@ async function applyImport() {
     p.restaurados.forEach(x => { S.excluidos = S.excluidos.filter(t => t.id !== x.id); S.lixeira = S.lixeira.filter(l => l.item.id !== x.id); S[col].push(x); res.novos++; });
     p.atualizados.forEach(rep); p.conflitosImp.forEach(rep);
   });
+  S.fotos = S.fotos || {}; Object.entries(plan.fotos || {}).forEach(([k, v]) => { S.fotos[k] = v; });
   plan.excluirAqui.forEach(x => moveToTrash(x.tipo, x.item, x.t.em, x.t.no));
   plan.tombs.forEach(t => { if (!tombOf(t.id)) S.excluidos.push(t); });
   if (!S.fazendaAtiva || !farm()) S.fazendaAtiva = S.fazendas[0] ? S.fazendas[0].id : null;
@@ -2631,7 +3142,7 @@ function renderSync() {
       ${pd ? `<div class="alert info"><span>${pd} registro(s) novos ou alterados ainda não exportados.</span></div>` : '<div class="alert ok"><span>✓ Tudo o que foi finalizado já foi exportado.</span></div>'}
       ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}
       <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>Exportar dados</button>
-      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade. Envie por WhatsApp, e-mail ou Drive para quem consolida. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
+      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} Envie por WhatsApp, e-mail ou Drive para quem consolida. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
     <div class="card"><h3>Importar (receber)</h3>
       <div class="actions"><button class="btn teal" onclick="$('importFile').click()"><svg><use href="#i-down"/></svg>Importar arquivo</button><button class="btn" onclick="undoImport()">Desfazer última importação</button></div>
       <p class="hint">Mostra uma prévia antes de aplicar. A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.</p></div>
@@ -2756,7 +3267,7 @@ function aplicaTema() {
   document.documentElement.classList.toggle('dark-mode', escuro);
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = escuro ? '#1c2f36' : '#23505F';
   const T = TEMAS[t] || TEMAS.auto;
-  if ($('temaBtn')) $('temaBtn').innerHTML = `<span aria-hidden="true">${T.ico}</span> Tema: ${T.nome}`;
+  if ($('temaBtn')) $('temaBtn').innerHTML = `<span aria-hidden="true">${T.ico}</span><span class="s-lbl">Tema: ${T.nome}</span>`;
   if ($('temaBtnM')) { $('temaBtnM').textContent = T.ico; $('temaBtnM').title = 'Tema: ' + T.nome; }
   document.querySelectorAll('.tema-nome').forEach(e => e.textContent = T.nome);
   if (typeof drawCharts === 'function') drawCharts();
@@ -2776,9 +3287,10 @@ async function init() {
     const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);
   } catch (e) { alert('Este navegador bloqueou o armazenamento local (modo anônimo?). Os dados não serão guardados.'); }
+  migraPastos();
   if (!farm() && S.fazendas.length) S.fazendaAtiva = S.fazendas[0].id;
   document.querySelectorAll('.app-ver').forEach(e => e.textContent = APP_VERSION);
-  aplicaTema();
+  aplicaTema(); aplicaMenu();
   renderFarmSel(); updateCounts(); refreshInstallUI(); goView('home');
   setTimeout(() => $('splash').classList.add('off'), 450);
   if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }

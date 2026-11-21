@@ -27,12 +27,13 @@ sequenceDiagram
 ## Formato do arquivo (formato 2)
 
 ```text
-{ app: "ekoa-tapirucu", formato: 2, versaoApp, exportadoEm, exportadoEmLocal, fusoHorario, exportId,
+{ app: "ekoa-tapirucu", formato: 3, versaoApp, exportadoEm, exportadoEmLocal, fusoHorario, exportId,
   dispositivo: { id, nome },
   resumo: { fazendas, lotes, animais, lidas, registros, excluidos },
-  dados: { fazendas: [...], lotes: [...], animais: [...], lidas: [...] },
+  dados: { fazendas: [...], pastos: [...], lotes: [...], animais: [...], lidas: [...] },
+  fotos: { "<id do animal>": { d: "data:image/jpeg;base64,…", em, por } },
   excluidos: [ { id, tipo, em, no: { id, nome } } ],
-  integridade: SHA-256 de { dados, excluidos } }
+  integridade: SHA-256 de { dados, excluidos, fotos } }
 ```
 
 Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`, na **hora local** do aparelho (desde a versão 9; antes saía em UTC, 3 h à frente de Brasília).
@@ -42,7 +43,10 @@ Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`, na **hora local*
 | Formato | Versões do app | Diferença |
 |---|---|---|
 | 1 | 1 a 3 | Sem geolocalização |
-| 2 | 4 em diante | Fazenda com `car` e `geo`; lote com `geo` |
+| 2 | 4 a 9 | Fazenda com `car` e `geo`; lote com `geo` |
+| 3 | 10 em diante | Pasto separado do lote (com `ocupacoes`), fotos dos animais |
+
+Arquivos de formato 1 e 2 são convertidos na importação pela mesma regra determinística da migração local (ver **Modelo de dados**), então um arquivo da versão 9 entra na versão 10 sem conflito. Como `fotos` é omitido quando não há nenhuma, arquivos antigos continuam passando na verificação de integridade.
 
 O app importa formatos iguais ou anteriores ao seu. Um aparelho numa versão antiga recusa o formato 2 e pede atualização, o que evita perder a localização numa ida e volta.
 
