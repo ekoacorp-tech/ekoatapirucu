@@ -80,6 +80,7 @@ body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view
 .card h3 .sub{font-weight:400;font-size:.8rem;color:var(--text-secondary)}
 .muted{color:var(--text-secondary);font-size:.86rem}
 .hint{font-size:.8rem;color:var(--text-secondary);margin-top:6px;line-height:1.45}
+.hint a{color:var(--teal);font-weight:600}
 
 /* Buttons */
 .btn{min-height:44px;padding:9px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;font-size:.9rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,border-color .15s}
@@ -506,9 +507,9 @@ tbody tr:last-child td{border-bottom:0}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 const APP_ID = 'ekoa-tapirucu';
-const SYNC_FORMAT = 1;
+const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
 const STORE = 'kv';
 const UA_KG = 450;                    // R05: 1 UA = 450 kg de peso vivo
@@ -1196,15 +1197,95 @@ function renderPainel() {
   $('painel').innerHTML = h;
 }
 
+
+/* =========================================================================
+   GEOLOCALIZAÇÃO (preparação para o mapa de piquetes)
+   Padrão: WGS84 (EPSG:4326). Ponto como { lat, lng }; polígonos em GeoJSON
+   (coordenadas [lng, lat]). O GPS do celular funciona sem internet.
+   Estrutura em fazenda e lote:
+     geo: { ponto: {lat,lng,precisaoM,em,fonte} | null,
+            perimetro (fazenda) / poligono (lote): GeoJSON | null,
+            fontePoligono: 'car' | 'desenho' | 'gps' | null }
+   ========================================================================= */
+const GEO_FONTES = { gps: 'GPS do aparelho', manual: 'Digitada' };
+function parseCoords(txt) {   // Postel: "-17.79, -50.91" · "-17,79; -50,91" · "-17.79 -50.91"
+  const nums = (String(txt || '').match(/-?\d+(?:[.,]\d+)?/g) || []).map(n => Number(n.replace(',', '.')));
+  if (nums.length !== 2 || nums.some(n => !isFinite(n))) return null;
+  const [lat, lng] = nums;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6 };
+}
+const fmtCoord = p => p ? `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}` : '';
+const foraDoBrasil = p => p && (p.lat < -34 || p.lat > 6 || p.lng < -74 || p.lng > -28);
+function geoField(pref, ponto, rotulo) {
+  return `<div class="field" style="grid-column:1/-1"><label for="${pref}Coord">${rotulo}</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="${pref}Coord" style="flex:1;min-width:200px" inputmode="decimal" autocomplete="off" placeholder="Latitude, longitude (ex.: -17.798760, -50.912340)" value="${esc(fmtCoord(ponto))}"
+        data-gps="${ponto && ponto.fonte === 'gps' ? esc(JSON.stringify(ponto)) : ''}">
+      <button type="button" class="btn teal" id="${pref}GpsBtn" onclick="captureGps('${pref}')">📍 Usar minha localização</button>
+    </div><div class="err"></div>
+    <div class="hint" id="${pref}GeoSt">${ponto ? geoStatus(ponto) : 'Funciona sem internet: o GPS do celular não depende de sinal de dados. Também aceita colar do Google Maps.'}</div></div>`;
+}
+function geoStatus(p) {
+  const prec = p.precisaoM != null ? ` · precisão ±${Math.round(p.precisaoM)} m` : '';
+  return `${GEO_FONTES[p.fonte] || ''}${prec}${p.em ? ' · ' + fmtDT(p.em) : ''} · <a href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=16/${p.lat}/${p.lng}" target="_blank" rel="noopener">ver no mapa</a>${foraDoBrasil(p) ? ' · <b style="color:#b91c1c">fora do Brasil, confira</b>' : ''}`;
+}
+function captureGps(pref) {
+  const btn = $(pref + 'GpsBtn'), st = $(pref + 'GeoSt'); fieldErr(pref + 'Coord', '');
+  if (!('geolocation' in navigator)) { fieldErr(pref + 'Coord', 'Este aparelho não oferece localização. Digite as coordenadas.'); return; }
+  btn.disabled = true; btn.textContent = 'Buscando sinal…'; st.textContent = 'Fique em local aberto. Pode levar até 30 segundos.';
+  navigator.geolocation.getCurrentPosition(pos => {
+    const p = { lat: Math.round(pos.coords.latitude * 1e6) / 1e6, lng: Math.round(pos.coords.longitude * 1e6) / 1e6, precisaoM: Math.round(pos.coords.accuracy), em: nowISO(), fonte: 'gps' };
+    const inp = $(pref + 'Coord'); inp.value = fmtCoord(p); inp.dataset.gps = JSON.stringify(p);
+    btn.disabled = false; btn.textContent = '📍 Capturar de novo';
+    st.innerHTML = geoStatus(p) + (p.precisaoM > 50 ? ' · <b>precisão baixa: tente de novo em local aberto</b>' : '');
+  }, err => {
+    btn.disabled = false; btn.textContent = '📍 Usar minha localização';
+    const msg = err.code === 1 ? 'Permissão de localização negada. Libere a localização para este app nas configurações do navegador.' : err.code === 3 ? 'O GPS não respondeu a tempo. Tente em local aberto.' : 'Não foi possível obter a localização.';
+    fieldErr(pref + 'Coord', msg); st.textContent = '';
+  }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 });
+}
+/* Lê o campo: mantém os dados do GPS se a coordenada não foi alterada; senão, marca como digitada. */
+function readGeoField(pref) {
+  const inp = $(pref + 'Coord'), raw = inp.value.trim(); fieldErr(pref + 'Coord', '');
+  if (!raw) return { ok: true, ponto: null };
+  const c = parseCoords(raw);
+  if (!c) { fieldErr(pref + 'Coord', 'Coordenadas inválidas. Use latitude, longitude em graus decimais (ex.: -17.798760, -50.912340).'); return { ok: false }; }
+  let g = null; try { g = inp.dataset.gps ? JSON.parse(inp.dataset.gps) : null; } catch (e) {}
+  if (g && g.lat === c.lat && g.lng === c.lng) return { ok: true, ponto: g };
+  return { ok: true, ponto: { lat: c.lat, lng: c.lng, precisaoM: null, em: nowISO(), fonte: 'manual' } };
+}
+/* Validação de geometria vinda de arquivo (entrada não confiável) */
+const okLat = v => isFinite(v) && v >= -90 && v <= 90, okLng = v => isFinite(v) && v >= -180 && v <= 180;
+function okPonto(p) {
+  if (!p || !okLat(Number(p.lat)) || !okLng(Number(p.lng))) return null;
+  const pr = p.precisaoM == null ? NaN : Number(p.precisaoM);   // sem precisão informada continua sem precisão
+  return { lat: Number(p.lat), lng: Number(p.lng), precisaoM: isFinite(pr) && pr >= 0 && pr < 1e5 ? pr : null, em: okIso(p.em), fonte: p.fonte === 'gps' ? 'gps' : 'manual' };
+}
+function okGeoJSON(g) {   // Polygon ou MultiPolygon, até 20.000 vértices
+  if (!g || (g.type !== 'Polygon' && g.type !== 'MultiPolygon') || !Array.isArray(g.coordinates)) return null;
+  let n = 0;
+  const ring = r => Array.isArray(r) && r.length >= 4 && r.every(pt => Array.isArray(pt) && pt.length >= 2 && okLng(pt[0]) && okLat(pt[1]) && ++n <= 20000);
+  const poly = pl => Array.isArray(pl) && pl.length >= 1 && pl.every(ring);
+  const ok = g.type === 'Polygon' ? poly(g.coordinates) : g.coordinates.length >= 1 && g.coordinates.every(poly);
+  return ok ? { type: g.type, coordinates: JSON.parse(JSON.stringify(g.coordinates, (k, v) => typeof v === 'number' ? Math.round(v * 1e7) / 1e7 : v)) } : null;
+}
+function okGeo(g, chave) {
+  if (!g || typeof g !== 'object') return null;
+  const o = { ponto: okPonto(g.ponto), [chave]: okGeoJSON(g[chave]), fontePoligono: ['car', 'desenho', 'gps'].includes(g.fontePoligono) ? g.fontePoligono : null };
+  return o.ponto || o[chave] ? o : null;
+}
+const geoChip = g => g && (g.perimetro || g.poligono) ? '<span class="chip ok">Polígono</span>' : g && g.ponto ? `<span class="chip info" title="${esc(fmtCoord(g.ponto))}">📍 Ponto</span>` : '<span class="chip gray">Sem local</span>';
+
 /* =========================================================================
    CADASTROS: fazenda e lotes
    ========================================================================= */
 function renderCadastros() {
   const f = farm();
-  let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
+  let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
     const rl = lotesResumo();
-    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${r.l.areaHa ? fmtN(r.l.areaHa, 1) : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
+    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th>Localização</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${r.l.areaHa ? fmtN(r.l.areaHa, 1) : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td>${geoChip(r.l.geo)}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
   }
   $('cadBody').innerHTML = h;
 }
@@ -1215,7 +1296,9 @@ function openFarm(id) {
     ${fld('fNome', 'Nome da fazenda', `<input id="fNome" maxlength="80" value="${esc(x ? x.nome : '')}">`, true)}
     ${fld('fMun', 'Município / UF', `<input id="fMun" maxlength="80" value="${esc(x ? x.municipio || '' : '')}">`)}
     ${fld('fArea', 'Área de pastagem (ha)', `<input id="fArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`, false, 'Base do UA/ha da fazenda.')}
-    </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveFarm('${id || ''}')">Salvar</button>`);
+    ${fld('fCar', 'Nº do recibo do CAR', `<input id="fCar" maxlength="60" autocapitalize="characters" value="${esc(x ? x.car || '' : '')}" placeholder="Ex.: GO-5208707-XXXX…">`, false, 'Cadastro Ambiental Rural. Na próxima etapa, o perímetro oficial é importado a partir dele.')}
+    ${geoField('fGeo', x && x.geo ? x.geo.ponto : null, 'Localização da sede')}
+    </div>${x && x.geo && x.geo.perimetro ? '<p class="hint">Perímetro da fazenda cadastrado (' + esc(x.geo.fontePoligono || '') + ').</p>' : ''}`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveFarm('${id || ''}')">Salvar</button>`);
 }
 function saveFarm(id) {
   const nome = str($('fNome').value, 80), aRaw = $('fArea').value.trim(), area = aRaw ? parseNum(aRaw) : null;
@@ -1223,9 +1306,13 @@ function saveFarm(id) {
   if (!nome) { fieldErr('fNome', 'Informe o nome.'); return; }
   if (S.fazendas.some(f => f.id !== id && f.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('fNome', 'Já existe fazenda com este nome.'); return; }
   if (aRaw && !(area > 0)) { fieldErr('fArea', 'Área inválida.'); return; }
+  const gp = readGeoField('fGeo'); if (!gp.ok) return;
+  if (gp.ponto && foraDoBrasil(gp.ponto) && !confirm('A localização está fora do Brasil. Salvar mesmo assim?')) return;
   let x = id ? S.fazendas.find(f => f.id === id) : null;
-  if (x) { Object.assign(x, { nome, municipio: str($('fMun').value, 80), areaHa: area }); touch(x); }
-  else { x = stampNew({ nome, municipio: str($('fMun').value, 80), areaHa: area }); S.fazendas.push(x); S.fazendaAtiva = x.id; }
+  const geo = Object.assign({ ponto: null, perimetro: null, fontePoligono: null }, x && x.geo, { ponto: gp.ponto }); // o perímetro existente é preservado
+  const dados = { nome, municipio: str($('fMun').value, 80), areaHa: area, car: str($('fCar').value, 60).toUpperCase(), geo: geo.ponto || geo.perimetro ? geo : null };
+  if (x) { Object.assign(x, dados); touch(x); }
+  else { x = stampNew(dados); S.fazendas.push(x); S.fazendaAtiva = x.id; }
   save(); closeModal(); refreshAll(); showToast('Fazenda salva.');
 }
 function openLote(id) {
@@ -1237,7 +1324,8 @@ function openLote(id) {
     ${fld('loArea', 'Área do pasto (ha)', `<input id="loArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`)}
     ${fld('loLot', 'Lotação máxima (UA/ha)', `<input id="loLot" inputmode="decimal" value="${x && x.lotacaoMax ? fmtN(x.lotacaoMax, 2) : ''}">`)}
     ${x ? fld('loAtivo', 'Situação', `<select id="loAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
-    </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
+    ${geoField('loGeo', x && x.geo ? x.geo.ponto : null, 'Ponto de referência do pasto')}
+    </div><p class="hint">Dica: capture no centro do pasto ou na porteira. O desenho do piquete no mapa vem na próxima etapa e aproveita este ponto.</p>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
 }
 function saveLote(id) {
   const nome = str($('loNome').value, 60); ['loNome', 'loArea', 'loLot'].forEach(i => fieldErr(i, ''));
@@ -1246,12 +1334,16 @@ function saveLote(id) {
   if (lotesF().some(l => l.id !== id && l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('loNome', 'Já existe lote com este nome.'); return; }
   if (aR && !(area > 0)) { fieldErr('loArea', 'Área inválida.'); return; }
   if (lR && !(lot > 0)) { fieldErr('loLot', 'Valor inválido.'); return; }
+  const gp = readGeoField('loGeo'); if (!gp.ok) return;
+  if (gp.ponto && foraDoBrasil(gp.ponto) && !confirm('A localização está fora do Brasil. Salvar mesmo assim?')) return;
   let x = id ? S.lotes.find(l => l.id === id) : null;
+  const geoL = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, x && x.geo, { ponto: gp.ponto });
+  const geo = geoL.ponto || geoL.poligono ? geoL : null;
   if (x) {
     const ativo = $('loAtivo') ? $('loAtivo').value === '1' : true;
     if (!ativo && Object.values(compute()).some(s => s.ativo && s.lote === x.id)) { alert('O lote ainda tem animais ativos. Troque-os de lote antes de inativar.'); return; }
-    Object.assign(x, { nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo }); touch(x);
-  } else S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo: true }));
+    Object.assign(x, { nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo, geo }); touch(x);
+  } else S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: str($('loPasto').value, 60), areaHa: area, lotacaoMax: lot, ativo: true, geo }));
   save(); closeModal(); refreshAll(); showToast('Lote salvo.');
 }
 
@@ -1266,6 +1358,7 @@ function csvCell(v) {
   if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+([.,]\d+)?$/.test(s)) s = "'" + s;
   return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
+const csvCoord = (p, k) => p ? String(p[k].toFixed(6)).replace('.', ',') : '';
 const csvNum = (n, d) => n == null || !isFinite(n) ? '' : Number(n).toFixed(d).replace('.', ',');
 function downloadCSV(nome, header, rows) {
   const body = [header, ...rows].map(r => r.map(csvCell).join(';')).join('\r\n');
@@ -1297,8 +1390,8 @@ function exportEventosCSV() {
 }
 function exportLotesCSV() {
   downloadCSV(`Tapirucu_${slug(farm().nome)}_Lotes_${stampFile()}.csv`,
-    ['Fazenda', 'Lote', 'Pasto', 'Area (ha)', 'Animais', 'Machos', 'Femeas', 'Com peso', 'Peso medio (kg)', 'GMD medio (kg/dia)', 'UA', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Em carencia', 'Sem manejo +30 dias', 'ID lote'],
-    lotesResumo().map(r => [farm().nome, r.l.nome, r.l.pasto, csvNum(r.l.areaHa, 2), r.qtd, r.machos, r.femeas, r.comPeso, csvNum(r.pesoMedio, 1), csvNum(r.gmd, 3), csvNum(r.ua, 2), csvNum(r.uaha, 2), csvNum(r.l.lotacaoMax, 2), r.ocup ?? '', r.carencia, r.atraso, r.l.id]));
+    ['Fazenda', 'Lote', 'Pasto', 'Area (ha)', 'Animais', 'Machos', 'Femeas', 'Com peso', 'Peso medio (kg)', 'GMD medio (kg/dia)', 'UA', 'UA/ha', 'Lotacao max (UA/ha)', 'Ocupacao (%)', 'Em carencia', 'Sem manejo +30 dias', 'Latitude', 'Longitude', 'Origem da localizacao', 'Tem poligono', 'ID lote'],
+    lotesResumo().map(r => [farm().nome, r.l.nome, r.l.pasto, csvNum(r.l.areaHa, 2), r.qtd, r.machos, r.femeas, r.comPeso, csvNum(r.pesoMedio, 1), csvNum(r.gmd, 3), csvNum(r.ua, 2), csvNum(r.uaha, 2), csvNum(r.l.lotacaoMax, 2), r.ocup ?? '', r.carencia, r.atraso, csvCoord(r.l.geo && r.l.geo.ponto, 'lat'), csvCoord(r.l.geo && r.l.geo.ponto, 'lng'), r.l.geo && r.l.geo.ponto ? GEO_FONTES[r.l.geo.ponto.fonte] : '', r.l.geo && r.l.geo.poligono ? 'Sim' : 'Nao', r.l.id]));
 }
 
 /* =========================================================================
@@ -1369,8 +1462,8 @@ const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && 
 const okDev = d => d && okId(d.id) ? { id: String(d.id), nome: str(d.nome, 40) } : null;
 function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm) }; }
 const SAN = {
-  fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6) }); },
-  lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null; return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pasto: str(r.pasto, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), ativo: r.ativo !== false }); },
+  fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
+  lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null; return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pasto: str(r.pasto, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), ativo: r.ativo !== false, geo: okGeo(r.geo, 'poligono') }); },
   animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
     return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || r.status !== 'finalizada') return null;

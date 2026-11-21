@@ -6,13 +6,13 @@
 
 **Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-3%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-4%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
 [![Plataformas](https://img.shields.io/badge/Android%20%7C%20iPhone%20%7C%20Computador-6B4A32?style=flat-square)](#instalação)
 
-[**Abrir o app**](https://ekoacorp-tech.github.io/ekoatapirucu/) · [Novidades](CHANGELOG.md) · [Arquitetura](docs/arquitetura.md) · [Sincronização](docs/sincronizacao.md) · [Modelo de dados](docs/modelo-de-dados.md) · [Homologação](docs/homologacao.md) · [Publicação](docs/publicacao.md)
+[**Abrir o app**](https://ekoacorp-tech.github.io/ekoatapirucu/) · [Novidades](CHANGELOG.md) · [Arquitetura](docs/arquitetura.md) · [Sincronização](docs/sincronizacao.md) · [Modelo de dados](docs/modelo-de-dados.md) · [Mapa (próxima etapa)](docs/mapa.md) · [Homologação](docs/homologacao.md) · [Publicação](docs/publicacao.md)
 
 </div>
 
@@ -72,7 +72,7 @@ flowchart LR
     B -.->|Fase 2: API| G[Staging no ERP<br/>aprovação]
 ```
 
-1. **Cadastrar:** fazenda, lotes (com área e lotação máxima) e a carga inicial do rebanho, por lista ou faixa de brincos.
+1. **Cadastrar:** fazenda (com CAR e localização da sede), lotes (com área, lotação máxima e ponto do pasto pelo GPS) e a carga inicial do rebanho, por lista ou faixa de brincos.
 2. **Lançar:** cada manejo é uma **lida**. Enquanto está em aberto, ela não altera nada. Ao **finalizar**, o rebanho é recalculado.
 3. **Acompanhar:** o Painel mostra peso, GMD, lotação e alertas; o CSV leva tudo para o Excel.
 4. **Enviar:** a exportação gera um arquivo que outro aparelho, ou o escritório, importa. Só lidas finalizadas viajam.
@@ -87,7 +87,7 @@ flowchart LR
 | **Baixa** | Morte, perda ou venda, com causa | Animal sai do inventário |
 | **Nascimento** | Vaca, brinco do bezerro, sexo, peso | Bezerro entra no rebanho, no lote da mãe |
 
-Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, mapa de pastagem, balança e leitor de brinco, integração com o ERP.
+Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, balança e leitor de brinco, integração com o ERP. O mapa de piquetes entra depois das primeiras semanas de piloto; a localização já é coletada desde agora.
 
 ## Onde o piloto se encaixa
 
@@ -145,6 +145,8 @@ docs/           arquitetura, sincronização, modelo de dados, homologação e p
 - [x] Painel com peso, GMD, UA/ha, ocupação e alertas
 - [x] Sincronização entre aparelhos com integridade, lixeira e desfazer
 - [x] Exportação CSV (inventário, eventos e lotes)
+- [x] Localização da fazenda e dos pastos pelo GPS, com o modelo de dados pronto para o mapa
+- [ ] Mapa de piquetes: perímetro do CAR, desenho dos piquetes e rebanho por piquete ([especificação](docs/mapa.md))
 - [ ] Indicadores definitivos da chave mestra (Fase 0)
 - [ ] Relatório em PDF por lote e por fazenda
 - [ ] Integração com o ERP pela API oficial, com fila e reenvio (Fase 2)

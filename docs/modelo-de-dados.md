@@ -18,6 +18,8 @@ Campos-chave do piloto, com origem no **Escopo de Validação Ekoa Tapiruçu** (
 | `nome` | texto (80) | Sim | Único no aparelho | Empresa ou tabela própria (AD_) |
 | `municipio` | texto (80) | Não | | |
 | `areaHa` | decimal | Não | Base do UA/ha da fazenda | |
+| `car` | texto (60) | Não | Número do recibo do CAR (Cadastro Ambiental Rural) | Campo AD_ na empresa ou na tabela de fazendas |
+| `geo` | objeto | Não | Ver **Geolocalização** abaixo; `perimetro` = limite da propriedade | Campos AD_ (lat, lng) + CLOB com GeoJSON |
 
 ## Lote (B.5 + B.4 simplificado)
 
@@ -29,6 +31,28 @@ Campos-chave do piloto, com origem no **Escopo de Validação Ekoa Tapiruçu** (
 | `areaHa` | decimal | Não | Base do UA/ha do lote |
 | `lotacaoMax` | decimal (UA/ha) | Não | Base da ocupação (R06) |
 | `ativo` | booleano | Sim | Lote com animais ativos não pode ser inativado |
+| `geo` | objeto | Não | Ver **Geolocalização** abaixo; `poligono` = limite do piquete |
+
+## Geolocalização (preparação do mapa)
+
+Padrão **WGS84 (EPSG:4326)**, o mesmo do GPS, do Google Maps e do CAR (após conversão).
+
+```text
+geo: {
+  ponto: { lat, lng, precisaoM, em, fonte: "gps" | "manual" } | null,
+  perimetro (fazenda) | poligono (lote): GeoJSON Polygon/MultiPolygon | null,
+  fontePoligono: "car" | "desenho" | "gps" | null
+}
+```
+
+| Regra | Detalhe |
+|---|---|
+| Ponto | Graus decimais com 6 casas (cerca de 10 cm). `precisaoM` vem do GPS; ponto digitado fica sem precisão. |
+| Polígono | GeoJSON, coordenadas na ordem **[longitude, latitude]**, anel fechado (primeiro ponto = último), até 20.000 vértices. |
+| Fonte | Cada geometria guarda de onde veio, para rastrear dado oficial (CAR) contra desenho manual. |
+| Edição | Editar o cadastro sem mexer na coordenada preserva a origem GPS; o perímetro e o polígono existentes nunca são apagados pela tela de cadastro. |
+| Validação | Na importação, coordenada fora da faixa ou polígono malformado é descartado sem derrubar o registro. Localização fora do Brasil pede confirmação. |
+| Área | Na etapa do mapa, `areaHa` passa a ser calculada a partir do polígono, com origem registrada. |
 
 ## Animal (B.6)
 

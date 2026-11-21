@@ -21,6 +21,9 @@ Cada cenário segue **Entrada → Processamento → Resultado → Evidência**. 
 | H15 | Volta | Corrigir e excluir no aparelho 2; importar no 1 | Correção chega; exclusão vai para a lixeira; "desfazer" restaura | Prints |
 | H16 | Arquivo inválido | Editar o JSON à mão; importar CSV | Importação recusada com mensagem clara | Print |
 | H17 | Atualização | Publicar versão nova | Aviso no app; atualiza sem perder dados | Print antes/depois |
+| H19 | Localização da sede | Na sede, "Usar minha localização" em modo avião | Coordenada com precisão; ponto aparece no "ver no mapa" quando houver internet | Print |
+| H20 | Ponto do pasto | Capturar na porteira; colar outro do Google Maps | Os dois aceitos; origem GPS ou Digitada; CSV de lotes com latitude e longitude | Print + CSV |
+| H21 | Localização na sincronização | Exportar e importar em outro aparelho | Mesma coordenada, precisão e origem nos dois | Prints |
 | H18 | CSV | Exportar inventário, eventos e lotes | Abre no Excel com acentos, decimais e datas corretos | Planilha |
 
 ## Critérios de saída da Fase 1

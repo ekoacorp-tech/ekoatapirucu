@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [4 beta] · 21/11/2026 · Localização da fazenda e dos pastos
+- **Modelo de dados preparado para o mapa:** fazenda e lote ganham o campo `geo` (ponto, perímetro/polígono em GeoJSON e origem). Nada lançado no piloto precisará ser refeito quando o mapa chegar.
+- **Fazenda:** número do recibo do CAR e localização da sede.
+- **Lote:** ponto de referência do pasto.
+- **Captura pelo GPS do aparelho**, que funciona sem internet, com precisão registrada e aviso de precisão baixa; aceita coordenadas coladas do Google Maps (ponto ou vírgula decimal).
+- **Sincronização no formato 2:** leva a localização com validação de cada coordenada e polígono. O formato 1 continua importável; aparelhos em versões antigas pedem atualização ao receber um arquivo do formato 2.
+- **CSV de lotes** com latitude, longitude, origem da localização e indicação de polígono.
+
 ## [3 beta] · 21/11/2026 · Visual Ekoa Saber
 - Identidade visual do Ekoa Saber: abertura clara com a logo, menu em degradê petróleo → café, início com logo e cartões, indicadores em blocos, tabelas leves, botões e modais arredondados.
 - Rodapé do menu com a marca Ekoa Tech e o bloco Cliente (Blendcoffee).

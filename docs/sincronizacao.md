@@ -24,10 +24,10 @@ sequenceDiagram
 | Lidas **finalizadas** (R16) | Lixeira local |
 | Registro de exclusões | Nome e histórico de sincronização do aparelho |
 
-## Formato do arquivo (formato 1)
+## Formato do arquivo (formato 2)
 
 ```text
-{ app: "ekoa-tapirucu", formato: 1, versaoApp, exportadoEm, exportId,
+{ app: "ekoa-tapirucu", formato: 2, versaoApp, exportadoEm, exportId,
   dispositivo: { id, nome },
   resumo: { fazendas, lotes, animais, lidas, registros, excluidos },
   dados: { fazendas: [...], lotes: [...], animais: [...], lidas: [...] },
@@ -36,6 +36,13 @@ sequenceDiagram
 ```
 
 Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`.
+
+| Formato | Versões do app | Diferença |
+|---|---|---|
+| 1 | 1 a 3 | Sem geolocalização |
+| 2 | 4 em diante | Fazenda com `car` e `geo`; lote com `geo` |
+
+O app importa formatos iguais ou anteriores ao seu. Um aparelho numa versão antiga recusa o formato 2 e pede atualização, o que evita perder a localização numa ida e volta.
 
 ## Regras de mesclagem (por ID de cada registro)
 

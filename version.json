@@ -1,9 +1,20 @@
 {
-  "versao": 3,
-  "rotulo": "3 beta",
+  "versao": 4,
+  "rotulo": "4 beta",
   "data": "2026-11-21",
-  "titulo": "Visual Ekoa Saber",
+  "titulo": "Localização da fazenda e dos pastos",
   "notas": {
+    "4": {
+      "data": "2026-11-21",
+      "titulo": "Localização da fazenda e dos pastos",
+      "itens": [
+        "Fazenda: novo campo para o número do recibo do CAR e localização da sede.",
+        "Lotes: ponto de referência do pasto.",
+        "Botão \"Usar minha localização\": usa o GPS do celular e funciona sem internet. Também aceita colar coordenadas do Google Maps.",
+        "Esses dados preparam o mapa de piquetes, que vem numa próxima versão. Nada do que você lançar agora precisará ser refeito.",
+        "Importante: atualize todos os aparelhos. Arquivos exportados por esta versão só são importados por aparelhos na versão 4 ou mais nova."
+      ]
+    },
     "3": {
       "data": "2026-11-21",
       "titulo": "Visual Ekoa Saber",
