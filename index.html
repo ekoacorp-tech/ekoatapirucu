@@ -507,7 +507,7 @@ tbody tr:last-child td{border-bottom:0}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 4;
+const APP_VERSION = 5;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1651,19 +1651,47 @@ function showUpdateBar() {
   bar.innerHTML = `<span><b>Nova versão ${esc(remoteInfo.rotulo || remoteInfo.versao)} disponível.</b> ${esc(remoteInfo.titulo || '')}</span><span class="actions"><button class="btn gold" onclick="applyUpdate()">Atualizar agora</button></span>`;
   bar.classList.add('on');
 }
-const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png', './icons/ekoa-mark.png', './icons/logo-blend.png'];
 async function applyUpdate() {
-  const bar = $('updateBar'); bar.innerHTML = '<span><b>Atualizando…</b> seus dados permanecem salvos neste aparelho.</span>';
+  const bar = $('updateBar'), alvo = remoteInfo ? parseInt(remoteInfo.versao, 10) : APP_VERSION + 1;
+  const msg = t => { bar.innerHTML = `<span><b>${t}</b> Seus dados permanecem salvos neste aparelho.</span>`; };
+  msg('Atualizando: baixando a nova versão…');
   try {
     await saveChain;
     await idbSet('backupPreUpdate', { em: nowISO(), versaoAnterior: APP_VERSION, dados: JSON.parse(JSON.stringify(S)) });
-    if ('caches' in window) {
-      const fresh = await Promise.all(SHELL.map(u => fetch(u, { cache: 'reload' }).then(r => { if (!r.ok) throw new Error(u); return [u, r]; })));
-      for (const n of await caches.keys()) { const c = await caches.open(n); for (const [u, r] of fresh) await c.put(u, r.clone()); }
+    // 1. Baixa a tela nova direto da rede (?fresh= faz o service worker não responder com a cópia guardada)
+    const r = await fetch('index.html?fresh=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const html = await r.text(), m = html.match(/const APP_VERSION = (\d+);/), vNova = m ? parseInt(m[1], 10) : 0;
+    if (vNova < alvo) { // o servidor ainda entrega a versão anterior (publicação em andamento)
+      bar.innerHTML = `<span><b>A versão ${alvo} ainda está chegando ao servidor.</b> Tente de novo em 2 a 3 minutos. Nada foi alterado.</span><span class="actions"><button class="btn gold" onclick="applyUpdate()">Tentar de novo</button></span>`;
+      return;
     }
-    if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); if (reg) { try { await reg.update(); } catch (e) {} } }
+    // 2. Troca o controlador offline e espera ele assumir (no máximo 10 s)
+    msg('Atualizando: instalando para uso offline…');
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        const assumiu = new Promise(ok => { navigator.serviceWorker.addEventListener('controllerchange', ok, { once: true }); setTimeout(ok, 10000); });
+        try { await reg.update(); } catch (e) {}
+        if (reg.installing || reg.waiting) await assumiu;
+      }
+    }
+    // 3. Grava a tela nova em todas as cópias guardadas, para abrir certo mesmo sem sinal
+    if ('caches' in window) for (const n of await caches.keys()) { const c = await caches.open(n); await c.put('./index.html', new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })); await c.put('./', new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })); }
+    syncMeta.updateTry = { alvo, em: nowISO() }; await saveSyncMeta();
     location.reload();
   } catch (e) { showUpdateBar(); alert('Não foi possível atualizar agora (verifique a internet). Nada foi alterado nos seus dados.'); }
+}
+/* Proteção contra ciclo: se abriu numa versão menor do que a tentada há pouco, avisa em vez de repetir. */
+function checkUpdateLoop() {
+  const t = syncMeta.updateTry; if (!t) return;
+  if (APP_VERSION >= t.alvo) { syncMeta.updateTry = null; saveSyncMeta(); return; }
+  if (Date.now() - new Date(t.em) < 3 * 60 * 1000) {
+    const bar = $('updateBar');
+    bar.innerHTML = `<span><b>A atualização para a versão ${t.alvo} não concluiu.</b> Feche o app por completo e abra de novo com internet. Seus dados estão salvos.</span><span class="actions"><button class="btn gold" onclick="location.reload()">Abrir de novo</button></span>`;
+    bar.classList.add('on');
+  }
+  syncMeta.updateTry = null; saveSyncMeta();
 }
 async function showWhatsNew() {
   if (!syncMeta.lastSeenVersion) { syncMeta.lastSeenVersion = APP_VERSION; saveSyncMeta(); return; }
@@ -1685,7 +1713,7 @@ async function init() {
   renderFarmSel(); updateCounts(); refreshInstallUI(); goView('home');
   setTimeout(() => $('splash').classList.add('off'), 450);
   if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }
-  showWhatsNew(); checkUpdates(false);
+  checkUpdateLoop(); showWhatsNew(); checkUpdates(false);
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdates(false); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

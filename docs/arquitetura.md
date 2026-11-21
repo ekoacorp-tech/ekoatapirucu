@@ -55,10 +55,19 @@ Por isso corrigir uma lida antiga (reabrir e finalizar de novo) corrige automati
 
 ## Cache e atualização
 
-- **Estratégia:** responde primeiro pelo cache (para funcionar offline) e atualiza o cache em segundo plano quando há rede.
-- **Instalação do Service Worker** com `cache: 'reload'`, para não gravar cópias antigas vindas do cache HTTP.
-- **`version.json` nunca passa pelo cache:** o app o consulta ao abrir, ao voltar para o app e pelo botão "Verificar atualizações".
-- **Atualizar agora:** espera o último salvamento, faz uma cópia de segurança, baixa os arquivos novos sem cache, substitui o cache e recarrega.
+| Pedido | Estratégia |
+|---|---|
+| Tela principal (`./`, `index.html`) | **Rede primeiro**, revalidando o cache HTTP (`no-cache`), com limite de 4 s. Sem sinal ou rede lenta: cópia guardada. |
+| Demais arquivos (ícones, logo, manifest) | Cópia guardada primeiro, atualização em segundo plano. |
+| `version.json` e pedidos com `?fresh=` | Sempre da rede, nunca da cópia guardada. |
+
+- **Instalação do Service Worker** com `cache: 'reload'` e `skipWaiting`; na ativação, apaga as cópias de versões anteriores e assume as páginas abertas (`clients.claim`).
+- **Aviso de versão nova:** o app consulta `version.json` ao abrir, ao voltar para o app e pelo botão "Verificar atualizações".
+- **Atualizar agora:** grava os dados, faz cópia de segurança, baixa `index.html?fresh=` direto da rede, **confere se o `APP_VERSION` baixado é o anunciado**, pede ao navegador o service worker novo, espera ele assumir (até 10 s), grava a tela nova nas cópias guardadas e recarrega.
+- **Publicação a caminho:** se o servidor ainda entrega a versão anterior (o GitHub Pages guarda arquivos por até 10 minutos), o app avisa para tentar em alguns minutos e não recarrega.
+- **Proteção contra ciclo:** se, depois de recarregar, o app abriu numa versão menor que a tentada, ele orienta a reabrir em vez de repetir.
+
+> Lição registrada (v5): nunca baixar a versão nova por um caminho que o service worker atende pela cópia guardada, e nunca recarregar sem conferir a versão recebida. O mesmo padrão existe no Ekoa Saber e deve ser revisado lá.
 
 ## Identificadores estáveis
 

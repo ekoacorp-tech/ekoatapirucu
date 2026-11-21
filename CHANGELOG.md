@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [5 beta] · 21/11/2026 · Atualização em um toque, de verdade
+- **Corrigido o ciclo de atualização:** "Atualizar agora" recarregava na versão antiga. Causas: o download da versão nova passava pelo service worker, que respondia com a cópia guardada; e a página recarregava antes de o service worker novo assumir.
+- **Service worker:** a tela principal passa a ser buscada na rede primeiro (revalidando o cache HTTP, limite de 4 s), com a cópia guardada como reserva offline.
+- **Atualizar agora:** baixa direto da rede, confere se a versão baixada é a anunciada, espera o service worker novo assumir e só então recarrega.
+- **Proteção contra ciclo:** publicação ainda a caminho gera aviso para tentar depois; atualização não concluída gera orientação para reabrir o app.
+
 ## [4 beta] · 21/11/2026 · Localização da fazenda e dos pastos
 - **Modelo de dados preparado para o mapa:** fazenda e lote ganham o campo `geo` (ponto, perímetro/polígono em GeoJSON e origem). Nada lançado no piloto precisará ser refeito quando o mapa chegar.
 - **Fazenda:** número do recibo do CAR e localização da sede.

@@ -12,7 +12,8 @@ O app é publicado pelo **GitHub Pages** a partir da branch **`gh-pages`**, past
 3. Registre a versão no `CHANGELOG.md`.
 4. Teste localmente (`python3 -m http.server` na pasta e abra `http://localhost:8000`) e rode o roteiro de [homologação](homologacao.md) nos cenários afetados.
 5. Faça o commit e o push para `main` e publique com `git push origin main:gh-pages`. O Pages publica em 1 a 2 minutos (acompanhe em *Actions → pages build and deployment*).
-6. Os aparelhos instalados veem a barra **"Nova versão disponível"** ao abrir o app com internet e atualizam com um toque, sem perder dados.
+6. Os aparelhos que abrirem o app com internet já recebem a versão nova. Quem estiver com o app aberto vê a barra **"Nova versão disponível"** e atualiza com um toque, sem perder dados.
+7. Se a barra disser que a versão "ainda está chegando ao servidor", é o cache do GitHub Pages (até 10 minutos). Basta aguardar.
 
 ## Regras
 

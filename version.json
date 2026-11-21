@@ -1,9 +1,19 @@
 {
-  "versao": 4,
-  "rotulo": "4 beta",
+  "versao": 5,
+  "rotulo": "5 beta",
   "data": "2026-11-21",
-  "titulo": "Localização da fazenda e dos pastos",
+  "titulo": "Atualização em um toque, de verdade",
   "notas": {
+    "5": {
+      "data": "2026-11-21",
+      "titulo": "Atualização em um toque, de verdade",
+      "itens": [
+        "Corrigido: \"Atualizar agora\" às vezes recarregava na mesma versão. Agora o app confere a versão baixada antes de recarregar.",
+        "Abrir o app com internet já traz a versão mais nova; sem sinal, abre a última versão guardada.",
+        "Se a nova versão ainda estiver sendo publicada, o app avisa para tentar em alguns minutos, em vez de repetir.",
+        "Seus dados continuam salvos: a atualização não mexe no que já foi lançado."
+      ]
+    },
     "4": {
       "data": "2026-11-21",
       "titulo": "Localização da fazenda e dos pastos",

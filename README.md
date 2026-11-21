@@ -6,7 +6,7 @@
 
 **Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-4%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
