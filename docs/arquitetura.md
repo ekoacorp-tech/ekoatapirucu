@@ -69,6 +69,13 @@ Por isso corrigir uma lida antiga (reabrir e finalizar de novo) corrige automati
 
 > Lição registrada (v5): nunca baixar a versão nova por um caminho que o service worker atende pela cópia guardada, e nunca recarregar sem conferir a versão recebida. O mesmo padrão existe no Ekoa Saber e deve ser revisado lá.
 
+## Mapa
+
+- **Motor próprio** (`class GeoMap`): projeção Web Mercator, blocos de 256 px, desenho dos contornos em SVG, arrastar, aproximar por botões, roda do mouse e dois dedos. Sem bibliotecas.
+- **Leitura de arquivos:** .zip (inclusive .zip dentro de .zip) descompactado com `DecompressionStream`; shapefile (.shp + .dbf) lido em binário; KML/KMZ por `DOMParser`; GeoJSON. Tudo validado como entrada não confiável (`okGeoJSON`, até 20.000 vértices, coordenadas em graus).
+- **Área:** fórmula geodésica sobre o elipsoide WGS84 (raio 6.378.137 m), descontando furos.
+- **Cache dos blocos de fundo:** cache `tapirucu-mapa-v1`, separado do cache do app (não é apagado nas atualizações), com limite de cerca de 4.000 blocos.
+
 ## Identificadores estáveis
 
 Não alterar: o banco `ekoa_tapirucu`, o prefixo de cache `ekoa-tapirucu-vN` e o campo `app: "ekoa-tapirucu"` do arquivo de sincronização. Alterá-los apagaria dados dos usuários ou quebraria a compatibilidade entre versões.

@@ -6,13 +6,13 @@
 
 **Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-6%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
 [![Plataformas](https://img.shields.io/badge/Android%20%7C%20iPhone%20%7C%20Computador-6B4A32?style=flat-square)](#instalação)
 
-[**Abrir o app**](https://ekoacorp-tech.github.io/ekoatapirucu/) · [Novidades](CHANGELOG.md) · [Arquitetura](docs/arquitetura.md) · [Sincronização](docs/sincronizacao.md) · [Modelo de dados](docs/modelo-de-dados.md) · [Mapa (próxima etapa)](docs/mapa.md) · [Homologação](docs/homologacao.md) · [Publicação](docs/publicacao.md)
+[**Abrir o app**](https://ekoacorp-tech.github.io/ekoatapirucu/) · [Novidades](CHANGELOG.md) · [Arquitetura](docs/arquitetura.md) · [Sincronização](docs/sincronizacao.md) · [Modelo de dados](docs/modelo-de-dados.md) · [Mapa](docs/mapa.md) · [Homologação](docs/homologacao.md) · [Publicação](docs/publicacao.md)
 
 </div>
 
@@ -55,9 +55,17 @@ O Tapiruçu resolve primeiro essa ponta: cada pesagem, vacina, troca de lote, mo
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/09-mapa.jpg" alt="Mapa da fazenda"></td>
+<td width="50%"><b>Mapa da fazenda.</b> Perímetro do CAR, piquetes coloridos pela ocupação e o rebanho de cada um. Importe o .zip do CAR, desenhe sobre o satélite ou percorra a cerca com o GPS; a área de cada piquete é calculada e entra na lotação.</td>
+</tr>
+</table>
+
 <div align="center">
 <img src="assets/screenshots/07-celular-inicio.jpg" alt="Celular: início" width="24%">&nbsp;&nbsp;
-<img src="assets/screenshots/08-celular-lida.jpg" alt="Celular: lida" width="24%">
+<img src="assets/screenshots/08-celular-lida.jpg" alt="Celular: lida" width="24%">&nbsp;&nbsp;
+<img src="assets/screenshots/10-celular-mapa.jpg" alt="Celular: mapa" width="24%">
 <br><sub>No celular: alvos de toque grandes, navegação inferior e o foco volta ao brinco a cada lançamento.</sub>
 </div>
 
@@ -87,7 +95,7 @@ flowchart LR
 | **Baixa** | Morte, perda ou venda, com causa | Animal sai do inventário |
 | **Nascimento** | Vaca, brinco do bezerro, sexo, peso | Bezerro entra no rebanho, no lote da mãe |
 
-Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, balança e leitor de brinco, integração com o ERP. O mapa de piquetes entra depois das primeiras semanas de piloto; a localização já é coletada desde agora.
+Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, balança e leitor de brinco, integração com o ERP. O mapa da fazenda já está disponível; o manejo de rotação (dias de ocupação e de descanso por piquete) é a próxima etapa.
 
 ## Onde o piloto se encaixa
 
@@ -114,7 +122,7 @@ O modelo de dados já nasce pronto para a Fase 2: cada lida e cada registro têm
 | **Entrada tolerante** | Peso aceita `452,5`, `452.5` e `1.050`; brincos aceitam lista ou faixa (`NL001-NL050`). |
 | **Exportação para planilha** | CSV em UTF-8 com BOM, separador `;`, decimal com vírgula, datas `dd/mm/aaaa`, proteção contra fórmula e IDs no final de cada linha. |
 | **Atualização assistida** | O app consulta `version.json`, avisa e atualiza com um toque, sem perder dados. |
-| **Sem dependências externas** | HTML, CSS e JavaScript puros. Nenhuma biblioteca, nenhum servidor de aplicação. |
+| **Sem dependências externas** | HTML, CSS e JavaScript puros. Nenhuma biblioteca, nenhum servidor de aplicação. O mapa, a leitura de shapefile/KML e o cálculo de área são próprios. |
 
 ## Instalação
 
@@ -146,7 +154,8 @@ docs/           arquitetura, sincronização, modelo de dados, homologação e p
 - [x] Sincronização entre aparelhos com integridade, lixeira e desfazer
 - [x] Exportação CSV (inventário, eventos e lotes)
 - [x] Localização da fazenda e dos pastos pelo GPS, com o modelo de dados pronto para o mapa
-- [ ] Mapa de piquetes: perímetro do CAR, desenho dos piquetes e rebanho por piquete ([especificação](docs/mapa.md))
+- [x] Mapa da fazenda: perímetro do CAR, desenho e trajeto GPS dos piquetes, área calculada e rebanho por piquete ([detalhes](docs/mapa.md))
+- [ ] Histórico de ocupação e descanso por piquete (rotação de pastejo)
 - [ ] Indicadores definitivos da chave mestra (Fase 0)
 - [ ] Relatório em PDF por lote e por fazenda
 - [ ] Integração com o ERP pela API oficial, com fila e reenvio (Fase 2)

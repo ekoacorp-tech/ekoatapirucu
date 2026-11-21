@@ -70,7 +70,7 @@ button,input,select,textarea{font-size:16px;color:inherit}
 .main{flex:1;padding:22px 28px 40px;min-width:0}
 .view{display:none;max-width:1100px;margin:0 auto}
 body[data-view="home"] #v-home,body[data-view="lidas"] #v-lidas,body[data-view="lida"] #v-lida,body[data-view="rebanho"] #v-rebanho,
-body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais{display:block}
+body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa{display:block}
 .topbar{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .topbar h2{font-size:1.15rem;color:var(--brand-navy)}
 .topbar p{font-size:.84rem;color:var(--text-secondary);margin-top:2px}
@@ -330,6 +330,51 @@ tbody tr:last-child td{border-bottom:0}
   .card{padding:14px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ===== Mapa da fazenda ===== */
+.kpi.click{cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;background:var(--bg-surface);transition:transform var(--ek-dur-micro) var(--ek-ease-out),box-shadow var(--ek-dur-base),border-color var(--ek-dur-micro)}
+.kpi.click:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(35,80,95,.14);border-color:var(--teal)}
+.kpi.click:active{transform:scale(.98)}
+.kpi-go{color:var(--teal);font-weight:800}
+.farm-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.farm-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid var(--border-color);background:var(--bg-surface);cursor:pointer;font:inherit;color:inherit;min-height:44px;transition:border-color var(--ek-dur-micro),box-shadow var(--ek-dur-base)}
+.farm-card b{font-size:1rem;color:var(--text-primary)}.farm-card span{font-size:.8rem;color:var(--text-secondary)}
+.farm-card .fc-nums i{font-style:normal;font-weight:700;color:var(--text-primary)}
+.farm-card.on{border-color:var(--teal);box-shadow:0 0 0 3px rgba(59,138,151,.22)}
+.farm-card.add{border-style:dashed;justify-content:center}
+.map-card{padding:14px}
+.map-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.map-tools .grow{flex:1}
+.seg{display:inline-flex;border:1px solid var(--border-color);border-radius:12px;overflow:hidden;background:var(--bg-surface)}
+.seg button{min-height:40px;padding:6px 14px;border:0;background:none;cursor:pointer;font:inherit;font-weight:600;font-size:.84rem;color:var(--text-primary)}
+.seg button.on{background:var(--brand-navy);color:#fff}
+.gm{position:relative;overflow:hidden;background:#dfe7e4;border-radius:14px;border:1px solid var(--border-color);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.gm.no-base{background-color:#e9efe9;background-image:linear-gradient(rgba(35,80,95,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(35,80,95,.06) 1px,transparent 1px);background-size:32px 32px}
+.gm.static{touch-action:auto;cursor:default}
+.gm-tiles,.gm-svg{position:absolute;left:0;top:0;width:100%;height:100%}
+.gm-tiles img{position:absolute;width:256px;height:256px;max-width:none;pointer-events:none}
+.gm-svg{overflow:visible;pointer-events:none}
+.gm-hit{cursor:pointer}
+.gm-label{font:700 12.5px system-ui,-apple-system,sans-serif;fill:#13234A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.gm-label .gm-sub{font-weight:600;font-size:11px;fill:#3A2C24}
+.gm-zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.gm-zoom button{width:44px;height:44px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-surface);font-size:1.35rem;font-weight:700;cursor:pointer;color:var(--brand-navy);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.gm-attr{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.82);font-size:.66rem;padding:2px 7px;border-top-left-radius:8px;z-index:2}
+.gm-attr a{color:#1d5660}
+#gmMain{height:min(62vh,560px)}
+.am-map{height:210px;margin-bottom:14px}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.78rem;color:var(--text-secondary)}
+.map-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;opacity:.75}
+.map-legend i.dash{background:none;border:2px dashed #E0A83A;width:12px;height:12px;opacity:1}
+.draw-bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;margin-bottom:10px;border-radius:12px;background:rgba(201,146,46,.14);border:1px solid var(--gold);font-size:.88rem}
+tr.sel td{background:rgba(59,138,151,.12)!important}
+.rm-types{display:flex;flex-direction:column;gap:8px}
+.rm-types label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border-color);border-radius:12px;cursor:pointer;background:var(--bg-surface);text-transform:none;letter-spacing:0;font-weight:400}
+.rm-types label:has(input:checked){border-color:var(--teal);box-shadow:0 0 0 3px rgba(59,138,151,.15)}
+.rm-types input{margin-top:3px;accent-color:var(--teal);width:auto;min-height:0}
+.rm-types span{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--text-secondary)}.rm-types b{font-size:.92rem;color:var(--text-primary)}
+.rm-types select{min-height:40px;border-radius:10px;border:1px solid var(--border-color);padding:6px 10px;background:var(--bg-surface)}
+@media (max-width:900px){#gmMain{height:58vh}.map-tools .grow{display:none}.map-tools .btn.sm{flex:1 1 45%}}
 </style>
 </head>
 <body data-view="home">
@@ -341,6 +386,7 @@ tbody tr:last-child td{border-bottom:0}
 <symbol id="i-painel" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></g></symbol>
 <symbol id="i-sync" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></g></symbol>
 <symbol id="i-cad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></g></symbol>
+<symbol id="i-mapa" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></g></symbol>
 <symbol id="i-mais" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></symbol>
 <symbol id="i-peso" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l2 12H4z"/><circle cx="12" cy="5" r="2"/><path d="M12 12v3"/></g></symbol>
 <symbol id="i-san" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4M15 5l4 4M17 7 8 16l-4 1 1-4 9-9M3 21l3-3"/></g></symbol>
@@ -374,6 +420,7 @@ tbody tr:last-child td{border-bottom:0}
       <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg><span>Início</span></button>
       <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span>Lidas</span><span class="count" id="cAbertas" hidden></span></button>
       <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span>Rebanho</span></button>
+      <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span>Mapa da fazenda</span></button>
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span>Painel</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span>Fazenda e lotes</span></button>
@@ -470,11 +517,18 @@ tbody tr:last-child td{border-bottom:0}
     <div id="cadBody"></div>
   </section>
 
+  <!-- MAPA DA FAZENDA -->
+  <section class="view" id="v-mapa">
+    <div class="topbar"><div><h2>Mapa da fazenda</h2><p>Fazendas, piquetes e onde está o rebanho. Toque num piquete para ver os animais.</p></div></div>
+    <div id="mapaBody"></div>
+  </section>
+
   <!-- MAIS (mobile) -->
   <section class="view" id="v-mais">
     <div class="topbar"><div><h2>Mais</h2><p id="maisFarm"></p></div></div>
     <div class="menu-list">
       <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
+      <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, piquetes e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
       <button onclick="openAbout()"><svg><use href="#i-info"/></svg><div>Sobre e versão<small>Novidades, atualização e instalação</small></div></button>
@@ -507,7 +561,7 @@ tbody tr:last-child td{border-bottom:0}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -652,6 +706,7 @@ function compute() {
 /* ---------------- Navegação ---------------- */
 let currentView = 'home';
 function goView(v) {
+  if (draw && v !== 'mapa') cancelDraw(true);
   if (!farm() && v !== 'cadastros' && v !== 'mais' && v !== 'sync') { v = 'home'; }
   currentView = v; document.body.dataset.view = v;
   document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === v || (v === 'lida' && b.dataset.nav === 'lidas')));
@@ -662,6 +717,7 @@ function goView(v) {
   if (v === 'painel') renderPainel();
   if (v === 'sync') renderSync();
   if (v === 'cadastros') renderCadastros();
+  if (v === 'mapa') renderMapa();
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
   window.scrollTo({ top: 0 });
 }
@@ -721,17 +777,23 @@ function renderHome() {
   if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
   al.innerHTML = h;
   const pesos = at.filter(x => x.ultimoPeso > 0), gmds = at.filter(x => x.gmd != null);
-  $('homeKpis').innerHTML = kpi('Animais ativos', fmtN(at.length), 'navy', lotesF().length + ' lote(s)')
+  $('homeKpis').innerHTML = kpi('Fazendas', fmtN(S.fazendas.length), 'teal', 'ver no mapa', "goView('mapa')")
+    + kpi('Animais ativos', fmtN(at.length), 'navy', lotesF().length + ' lote(s)', "goRebanho('ativos')")
     + kpi('Peso médio', pesos.length ? fmtN(avg(pesos.map(x => x.ultimoPeso)), 1) + ' kg' : '—', 'teal', pesos.length + ' com peso')
     + kpi('GMD médio', gmds.length ? fmtN(avg(gmds.map(x => x.gmd)), 3) + ' kg/dia' : '—', 'gold', gmds.length + ' com 2+ pesagens')
-    + kpi('Em carência', fmtN(at.filter(x => x.emCarencia).length), 'orange', 'não podem sair')
-    + kpi('Sem manejo +30 dias', fmtN(at.filter(x => x.atrasado).length), 'red', 'pesagem ou sanitário');
+    + kpi('Em carência', fmtN(at.filter(x => x.emCarencia).length), 'orange', 'não podem sair', "goRebanho('carencia')")
+    + kpi('Sem manejo +30 dias', fmtN(at.filter(x => x.atrasado).length), 'red', 'pesagem ou sanitário', "goRebanho('atraso')");
   $('tRebanho').textContent = `${at.length} animais ativos em ${lotesF().length} lote(s)`;
   $('tSync').textContent = pd ? `${pd} para exportar` : 'Tudo exportado';
   const ult = lidasF().slice().sort((a, b) => (b.editadoEm || '').localeCompare(a.editadoEm || '')).slice(0, 5);
   $('homeLidas').innerHTML = ult.length ? `<div class="lida-list">${ult.map(lidaItem).join('')}</div>` : '<div class="empty">Nenhuma lida ainda. Toque em <b>Nova lida</b> para começar.</div>';
 }
-const kpi = (l, v, c, e) => `<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</div>`;
+const kpi = (l, v, c, e, go) => go
+  ? `<button type="button" class="kpi click ${c}" onclick="${go}" aria-label="${esc(l)}: abrir lista"><small>${esc(l)} <span class="kpi-go" aria-hidden="true">›</span></small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</button>`
+  : `<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</div>`;
+/* Abre o Rebanho já filtrado (KPIs, mapa, painel) */
+let rbPending = null;
+function goRebanho(sit, loteId) { rbPending = { sit: sit || 'ativos', lote: loteId || '' }; goView('rebanho'); }
 const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
 
 /* =========================================================================
@@ -1009,7 +1071,8 @@ function emptyTrash() {
    ========================================================================= */
 let rbSort = { k: 'brinco', d: 1 };
 function renderRebanho() {
-  const ls = $('rbLote'), cur = ls.value;
+  const ls = $('rbLote'); let cur = ls.value;
+  if (rbPending) { cur = rbPending.lote; $('rbSit').value = rbPending.sit; $('rbBusca').value = ''; rbPending = null; }
   ls.innerHTML = '<option value="">Todos os lotes</option>' + lotesF().map(l => `<option value="${esc(l.id)}"${l.id === cur ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
   const st = Object.values(compute()), q = $('rbBusca').value.trim().toLowerCase(), sit = $('rbSit').value, lt = ls.value;
   let rows = st.filter(s => {
@@ -1045,10 +1108,15 @@ function openAnimal(id) {
   const s = compute()[id]; if (!s) return; const a = s.a;
   const usado = S.lidas.some(l => l.status === 'finalizada' && l.registros.some(r => r.animalId === id));
   const mae = a.maeId ? S.animais.find(x => x.id === a.maeId) : null;
+  const fz = S.fazendas.find(x => x.id === a.fazendaId), lt = S.lotes.find(x => x.id === s.lote);
   openModal('Animal ' + a.brinco, `
     <div style="margin-bottom:12px">${sitChip(s)}</div>
+    <div id="amMap" class="am-map"></div>
+    <p class="hint" id="amMapHint" hidden>Este lote ainda não tem localização. <a href="#" onclick="closeModal();mapSel='${esc(s.lote || '')}';goView('mapa');return false;">Desenhe o piquete no mapa</a> ou capture o ponto no cadastro do lote.</p>
     <dl class="dl">
-      <dt>Lote atual</dt><dd>${esc(loteNome(s.lote))}</dd>
+      <dt>Fazenda</dt><dd>${esc(fz ? fz.nome : '—')}</dd>
+      <dt>Lote atual</dt><dd>${esc(loteNome(s.lote))}${lt && lt.pasto ? ' · ' + esc(lt.pasto) : ''}</dd>
+      <dt>Localização</dt><dd>${lt && lt.geo && lt.geo.poligono ? 'Piquete com contorno · ' + fmtN(areaLote(lt), 2) + ' ha' : lt && lt.geo && lt.geo.ponto ? '📍 ' + esc(fmtCoord(lt.geo.ponto)) : 'Lote sem localização'}</dd>
       <dt>Sexo</dt><dd>${esc(SEXOS[a.sexo] || '')}</dd>
       <dt>Raça / categoria</dt><dd>${esc([a.raca, a.categoria].filter(Boolean).join(' · ') || '—')}</dd>
       <dt>Nascimento</dt><dd>${fmtD(a.nascimento)}${mae ? ' · mãe ' + esc(mae.brinco) : ''}</dd>
@@ -1061,7 +1129,8 @@ function openAnimal(id) {
     <h4 style="margin:16px 0 8px;color:var(--brand-navy)">Histórico</h4>
     ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
     <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
-    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${s.lote ? `<button class="btn" onclick="closeModal();mapSel='${s.lote}';goView('mapa')">Ver no mapa</button>` : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+  if (!(s.ativo && miniMapa($('amMap'), s.lote))) { $('amMap').hidden = true; $('amMapHint').hidden = !s.ativo; }
 }
 function removeAnimal(id) {
   const a = S.animais.find(x => x.id === id); if (!a) return;
@@ -1158,7 +1227,7 @@ function lotesResumo() {
   return lotesF().map(l => {
     const an = st.filter(s => s.lote === l.id), ps = an.filter(s => s.ultimoPeso > 0), gm = an.filter(s => s.gmd != null);
     const soma = ps.reduce((t, s) => t + s.ultimoPeso, 0);
-    const ua = soma / UA_KG, uaha = l.areaHa > 0 && ps.length ? ua / l.areaHa : null;
+    const ar = areaLote(l), ua = soma / UA_KG, uaha = ar > 0 && ps.length ? ua / ar : null;
     return { l, qtd: an.length, machos: an.filter(s => s.a.sexo === 'M').length, femeas: an.filter(s => s.a.sexo === 'F').length,
       pesoMedio: ps.length ? soma / ps.length : null, comPeso: ps.length, gmd: gm.length ? avg(gm.map(s => s.gmd)) : null,
       ua: ps.length ? ua : null, uaha, ocup: uaha != null && l.lotacaoMax > 0 ? Math.round(uaha / l.lotacaoMax * 100) : null,
@@ -1168,23 +1237,23 @@ function lotesResumo() {
 function renderPainel() {
   const f = farm(); if (!f) return;
   const st = Object.values(compute()), at = st.filter(s => s.ativo), ps = at.filter(s => s.ultimoPeso > 0), gm = at.filter(s => s.gmd != null);
-  const soma = ps.reduce((t, s) => t + s.ultimoPeso, 0), uaha = f.areaHa > 0 && ps.length ? soma / UA_KG / f.areaHa : null;
+  const areaPast = areaPastagem(f), soma = ps.reduce((t, s) => t + s.ultimoPeso, 0), uaha = areaPast > 0 && ps.length ? soma / UA_KG / areaPast : null;
   const mes = hoje().slice(0, 7), bx = st.filter(s => s.baixa && s.baixa.data.slice(0, 7) === mes);
   const nasc = animaisF().filter(a => a.origemEntrada === 'nascimento' && (a.nascimento || '').slice(0, 7) === mes).length;
   const rl = lotesResumo();
   let h = `<div class="kpis">
-    ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`)}
+    ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
     ${kpi('Peso médio', ps.length ? fmtN(soma / ps.length, 1) + ' kg' : '—', 'teal', `${ps.length} de ${at.length} com peso`)}
     ${kpi('GMD médio', gm.length ? fmtN(avg(gm.map(s => s.gmd)), 3) + ' kg/dia' : '—', 'gold', `${gm.length} com 2+ pesagens`)}
-    ${kpi('Lotação da fazenda', uaha != null ? fmtN(uaha, 2) + ' UA/ha' : '—', 'teal', f.areaHa ? fmtN(f.areaHa, 1) + ' ha de pastagem' : 'informe a área da fazenda')}
-    ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária')}
-    ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19')}
+    ${kpi('Lotação da fazenda', uaha != null ? fmtN(uaha, 2) + ' UA/ha' : '—', 'teal', areaPast ? fmtN(areaPast, 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos piquetes)') : 'informe a área da fazenda')}
+    ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
+    ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
     ${kpi('Baixas no mês', fmtN(bx.length), 'orange', Object.entries(MOTIVOS_BAIXA).map(([k, v]) => bx.filter(s => s.baixa.motivo === k).length + ' ' + v.split(' ')[0].toLowerCase()).join(' · '))}
     ${kpi('Nascimentos no mês', fmtN(nasc), 'navy', '')}
   </div>
   <div class="card"><h3>Por lote <span class="sub">peso e GMD consideram só animais com pesagem</span></h3>
   ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">Carência</th><th class="num">Sem manejo</th></tr></thead><tbody>
-  ${rl.map(r => `<tr class="click" onclick="$('rbLote').value='${r.l.id}';$('rbSit').value='ativos';goView('rebanho')"><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.qtd}<br><small class="muted">${r.machos}M · ${r.femeas}F</small></td>
+  ${rl.map(r => `<tr class="click" onclick="goRebanho('ativos','${r.l.id}')"><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.qtd}<br><small class="muted">${r.machos}M · ${r.femeas}F</small></td>
     <td class="num">${r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—'}</td><td class="num">${r.gmd != null ? fmtN(r.gmd, 3) : '—'}</td>
     <td class="num">${r.uaha != null ? fmtN(r.uaha, 2) : (r.l.areaHa ? '—' : '<small class="muted">sem área</small>')}</td>
     <td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td>
@@ -1270,12 +1339,501 @@ function okGeoJSON(g) {   // Polygon ou MultiPolygon, até 20.000 vértices
   const ok = g.type === 'Polygon' ? poly(g.coordinates) : g.coordinates.length >= 1 && g.coordinates.every(poly);
   return ok ? { type: g.type, coordinates: JSON.parse(JSON.stringify(g.coordinates, (k, v) => typeof v === 'number' ? Math.round(v * 1e7) / 1e7 : v)) } : null;
 }
+const o_area = (g, chave) => { const v = okGeoJSON(g[chave]); return v ? polyAreaHa(v) : null; };   // área sempre recalculada, nunca confiada ao arquivo
 function okGeo(g, chave) {
   if (!g || typeof g !== 'object') return null;
-  const o = { ponto: okPonto(g.ponto), [chave]: okGeoJSON(g[chave]), fontePoligono: ['car', 'desenho', 'gps'].includes(g.fontePoligono) ? g.fontePoligono : null };
+  const o = { ponto: okPonto(g.ponto), [chave]: okGeoJSON(g[chave]), fontePoligono: ['car', 'desenho', 'gps', 'arquivo'].includes(g.fontePoligono) ? g.fontePoligono : null, areaHa: o_area(g, chave) };
   return o.ponto || o[chave] ? o : null;
 }
 const geoChip = g => g && (g.perimetro || g.poligono) ? '<span class="chip ok">Polígono</span>' : g && g.ponto ? `<span class="chip info" title="${esc(fmtCoord(g.ponto))}">📍 Ponto</span>` : '<span class="chip gray">Sem local</span>';
+
+/* =========================================================================
+   MAPA DA FAZENDA (sem bibliotecas externas)
+   Projeção Web Mercator; fundo OpenStreetMap ou imagem de satélite quando há
+   internet (os blocos vistos ficam guardados para uso offline); contornos,
+   piquetes e números desenhados em SVG, sempre disponíveis offline.
+   ========================================================================= */
+const R_TERRA = 6378137, TILE = 256;
+const BASES = {
+  mapa: { nome: 'Mapa', url: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`, attr: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
+  satelite: { nome: 'Satélite', url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, attr: 'Imagens © <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a> e colaboradores' },
+  nenhum: { nome: 'Sem fundo', url: null, attr: '' }
+};
+const lng2x = (lng, z) => (lng + 180) / 360 * TILE * 2 ** z;
+const lat2y = (lat, z) => { const s = Math.sin(Math.max(-85, Math.min(85, lat)) * Math.PI / 180); return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * TILE * 2 ** z; };
+const x2lng = (x, z) => x / (TILE * 2 ** z) * 360 - 180;
+const y2lat = (y, z) => { const n = Math.PI - 2 * Math.PI * y / (TILE * 2 ** z); return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))); };
+
+/* Área geodésica (m²) de um anel [lng, lat] e do polígono (ha), descontando furos */
+function ringAreaM2(r) {
+  let a = 0; for (let i = 0; i < r.length - 1; i++) { const [x1, y1] = r[i], [x2, y2] = r[i + 1]; a += (x2 - x1) * Math.PI / 180 * (2 + Math.sin(y1 * Math.PI / 180) + Math.sin(y2 * Math.PI / 180)); }
+  return Math.abs(a * R_TERRA * R_TERRA / 2);
+}
+function polyAreaHa(g) {
+  if (!g) return null; const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; let m = 0;
+  polys.forEach(p => p.forEach((r, i) => { const a = ringAreaM2(r); m += i === 0 ? a : -a; }));
+  return Math.round(m / 100) / 100;
+}
+const allCoords = g => { const out = []; (g.type === 'Polygon' ? [g.coordinates] : g.coordinates).forEach(p => p.forEach(r => r.forEach(c => out.push(c)))); return out; };
+function centroid(g) { const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; const big = polys.slice().sort((a, b) => ringAreaM2(b[0]) - ringAreaM2(a[0]))[0][0]; const n = big.length - 1; return [big.slice(0, n).reduce((t, c) => t + c[0], 0) / n, big.slice(0, n).reduce((t, c) => t + c[1], 0) / n]; }
+function distM(a, b) { const r = Math.PI / 180, dLat = (b[1] - a[1]) * r, dLng = (b[0] - a[0]) * r, h = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dLng / 2) ** 2; return 2 * R_TERRA * Math.asin(Math.sqrt(h)); }
+const areaLote = l => (l.geo && l.geo.areaHa) || l.areaHa || null;
+function areaPastagem(f) { if (f && f.areaHa) return f.areaHa; const s = lotesF().reduce((t, l) => t + (areaLote(l) || 0), 0); return s || null; }
+
+class GeoMap {
+  constructor(el, o = {}) {
+    this.el = el; this.o = o; this.z = 4; this.cx = lng2x(-52, 4); this.cy = lat2y(-15, 4); this.layers = []; this.base = o.base || 'mapa';
+    const inter = o.interactive !== false;
+    el.classList.add('gm'); if (!inter) el.classList.add('static'); if (o.cls) el.classList.add(o.cls);
+    el.innerHTML = `<div class="gm-tiles"></div><svg class="gm-svg" aria-hidden="true"></svg>${inter ? '<div class="gm-zoom"><button type="button" aria-label="Aproximar">+</button><button type="button" aria-label="Afastar">−</button></div>' : ''}<div class="gm-attr"></div>`;
+    this.tiles = el.querySelector('.gm-tiles'); this.svg = el.querySelector('.gm-svg'); this.attr = el.querySelector('.gm-attr');
+    if (inter) { const [zi, zo] = el.querySelectorAll('.gm-zoom button'); zi.onclick = () => this.zoomBy(1); zo.onclick = () => this.zoomBy(-1); this.bind(); }
+    this.lastSize = '';
+    if ('ResizeObserver' in window) { this.ro = new ResizeObserver(() => { const k = this.size().join('x'); if (k === this.lastSize) return; this.lastSize = k; if (this.fitArgs && !this.moved) this.fit(...this.fitArgs); else this.render(); }); this.ro.observe(el); }
+  }
+  size() { return [this.el.clientWidth || 320, this.el.clientHeight || 220]; }
+  toScreen([lng, lat]) { const [w, h] = this.size(); return [lng2x(lng, this.z) - this.cx + w / 2, lat2y(lat, this.z) - this.cy + h / 2]; }
+  toLngLat(px, py) { const [w, h] = this.size(); return [x2lng(this.cx + px - w / 2, this.z), y2lat(this.cy + py - h / 2, this.z)]; }
+  fit(coords, pad = 36, maxZ = 17, user) {
+    this.fitArgs = [coords, pad, maxZ]; this.moved = false;
+    if (!coords.length) { this.render(); return; }
+    let a = 180, b = 90, c = -180, d = -90; coords.forEach(([x, y]) => { a = Math.min(a, x); b = Math.min(b, y); c = Math.max(c, x); d = Math.max(d, y); });
+    const [w, h] = this.size(); let z = maxZ;
+    while (z > 3) { if (lng2x(c, z) - lng2x(a, z) <= w - 2 * pad && lat2y(b, z) - lat2y(d, z) <= h - 2 * pad) break; z--; }
+    this.z = z; this.cx = (lng2x(a, z) + lng2x(c, z)) / 2; this.cy = (lat2y(b, z) + lat2y(d, z)) / 2; this.render();
+  }
+  zoomBy(dz, px, py) {
+    const [w, h] = this.size(); px = px ?? w / 2; py = py ?? h / 2;
+    const nz = Math.max(3, Math.min(19, this.z + dz)); if (nz === this.z) return; this.moved = true;
+    const [lng, lat] = this.toLngLat(px, py); this.z = nz; this.cx = lng2x(lng, nz) - (px - w / 2); this.cy = lat2y(lat, nz) - (py - h / 2); this.render();
+  }
+  setBase(b) { this.base = b; this.render(); }
+  setLayers(l) { this.layers = l; this.renderSvg(); }
+  render() { this.renderTiles(); this.renderSvg(); }
+  renderTiles() {
+    const B = BASES[this.base] || BASES.nenhum, [w, h] = this.size();
+    this.tiles.style.transform = ''; this.svg.style.transform = '';
+    this.el.classList.toggle('no-base', !B.url);
+    if (!B.url) { this.tiles.innerHTML = ''; this.attr.innerHTML = ''; return; }
+    const z = this.z, n = 2 ** z, x0 = Math.floor((this.cx - w / 2) / TILE), x1 = Math.floor((this.cx + w / 2) / TILE), y0 = Math.floor((this.cy - h / 2) / TILE), y1 = Math.floor((this.cy + h / 2) / TILE);
+    let html = '';
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+      if (y < 0 || y >= n) continue; const xx = ((x % n) + n) % n;
+      html += `<img alt="" draggable="false" src="${B.url(z, xx, y)}" style="left:${Math.round(x * TILE - this.cx + w / 2)}px;top:${Math.round(y * TILE - this.cy + h / 2)}px" onerror="this.style.visibility='hidden'">`;
+    }
+    this.tiles.innerHTML = html; this.attr.innerHTML = B.attr;
+  }
+  path(rings) { return rings.map(r => 'M' + r.map(c => this.toScreen(c).map(v => v.toFixed(1)).join(' ')).join('L') + 'Z').join(''); }
+  renderSvg() {
+    const [w, h] = this.size(); this.svg.setAttribute('viewBox', `0 0 ${w} ${h}`); this.svg.setAttribute('width', w); this.svg.setAttribute('height', h);
+    let out = '', labels = '';
+    this.layers.forEach((L, i) => {
+      const st = L.style || {}, hit = L.onClick ? ' class="gm-hit"' : '';
+      if (L.geom) {
+        const polys = L.geom.type === 'Polygon' ? [L.geom.coordinates] : L.geom.coordinates;
+        out += `<path data-i="${i}"${hit} d="${polys.map(p => this.path(p)).join('')}" fill-rule="evenodd" fill="${st.fill || 'none'}" fill-opacity="${st.fillOpacity ?? 0.3}" stroke="${st.stroke || '#23505F'}" stroke-width="${st.width || 2}"${st.dash ? ` stroke-dasharray="${st.dash}"` : ''}/>`;
+      } else if (L.line) {
+        if (L.line.length > 1) out += `<path d="M${L.line.map(c => this.toScreen(c).map(v => v.toFixed(1)).join(' ')).join('L')}" fill="${L.fillLine ? st.stroke : 'none'}" fill-opacity=".15" stroke="${st.stroke || '#C9922E'}" stroke-width="${st.width || 3}"${st.dash ? ` stroke-dasharray="${st.dash}"` : ''}/>`;
+        if (L.dots) L.line.slice(0, L.closed ? -1 : undefined).forEach(c => { const [x, y] = this.toScreen(c); out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" fill="#fff" stroke="${st.stroke || '#C9922E'}" stroke-width="2.5"/>`; });
+      } else if (L.point) {
+        const [x, y] = this.toScreen(L.point);
+        out += `<circle data-i="${i}"${hit} cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${st.r || 8}" fill="${st.fill || '#C0714A'}" stroke="#fff" stroke-width="2.5"/>`;
+      }
+      if (L.label) {
+        const p = L.point || (L.geom ? centroid(L.geom) : null); if (!p) return;
+        if (L.geom) { const xs = allCoords(L.geom).map(c => this.toScreen(c)[0]); if (Math.max(...xs) - Math.min(...xs) < 64) return; }   // piquete pequeno na tela: rótulo aparece ao aproximar
+        const [x, y] = this.toScreen(p); if (x < -80 || y < -30 || x > w + 80 || y > h + 30) return;
+        const lines = String(L.label).split('\n'), y0 = y - (L.point ? 16 : (lines.length - 1) * 7);
+        labels += `<text class="gm-label" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle">${lines.map((t, k) => `<tspan x="${x.toFixed(1)}" dy="${k ? 15 : 0}"${k ? ' class="gm-sub"' : ''}>${esc(t)}</tspan>`).join('')}</text>`;
+      }
+    });
+    this.svg.innerHTML = out + labels;
+  }
+  bind() {
+    const el = this.el, pts = new Map(); let drag = null, pinch = null;
+    el.addEventListener('pointerdown', e => {
+      if (e.target.closest('.gm-zoom,.gm-attr')) return;
+      pts.set(e.pointerId, [e.clientX, e.clientY]); el.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) }; drag = null; this.render(); }
+      else if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, moved: false };
+    });
+    el.addEventListener('pointermove', e => {
+      if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pinch && pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (Math.abs(Math.log2(d / pinch.d)) >= 0.6) { const r = el.getBoundingClientRect(); this.zoomBy(d > pinch.d ? 1 : -1, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top); pinch.d = d; } return; }
+      if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+      if (drag.moved) { const t = `translate(${dx}px,${dy}px)`; this.tiles.style.transform = t; this.svg.style.transform = t; }
+    });
+    const end = e => {
+      pts.delete(e.pointerId); if (pinch) { if (pts.size < 2) pinch = null; drag = null; return; }
+      if (!drag) return; const d = drag; drag = null; const dx = e.clientX - d.x, dy = e.clientY - d.y;
+      if (d.moved) { this.cx -= dx; this.cy -= dy; this.moved = true; this.render(); return; }
+      if (e.type === 'pointercancel') return;
+      const r = el.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+      if (this.o.onMapClick && this.o.onMapClick(this.toLngLat(px, py))) return;
+      this.svg.style.pointerEvents = 'auto';
+      const hit = document.elementsFromPoint(e.clientX, e.clientY).find(n => n.getAttribute && n.getAttribute('data-i') != null && n.ownerSVGElement === this.svg);
+      this.svg.style.pointerEvents = '';
+      if (hit) { const L = this.layers[+hit.getAttribute('data-i')]; if (L && L.onClick) L.onClick(); }
+    };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    el.addEventListener('wheel', e => { e.preventDefault(); const r = el.getBoundingClientRect(); this.zoomBy(e.deltaY < 0 ? 1 : -1, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+    el.addEventListener('dblclick', e => { if (this.o.drawing && this.o.drawing()) return; const r = el.getBoundingClientRect(); this.zoomBy(1, e.clientX - r.left, e.clientY - r.top); });
+  }
+}
+
+/* ---------- Leitura de arquivos de contorno (entrada não confiável) ---------- */
+const closeRing = r => { if (r.length && (r[0][0] !== r[r.length - 1][0] || r[0][1] !== r[r.length - 1][1])) r.push(r[0].slice()); return r; };
+function signedArea(r) { let a = 0; for (let i = 0; i < r.length - 1; i++) a += r[i][0] * r[i + 1][1] - r[i + 1][0] * r[i][1]; return a / 2; }
+function inRing(p, r) { let ins = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if (((yi > p[1]) !== (yj > p[1])) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) ins = !ins; } return ins; }
+function ringsToGeom(rings) {   // shapefile: anel externo no sentido horário, furos no anti-horário
+  rings = rings.map(closeRing).filter(r => r.length >= 4); if (!rings.length) return null;
+  const outers = [], holes = []; rings.forEach(r => (signedArea(r) < 0 ? outers : holes).push(r));
+  if (!outers.length) outers.push(...holes.splice(0));
+  const polys = outers.map(o => [o]);
+  holes.forEach(hh => { const p = polys.find(pl => inRing(hh[0], pl[0])); if (p) p.push(hh); else polys.push([hh]); });
+  return polys.length === 1 ? { type: 'Polygon', coordinates: polys[0] } : { type: 'MultiPolygon', coordinates: polys };
+}
+function thinGeom(g, max = 20000) {   // arquivos muito detalhados: mantém um a cada k vértices
+  const n = allCoords(g).length; if (n <= max) return g; const k = Math.ceil(n / max);
+  const thin = r => closeRing(r.filter((c, i) => i % k === 0 || i === r.length - 1)).length >= 4 ? closeRing(r.filter((c, i) => i % k === 0)) : r;
+  return g.type === 'Polygon' ? { type: 'Polygon', coordinates: g.coordinates.map(thin) } : { type: 'MultiPolygon', coordinates: g.coordinates.map(p => p.map(thin)) };
+}
+async function unzip(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf); let e = -1;
+  for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('O arquivo .zip está danificado ou não é um .zip.');
+  const n = dv.getUint16(e + 10, true); let off = dv.getUint32(e + 16, true); const out = [];
+  for (let k = 0; k < n; k++) {
+    if (dv.getUint32(off, true) !== 0x02014b50) throw new Error('O arquivo .zip está danificado.');
+    const method = dv.getUint16(off + 10, true), csize = dv.getUint32(off + 20, true), nl = dv.getUint16(off + 28, true), xl = dv.getUint16(off + 30, true), cl = dv.getUint16(off + 32, true), lo = dv.getUint32(off + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(off + 46, off + 46 + nl)); off += 46 + nl + xl + cl;
+    if (name.endsWith('/') || csize === 0xFFFFFFFF) continue;
+    const start = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), raw = u8.subarray(start, start + csize);
+    let data;
+    if (method === 0) data = raw;
+    else if (method === 8) {
+      if (typeof DecompressionStream === 'undefined') throw new Error('Este navegador não abre arquivos .zip. Atualize o navegador ou use o arquivo .kml.');
+      data = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    } else continue;
+    out.push({ name, data });
+  }
+  return out;
+}
+function dbfNames(d) {
+  const dv = new DataView(d.buffer, d.byteOffset, d.byteLength), n = dv.getUint32(4, true), hl = dv.getUint16(8, true), rl = dv.getUint16(10, true), dec = new TextDecoder('windows-1252');
+  const fields = []; let o = 32, pos = 1;
+  while (o < hl - 1 && d[o] !== 0x0D) { fields.push({ nm: dec.decode(d.subarray(o, o + 11)).replace(/\0.*$/, '').trim().toUpperCase(), pos, len: d[o + 16] }); pos += d[o + 16]; o += 32; }
+  const f = ['NOME', 'NAME', 'NM_IMOVEL', 'NOM_TEMA', 'DESCRICAO', 'COD_IMOVEL', 'COD_TEMA'].map(p => fields.find(x => x.nm === p)).find(Boolean);
+  if (!f) return [];
+  const out = []; for (let i = 0; i < n; i++) { const s = hl + i * rl + f.pos; out.push(dec.decode(d.subarray(s, s + f.len)).trim()); } return out;
+}
+function shpFeatures(shp, dbf) {
+  const dv = new DataView(shp.buffer, shp.byteOffset, shp.byteLength);
+  if (shp.byteLength < 100 || dv.getInt32(0, false) !== 9994) throw new Error('Shapefile inválido.');
+  const names = dbf ? dbfNames(dbf) : [], feats = []; let off = 100, rec = 0;
+  while (off + 12 <= shp.byteLength) {
+    const len = dv.getInt32(off + 4, false) * 2, c = off + 8, t = dv.getInt32(c, true);
+    if ([5, 15, 25].includes(t)) {
+      const np = dv.getInt32(c + 36, true), nPts = dv.getInt32(c + 40, true), parts = [];
+      for (let i = 0; i < np; i++) parts.push(dv.getInt32(c + 44 + i * 4, true));
+      const p0 = c + 44 + np * 4, rings = [];
+      for (let i = 0; i < np; i++) { const s = parts[i], e = i + 1 < np ? parts[i + 1] : nPts, r = []; for (let j = s; j < e; j++) r.push([dv.getFloat64(p0 + j * 16, true), dv.getFloat64(p0 + j * 16 + 8, true)]); rings.push(r); }
+      const geom = ringsToGeom(rings); if (geom) feats.push({ nome: names[rec] || '', geom });
+    }
+    if (len <= 0) break; off = c + len; rec++;
+  }
+  return feats;
+}
+function kmlFeatures(txt) {
+  const doc = new DOMParser().parseFromString(txt, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('O arquivo KML está danificado.');
+  const pc = s => s.trim().split(/\s+/).map(t => t.split(',').map(Number)).filter(c => c.length >= 2 && isFinite(c[0]) && isFinite(c[1])).map(c => [c[0], c[1]]);
+  const ring = b => b ? closeRing(pc((b.getElementsByTagName('coordinates')[0] || {}).textContent || '')) : [];
+  const feats = [];
+  [...doc.getElementsByTagName('Placemark')].forEach(pm => {
+    const nome = ((pm.getElementsByTagName('name')[0] || {}).textContent || '').trim();
+    const polys = [...pm.getElementsByTagName('Polygon')].map(pg => { const o = ring(pg.getElementsByTagName('outerBoundaryIs')[0]); return o.length >= 4 ? [o, ...[...pg.getElementsByTagName('innerBoundaryIs')].map(ring).filter(r => r.length >= 4)] : null; }).filter(Boolean);
+    if (polys.length) feats.push({ nome, geom: polys.length === 1 ? { type: 'Polygon', coordinates: polys[0] } : { type: 'MultiPolygon', coordinates: polys } });
+  });
+  return feats;
+}
+function geojsonFeatures(j) {
+  const out = [], nm = p => String((p && (p.nome || p.name || p.NOME || p.Name || p.NAME)) || '');
+  const add = (g, p) => { if (!g) return; if (g.type === 'Polygon' || g.type === 'MultiPolygon') out.push({ nome: nm(p), geom: { type: g.type, coordinates: g.coordinates } }); else if (g.type === 'GeometryCollection') (g.geometries || []).forEach(x => add(x, p)); };
+  if (j && j.type === 'FeatureCollection') (j.features || []).forEach(f => add(f && f.geometry, f && f.properties)); else if (j && j.type === 'Feature') add(j.geometry, j.properties); else add(j, {});
+  return out;
+}
+async function zipLayers(buf, layers, depth) {
+  const ents = await unzip(buf), by = n => ents.find(e => e.name.toLowerCase() === n);
+  for (const e of ents) {
+    const n = e.name.toLowerCase(), base = e.name.replace(/^.*\//, '');
+    if (n.endsWith('.kml')) layers.push({ nome: base, car: false, feats: kmlFeatures(new TextDecoder().decode(e.data)) });
+    else if (n.endsWith('.shp')) { const dbf = by(n.replace(/\.shp$/, '.dbf')); layers.push({ nome: base.replace(/\.shp$/i, ''), car: true, feats: shpFeatures(e.data, dbf && dbf.data) }); }
+    else if ((n.endsWith('.geojson') || n.endsWith('.json')) && e.data.length < 30e6) { try { layers.push({ nome: base, car: false, feats: geojsonFeatures(JSON.parse(new TextDecoder().decode(e.data))) }); } catch (x) {} }
+    else if (n.endsWith('.zip') && depth < 2) await zipLayers(e.data.slice().buffer, layers, depth + 1);
+  }
+}
+async function readGeoFile(file) {
+  const nm = file.name.toLowerCase(), layers = [];
+  if (file.size > 40e6) throw new Error('Arquivo grande demais (limite de 40 MB).');
+  if (nm.endsWith('.geojson') || nm.endsWith('.json')) layers.push({ nome: file.name, car: false, feats: geojsonFeatures(JSON.parse(await file.text())) });
+  else if (nm.endsWith('.kml')) layers.push({ nome: file.name, car: false, feats: kmlFeatures(await file.text()) });
+  else if (nm.endsWith('.zip') || nm.endsWith('.kmz')) await zipLayers(await file.arrayBuffer(), layers, 0);
+  else throw new Error('Formato não reconhecido. Use o .zip do CAR (shapefile), .kml/.kmz do Google Earth ou .geojson.');
+  let projetado = 0;
+  layers.forEach(L => { L.feats = L.feats.map(f => { const g = okGeoJSON(thinGeom(f.geom)); if (!g) { projetado++; return null; } return { nome: str(f.nome, 60), geom: g, areaHa: polyAreaHa(g) }; }).filter(Boolean); });
+  const ok = layers.filter(L => L.feats.length);
+  if (!ok.length) throw new Error(projetado ? 'Os contornos estão em coordenadas projetadas (UTM) ou inválidas. Exporte em graus decimais (SIRGAS 2000 ou WGS84) e tente de novo.' : 'Nenhum polígono encontrado no arquivo.');
+  return ok;
+}
+
+/* ---------- Tela do mapa ---------- */
+let gmMain = null, mapSel = null, draw = null, geoImport = null;
+const mapBase = () => syncMeta.mapBase || 'satelite';
+function ocupCor(r) {
+  if (!r || r.ocup == null) return { fill: '#3B8A97', stroke: '#1d5660' };
+  if (r.ocup > 100) return { fill: '#dc2626', stroke: '#991b1b' };
+  if (r.ocup > 85) return { fill: '#f59e0b', stroke: '#92400e' };
+  return { fill: '#22c55e', stroke: '#166534' };
+}
+function mapLayers(o = {}) {
+  const f = farm(), L = []; if (!f) return L;
+  const rl = lotesResumo();
+  if (f.geo && f.geo.perimetro) L.push({ geom: f.geo.perimetro, style: { fill: '#C9922E', fillOpacity: o.mini ? 0.05 : 0.07, stroke: '#E0A83A', width: 2.5, dash: '9 6' } });
+  rl.forEach(r => {
+    const g = r.l.geo || {}, cor = ocupCor(r), sel = o.sel === r.l.id, apag = o.mini && !sel;
+    const label = o.mini ? (sel ? r.l.nome : null) : `${r.l.nome}\n${r.qtd} cab.${r.ocup != null ? ' · ' + r.ocup + '%' : ''}`;
+    const click = o.mini ? null : () => selectLote(r.l.id);
+    if (g.poligono) L.push({ geom: g.poligono, style: { fill: apag ? '#94a3b8' : cor.fill, fillOpacity: sel ? 0.5 : (apag ? 0.15 : 0.32), stroke: sel ? '#FBF7F1' : (apag ? '#64748b' : cor.stroke), width: sel ? 3.5 : 2 }, label, onClick: click });
+    else if (g.ponto) L.push({ point: [g.ponto.lng, g.ponto.lat], style: { fill: sel ? '#13234A' : (apag ? '#94a3b8' : cor.fill), r: sel ? 10 : 8 }, label, onClick: click });
+  });
+  if (f.geo && f.geo.ponto && !o.mini) L.push({ point: [f.geo.ponto.lng, f.geo.ponto.lat], style: { fill: '#C0714A', r: 7 }, label: 'Sede' });
+  if (draw && draw.pts.length && !o.mini) L.push({ line: draw.pts.length > 2 ? [...draw.pts, draw.pts[0]] : draw.pts, closed: draw.pts.length > 2, fillLine: draw.pts.length > 2, dots: draw.modo === 'toque', style: { stroke: '#F0C77A', width: 3, dash: draw.modo === 'toque' ? '7 5' : null } });
+  return L;
+}
+const layerCoords = L => { const out = []; L.forEach(l => { if (l.geom) out.push(...allCoords(l.geom)); else if (l.point) out.push(l.point); else if (l.line) out.push(...l.line); }); return out; };
+
+function renderMapa() {
+  const f = farm(), box = $('mapaBody');
+  if (!f) { box.innerHTML = '<div class="empty">Cadastre a fazenda primeiro.</div>'; return; }
+  const st = Object.values(calcAll()), rl = lotesResumo();
+  const farmCards = S.fazendas.map(x => {
+    const an = st.filter(s => s.ativo && s.a.fazendaId === x.id).length, nl = S.lotes.filter(l => l.fazendaId === x.id).length;
+    const at = x.geo && x.geo.perimetro ? polyAreaHa(x.geo.perimetro) : null;
+    return `<button type="button" class="farm-card${x.id === S.fazendaAtiva ? ' on' : ''}" onclick="setFarm('${x.id}');goView('mapa')">
+      <b>${esc(x.nome)}</b><span>${esc(x.municipio || '')}</span>
+      <span class="fc-nums"><i>${an}</i> animais · <i>${nl}</i> lote(s)${at ? ` · <i>${fmtN(at, 0)}</i> ha` : ''}</span>${geoChip(x.geo)}</button>`;
+  }).join('');
+  const temGeo = !!((f.geo && (f.geo.perimetro || f.geo.ponto)) || rl.some(r => r.l.geo));
+  const nPol = rl.filter(r => r.l.geo && r.l.geo.poligono).length;
+  box.innerHTML = `
+    <div class="farm-cards">${farmCards}<button type="button" class="farm-card add" onclick="openFarm()"><b>+ Nova fazenda</b><span>Cadastrar outra propriedade</span></button></div>
+    <div class="card map-card">
+      <div class="map-tools">
+        <div class="seg" role="group" aria-label="Fundo do mapa">${Object.entries(BASES).map(([k, b]) => `<button type="button" class="${mapBase() === k ? 'on' : ''}" onclick="setMapBase('${k}')">${b.nome}</button>`).join('')}</div>
+        <span class="grow"></span>
+        <button class="btn sm" onclick="openGeoImport()">⬆ Importar contorno</button>
+        <button class="btn sm teal" onclick="askDraw('toque')">✎ Desenhar</button>
+        <button class="btn sm" onclick="askDraw('gps')">📍 Percorrer cerca</button>
+        <button class="btn sm" onclick="fitMapa()">⤢ Centralizar</button>
+      </div>
+      <div id="drawBar"></div>
+      <div id="gmMain"></div>
+      <div class="map-legend"><span><i style="background:#22c55e"></i>até 85%</span><span><i style="background:#f59e0b"></i>85 a 100%</span><span><i style="background:#dc2626"></i>acima de 100%</span><span><i style="background:#3B8A97"></i>sem lotação máx.</span><span><i class="dash"></i>perímetro</span></div>
+      ${temGeo ? '' : `<div class="alert info" style="margin-top:12px"><span>Esta fazenda ainda não tem contorno. Comece importando o perímetro do CAR (.zip baixado da consulta pública do SICAR), desenhando sobre o satélite ou percorrendo a cerca com o GPS.</span></div>`}
+      <p class="hint">${f.geo && f.geo.perimetro ? `Perímetro: ${fmtN(polyAreaHa(f.geo.perimetro), 2)} ha (${esc(FONTE_POL[f.geo.fontePoligono] || '')}). ` : ''}${nPol} de ${rl.length} lote(s) com contorno. A imagem de fundo precisa de internet; os blocos já vistos ficam guardados para uso no campo.</p>
+    </div>
+    <div class="card" id="gmInfo"></div>
+    <div class="card"><h3>Lotes e piquetes <span class="sub">toque para ver no mapa</span></h3>
+      ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Animais</th><th class="num">Área (ha)</th><th>Origem da área</th><th class="num">Ocupação</th><th>Contorno</th></tr></thead><tbody>
+      ${rl.map(r => `<tr class="click${mapSel === r.l.id ? ' sel' : ''}" tabindex="0" onclick="selectLote('${r.l.id}',true)" onkeydown="if(event.key==='Enter')selectLote('${r.l.id}',true)"><td><b>${esc(r.l.nome)}</b>${r.l.pasto ? '<br><small class="muted">' + esc(r.l.pasto) + '</small>' : ''}</td><td class="num">${r.qtd}</td><td class="num">${areaLote(r.l) ? fmtN(areaLote(r.l), 2) : '—'}</td><td>${r.l.geo && r.l.geo.areaHa ? 'Calculada no mapa' : r.l.areaHa ? 'Informada' : '—'}</td><td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td><td>${geoChip(r.l.geo)}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Nenhum lote. Importe os piquetes ou crie em Fazenda e lotes.</div>'}</div>`;
+  if (gmMain && gmMain.ro) gmMain.ro.disconnect();
+  gmMain = new GeoMap($('gmMain'), { base: mapBase(), onMapClick: onMapTap, drawing: () => !!draw });
+  gmMain.setLayers(mapLayers({ sel: mapSel }));
+  fitMapa(true);
+  renderDrawBar(); renderLoteInfo();
+}
+const FONTE_POL = { car: 'CAR', desenho: 'desenhado no mapa', gps: 'percorrido com GPS', arquivo: 'arquivo importado' };
+function calcAll() { return compute(); }
+function fitMapa(inicial) {
+  if (!gmMain) return; const L = mapLayers({});
+  const f = farm(), sel = mapSel && S.lotes.find(l => l.id === mapSel);
+  let coords = layerCoords(L.filter(l => !l.line));
+  if (inicial && draw && draw.pts.length) coords = coords.concat(draw.pts);
+  if (!coords.length) { gmMain.z = 4; gmMain.cx = lng2x(-52, 4); gmMain.cy = lat2y(-14, 4); gmMain.render(); return; }
+  gmMain.fit(coords, gmMain.size()[0] < 520 ? 12 : 36, coords.length === 1 ? 16 : 18);
+}
+function setMapBase(b) { syncMeta.mapBase = b; saveSyncMeta(); document.querySelectorAll('.map-tools .seg button').forEach((x, i) => x.classList.toggle('on', Object.keys(BASES)[i] === b)); if (gmMain) gmMain.setBase(b); }
+function selectLote(id, centrar) {
+  mapSel = mapSel === id && !centrar ? null : id;
+  if (gmMain) gmMain.setLayers(mapLayers({ sel: mapSel }));
+  document.querySelectorAll('#mapaBody tr.click').forEach(tr => tr.classList.toggle('sel', tr.getAttribute('onclick').includes(`'${mapSel}'`)));
+  if (centrar && mapSel && gmMain) { const l = S.lotes.find(x => x.id === mapSel), g = l && l.geo; if (g && g.poligono) gmMain.fit(allCoords(g.poligono), 50, 18); else if (g && g.ponto) { gmMain.fit([[g.ponto.lng, g.ponto.lat]], 50, 16); } $('gmMain').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  renderLoteInfo();
+}
+function renderLoteInfo() {
+  const box = $('gmInfo'); if (!box) return;
+  const r = mapSel && lotesResumo().find(x => x.l.id === mapSel);
+  if (!r) { box.innerHTML = '<h3>Selecione um piquete</h3><p class="muted">Toque num contorno ou ponto do mapa, ou num lote da lista, para ver o rebanho daquele lugar.</p>'; return; }
+  const g = r.l.geo || {};
+  box.innerHTML = `<h3>${esc(r.l.nome)} ${r.l.pasto ? `<span class="sub">${esc(r.l.pasto)}</span>` : ''}</h3>
+    <div class="kpis">
+      ${kpi('Animais', fmtN(r.qtd), 'navy', `${r.machos} M · ${r.femeas} F`, `goRebanho('ativos','${r.l.id}')`)}
+      ${kpi('Peso médio', r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—', 'teal', r.comPeso + ' com peso')}
+      ${kpi('GMD', r.gmd != null ? fmtN(r.gmd, 3) + ' kg/dia' : '—', 'gold', '')}
+      ${kpi('Área', areaLote(r.l) ? fmtN(areaLote(r.l), 2) + ' ha' : '—', 'teal', g.areaHa ? 'calculada no mapa' : r.l.areaHa ? 'informada' : 'sem área')}
+      ${kpi('Ocupação', r.ocup != null ? r.ocup + '%' : (r.uaha != null ? fmtN(r.uaha, 2) + ' UA/ha' : '—'), r.ocup > 100 ? 'red' : r.ocup > 85 ? 'orange' : 'teal', r.l.lotacaoMax ? 'máx. ' + fmtN(r.l.lotacaoMax, 2) + ' UA/ha' : 'informe a lotação máxima')}
+      ${kpi('Em carência', fmtN(r.carencia), 'orange', '', r.carencia ? `goRebanho('carencia','${r.l.id}')` : null)}
+      ${kpi('Sem manejo +30 dias', fmtN(r.atraso), 'red', '', r.atraso ? `goRebanho('atraso','${r.l.id}')` : null)}
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="goRebanho('ativos','${r.l.id}')">Ver animais</button>
+      <button class="btn teal" onclick="startDraw({tipo:'lote',id:'${r.l.id}'},'toque')">✎ ${g.poligono ? 'Redesenhar' : 'Desenhar'} contorno</button>
+      <button class="btn" onclick="startDraw({tipo:'lote',id:'${r.l.id}'},'gps')">📍 Percorrer cerca</button>
+      <button class="btn" onclick="openLote('${r.l.id}')">Editar lote</button>
+      ${g.poligono ? `<button class="btn danger" onclick="removeGeom({tipo:'lote',id:'${r.l.id}'})">Remover contorno</button>` : ''}
+    </div>`;
+}
+function onMapTap(p) {
+  if (!draw || draw.modo !== 'toque') return false;
+  draw.pts.push([Math.round(p[0] * 1e7) / 1e7, Math.round(p[1] * 1e7) / 1e7]); gmMain.setLayers(mapLayers({ sel: mapSel })); renderDrawBar(); return true;
+}
+function alvoNome(a) { if (!a) return ''; if (a.tipo === 'fazenda') return 'Perímetro da fazenda'; const l = S.lotes.find(x => x.id === a.id); return l ? l.nome : 'Novo lote'; }
+function askDraw(modo) {
+  const opts = `<option value="fazenda">Perímetro da fazenda</option>${lotesF().map(l => `<option value="${esc(l.id)}"${l.id === mapSel ? ' selected' : ''}>${esc(l.nome)}${l.geo && l.geo.poligono ? ' (substituir contorno)' : ''}</option>`).join('')}<option value="__novo">+ Novo lote/piquete…</option>`;
+  openModal(modo === 'gps' ? 'Percorrer a cerca com o GPS' : 'Desenhar contorno no mapa', `
+    ${fld('dAlvo', 'O contorno é de', `<select id="dAlvo" onchange="$('dNovoBox').hidden=this.value!=='__novo'">${opts}</select>`, true)}
+    <div id="dNovoBox" ${mapSel ? 'hidden' : 'hidden'}>${fld('dNovo', 'Nome do novo lote', '<input id="dNovo" maxlength="60" placeholder="Ex.: Piquete 7">', true)}</div>
+    <p class="hint">${modo === 'gps' ? 'Ande ou rode junto à cerca com o celular. O app grava um ponto a cada 3 metros, só com precisão de até 30 m. Funciona sem internet. Ao voltar ao início, toque em Concluir.' : 'Toque nos cantos do piquete, em ordem, sobre a imagem de satélite. Use + e − ou dois dedos para aproximar. Ao terminar, toque em Concluir.'}</p>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="dGo">Começar</button>`);
+  $('dGo').onclick = () => {
+    let v = $('dAlvo').value, alvo;
+    if (v === '__novo') {
+      const nome = str($('dNovo').value, 60); fieldErr('dNovo', '');
+      if (!nome) { fieldErr('dNovo', 'Informe o nome.'); return; }
+      if (lotesF().some(l => l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('dNovo', 'Já existe lote com este nome.'); return; }
+      const l = stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: '', areaHa: null, lotacaoMax: null, ativo: true, geo: null }); S.lotes.push(l); save(); alvo = { tipo: 'lote', id: l.id }; mapSel = l.id;
+    } else alvo = v === 'fazenda' ? { tipo: 'fazenda' } : { tipo: 'lote', id: v };
+    closeModal(); startDraw(alvo, modo);
+  };
+}
+function startDraw(alvo, modo) {
+  cancelDraw(true);
+  draw = { alvo, modo, pts: [], watch: null, acc: null, erro: null };
+  if (modo === 'gps') {
+    if (!('geolocation' in navigator)) { draw = null; alert('Este aparelho não oferece localização.'); return; }
+    draw.watch = navigator.geolocation.watchPosition(pos => {
+      if (!draw) return; const p = [Math.round(pos.coords.longitude * 1e7) / 1e7, Math.round(pos.coords.latitude * 1e7) / 1e7];
+      draw.acc = Math.round(pos.coords.accuracy); draw.erro = null;
+      if (draw.acc <= 30) { const last = draw.pts[draw.pts.length - 1]; if (!last || distM(last, p) >= 3) { draw.pts.push(p); if (gmMain) gmMain.setLayers(mapLayers({ sel: mapSel })); if (draw.pts.length === 1 && gmMain) gmMain.fit([p], 50, 18); } }
+      renderDrawBar();
+    }, err => { if (!draw) return; draw.erro = err.code === 1 ? 'Permissão de localização negada.' : 'Sem sinal de GPS. Vá para um local aberto.'; renderDrawBar(); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 });
+  }
+  if (currentView !== 'mapa') goView('mapa'); else { renderDrawBar(); $('gmMain').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
+function renderDrawBar() {
+  const box = $('drawBar'); if (!box) return;
+  if (!draw) { box.innerHTML = ''; return; }
+  const n = draw.pts.length, area = n >= 3 ? polyAreaHa({ type: 'Polygon', coordinates: [closeRing(draw.pts.map(p => p.slice()))] }) : null;
+  const gps = draw.modo === 'gps' ? (draw.erro ? ` · <b style="color:#b91c1c">${esc(draw.erro)}</b>` : draw.acc != null ? ` · GPS ±${draw.acc} m${draw.acc > 30 ? ' (aguardando precisão melhor)' : ''}` : ' · buscando sinal…') : '';
+  box.innerHTML = `<div class="draw-bar" role="status"><span><b>${draw.modo === 'gps' ? 'Percorrendo' : 'Desenhando'}: ${esc(alvoNome(draw.alvo))}</b> · ${n} ponto(s)${area ? ` · ≈ ${fmtN(area, 2)} ha` : ''}${gps}</span><span class="actions">
+    ${n ? '<button class="btn sm" onclick="undoPoint()">Desfazer ponto</button>' : ''}<button class="btn sm" onclick="cancelDraw()">Cancelar</button><button class="btn sm primary" onclick="finishDraw()" ${n >= 3 ? '' : 'disabled'}>Concluir</button></span></div>`;
+}
+function undoPoint() { if (!draw) return; draw.pts.pop(); gmMain.setLayers(mapLayers({ sel: mapSel })); renderDrawBar(); }
+function cancelDraw(quiet) {
+  if (!draw) return; if (draw.watch != null) navigator.geolocation.clearWatch(draw.watch);
+  draw = null; if (!quiet) { if (gmMain) gmMain.setLayers(mapLayers({ sel: mapSel })); renderDrawBar(); }
+}
+function finishDraw() {
+  if (!draw || draw.pts.length < 3) return;
+  const geom = okGeoJSON({ type: 'Polygon', coordinates: [closeRing(draw.pts.map(p => p.slice()))] });
+  if (!geom || !(polyAreaHa(geom) > 0)) { alert('O contorno não forma uma área válida. Confira os pontos.'); return; }
+  const { alvo, modo } = draw;
+  if (!applyGeometry(alvo, geom, modo === 'gps' ? 'gps' : 'desenho')) return;
+  cancelDraw(true); renderMapa();
+}
+function applyGeometry(alvo, geom, fonte) {
+  const ha = polyAreaHa(geom);
+  if (alvo.tipo === 'fazenda') {
+    const f = farm(); if (f.geo && f.geo.perimetro && !confirm(`Substituir o perímetro atual (${fmtN(polyAreaHa(f.geo.perimetro), 2)} ha) por este (${fmtN(ha, 2)} ha)?`)) return false;
+    f.geo = Object.assign({ ponto: null, perimetro: null, fontePoligono: null }, f.geo, { perimetro: geom, fontePoligono: fonte, areaHa: ha }); touch(f);
+  } else {
+    const l = S.lotes.find(x => x.id === alvo.id); if (!l) return false;
+    if (l.geo && l.geo.poligono && !confirm(`Substituir o contorno atual de ${l.nome} (${fmtN(l.geo.areaHa, 2)} ha) por este (${fmtN(ha, 2)} ha)?`)) return false;
+    l.geo = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, l.geo, { poligono: geom, fontePoligono: fonte, areaHa: ha }); touch(l); mapSel = l.id;
+  }
+  save(); showToast(`Contorno salvo: ${fmtN(ha, 2)} ha.`); return true;
+}
+function removeGeom(alvo) {
+  const l = alvo.tipo === 'lote' ? S.lotes.find(x => x.id === alvo.id) : farm(); if (!l || !l.geo) return;
+  if (!confirm(`Remover o contorno de ${alvo.tipo === 'lote' ? l.nome : 'perímetro da fazenda'}? O ponto de referência é mantido.`)) return;
+  if (alvo.tipo === 'lote') Object.assign(l.geo, { poligono: null, fontePoligono: null, areaHa: null }); else Object.assign(l.geo, { perimetro: null, fontePoligono: null, areaHa: null });
+  touch(l); save(); renderMapa();
+}
+
+/* ---------- Importar contorno (CAR, Google Earth, GeoJSON) ---------- */
+function openGeoImport() {
+  geoImport = null;
+  openModal('Importar contorno', `
+    <p class="muted" style="margin-bottom:10px">Aceita o <b>.zip do CAR</b> (shapefile baixado da consulta pública do SICAR), <b>.kml/.kmz</b> do Google Earth e <b>.geojson</b>.</p>
+    <input type="file" id="giFile" accept=".zip,.kml,.kmz,.geojson,.json" class="btn" style="width:100%">
+    <div id="giPrev" style="margin-top:12px"></div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="giOk" disabled onclick="applyGeoImport()">Aplicar</button>`, true);
+  $('giFile').onchange = async ev => {
+    const f = ev.target.files[0]; if (!f) return; $('giPrev').innerHTML = '<p class="muted">Lendo o arquivo…</p>'; $('giOk').disabled = true;
+    try { const layers = await readGeoFile(f); geoImport = { arquivo: f.name, layers, camada: Math.max(0, layers.findIndex(l => /im[oó]vel/i.test(l.nome))) }; renderGeoImport(); }
+    catch (e) { geoImport = null; $('giPrev').innerHTML = `<div class="alert bad"><span>${esc(e.message || 'Não foi possível ler o arquivo.')}</span></div>`; }
+  };
+}
+function renderGeoImport() {
+  const gi = geoImport, L = gi.layers[gi.camada], car = L.car && /im[oó]vel/i.test(L.nome);
+  const destino = gi.destino || (car ? 'fazenda' : L.feats.length > 1 ? 'piquetes' : (mapSel ? 'lote' : 'fazenda'));
+  gi.destino = destino;
+  $('giPrev').innerHTML = `
+    ${gi.layers.length > 1 ? fld('giCam', 'Camada do arquivo', `<select id="giCam" onchange="geoImport.camada=+this.value;geoImport.destino=null;renderGeoImport()">${gi.layers.map((l, i) => `<option value="${i}"${i === gi.camada ? ' selected' : ''}>${esc(l.nome)} (${l.feats.length})</option>`).join('')}</select>`, false, 'O .zip do CAR traz várias camadas: a do imóvel (perímetro), APP, reserva legal e outras. Para o perímetro, use a camada do imóvel.') : ''}
+    <div class="tbl-wrap" style="margin:10px 0"><table><thead><tr><th>Polígono</th><th class="num">Área (ha)</th></tr></thead><tbody>
+      ${L.feats.slice(0, 30).map((f, i) => `<tr><td>${esc(f.nome || 'Polígono ' + (i + 1))}</td><td class="num">${fmtN(f.areaHa, 2)}</td></tr>`).join('')}
+      ${L.feats.length > 30 ? `<tr><td colspan="2" class="muted">… e mais ${L.feats.length - 30}</td></tr>` : ''}
+      <tr><td><b>Total</b></td><td class="num"><b>${fmtN(L.feats.reduce((t, f) => t + f.areaHa, 0), 2)}</b></td></tr></tbody></table></div>
+    <div class="field"><label>Usar como</label>
+      <div class="rm-types">
+        <label><input type="radio" name="giDest" value="fazenda" ${destino === 'fazenda' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Perímetro da fazenda</b>Todos os polígonos formam o limite da propriedade.</span></label>
+        <label><input type="radio" name="giDest" value="piquetes" ${destino === 'piquetes' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Piquetes (um lote por polígono)</b>Casa pelo nome com os lotes existentes; os demais viram lotes novos.</span></label>
+        <label><input type="radio" name="giDest" value="lote" ${destino === 'lote' ? 'checked' : ''} onchange="geoImport.destino=this.value;renderGeoImport()"><span><b>Contorno de um lote</b><select id="giLote" onclick="event.stopPropagation()">${loteOpts(mapSel || '', 'Selecione o lote')}</select></span></label>
+      </div></div>`;
+  $('giOk').disabled = false;
+}
+function applyGeoImport() {
+  const gi = geoImport; if (!gi) return; const L = gi.layers[gi.camada];
+  const fonte = L.car && /im[oó]vel/i.test(L.nome) ? 'car' : 'arquivo';
+  const juntar = feats => feats.length === 1 ? feats[0].geom : okGeoJSON({ type: 'MultiPolygon', coordinates: feats.flatMap(f => f.geom.type === 'Polygon' ? [f.geom.coordinates] : f.geom.coordinates) });
+  if (gi.destino === 'fazenda') { if (!applyGeometry({ tipo: 'fazenda' }, juntar(L.feats), fonte)) return; }
+  else if (gi.destino === 'lote') { const id = $('giLote').value; if (!id) { alert('Escolha o lote.'); return; } if (!applyGeometry({ tipo: 'lote', id }, juntar(L.feats), 'arquivo')) return; }
+  else {
+    let novos = 0, atual = 0;
+    L.feats.forEach((f, i) => {
+      let nome = f.nome || `Piquete ${i + 1}`;
+      let l = lotesF().find(x => x.nome.toLowerCase() === nome.toLowerCase());
+      if (l) { l.geo = Object.assign({ ponto: null, poligono: null, fontePoligono: null }, l.geo, { poligono: f.geom, fontePoligono: 'arquivo', areaHa: f.areaHa }); touch(l); atual++; }
+      else { S.lotes.push(stampNew({ fazendaId: S.fazendaAtiva, nome, pasto: '', areaHa: null, lotacaoMax: null, ativo: true, geo: { ponto: null, poligono: f.geom, fontePoligono: 'arquivo', areaHa: f.areaHa } })); novos++; }
+    });
+    save(); showToast(`${atual} lote(s) atualizados e ${novos} criado(s).`);
+  }
+  geoImport = null; closeModal(); renderMapa();
+}
+
+/* ---------- Minimapa (ficha do animal) ---------- */
+function miniMapa(el, loteId) {
+  const l = S.lotes.find(x => x.id === loteId), f = farm(), g = l && l.geo;
+  const foco = g && g.poligono ? allCoords(g.poligono) : g && g.ponto ? [[g.ponto.lng, g.ponto.lat]] : f && f.geo && f.geo.perimetro ? allCoords(f.geo.perimetro) : [];
+  if (!foco.length) return false;
+  const m = new GeoMap(el, { interactive: false, base: navigator.onLine ? mapBase() : 'nenhum', cls: 'mini' });
+  m.setLayers(mapLayers({ sel: loteId, mini: true }));
+  requestAnimationFrame(() => m.fit(foco, 28, g && g.poligono ? 17 : 15));
+  return true;
+}
 
 /* =========================================================================
    CADASTROS: fazenda e lotes
@@ -1285,7 +1843,7 @@ function renderCadastros() {
   let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
     const rl = lotesResumo();
-    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th>Localização</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${r.l.areaHa ? fmtN(r.l.areaHa, 1) : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td>${geoChip(r.l.geo)}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
+    h += `<div class="card"><h3>Lotes de ${esc(f.nome)}</h3>${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th class="num">Animais</th><th>Localização</th><th></th></tr></thead><tbody>${rl.map(r => `<tr><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td>${esc(r.l.pasto || '—')}</td><td class="num">${areaLote(r.l) ? fmtN(areaLote(r.l), 1) + (r.l.geo && r.l.geo.areaHa ? ' <small class="muted">mapa</small>' : '') : '—'}</td><td class="num">${r.l.lotacaoMax ? fmtN(r.l.lotacaoMax, 2) : '—'}</td><td class="num">${r.qtd}</td><td>${geoChip(r.l.geo)}</td><td><button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}</div>`;
   }
   $('cadBody').innerHTML = h;
 }

@@ -1,9 +1,21 @@
 {
-  "versao": 5,
-  "rotulo": "5 beta",
+  "versao": 6,
+  "rotulo": "6 beta",
   "data": "2026-11-21",
-  "titulo": "Atualização em um toque, de verdade",
+  "titulo": "Mapa da fazenda e dos piquetes",
   "notas": {
+    "6": {
+      "data": "2026-11-21",
+      "titulo": "Mapa da fazenda e dos piquetes",
+      "itens": [
+        "Novo Mapa da fazenda: perímetro, piquetes coloridos pela ocupação e quantos animais estão em cada um. Toque num piquete para ver o rebanho dele.",
+        "Importe o perímetro do CAR (.zip baixado da consulta pública do SICAR), contornos do Google Earth (.kml/.kmz) ou GeoJSON.",
+        "Desenhe piquetes tocando nos cantos sobre o satélite, ou percorra a cerca com o GPS do celular, que funciona sem internet.",
+        "A área do piquete passa a ser calculada pelo contorno e entra na lotação (UA/ha).",
+        "Os indicadores Animais ativos, Em carência e Sem manejo agora abrem a lista dos animais. Novo indicador de Fazendas leva ao mapa.",
+        "A ficha do animal mostra fazenda, lote, localização e um minimapa do piquete onde ele está."
+      ]
+    },
     "5": {
       "data": "2026-11-21",
       "titulo": "Atualização em um toque, de verdade",

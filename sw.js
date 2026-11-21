@@ -6,7 +6,9 @@
      de 4 s; sem sinal, usa a cópia guardada. Assim, abrir o app com internet já traz a versão nova.
    - Demais arquivos: cópia guardada primeiro (rápido e offline) e atualização em segundo plano.
    - version.json e pedidos marcados com ?fresh= nunca passam pela cópia guardada. */
-const V = 'ekoa-tapirucu-v5';
+const V = 'ekoa-tapirucu-v6';
+const TILES = 'tapirucu-mapa-v1';   // blocos do mapa já vistos (não é apagado nas atualizações)
+const TILE_HOSTS = ['tile.openstreetmap.org', 'server.arcgisonline.com'];
 const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png', './icons/ekoa-mark.png', './icons/logo-blend.png'];
 
 self.addEventListener('install', e => {
@@ -27,9 +29,23 @@ function networkFirst(req) {
   return Promise.race([net.catch(() => null), timeout.then(() => null)]).then(r => r || fallback().then(hit => hit || net));
 }
 
+/* Blocos do mapa: cópia guardada primeiro; sem sinal, a fazenda já vista continua com fundo. */
+function tile(req) {
+  return caches.open(TILES).then(c => c.match(req).then(hit => hit || fetch(req).then(r => {
+    if (r.ok || r.type === 'opaque') { c.put(req, r.clone()); trimTiles(c); }
+    return r;
+  })));
+}
+let trimming = false;
+function trimTiles(c) {   // mantém no máximo ~4.000 blocos (cerca de 60 MB)
+  if (trimming) return; trimming = true;
+  c.keys().then(ks => Promise.all(ks.length > 4000 ? ks.slice(0, ks.length - 3500).map(k => c.delete(k)) : [])).finally(() => { trimming = false; });
+}
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+  if (TILE_HOSTS.includes(url.hostname)) { e.respondWith(tile(e.request)); return; }
   if (url.origin !== location.origin) return;
   if (url.pathname.endsWith('/version.json') || url.searchParams.has('fresh')) return;   // sempre da rede
   const isPage = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');

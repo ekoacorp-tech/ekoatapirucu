@@ -24,6 +24,13 @@ Cada cenário segue **Entrada → Processamento → Resultado → Evidência**. 
 | H19 | Localização da sede | Na sede, "Usar minha localização" em modo avião | Coordenada com precisão; ponto aparece no "ver no mapa" quando houver internet | Print |
 | H20 | Ponto do pasto | Capturar na porteira; colar outro do Google Maps | Os dois aceitos; origem GPS ou Digitada; CSV de lotes com latitude e longitude | Print + CSV |
 | H21 | Localização na sincronização | Exportar e importar em outro aparelho | Mesma coordenada, precisão e origem nos dois | Prints |
+| H22 | KPIs clicáveis | Tocar em Animais ativos, Em carência e Sem manejo | Rebanho abre já filtrado | Prints |
+| H23 | Perímetro pelo CAR | Baixar o .zip da consulta pública do SICAR e importar | Camada do imóvel sugerida; área próxima da área do recibo | Print + recibo |
+| H24 | Piquetes por arquivo | Importar .kml/.geojson com vários piquetes | Lotes com o mesmo nome recebem o contorno; os demais são criados | Print |
+| H25 | Desenho no satélite | Desenhar um piquete tocando nos cantos | Área calculada; lotação do lote passa a usar a área do mapa | Print |
+| H26 | Percorrer a cerca | Rodar a cerca de um piquete com o GPS, em modo avião | Contorno salvo com origem GPS; diferença de área anotada contra o desenho | Prints |
+| H27 | Mapa offline | Abrir o mapa com internet, depois em modo avião | Contornos sempre aparecem; fundo aparece nas áreas já vistas | Prints |
+| H28 | Ficha do animal | Abrir um animal de um piquete com contorno | Fazenda, lote, localização e minimapa com o piquete destacado | Print |
 | H18 | CSV | Exportar inventário, eventos e lotes | Abre no Excel com acentos, decimais e datas corretos | Planilha |
 
 ## Critérios de saída da Fase 1

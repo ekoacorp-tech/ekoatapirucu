@@ -1,38 +1,56 @@
-# Mapa de piquetes (próxima etapa)
+# Mapa da fazenda
 
-**Situação:** especificado, não construído. Entra **depois das primeiras semanas de piloto**, quando o uso das lidas estiver comprovado. A versão 4 já coleta a localização da sede e dos pastos, e o modelo de dados já tem os campos de polígono, então nada do que for lançado no piloto precisa ser refeito.
+**Situação:** disponível desde a versão 6 beta. A rotação de pastejo (dias de ocupação e de descanso por piquete) é a etapa seguinte.
 
-## Objetivo
+## O que a tela faz
 
-Ver a fazenda dividida em piquetes, com o rebanho e os indicadores de cada um, e apoiar o **manejo do pasto**: lotação real, dias de ocupação e de descanso, piquete superlotado.
+| Recurso | Como funciona |
+|---|---|
+| Fazendas | Cartões com animais, lotes e área do perímetro. Tocar troca a fazenda ativa. |
+| Perímetro | Linha tracejada dourada. Vem do CAR, de arquivo, de desenho ou do GPS. |
+| Piquetes | Contorno colorido pela ocupação: verde até 85%, amarelo de 85 a 100%, vermelho acima de 100%, azul sem lotação máxima informada. Rótulo com animais e ocupação (aparece quando o piquete tem tamanho suficiente na tela). |
+| Pontos | Sede e lotes sem contorno aparecem como ponto. |
+| Resumo do piquete | Animais, peso médio, GMD, área, ocupação, carência e sem manejo; "Ver animais" abre o Rebanho filtrado. |
+| Fundo | Mapa (OpenStreetMap), Satélite (Esri World Imagery) ou Sem fundo. Precisa de internet; os blocos vistos ficam guardados no aparelho (até cerca de 4.000 blocos) para uso no campo. |
+| Ficha do animal | Fazenda, lote, pasto, localização e minimapa do piquete atual. |
 
-## Escopo proposto
+## Como obter o perímetro pelo CAR
 
-| # | Entrega | Detalhe |
+O número do recibo (código do imóvel, como `GO-5218805-…`) identifica o imóvel no SICAR, e o polígono declarado é público:
+
+1. Acesse a consulta pública do SICAR (https://consultapublica.car.gov.br/publico/imoveis/index), localize o imóvel pelo código e baixe o arquivo .zip com os shapefiles.
+2. No app, **Mapa da fazenda → Importar contorno**, escolha o .zip.
+3. O app mostra as camadas do arquivo (imóvel, APP, reserva legal, área consolidada…). Para o perímetro, use a camada do **imóvel** e o destino **Perímetro da fazenda**.
+
+O app não baixa o arquivo sozinho: a consulta pública exige interação no site (captcha), e a integração automática pela API do governo (Conecta gov.br, SICAR Imóvel) é restrita a órgãos públicos.
+
+## Hierarquia das medições
+
+O perímetro do CAR é **declaratório**: é o que o proprietário informou, nem sempre com precisão de campo. As medições posteriores refinam, sem apagar a origem:
+
+| Prioridade | Fonte | Uso |
 |---|---|---|
-| M1 | Importar perímetro do CAR | Arquivo baixado do SICAR (shapefile em .zip) ou KML/GeoJSON. Grava `fazenda.geo.perimetro` com `fontePoligono: "car"`. |
-| M2 | Desenhar piquetes | Desenho no mapa, ou percorrendo a cerca com o GPS ("gravar trajeto"). Grava `lote.geo.poligono`. |
-| M3 | Área calculada | `areaHa` do lote calculada a partir do polígono (cálculo geodésico), com origem registrada. A área digitada deixa de ser necessária. |
-| M4 | Mapa do rebanho | Piquetes pintados pela ocupação (verde até 85%, amarelo até 100%, vermelho acima), com animais, peso médio, GMD, carência e manejo atrasado. Toque abre a lista do piquete. |
-| M5 | Funcionamento offline | Polígonos e números sempre disponíveis. Imagem de satélite só com internet, ou baixada antes para a área da fazenda. |
+| 1 | Georreferenciamento certificado (SIGEF/INCRA) | Limite oficial da propriedade, quando existir. Importar como arquivo. |
+| 2 | CAR | Ponto de partida do perímetro e das áreas ambientais (APP, reserva legal). |
+| 3 | Percorrer a cerca com GPS | Piquetes reais, como estão no campo. Precisão de 3 a 10 m em celular comum. |
+| 4 | Desenho sobre o satélite | Rápido para começar; conferir em campo depois. |
 
-Fora desta etapa: posição individual do animal (exigiria coleira com rastreador), histórico de rotação e planejamento de pastejo (etapa seguinte, se o pastejo for rotacionado).
+Cada contorno guarda a origem (`car`, `arquivo`, `gps`, `desenho`) e a área é sempre recalculada a partir do desenho, nunca confiada ao arquivo.
 
-## Decisões a tomar antes de construir
+## Por que vale cuidar do cadastro da fazenda
 
-| # | Decisão | Opções | Recomendação inicial |
-|---|---|---|---|
-| D-M1 | Tipo de pastejo | Rotacionado (muitos piquetes, rodízio) ou contínuo | Confirmar com o gestor: no rotacionado o mapa é central; no contínuo, complementar |
-| D-M2 | Biblioteca de mapa | Leaflet (leve, código aberto) ou desenho próprio em SVG | Leaflet, guardada no cache do app para funcionar offline. Muda o princípio "sem dependências", com registro em documentação |
-| D-M3 | Imagem de fundo | OpenStreetMap, Esri World Imagery, Google | Avaliar os termos de uso de cada provedor para uso comercial e offline antes de escolher. Google exige chave e cobrança |
-| D-M4 | Arquivo do CAR | Shapefile (.zip) direto ou conversão prévia para KML/GeoJSON | Aceitar KML e GeoJSON de início; shapefile em seguida |
+- **Lotação real:** a área do piquete deixa de ser digitada e passa a vir do contorno. UA/ha e ocupação ficam corretos.
+- **Área útil:** APP e reserva legal não são pasto. Separar o que é pastejável evita superestimar a capacidade.
+- **Rotação:** com os piquetes desenhados, o próximo passo é registrar entrada e saída de cada lote, medir dias de ocupação e de descanso e alertar piquete superlotado ou descanso curto.
 
-## Pré-requisitos
+## Decisões ainda abertas
 
-- Arquivo do CAR da fazenda do piloto (recibo e perímetro).
-- Lotes do piloto com o ponto de referência capturado (versão 4).
-- Resultado das primeiras semanas do piloto (adoção das lidas).
+| # | Decisão | Situação |
+|---|---|---|
+| D-M1 | Tipo de pastejo (rotacionado ou contínuo) | Confirmar com o gestor; define a prioridade da rotação. |
+| D-M3 | Provedor de imagem | Em uso no piloto: OpenStreetMap e Esri World Imagery, com atribuição. **Antes de ampliar o uso, validar os termos de uso de cada provedor para uso comercial e guarda offline.** |
+| D-M5 | Camadas ambientais | Importar APP e reserva legal como camadas próprias (hoje podem virar lotes, o que não é o ideal). |
 
 ## Ponte para o ERP
 
-Na integração (Fase 2), a geometria vai para campos adicionais: latitude e longitude em campos numéricos e o GeoJSON em campo texto longo (CLOB) na tabela de lotes/piquetes. O Sankhya guarda; o mapa continua no app ou em dashboard HTML5.
+Na integração (Fase 2), latitude e longitude vão para campos numéricos e o contorno (GeoJSON) para campo texto longo na tabela de lotes/piquetes. O Sankhya guarda; o mapa continua no app ou em dashboard HTML5.

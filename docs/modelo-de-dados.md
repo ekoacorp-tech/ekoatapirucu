@@ -41,7 +41,8 @@ Padrão **WGS84 (EPSG:4326)**, o mesmo do GPS, do Google Maps e do CAR (após co
 geo: {
   ponto: { lat, lng, precisaoM, em, fonte: "gps" | "manual" } | null,
   perimetro (fazenda) | poligono (lote): GeoJSON Polygon/MultiPolygon | null,
-  fontePoligono: "car" | "desenho" | "gps" | null
+  fontePoligono: "car" | "arquivo" | "desenho" | "gps" | null,
+  areaHa: número | null   // calculada a partir do contorno
 }
 ```
 
@@ -52,7 +53,7 @@ geo: {
 | Fonte | Cada geometria guarda de onde veio, para rastrear dado oficial (CAR) contra desenho manual. |
 | Edição | Editar o cadastro sem mexer na coordenada preserva a origem GPS; o perímetro e o polígono existentes nunca são apagados pela tela de cadastro. |
 | Validação | Na importação, coordenada fora da faixa ou polígono malformado é descartado sem derrubar o registro. Localização fora do Brasil pede confirmação. |
-| Área | Na etapa do mapa, `areaHa` passa a ser calculada a partir do polígono, com origem registrada. |
+| Área | `geo.areaHa` é calculada pelo contorno (fórmula geodésica, descontando furos) e recalculada na importação; nunca é confiada ao arquivo. A área efetiva do lote é a do contorno, ou a informada quando não há contorno. Sem área de pastagem informada, a da fazenda é a soma dos piquetes. |
 
 ## Animal (B.6)
 

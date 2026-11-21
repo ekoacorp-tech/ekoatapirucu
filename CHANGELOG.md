@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [6 beta] · 21/11/2026 · Mapa da fazenda e dos piquetes
+- **Mapa da fazenda** (nova tela): cartões das fazendas, perímetro, piquetes coloridos pela ocupação (até 85%, 85 a 100%, acima de 100%), ponto da sede e dos pastos, rótulos com animais e ocupação. Toque no piquete abre o resumo e a lista de animais.
+- **Motor de mapa próprio, sem bibliotecas:** projeção Web Mercator, arrastar, aproximar (botões, roda do mouse, dois dedos), fundo OpenStreetMap ou satélite com internet e desenho em SVG sempre disponível. Os blocos de fundo já vistos ficam guardados para uso offline.
+- **Importar contorno:** .zip do CAR (shapefile, inclusive .zip dentro de .zip, com escolha da camada), .kml/.kmz do Google Earth e .geojson. Destinos: perímetro da fazenda, piquetes (um lote por polígono, casando pelo nome) ou contorno de um lote. Coordenadas projetadas (UTM) são recusadas com orientação.
+- **Desenhar piquete** tocando nos cantos, ou **percorrer a cerca com o GPS** (ponto a cada 3 m, só com precisão de até 30 m, offline).
+- **Área calculada** (geodésica) pelo contorno; passa a valer na lotação do lote e, sem área informada, na lotação da fazenda (soma dos piquetes).
+- **KPIs clicáveis:** Animais ativos, Em carência e Sem manejo abrem o Rebanho filtrado; novo KPI Fazendas abre o mapa.
+- **Ficha do animal:** fazenda, lote, pasto, localização e minimapa do piquete, com atalho "Ver no mapa".
+
 ## [5 beta] · 21/11/2026 · Atualização em um toque, de verdade
 - **Corrigido o ciclo de atualização:** "Atualizar agora" recarregava na versão antiga. Causas: o download da versão nova passava pelo service worker, que respondia com a cópia guardada; e a página recarregava antes de o service worker novo assumir.
 - **Service worker:** a tela principal passa a ser buscada na rede primeiro (revalidando o cache HTTP, limite de 4 s), com a cópia guardada como reserva offline.
