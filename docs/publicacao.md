@@ -1,6 +1,6 @@
 # Publicação de atualizações
 
-O app é publicado pelo **GitHub Pages** a partir da branch `main`, pasta raiz. Endereço: https://ekoacorp-tech.github.io/ekoatapirucu/
+O app é publicado pelo **GitHub Pages** a partir da branch **`gh-pages`**, pasta raiz. A `main` é a branch de trabalho; a `gh-pages` é a cópia publicada. Endereço: https://ekoacorp-tech.github.io/ekoatapirucu/
 
 ## Para publicar uma nova versão
 
@@ -11,7 +11,7 @@ O app é publicado pelo **GitHub Pages** a partir da branch `main`, pasta raiz. 
    - `version.json` → `"versao": N`, `"rotulo"`, `"data"`, `"titulo"` e a entrada `"N"` em `notas`
 3. Registre a versão no `CHANGELOG.md`.
 4. Teste localmente (`python3 -m http.server` na pasta e abra `http://localhost:8000`) e rode o roteiro de [homologação](homologacao.md) nos cenários afetados.
-5. Faça o commit e o push para `main`. O Pages publica em 1 a 2 minutos.
+5. Faça o commit e o push para `main` e publique com `git push origin main:gh-pages`. O Pages publica em 1 a 2 minutos (acompanhe em *Actions → pages build and deployment*).
 6. Os aparelhos instalados veem a barra **"Nova versão disponível"** ao abrir o app com internet e atualizam com um toque, sem perder dados.
 
 ## Regras
