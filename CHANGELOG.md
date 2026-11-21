@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [12] — 2026-11-21 — Tela inicial com todas as fazendas
+- A tela inicial passa a mostrar o consolidado de todas as fazendas: cabeças, pastagem, lotação geral, arrobas em 90 dias, carência e animais sem manejo.
+- Logo abaixo, um cartão por fazenda com cabeças, pastos, lotes, UA/ha, GMD e os alertas dela. Tocar na fazenda passa a usá-la no aparelho e abre o painel dela.
+- Últimas lidas agora reúnem todas as fazendas, com o nome da fazenda quando a lida é de outra.
+- O app passa a se chamar Ekoa Tapiruçu - Gestão do Rebanho.
+
 ## [11] — 2026-11-21 — Nome da fazenda sempre visível no mapa geral
 - No mapa com todas as fazendas, o nome e as cabeças de cada uma aparecem mesmo com o mapa afastado. Antes, fazendas pequenas na tela ficavam sem rótulo.
 

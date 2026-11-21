@@ -1,9 +1,19 @@
 {
-  "versao": 11,
-  "rotulo": "11 beta",
+  "versao": 12,
+  "rotulo": "12 beta",
   "data": "2026-11-21",
-  "titulo": "Nome da fazenda sempre visível no mapa geral",
+  "titulo": "Tela inicial com todas as fazendas",
   "notas": {
+    "12": {
+      "data": "2026-11-21",
+      "titulo": "Tela inicial com todas as fazendas",
+      "itens": [
+        "A tela inicial passa a mostrar o consolidado de todas as fazendas: cabeças, pastagem, lotação geral, arrobas em 90 dias, carência e animais sem manejo.",
+        "Logo abaixo, um cartão por fazenda com cabeças, pastos, lotes, UA/ha, GMD e os alertas dela. Tocar na fazenda passa a usá-la no aparelho e abre o painel dela.",
+        "Últimas lidas agora reúnem todas as fazendas, com o nome da fazenda quando a lida é de outra.",
+        "O app passa a se chamar Ekoa Tapiruçu - Gestão do Rebanho."
+      ]
+    },
     "11": {
       "data": "2026-11-21",
       "titulo": "Nome da fazenda sempre visível no mapa geral",
