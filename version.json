@@ -1,9 +1,21 @@
 {
-  "versao": 12,
-  "rotulo": "12 beta",
+  "versao": 13,
+  "rotulo": "13 beta",
   "data": "2026-11-21",
-  "titulo": "Tela inicial com todas as fazendas",
+  "titulo": "Modo Campo para o curral",
   "notas": {
+    "13": {
+      "data": "2026-11-21",
+      "titulo": "Modo Campo para o curral",
+      "itens": [
+        "Novo Modo Campo: ligado por aparelho, deixa o app simples para quem lança no curral. Uma pergunta por tela, botões grandes, teclado numérico próprio e confirmação clara a cada animal.",
+        "Cobre todos os apontamentos: pesar, vacina e remédio (produto, dose, carência e próxima aplicação), trocar de lote, mudar o lote de pasto, nascimento e morte, perda ou venda.",
+        "Ache o animal tocando no brinco da lista do lote ou digitando só os números. Também funciona com leitor de brinco por Bluetooth.",
+        "Proteções: peso muito diferente do último pede confirmação, animal de outro lote é avisado, e cada lançamento pode ser desfeito na hora.",
+        "A lida concluída no campo vai para o escritório como \"Do campo · conferir\": viaja na exportação, mas só altera o rebanho quando o gestor confere e finaliza.",
+        "Sair do Modo Campo exige o PIN do gestor."
+      ]
+    },
     "12": {
       "data": "2026-11-21",
       "titulo": "Tela inicial com todas as fazendas",

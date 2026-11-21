@@ -167,7 +167,9 @@ td .btn.sm{min-height:34px}
 .lida-list{display:flex;flex-direction:column;gap:8px}
 .lida-item{display:flex;align-items:center;gap:12px;background:var(--card-bg);border:1px solid var(--border-color);border-left:4px solid var(--brand-teal);border-radius:8px;padding:10px 12px;cursor:pointer;min-height:60px}
 .lida-item:hover{background:var(--row-hover)}
-.lida-item.aberta{border-left-color:var(--brand-gold)}
+.lida-item.aberta{border-left-color:var(--brand-gold)}.lida-item.conferir{border-left-color:var(--brand-orange)}
+.chip.conf{background:#fde8dc;color:#8a3b17}.alert.conf{background:#fdf0e8;border-left:4px solid var(--brand-orange);color:#7a3413}
+.dark-mode .chip.conf{background:#4a2a1a;color:#f5c3a5}.dark-mode .alert.conf{background:#3a2418;color:#f5c3a5}
 .lida-item .li-main{flex:1;min-width:0}
 .lida-item b{display:block;font-size:.95rem}
 .lida-item span{font-size:.8rem;color:var(--text-secondary)}
@@ -500,6 +502,85 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 .tema-btn:hover{background:rgba(255,255,255,.12)}
 .tema-btn,.menu-btn{white-space:nowrap;overflow:hidden}
 .mh-tema{width:44px;height:44px;border:0;background:none;color:#fff;font-size:1.25rem;cursor:pointer;border-radius:10px}
+
+/* ================= MODO CAMPO ================= */
+#campo{position:fixed;inset:0;z-index:2500;background:var(--bg-body);color:var(--text-primary);display:flex;flex-direction:column;overflow:hidden}
+body.campo-on{overflow:hidden}
+body.campo-on #toast{bottom:auto;top:calc(84px + env(safe-area-inset-top,0px));transform:translate(-50%,-10px)}body.campo-on #toast.on{transform:translate(-50%,0)}
+body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
+.cp-head{display:flex;align-items:center;gap:12px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--bg-sidebar);color:#fff;border-bottom:3px solid var(--brand-gold);flex-shrink:0;min-height:72px}
+.cp-tit{min-width:0;flex:1}.cp-tit b{font-size:1.2rem;display:block;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp-tit small{display:block;opacity:.88;font-size:.88rem;margin-top:2px}
+.cp-voltar{width:52px;height:52px;flex-shrink:0;border-radius:14px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:2.2rem;line-height:1;cursor:pointer;padding-bottom:4px}
+.cp-logo img{width:46px;height:46px;border-radius:12px;background:#FBF7F1;padding:4px;object-fit:contain;display:block}
+.cp-head-btn{border:1px solid rgba(255,255,255,.45);background:none;color:#fff;border-radius:12px;padding:6px 10px;font-weight:700;font-size:.8rem;min-height:48px;cursor:pointer;line-height:1.2}
+.cp-data{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:2px 8px;font-weight:700;font-size:.85rem;cursor:pointer;min-height:28px}
+.cp-cont{text-align:right;flex-shrink:0}.cp-cont b{display:block;font-size:1.7rem;line-height:1}.cp-cont small{font-size:.8rem;opacity:.9}
+.cp-body{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.cp-body.lancar{overflow:hidden;gap:10px}
+.cp-q{font-size:1.4rem;font-weight:800;color:var(--title-ink);line-height:1.3}
+.cp-txt{font-size:1.02rem;color:var(--text-secondary);line-height:1.45}
+.cp-sec{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-top:4px}
+.cp-opc{display:grid;gap:10px}
+.cp-grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cp-grade3{grid-template-columns:1fr 1fr 1fr}
+.cp-btn{min-height:68px;border-radius:16px;border:2px solid var(--border-color);background:var(--card-bg);font-size:1.15rem;font-weight:800;text-align:left;padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;color:var(--text-primary);width:100%;transition:transform var(--ek-dur-micro,120ms) var(--ek-ease-out,ease),background var(--ek-dur-micro,120ms)}
+.cp-btn:active{transform:scale(.98)}
+.cp-btn small{display:block;font-weight:500;font-size:.9rem;color:var(--text-secondary);margin-top:2px}
+.cp-btn svg{width:34px;height:34px;color:var(--brand-teal);flex-shrink:0}
+.cp-grade .cp-btn{flex-direction:column;align-items:flex-start;justify-content:flex-start;min-height:120px;gap:8px}
+.cp-grade3 .cp-btn,.cp-grade .cp-btn:not(:has(svg)){min-height:72px;justify-content:center;align-items:center;text-align:center}
+.cp-btn.on{border-color:var(--brand-teal);box-shadow:inset 0 0 0 2px var(--brand-teal)}
+.cp-btn.cont{border-color:var(--brand-gold);border-left-width:8px}
+.cp-btn.pri{background:var(--brand-teal);border-color:var(--brand-teal);color:#fff;justify-content:center;text-align:center}
+.cp-btn.pri small,.cp-btn.gold small{color:inherit;opacity:.85}.cp-btn.pri svg{color:#fff}
+.cp-btn.gold{background:var(--brand-gold);border-color:var(--brand-gold);color:#1f1a14}.cp-btn.gold svg{color:#1f1a14}
+.cp-btn.leve{min-height:58px;font-size:1.02rem}
+.cp-btn.perigo{border-color:#b91c1c;color:#b91c1c;justify-content:center}
+.cp-par{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cp-envio{display:grid;gap:10px;margin-top:4px}
+.cp-rodape{text-align:center;padding:10px 0 calc(6px + var(--safe-bottom))}
+.cp-link{background:none;border:none;color:var(--text-secondary);text-decoration:underline;font-size:.95rem;min-height:44px;padding:0 12px;cursor:pointer}
+.cp-input{width:100%;min-height:60px;border-radius:14px;border:2px solid var(--border-color);background:var(--card-bg);font-size:1.25rem;padding:0 14px;color:var(--text-primary)}
+.cp-input:focus{border-color:var(--brand-teal);outline:none}
+.cp-visor{min-height:62px;border-radius:14px;background:var(--card-bg);border:2px solid var(--brand-teal);font-size:2rem;font-weight:800;display:flex;align-items:center;justify-content:center;letter-spacing:.05em;flex-shrink:0;padding:0 10px;overflow:hidden}
+.cp-visor span{font-size:1rem;font-weight:500;color:var(--text-secondary);letter-spacing:0}
+.cp-visor.grande{min-height:96px;font-size:3rem}
+.cp-visor-in{width:100%;height:56px;border:none;background:none;font-size:1.8rem;font-weight:800;text-align:center;color:var(--text-primary);outline:none;text-transform:uppercase}
+.cp-faixa{background:var(--row-zebra);border-radius:12px;padding:8px 12px;font-size:.95rem;flex-shrink:0}
+.cp-lista{flex:1;min-height:70px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px;align-content:start;padding:2px}
+.cp-ani{min-height:58px;border-radius:12px;border:2px solid var(--border-color);background:var(--card-bg);font-size:1.15rem;font-weight:800;cursor:pointer;color:var(--text-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;padding:4px}
+.cp-ani i{font-style:normal;font-size:.68rem;font-weight:700;color:var(--brand-orange)}
+.cp-ani.ok{background:var(--ok-bg);border-color:#16a34a;color:var(--ok-txt)}
+.cp-ani.car{border-color:var(--brand-orange)}
+.cp-todos{flex-shrink:0;min-height:50px}
+.cp-ok{color:var(--ok-txt);font-weight:800;font-size:1.1rem;grid-column:1/-1;padding:8px}
+.cp-tec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
+.cp-tec button{min-height:58px;border-radius:14px;border:1px solid var(--border-color);background:var(--card-bg);font-size:1.7rem;font-weight:700;cursor:pointer;color:var(--text-primary)}
+.cp-tec button:active{background:var(--row-hover)}
+.cp-tec button.abc{font-size:1rem;color:var(--brand-teal)}
+.cp-tec button.ok{grid-column:1/-1;background:var(--brand-teal);color:#fff;border-color:var(--brand-teal);font-size:1.3rem;min-height:56px}
+.cp-pe{flex-shrink:0;display:flex;gap:10px;padding:10px 14px calc(10px + var(--safe-bottom));background:var(--bg-surface);border-top:1px solid var(--border-color)}
+.cp-pe .cp-btn{flex:1;min-height:60px;justify-content:center;text-align:center}
+.cp-ult{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:12px;background:var(--ok-bg);color:var(--ok-txt);font-weight:800;font-size:1.02rem;flex-shrink:0}
+.cp-ult button{margin-left:auto;min-height:44px;border-radius:10px;border:1px solid currentColor;background:none;color:inherit;font-weight:700;padding:0 12px;cursor:pointer}
+.cp-ult.flash{animation:cpFlash var(--ek-dur-panel,280ms) var(--ek-ease-out,ease)}
+@keyframes cpFlash{from{opacity:.3;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.cp-aviso{padding:12px 14px;border-radius:12px;background:var(--bad-bg);color:var(--bad-txt);font-weight:700;font-size:1.02rem;flex-shrink:0}
+.cp-info{padding:12px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn-txt);font-size:1rem}
+.cp-resumo{background:var(--card-bg);border:2px solid var(--border-color);border-radius:16px;padding:16px}.cp-resumo b{display:block;font-size:1.3rem}.cp-resumo span{color:var(--text-secondary)}
+.cp-linha{display:flex;align-items:center;gap:12px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;padding:8px 8px 8px 14px;min-height:60px}
+.cp-linha b{font-size:1.15rem;min-width:70px}.cp-linha span{flex:1;color:var(--text-secondary)}
+.cp-linha button{min-height:46px;min-width:70px;border-radius:10px;border:1px solid #b91c1c;color:#b91c1c;background:none;font-weight:700;cursor:pointer}
+.cp-centro{align-items:stretch;justify-content:center;text-align:center}
+.cp-check{width:110px;height:110px;margin:0 auto;border-radius:50%;background:var(--ok-bg);color:var(--ok-txt);font-size:4rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.cp-pin{display:flex;gap:18px;justify-content:center;margin:18px 0}.cp-pin span{width:22px;height:22px;border-radius:50%;border:3px solid var(--brand-teal)}.cp-pin span.on{background:var(--brand-teal)}
+.cp-espaco{flex:1}
+.cp-det summary{font-size:1.02rem;font-weight:700;color:var(--brand-teal);min-height:44px;display:flex;align-items:center;cursor:pointer}
+.cp-det .cp-input{margin:6px 0}
+.home-card.campo .hc-ico{background:var(--brand-orange)}
+@media (min-width:700px){#campo .cp-body,#campo .cp-pe{width:100%;max-width:560px;margin:0 auto}#campo .cp-pe{border-radius:16px 16px 0 0}}
+@media (prefers-reduced-motion:reduce){.cp-ult.flash{animation:none}.cp-btn{transition:none}}
+@media print{#campo{display:none!important}}
 </style>
 </head>
 <body data-view="home">
@@ -521,6 +602,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 <symbol id="i-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/></g></symbol>
 <symbol id="i-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m-5 5 5-5 5 5M4 4h16"/></g></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+<symbol id="i-campo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 7h6M9 11h6M9 15h2M14 18h1"/></g></symbol>
 <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></g></symbol>
 </svg>
 
@@ -549,6 +631,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Painel</span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
+      <button onclick="ativarCampo()"><svg><use href="#i-campo"/></svg><span class="s-lbl">Modo Campo</span></button>
     </nav>
   </div>
   <div>
@@ -583,6 +666,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <button class="home-card" onclick="goView('rebanho')"><span class="hc-ico"><svg><use href="#i-rebanho"/></svg></span><span class="hc-t">Rebanho</span><span class="hc-d" id="tRebanho">Animais e lotes</span></button>
       <button class="home-card" onclick="goView('painel')"><span class="hc-ico"><svg><use href="#i-painel"/></svg></span><span class="hc-t">Painel</span><span class="hc-d">Peso, GMD, lotação e alertas</span></button>
       <button class="home-card hide-m" onclick="goView('sync')"><span class="hc-ico"><svg><use href="#i-sync"/></svg></span><span class="hc-t">Sincronizar</span><span class="hc-d" id="tSync">Exportar e importar dados</span></button>
+      <button class="home-card campo" onclick="ativarCampo()"><span class="hc-ico"><svg><use href="#i-campo"/></svg></span><span class="hc-t">Modo Campo</span><span class="hc-d">Tela simples para quem lança no curral</span></button>
     </div>
     <div class="card" id="homeTodas"></div>
     <div class="card"><h3>Últimas lidas <span class="sub">de todas as fazendas</span></h3><div id="homeLidas" style="margin-top:10px"></div></div>
@@ -595,7 +679,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <div class="actions"><button class="btn primary" onclick="newLida()"><svg><use href="#i-lida"/></svg>Nova lida</button></div>
     </div>
     <div class="toolbar">
-      <select id="lfStatus" onchange="renderLidas()" aria-label="Situação"><option value="">Todas</option><option value="aberta">Em aberto</option><option value="finalizada">Finalizadas</option><option value="pend">Não exportadas</option></select>
+      <select id="lfStatus" onchange="renderLidas()" aria-label="Situação"><option value="">Todas</option><option value="conferir">Do campo, para conferir</option><option value="aberta">Em aberto</option><option value="finalizada">Finalizadas</option><option value="pend">Não exportadas</option></select>
       <select id="lfTipo" onchange="renderLidas()" aria-label="Tipo"><option value="">Todos os tipos</option></select>
     </div>
     <div id="lidasList"></div>
@@ -661,6 +745,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, pastos e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
+      <button onclick="ativarCampo()"><svg><use href="#i-campo"/></svg><div>Modo Campo<small>Tela simples para lançar no curral, com PIN para sair</small></div></button>
       <button onclick="openAjuda(null)"><svg><use href="#i-info"/></svg><div>Ekoa Ajuda<small>Passo a passo, regras e dúvidas de cada tela</small></div></button>
       <button onclick="ciclaTema()"><svg><use href="#i-info"/></svg><div>Tema: <span class="tema-nome"></span><small>Claro, escuro ou automático (segue o celular)</small></div></button>
       <button onclick="openAbout()"><svg><use href="#i-info"/></svg><div>Sobre e versão<small>Novidades, atualização e instalação</small></div></button>
@@ -675,6 +760,8 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg>Sincronizar<span class="dot" id="bPend" hidden></span></button>
   <button data-nav="mais" onclick="goView('mais')"><svg><use href="#i-mais"/></svg>Mais</button>
 </nav>
+
+<div id="campo" hidden role="region" aria-label="Modo Campo"></div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="modal-box" id="modalBox">
@@ -694,7 +781,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -996,17 +1083,17 @@ function goView(v, semHistorico) {
   poeAjuda();
   window.scrollTo({ top: 0 });
 }
-function refreshAll() { renderFarmSel(); updateCounts(); goView(currentView); }
+function refreshAll() { renderFarmSel(); updateCounts(); goView(currentView); if (cpLigado()) renderCampo(); }
 function renderFarmSel() {
   const sel = $('farmSel');
   sel.innerHTML = S.fazendas.length ? S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('') : '<option>Nenhuma fazenda</option>';
   $('mFarm').textContent = farm() ? farm().nome : 'Cadastre a fazenda';
 }
 function pendentesCount() {
-  return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status === 'finalizada' && isPend(l)).length;
+  return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status !== 'aberta' && isPend(l)).length;
 }
 function updateCounts() {
-  const ab = lidasF().filter(l => l.status === 'aberta').length, pd = pendentesCount();
+  const ab = lidasF().filter(l => l.status === 'aberta' || l.status === 'conferir').length, pd = pendentesCount();
   [['cAbertas', ab], ['bAbertas', ab], ['cPend', pd], ['bPend', pd]].forEach(([id, n]) => { const e = $(id); if (e) { e.hidden = !n; e.textContent = n; } });
   const ca = $('cAbertas'); if (ca) ca.classList.add('alert');
 }
@@ -1048,6 +1135,8 @@ function renderHome() {
   let h = '';
   if (!pastosAtivosF().length) h += `<div class="alert warn"><span>${esc(f.nome)}: cadastre ao menos um pasto, o lugar onde os lotes ficam.</span><button class="btn sm" onclick="openPasto()">Novo pasto</button></div>`;
   else if (!animaisF().length) h += `<div class="alert warn"><span>${esc(f.nome)}: nenhum animal cadastrado. Faça a carga inicial do rebanho.</span><button class="btn sm" onclick="goView('rebanho');openAddAnimals()">Adicionar animais</button></div>`;
+  const cf = S.lidas.filter(l => l.status === 'conferir');
+  if (cf.length) h += `<div class="alert conf"><span><b>${cf.length} lida(s) vindas do Modo Campo</b> aguardam conferência. Elas só valem no rebanho depois que você conferir e finalizar.</span><button class="btn sm" onclick="$('lfStatus').value='conferir';goView('lidas')">Conferir</button></div>`;
   if (ab.length) h += `<div class="alert warn"><span>${ab.length} lida(s) em aberto. Elas só valem depois de finalizadas.</span><button class="btn sm" onclick="$('lfStatus').value='aberta';goView('lidas')">Ver</button></div>`;
   if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
   al.innerHTML = h;
@@ -1059,7 +1148,7 @@ function renderHome() {
     const pastos = S.pastos.filter(p => p.fazendaId === x.id && p.ativo !== false);
     return { f: x, cab: at.length, ps, gmd: gm.length ? avg(gm.map(s => s.gmd)) : null, peso, ar, uaha: ar && ps.length ? peso / UA_KG / ar : null,
       pastos: pastos.length, lotes: S.lotes.filter(l => l.fazendaId === x.id && l.ativo !== false).length,
-      carencia: at.filter(s => s.emCarencia).length, atraso: at.filter(s => s.atrasado).length, abertas: S.lidas.filter(l => l.fazendaId === x.id && l.status === 'aberta').length };
+      carencia: at.filter(s => s.emCarencia).length, atraso: at.filter(s => s.atrasado).length, abertas: S.lidas.filter(l => l.fazendaId === x.id && l.status === 'aberta').length, conferir: S.lidas.filter(l => l.fazendaId === x.id && l.status === 'conferir').length };
   });
   const tot = linhas.reduce((t, o) => ({ cab: t.cab + o.cab, ar: t.ar + (o.ar || 0), peso: t.peso + o.peso, comPeso: t.comPeso + o.ps.length,
     carencia: t.carencia + o.carencia, atraso: t.atraso + o.atraso, pastos: t.pastos + o.pastos }), { cab: 0, ar: 0, peso: 0, comPeso: 0, carencia: 0, atraso: 0, pastos: 0 });
@@ -1080,7 +1169,7 @@ function renderHome() {
         <b>${esc(o.f.nome)}</b><span>${esc(o.f.municipio || '—')}</span>
         <span class="fc-linha"><span><i>${o.cab}</i> cab.</span><span><i>${o.pastos}</i> pasto(s)</span><span><i>${o.lotes}</i> lote(s)</span></span>
         <span class="fc-linha"><span>${o.uaha != null ? '<i>' + fmtN(o.uaha, 2) + '</i> UA/ha' : 'sem área'}</span><span>${o.gmd != null ? '<i>' + fmtN(o.gmd, 3) + '</i> kg/dia' : 'sem GMD'}</span></span>
-        <span class="fc-chips">${o.f.id === S.fazendaAtiva ? '<span class="chip ok">Em uso</span>' : ''}${o.carencia ? `<span class="chip warn">🔒 ${o.carencia} em carência</span>` : ''}${o.atraso ? `<span class="chip bad">⚠ ${o.atraso} sem manejo</span>` : ''}${o.abertas ? `<span class="chip info">${o.abertas} lida(s) em aberto</span>` : ''}</span>
+        <span class="fc-chips">${o.f.id === S.fazendaAtiva ? '<span class="chip ok">Em uso</span>' : ''}${o.carencia ? `<span class="chip warn">🔒 ${o.carencia} em carência</span>` : ''}${o.atraso ? `<span class="chip bad">⚠ ${o.atraso} sem manejo</span>` : ''}${o.conferir ? `<span class="chip conf">${o.conferir} do campo p/ conferir</span>` : ''}${o.abertas ? `<span class="chip info">${o.abertas} lida(s) em aberto</span>` : ''}</span>
       </button>`).join('')}
       <button type="button" class="farm-card add" onclick="openFarm()"><b>+ Nova fazenda</b><span>Cadastrar outra propriedade</span></button>
     </div>
@@ -1111,7 +1200,8 @@ const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
    LIDAS
    ========================================================================= */
 function lidaStatusChip(l) {
-  if (l.status === 'aberta') return '<span class="chip warn">Em aberto</span>';
+  if (l.status === 'aberta') return l.campo ? '<span class="chip warn">No campo · em lançamento</span>' : '<span class="chip warn">Em aberto</span>';
+  if (l.status === 'conferir') return '<span class="chip conf">Do campo · conferir</span>';
   return isPend(l) ? '<span class="chip info">Finalizada · não exportada</span>' : '<span class="chip ok">Finalizada · exportada</span>';
 }
 function lidaResumo(l) {
@@ -1124,7 +1214,7 @@ function lidaResumo(l) {
   return `${n} animal(is)` + (ps.length ? ` · média ${fmtN(avg(ps.map(r => r.peso)), 1)} kg` : '');
 }
 function lidaItem(l) {
-  return `<div class="lida-item ${l.status === 'aberta' ? 'aberta' : ''}" role="button" tabindex="0" onclick="openLida('${l.id}')" onkeydown="if(event.key==='Enter')openLida('${l.id}')">
+  return `<div class="lida-item ${l.status === 'aberta' ? 'aberta' : l.status === 'conferir' ? 'conferir' : ''}" role="button" tabindex="0" onclick="openLida('${l.id}')" onkeydown="if(event.key==='Enter')openLida('${l.id}')">
     <svg width="26" height="26" style="color:var(--brand-teal);flex-shrink:0"><use href="#${TIPOS[l.tipo].icon}"/></svg>
     <div class="li-main"><b>${esc(TIPOS[l.tipo].nome)} · ${fmtD(l.data)}${l.loteId ? ' · ' + esc(loteNome(l.loteId)) : ''}</b>${S.fazendas.length > 1 && l.fazendaId !== S.fazendaAtiva ? `<span class="chip gray" style="margin-left:6px">${esc((S.fazendas.find(x => x.id === l.fazendaId) || {}).nome || '')}</span>` : ''}<span>${esc(lidaResumo(l))}${l.versao > 1 ? ' · v' + l.versao : ''}</span></div>
     ${lidaStatusChip(l)}</div>`;
@@ -1133,7 +1223,8 @@ function renderLidas() {
   const tsel = $('lfTipo'); if (tsel.options.length < 2) tsel.innerHTML += Object.entries(TIPOS).map(([k, v]) => `<option value="${k}">${v.nome}</option>`).join('');
   const fs = $('lfStatus').value, ft = tsel.value;
   let ls = lidasF().filter(l => (!ft || l.tipo === ft) && (!fs || (fs === 'pend' ? (l.status === 'finalizada' && isPend(l)) : l.status === fs)));
-  ls.sort((a, b) => (a.status === 'aberta' ? 0 : 1) - (b.status === 'aberta' ? 0 : 1) || b.data.localeCompare(a.data) || (b.editadoEm || '').localeCompare(a.editadoEm || ''));
+  const ord = x => x.status === 'conferir' ? 0 : x.status === 'aberta' ? 1 : 2;
+  ls.sort((a, b) => ord(a) - ord(b) || b.data.localeCompare(a.data) || (b.editadoEm || '').localeCompare(a.editadoEm || ''));
   $('lidasList').innerHTML = ls.length ? `<div class="lida-list">${ls.map(lidaItem).join('')}</div>` : '<div class="card empty"><svg><use href="#i-lida"/></svg>Nenhuma lida com esse filtro.</div>';
 }
 function newLida() {
@@ -1215,7 +1306,8 @@ function renderLidaEditor() {
         ${ro ? `<button class="btn" onclick="reopenLida()">Reabrir para corrigir</button>` : `<button class="btn primary" onclick="finalizeLida()" ${regs.length ? '' : 'disabled'}>Finalizar lida</button>`}
         <button class="btn danger" onclick="deleteLida()"><svg><use href="#i-trash"/></svg>Excluir</button>
       </div></div>
-    ${ro ? '<div class="alert ok"><span>Lida finalizada: já está refletida no rebanho. Para corrigir, reabra; ela volta a valer quando for finalizada de novo (nova versão).</span></div>' : '<div class="alert info"><span>A lida é salva a cada registro. Enquanto estiver em aberto, não altera o rebanho e não entra na exportação.</span></div>'}
+    ${l.status === 'conferir' ? `<div class="alert conf"><span><b>Lançada no Modo Campo</b>${l.origem && l.origem.nome ? ' por ' + esc(l.origem.nome) : ''}${l.enviadaEm ? ' em ' + fmtDT(l.enviadaEm) : ''}. Confira o lote, os dados do manejo e cada animal; corrija se preciso e finalize para valer no rebanho.</span></div>` : ''}
+    ${ro ? '<div class="alert ok"><span>Lida finalizada: já está refletida no rebanho. Para corrigir, reabra; ela volta a valer quando for finalizada de novo (nova versão).</span></div>' : l.status === 'conferir' ? '' : '<div class="alert info"><span>A lida é salva a cada registro. Enquanto estiver em aberto, não altera o rebanho e não entra na exportação.</span></div>'}
     ${(() => {
       const dados = `<div class="card"><h3>Dados do manejo</h3><div class="grid">${head}</div></div>`;
       const anim = `<div class="card"><h3>Animais <span class="sub">${regs.length} registro(s)</span></h3>${entry}
@@ -1247,7 +1339,7 @@ function renderLidaEditor() {
   }
 }
 function setCab(path, val) {
-  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  const l = curLida(); if (!l || l.status === 'finalizada') return;
   if (path === 'data' && val > hoje()) { alert('A data do manejo não pode ser futura.'); renderLidaEditor(); return; }
   if (path.startsWith('cab.')) l.cab[path.slice(4)] = str(val, 80); else l[path] = path === 'obs' ? str(val, 500) : val;
   l.editadoEm = nowISO(); save();
@@ -1262,7 +1354,7 @@ function findAnimalByBrinco(b) {
   return null;
 }
 function addRegistro() {
-  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  const l = curLida(); if (!l || l.status === 'finalizada') return;
   const st = compute();
   if (l.tipo === 'nascimento') {
     const mb = normBrinco($('eMae').value); fieldErr('eMae', ''); fieldErr('ePeso', ''); fieldErr('eBez', '');
@@ -1311,7 +1403,7 @@ function brincoEmUso(b) { return animaisF().some(a => a.brinco === b); }
 const regs0 = l => (l.registros || []).length > 0;
 /* Cascata: a lida pertence a uma fazenda; trocar só sem animais lançados */
 function setLidaFazenda(fid) {
-  const l = curLida(); if (!l || l.status !== 'aberta' || regs0(l)) return;
+  const l = curLida(); if (!l || l.status === 'finalizada' || regs0(l)) return;
   l.fazendaId = fid; l.loteId = ''; l.cab.loteDestinoId = ''; l.editadoEm = nowISO();
   S.fazendaAtiva = fid; save(); renderFarmSel(); renderLidaEditor();
 }
@@ -1376,9 +1468,9 @@ function addTodosLote() {
   Object.values(st).filter(s => s.ativo && s.lote === l.loteId && !l.registros.some(r => r.animalId === s.a.id)).forEach(s => { l.registros.push({ id: uuid(), animalId: s.a.id, brinco: s.a.brinco }); n++; });
   l.editadoEm = nowISO(); save(); renderLidaEditor(); showToast(n ? `${n} animal(is) do lote adicionados.` : 'Todos os animais do lote já estão na lida.');
 }
-function rmRegistro(rid) { const l = curLida(); if (!l || l.status !== 'aberta') return; l.registros = l.registros.filter(r => r.id !== rid); l.editadoEm = nowISO(); save(); renderLidaEditor(); }
+function rmRegistro(rid) { const l = curLida(); if (!l || l.status === 'finalizada') return; l.registros = l.registros.filter(r => r.id !== rid); l.editadoEm = nowISO(); save(); renderLidaEditor(); }
 function finalizeLida() {
-  const l = curLida(); if (!l || l.status !== 'aberta') return;
+  const l = curLida(); if (!l || l.status === 'finalizada') return;
   const c = l.cab, errs = [];
   if (!validDate(l.data)) errs.push('Data do manejo inválida.');
   if (l.data > hoje()) errs.push('A data do manejo não pode ser futura.');
@@ -2594,6 +2686,12 @@ const AJUDA = {
     r: ['Tudo fica salvo no aparelho, mesmo sem internet.', 'Os números consideram só lidas finalizadas.'],
     d: [['Por que um animal não aparece nos números?', 'Ele só conta depois de cadastrado e, para peso e GMD, depois de lidas de pesagem finalizadas.'], ['O que é "Sem manejo +30 dias"?', 'Animais sem pesagem nem sanitário há mais de 30 dias (regra R19).']],
     b: ['H01', 'H22'] },
+  campo: { t: 'Modo Campo', g: 'Campo',
+    s: 'Tela simples para quem lança no curral: uma pergunta por vez, botões grandes e teclado próprio. Liga por aparelho.',
+    p: ['No celular do curral: Mais → Modo Campo (no computador: menu Modo Campo). Defina o PIN do gestor.', 'Escolha o que vai fazer: pesar, vacina e remédio, trocar de lote, mudar de pasto, nascimento ou morte/perda/venda.', 'Responda as perguntas (lote, produto, carência…) e lance cada animal: toque no brinco ou digite os números e toque OK.', 'Ao terminar, toque em Concluir e depois em Enviar para o escritório.', 'No escritório: importe o arquivo, abra Lidas → "Do campo, para conferir", confira e finalize.'],
+    r: ['A lida concluída no campo vai como "conferir": viaja na exportação, mas só altera o rebanho quando o gestor finaliza.', 'Mudar o lote de pasto vale na hora, como no app completo.', 'Peso muito diferente do último pede confirmação; animal de outro lote é avisado.', 'Sair do Modo Campo exige o PIN. Se esquecer, digite o nome do aparelho.', 'Funciona com leitor de brinco por Bluetooth: ele digita o número e o Enter.'],
+    d: [['O peão pode errar e estragar o rebanho?', 'Não. Nada do que é lançado no campo muda o rebanho antes da conferência do gestor, que pode corrigir ou remover cada animal.'], ['E o brinco do bezerro?', 'Se ele já tem brinco, digite. Se não, o app cria: brinco da mãe + mês e ano.']],
+    b: ['H40', 'H41', 'H42', 'H43', 'H44'] },
   lidas: { t: 'Lidas', g: 'Campo',
     s: 'Lista de todos os manejos: em aberto, finalizados e ainda não exportados.',
     p: ['Use os filtros de situação e tipo.', 'Toque numa lida para abrir, continuar ou corrigir.', 'Para um manejo novo, toque em Nova lida e escolha o tipo.'],
@@ -2958,7 +3056,8 @@ function exportPastosCSV() {
    SINCRONIZAÇÃO ENTRE APARELHOS (arquivo JSON, sem servidor)
    Mesmo desenho do Ekoa Saber: integridade SHA-256, mesclagem por versão,
    registro de exclusão, prévia, cópia de segurança e "desfazer".
-   Só lidas FINALIZADAS viajam (R16). Rascunhos ficam no aparelho.
+   Viajam as lidas FINALIZADAS (R16) e as CONCLUÍDAS no Modo Campo (status conferir,
+   que não alteram o rebanho até o gestor finalizar). Rascunhos ficam no aparelho.
    ========================================================================= */
 async function sha256(txt) {
   if (!(crypto && crypto.subtle)) return null;
@@ -2981,9 +3080,9 @@ async function exportSync() {
   if (!syncMeta.device) { openDeviceModal(exportSync); return; }
   if (!S.fazendas.length) { alert('Ainda não há dados para exportar.'); return; }
   const abertas = S.lidas.filter(l => l.status === 'aberta');
-  if (abertas.length && !confirm(`${abertas.length} lida(s) em aberto NÃO entram na exportação (só lidas finalizadas viajam). Exportar mesmo assim?`)) return;
+  if (abertas.length && !confirm(`${abertas.length} lida(s) ainda em lançamento NÃO entram na exportação (viajam as finalizadas e as concluídas no Modo Campo). Exportar mesmo assim?`)) return;
   const agora = nowISO();
-  const lidas = S.lidas.filter(l => l.status === 'finalizada');
+  const lidas = S.lidas.filter(l => l.status === 'finalizada' || l.status === 'conferir');
   const pkg = {
     app: APP_ID, formato: SYNC_FORMAT, versaoApp: APP_VERSION, exportadoEm: agora, exportadoEmLocal: fmtDT(agora) + ' (' + offsetTxt(agora) + ')', fusoHorario: FUSO, exportId: uuid(), dispositivo: deviceRef(),
     resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
@@ -3015,7 +3114,7 @@ async function exportSync() {
   }
   save();
   syncMeta.exports.unshift({ em: agora, arquivo: name, dispositivo: syncMeta.device.nome, ...pkg.resumo }); syncMeta.exports = syncMeta.exports.slice(0, 3);
-  saveSyncMeta(); renderSync(); showToast(via === 'download' ? `Arquivo ${name} salvo em Downloads: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).` : `Exportação pronta: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).`);
+  saveSyncMeta(); renderSync(); if (cpLigado()) renderCampo(); showToast(via === 'download' ? `Arquivo ${name} salvo em Downloads: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).` : `Exportação pronta: ${pkg.resumo.lidas} lida(s), ${pkg.resumo.animais} animal(is).`);
 }
 function wrongFileHint(name, text) {
   const n = String(name || '').toLowerCase();
@@ -3043,11 +3142,11 @@ const SAN = {
     return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pastoId: okId(r.pastoId) ? String(r.pastoId) : null, ocupacoes: oc, ativo: r.ativo !== false }); },
   animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
     return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
-  lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || r.status !== 'finalizada') return null;
+  lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
     const c = r.cab || {};
     const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null };
     const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined) } : null).filter(Boolean);
-    return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm) }); }
+    return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: r.status === 'conferir' ? 'conferir' : 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm), campo: r.campo === true ? true : undefined, enviadaEm: okIso(r.enviadaEm) || undefined }); }
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; return JSON.stringify(c); };
 const stampOf = o => o.editadoEm || o.criadoEm || '';
@@ -3177,10 +3276,11 @@ function renderSync() {
   $('syncBody').innerHTML = `
     <div class="card"><h3>Este aparelho</h3>
       <p>${syncMeta.device ? `<b>${esc(syncMeta.device.nome)}</b> <span class="muted">· ID ${esc(syncMeta.device.id.slice(0, 8))}</span>` : '<span class="muted">Sem nome definido.</span>'} <button class="btn sm" onclick="openDeviceModal()">${syncMeta.device ? 'Renomear' : 'Definir nome'}</button></p>
+      <p style="margin-top:8px"><button class="btn teal sm" onclick="ativarCampo()"><svg><use href="#i-campo"/></svg>Ligar Modo Campo neste aparelho</button></p>
       <p class="hint">Cada celular e computador tem o seu próprio nome e ID. Para levar dados de um para o outro: <b>exporte no aparelho de origem</b> e <b>importe no de destino</b>.</p></div>
     <div class="card"><h3>Exportar (enviar)</h3>
       ${pd ? `<div class="alert info"><span>${pd} registro(s) novos ou alterados ainda não exportados.</span></div>` : '<div class="alert ok"><span>✓ Tudo o que foi finalizado já foi exportado.</span></div>'}
-      ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}
+      ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}${S.lidas.some(l => l.status === 'conferir') ? `<div class="alert conf"><span>${S.lidas.filter(l => l.status === 'conferir').length} lida(s) do Modo Campo aguardando conferência viajam no arquivo, mas não alteram o rebanho até serem finalizadas.</span></div>` : ''}
       <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>Exportar dados</button>
       <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} Envie por WhatsApp, e-mail ou Drive para quem consolida. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
     <div class="card"><h3>Importar (receber)</h3>
@@ -3298,6 +3398,529 @@ async function showWhatsNew() {
 }
 
 
+/* =========================================================================
+   MODO CAMPO — interface simples para o curral, ligada por aparelho.
+   Mesmos dados e mesmo motor de lidas. Muda só a tela: uma pergunta por vez,
+   botões grandes e teclado numérico próprio. A lida concluída no campo fica
+   com status "conferir": viaja na exportação, mas só altera o rebanho quando
+   o gestor confere e finaliza no escritório. Sair do modo exige o PIN.
+   ========================================================================= */
+const CP_KEY = 'tapirucu-campo', CP_PIN = 'tapirucu-campo-pin';
+const cpLigado = () => { try { return localStorage.getItem(CP_KEY) === '1'; } catch (e) { return false; } };
+const cpPinHash = () => { try { return localStorage.getItem(CP_PIN) || ''; } catch (e) { return ''; } };
+let CP = { tela: 'inicio' };
+const CP_ACOES = {
+  pesagem:    { t: 'Pesar',                 d: 'Peso de cada animal na balança',   i: 'i-peso' },
+  sanitario:  { t: 'Vacina e remédio',      d: 'Vacina, vermífugo, medicamento',   i: 'i-san' },
+  troca:      { t: 'Trocar de lote',        d: 'Passar animais para outro lote',   i: 'i-troca' },
+  pasto:      { t: 'Mudar de pasto',        d: 'Levar o lote para outro pasto',    i: 'i-mapa' },
+  nascimento: { t: 'Nascimento',            d: 'Bezerro que nasceu',               i: 'i-nasc' },
+  baixa:      { t: 'Morte, perda ou venda', d: 'Animal que saiu do rebanho',       i: 'i-baixa' }
+};
+const CP_PASSOS = { pesagem: ['lote', 'motivo'], sanitario: ['lote', 'proc', 'produto', 'dose', 'carencia', 'proxima'], troca: ['lote', 'destino'], baixa: ['loteOpc', 'motivoB'], nascimento: ['loteOpc'] };
+const CP_CAUSAS = { morte: ['Doença', 'Picada de cobra', 'Raio', 'Acidente', 'Parto', 'Desconhecida'], perda: ['Desaparecido', 'Roubo', 'Outro'], venda: [] };
+const vibra = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+const cpLida = () => S.lidas.find(l => l.id === CP.lidaId);
+const cpIr = (tela, extra) => { CP = Object.assign({}, CP, { tela, aviso: '' }, extra || {}); renderCampo(); };
+const cpEsc = s => esc(s).replace(/`/g, '&#96;');
+const cpJs = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+/* ---------- ligar e desligar ---------- */
+function ativarCampo() {
+  if (!syncMeta.device) { openDeviceModal(ativarCampo); return; }
+  openModal('Ligar o Modo Campo neste aparelho', `
+    <p style="margin-bottom:10px">O Modo Campo deixa o app simples para quem lança no curral: <b>uma pergunta por tela, botões grandes e teclado próprio</b>. Menu, painel e mapa ficam escondidos.</p>
+    <ul class="aj-ul" style="margin-bottom:12px"><li>Vale só para <b>${esc(syncMeta.device.nome)}</b>. Os outros aparelhos não mudam.</li><li>A lida concluída no campo vai para o escritório como <b>"conferir"</b>: só altera o rebanho depois que o gestor confere e finaliza.</li><li>Para sair do Modo Campo é preciso o PIN do gestor.</li></ul>
+    <div class="grid">${fld('cpPin1', 'PIN do gestor (4 números)', `<input id="cpPin1" type="password" inputmode="numeric" maxlength="4" autocomplete="off" pattern="[0-9]*">`, true)}
+    ${fld('cpPin2', 'Repita o PIN', `<input id="cpPin2" type="password" inputmode="numeric" maxlength="4" autocomplete="off" pattern="[0-9]*">`, true, 'Anote o PIN. Se esquecer, dá para sair digitando o nome deste aparelho.')}</div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="cpLiga">Ligar Modo Campo</button>`);
+  $('cpLiga').onclick = async () => {
+    const a = $('cpPin1').value.trim(), b = $('cpPin2').value.trim(); fieldErr('cpPin1', ''); fieldErr('cpPin2', '');
+    if (!/^\d{4}$/.test(a)) { fieldErr('cpPin1', 'Use exatamente 4 números.'); return; }
+    if (a !== b) { fieldErr('cpPin2', 'Os dois PINs não conferem.'); return; }
+    const h = await sha256('tapirucu-campo:' + a);
+    try { localStorage.setItem(CP_PIN, h || a); localStorage.setItem(CP_KEY, '1'); } catch (e) { alert('Este navegador não permitiu guardar a configuração.'); return; }
+    closeModal(); entraCampo(); showToast('Modo Campo ligado neste aparelho.');
+  };
+}
+function entraCampo() {
+  document.body.classList.add('campo-on');
+  document.querySelectorAll('.sidebar,.main,.mobile-header,.bottom-nav').forEach(e => e.setAttribute('inert', ''));
+  $('campo').hidden = false; CP = { tela: 'inicio' }; renderCampo();
+}
+function saiCampo() {
+  try { localStorage.removeItem(CP_KEY); } catch (e) {}
+  document.body.classList.remove('campo-on');
+  document.querySelectorAll('[inert]').forEach(e => e.removeAttribute('inert'));
+  $('campo').hidden = true; $('campo').innerHTML = ''; refreshAll(); showToast('Modo Campo desligado. App completo.');
+}
+
+/* ---------- peças de tela ---------- */
+function cpHead(titulo, sub, voltar, dir) {
+  return `<header class="cp-head">${voltar ? `<button type="button" class="cp-voltar" onclick="${voltar}" aria-label="Voltar">‹</button>` : '<span class="cp-logo"><img src="assets/tapirucu-logo.png" alt=""></span>'}
+    <div class="cp-tit"><b>${esc(titulo)}</b>${sub ? `<small>${sub}</small>` : ''}</div>${dir || ''}</header>`;
+}
+const cpBtn = (txt, desc, on, cls, icon) => `<button type="button" class="cp-btn ${cls || ''}" onclick="${on}">${icon ? `<svg aria-hidden="true"><use href="#${icon}"/></svg>` : ''}<span>${txt}${desc ? `<small>${desc}</small>` : ''}</span></button>`;
+const cpAviso = () => CP.aviso ? `<div class="cp-aviso" role="alert">${CP.aviso}</div>` : '';
+function cpTeclado(modo) {
+  const esp = modo === 'peso' ? ',' : modo === 'brinco' ? 'ABC' : '';
+  const k = ['1', '2', '3', '4', '5', '6', '7', '8', '9', esp, '0', '⌫'];
+  return `<div class="cp-tec" role="group" aria-label="Teclado">${k.map(x => x ? `<button type="button" onclick="cpTecla('${x}')" aria-label="${x === '⌫' ? 'Apagar' : x === 'ABC' ? 'Digitar letras' : x}"${x === 'ABC' ? ' class="abc"' : ''}>${x}</button>` : '<span></span>').join('')}${modo === 'brinco' ? '<button type="button" class="ok" onclick="cpOk()">OK</button>' : ''}</div>`;
+}
+const cpData = l => l.data === hoje() ? 'Hoje' : l.data === addDias(hoje(), -1) ? 'Ontem' : fmtD(l.data);
+function cpAtivosLote(lid, femeas) { return Object.values(compute()).filter(s => s.ativo && (!lid || s.lote === lid) && (!femeas || s.a.sexo === 'F')); }
+
+/* ---------- desenho central ---------- */
+function renderCampo() {
+  const box = $('campo'); if (!box || box.hidden) return;
+  const T = {
+    inicio: cpInicio, fazenda: cpFazenda, passo: cpPasso, lancar: cpLancar, fora: cpFora, peso: cpPeso, confPeso: cpConfPeso,
+    causa: cpCausa, confBaixa: cpConfBaixa, sexo: cpSexo, pesoBez: cpPeso, lancados: cpLancados, concluir: cpConcluir, pronto: cpPronto,
+    data: cpDataTela, pastoLote: cpPastoLote, pastoDest: cpPastoDest, pastoConf: cpPastoConf, pastoOk: cpPastoOk, sair: cpSair, esqueci: cpEsqueci
+  };
+  box.innerHTML = (T[CP.tela] || cpInicio)();
+  box.dataset.tela = CP.tela;
+  const foco = box.querySelector('[data-foco]'); if (foco) setTimeout(() => foco.focus(), 30);
+}
+
+function cpInicio() {
+  const f = farm(), dev = syncMeta.device ? syncMeta.device.nome : 'Aparelho sem nome';
+  const sair = `<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('sair',{pin:''})">Sair do Modo Campo</button></div>`;
+  const receber = cpBtn('Receber do escritório', 'Abrir o arquivo que o escritório mandou', "$('importFile').click()", 'leve', 'i-down');
+  if (!f) return cpHead('Modo Campo', esc(dev)) + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">Peça ao escritório o arquivo do app e abra aqui.</p>${receber}${sair}</div>`;
+  const abertas = lidasF().filter(l => l.status === 'aberta' && l.campo);
+  const conf = lidasF().filter(l => l.status === 'conferir').length, pd = pendentesCount();
+  return cpHead(f.nome, `Modo Campo · ${esc(dev)}`, null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
+    + `<div class="cp-body">
+      ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
+      <p class="cp-sec">O que vai fazer agora?</p>
+      <div class="cp-grade">${Object.entries(CP_ACOES).map(([k, a]) => cpBtn(a.t, a.d, `cpComeca('${k}')`, '', a.i)).join('')}</div>
+      <div class="cp-envio">
+        ${cpBtn(pd ? `Enviar para o escritório` : 'Tudo enviado', pd ? `${pd} registro(s) para mandar${conf ? ` · ${conf} lida(s) para o gestor conferir` : ''}` : (conf ? `${conf} lida(s) esperando o gestor conferir` : 'Nada pendente neste aparelho'), pd ? 'exportSync()' : '', pd ? 'gold' : 'leve', 'i-up')}
+        ${receber}
+      </div>${sair}</div>`;
+}
+function cpFazenda() {
+  return cpHead('Qual fazenda?', 'Os lançamentos vão para a fazenda escolhida', "cpIr('inicio')")
+    + `<div class="cp-body"><div class="cp-opc">${S.fazendas.map(f => cpBtn(esc(f.nome), `${cpContaFaz(f.id)} animais`, `cpEscolheFazenda('${f.id}')`, f.id === S.fazendaAtiva ? 'on' : '', 'i-cad')).join('')}</div></div>`;
+}
+const cpContaFaz = fid => Object.values(computeF(fid)).filter(s => s.ativo).length;
+function cpEscolheFazenda(id) { S.fazendaAtiva = id; calc = null; save(); renderFarmSel(); cpIr('inicio'); }
+
+/* ---------- começar uma lida: uma pergunta por tela ---------- */
+function cpComeca(tipo) {
+  if (!syncMeta.device) { openDeviceModal(() => cpComeca(tipo)); return; }
+  if (!lotesF().some(l => l.ativo !== false)) { CP.aviso = 'Esta fazenda não tem lote cadastrado. Peça ao escritório.'; renderCampo(); return; }
+  if (tipo === 'pasto') { cpIr('pastoLote'); return; }
+  const cab = {};
+  if (tipo === 'pesagem') cab.motivo = 'rotina';
+  if (tipo === 'sanitario') cab.procedimento = 'vacina';
+  if (tipo === 'baixa') cab.motivo = 'morte';
+  cpIr('passo', { nova: { tipo, loteId: '', cab, dias: {} }, i: 0 });
+}
+function cpVoltaPasso() { if (CP.i > 0) cpIr('passo', { i: CP.i - 1 }); else cpIr('inicio'); }
+function cpAvanca() {
+  const n = CP.nova, ps = CP_PASSOS[n.tipo];
+  if (CP.i < ps.length - 1) { cpIr('passo', { i: CP.i + 1 }); return; }
+  const l = stampNew({ fazendaId: S.fazendaAtiva, tipo: n.tipo, data: hoje(), loteId: n.loteId, status: 'aberta', cab: n.cab, registros: [], obs: '', finalizadaEm: null, campo: true });
+  l.campoDias = n.dias; cpDatasRel(l);
+  S.lidas.push(l); save(); updateCounts();
+  cpIr('lancar', { lidaId: l.id, filtro: '', ultimo: null, texto: false, foraOk: null, nova: null });
+}
+function cpSetN(campo, val, seguir) {
+  const n = CP.nova;
+  if (campo === 'loteId') n.loteId = val; else n.cab[campo] = val;
+  if (seguir) cpAvanca(); else renderCampo();
+}
+function cpSetDias(qual, d) { CP.nova.dias[qual] = d; cpAvanca(); }
+/* carência e próxima aplicação são guardadas em dias e recalculadas se a data da lida mudar */
+function cpDatasRel(l) {
+  const d = l.campoDias || {};
+  if ('car' in d) l.cab.carenciaAte = d.car ? addDias(l.data, d.car) : '';
+  if ('prox' in d) l.cab.proximaEm = d.prox ? addDias(l.data, d.prox) : '';
+}
+function cpRecentes(campo, filtro) {
+  const vistos = [], out = [];
+  lidasF().filter(l => l.tipo === 'sanitario' && (!filtro || filtro(l))).sort((a, b) => (b.data || '').localeCompare(a.data || '')).forEach(l => {
+    const v = (l.cab || {})[campo]; if (v && !vistos.includes(v.toLowerCase())) { vistos.push(v.toLowerCase()); out.push({ v, l }); }
+  });
+  return out.slice(0, 8);
+}
+function cpPasso() {
+  const n = CP.nova, passo = CP_PASSOS[n.tipo][CP.i], A = CP_ACOES[n.tipo], tot = CP_PASSOS[n.tipo].length;
+  const head = t => cpHead(A.t, `Passo ${CP.i + 1} de ${tot}`, 'cpVoltaPasso()') + `<div class="cp-body"><p class="cp-q">${t}</p>${cpAviso()}`;
+  const fim = '</div>';
+  if (passo === 'lote' || passo === 'loteOpc') {
+    const lt = lotesF().filter(l => l.ativo !== false).map(l => ({ l, n: cpAtivosLote(l.id, n.tipo === 'nascimento').length }));
+    const perg = n.tipo === 'troca' ? 'De qual lote saem os animais?' : n.tipo === 'nascimento' ? 'Em qual lote estão as vacas?' : n.tipo === 'baixa' ? 'De qual lote é o animal?' : 'Qual lote vai trabalhar?';
+    return head(perg) + `<div class="cp-opc">
+      ${passo === 'loteOpc' ? cpBtn('Não sei o lote', 'Procurar o brinco em todos os lotes', "cpSetN('loteId','',true)", 'leve') : ''}
+      ${lt.map(o => cpBtn(esc(o.l.nome), `${o.n} ${n.tipo === 'nascimento' ? 'fêmea(s)' : 'animal(is)'}${o.l.pastoId ? ' · ' + esc(pastoNome(o.l.pastoId)) : ''}`, `cpSetN('loteId','${o.l.id}',true)`, '', 'i-rebanho')).join('')}</div>` + fim;
+  }
+  if (passo === 'motivo') return head('Por que está pesando?') + `<div class="cp-opc">${Object.entries(MOTIVOS_PESAGEM).map(([k, v]) => cpBtn(v, k === 'rotina' ? 'A pesagem de sempre' : '', `cpSetN('motivo','${k}',true)`, n.cab.motivo === k ? 'on' : '')).join('')}</div>` + fim;
+  if (passo === 'proc') return head('O que vai aplicar?') + `<div class="cp-opc">${Object.entries(PROCEDIMENTOS).map(([k, v]) => cpBtn(v, '', `cpSetN('procedimento','${k}',true)`, n.cab.procedimento === k ? 'on' : '', 'i-san')).join('')}</div>` + fim;
+  if (passo === 'produto') {
+    const rec = cpRecentes('produto', l => l.cab.procedimento === n.cab.procedimento);
+    return head('Qual produto?') + `${rec.length ? `<p class="cp-sec">Usados antes nesta fazenda</p><div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'último uso ' + fmtD(r.l.data), `cpSetN('produto','${cpJs(cpEsc(r.v))}',true)`, n.cab.produto === r.v ? 'on' : '')).join('')}</div><p class="cp-sec">Ou escreva</p>` : ''}
+      <input id="cpProd" class="cp-input" maxlength="80" placeholder="Ex.: Aftosa, Ivermectina" value="${esc(n.cab.produto || '')}" ${rec.length ? '' : 'data-foco'} onkeydown="if(event.key==='Enter')cpProdOk()">
+      ${cpBtn('Continuar', '', 'cpProdOk()', 'pri')}` + fim;
+  }
+  if (passo === 'dose') {
+    const rec = cpRecentes('dose', l => (l.cab.produto || '').toLowerCase() === (n.cab.produto || '').toLowerCase());
+    return head(`Qual a dose de ${esc(n.cab.produto)}?`) + `${rec.length ? `<div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'usada em ' + fmtD(r.l.data), `cpSetN('dose','${cpJs(cpEsc(r.v))}',true)`, n.cab.dose === r.v ? 'on' : '')).join('')}</div>` : ''}
+      <input id="cpDose" class="cp-input" maxlength="40" placeholder="Ex.: 5 ml" value="${esc(n.cab.dose || '')}" onkeydown="if(event.key==='Enter')cpDoseOk()">
+      <div class="cp-par">${cpBtn('Pular', 'Sem dose anotada', "cpSetN('dose','',true)", 'leve')}${cpBtn('Continuar', '', 'cpDoseOk()', 'pri')}</div>` + fim;
+  }
+  if (passo === 'carencia' || passo === 'proxima') {
+    const car = passo === 'carencia', qual = car ? 'car' : 'prox';
+    const ops = car ? [0, 7, 14, 21, 28, 35, 42] : [0, 21, 30, 60, 90, 180];
+    const ult = cpRecentes(car ? 'carenciaAte' : 'proximaEm', l => (l.cab.produto || '').toLowerCase() === (n.cab.produto || '').toLowerCase())[0];
+    const dUlt = ult ? diasEntre(ult.l.data, ult.v) : null;
+    if (dUlt > 0 && !ops.includes(dUlt)) { ops.push(dUlt); ops.sort((a, b) => a - b); }
+    return head(car ? 'Quantos dias de carência?' : 'Quando é a próxima aplicação?')
+      + `<p class="cp-txt">${car ? 'Na carência o animal não pode ser vendido nem abatido. Veja na bula do produto.' : 'O app avisa quando chegar a data.'}${dUlt > 0 ? ` <b>Da última vez com ${esc(n.cab.produto)}: ${dUlt} dias.</b>` : ''}</p>
+      <div class="cp-grade cp-grade3">${ops.map(d => cpBtn(d ? `${d} dias` : (car ? 'Sem carência' : 'Não tem'), '', `cpSetDias('${qual}',${d})`, d === dUlt ? 'on' : '')).join('')}</div>` + fim;
+  }
+  if (passo === 'destino') {
+    const lt = lotesF().filter(l => l.ativo !== false && l.id !== n.loteId);
+    return head('Para qual lote eles vão?') + (lt.length ? `<div class="cp-opc">${lt.map(l => cpBtn(esc(l.nome), `${cpAtivosLote(l.id).length} animal(is)${l.pastoId ? ' · ' + esc(pastoNome(l.pastoId)) : ''}`, `cpSetN('loteDestinoId','${l.id}',true)`, '', 'i-troca')).join('')}</div>` : '<p class="cp-txt">Não há outro lote. Peça ao escritório para cadastrar.</p>') + fim;
+  }
+  if (passo === 'motivoB') return head('O que aconteceu?') + `<div class="cp-opc">
+      ${cpBtn('Morte', 'O animal morreu', "cpSetN('motivo','morte',true)", '', 'i-baixa')}
+      ${cpBtn('Perda', 'Sumiu ou foi roubado', "cpSetN('motivo','perda',true)", '', 'i-baixa')}
+      ${cpBtn('Venda', 'Saiu vendido', "cpSetN('motivo','venda',true)", '', 'i-baixa')}</div>` + fim;
+  return head('') + fim;
+}
+function cpProdOk() { const v = str($('cpProd').value, 80); if (!v) { CP.aviso = 'Escreva o nome do produto.'; vibra([60, 40, 60]); renderCampo(); return; } cpSetN('produto', v, true); }
+function cpDoseOk() { cpSetN('dose', str($('cpDose').value, 40), true); }
+
+/* ---------- lançamento: o coração do Modo Campo ---------- */
+function cpAbre(id) { const l = S.lidas.find(x => x.id === id); if (!l) return; if (l.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = l.fazendaId; calc = null; } cpIr('lancar', { lidaId: id, filtro: '', ultimo: null, texto: false, foraOk: null }); }
+const cpMulti = l => l.tipo === 'sanitario' || l.tipo === 'troca';
+function cpBase(l) {
+  const st = compute(), noLote = Object.values(st).filter(s => s.ativo && (!l.loteId || s.lote === l.loteId) && (l.tipo !== 'nascimento' || s.a.sexo === 'F'));
+  return noLote.sort((a, b) => a.a.brinco.localeCompare(b.a.brinco, 'pt-BR', { numeric: true }));
+}
+function cpListaHtml() {
+  const l = cpLida(); if (!l) return '';
+  const multi = cpMulti(l), feitos = new Set(l.registros.map(r => r.animalId)), q = (CP.filtro || '').toLowerCase();
+  let base = cpBase(l).filter(s => multi || !feitos.has(s.a.id));
+  if (!l.loteId && !q) return `<p class="cp-txt">Digite o brinco do animal.</p>`;
+  if (q) base = base.filter(s => s.a.brinco.toLowerCase().includes(q));
+  if (!base.length) return q ? `<p class="cp-txt">Nenhum animal ${l.loteId ? 'deste lote ' : ''}com "${esc(CP.filtro)}". Toque em <b>OK</b> para procurar em toda a fazenda.</p>` : `<p class="cp-ok">✓ Todos os animais do lote foram lançados.</p>`;
+  const max = 80, mostra = base.slice(0, max);
+  return mostra.map(s => `<button type="button" class="cp-ani${feitos.has(s.a.id) ? ' ok' : ''}${s.emCarencia ? ' car' : ''}" onclick="cpEscolhe('${s.a.id}')" aria-pressed="${feitos.has(s.a.id)}">${feitos.has(s.a.id) ? '✓ ' : ''}${esc(s.a.brinco)}${s.emCarencia ? '<i>carência</i>' : ''}</button>`).join('')
+    + (base.length > max ? `<p class="cp-txt" style="grid-column:1/-1">+${base.length - max} animais. Digite mais números para achar.</p>` : '');
+}
+function cpVisorHtml() {
+  if (CP.texto) return `<input id="cpTxt" class="cp-visor-in" value="${esc(CP.filtro || '')}" autocapitalize="characters" autocomplete="off" aria-label="Brinco com letras" data-foco oninput="CP.filtro=normBrinco(this.value);$('cpLista').innerHTML=cpListaHtml()" onkeydown="if(event.key==='Enter'){event.preventDefault();cpOk()}">`;
+  return CP.filtro ? `<b>${esc(CP.filtro)}</b>` : '<span>Digite o brinco ou toque no animal</span>';
+}
+function cpLancar() {
+  const l = cpLida();
+  if (!l || l.status !== 'aberta') { CP = { tela: 'inicio' }; return cpInicio(); }
+  const A = CP_ACOES[l.tipo], c = l.cab, multi = cpMulti(l);
+  const total = l.loteId ? cpBase(l).length + (multi ? 0 : l.registros.filter(r => { const s = compute()[r.animalId]; return s && s.lote !== l.loteId; }).length) : null;
+  const n = l.registros.length;
+  let faixa = '';
+  if (l.tipo === 'sanitario') faixa = `${esc(PROCEDIMENTOS[c.procedimento] || '')} · <b>${esc(c.produto || '')}</b>${c.dose ? ' · ' + esc(c.dose) : ''}${c.carenciaAte ? ' · carência até ' + fmtD(c.carenciaAte) : ''}`;
+  if (l.tipo === 'troca') faixa = `Vão para <b>${esc(loteNome(c.loteDestinoId))}</b>`;
+  if (l.tipo === 'baixa') faixa = `Motivo: <b>${esc(MOTIVOS_BAIXA[c.motivo] || '')}</b>`;
+  if (l.tipo === 'pesagem' && c.motivo !== 'rotina') faixa = `Motivo: <b>${esc(MOTIVOS_PESAGEM[c.motivo] || '')}</b>`;
+  const restam = multi ? cpBase(l).filter(s => !l.registros.some(r => r.animalId === s.a.id)).length : 0;
+  return cpHead(A.t, `${l.loteId ? esc(loteNome(l.loteId)) : 'Todos os lotes'} · <button type="button" class="cp-data" onclick="cpIr('data')">${cpData(l)} ✎</button>`, "cpIr('inicio')",
+      `<div class="cp-cont" aria-live="polite"><b>${n}</b><small>${total ? 'de ' + total : 'lançado(s)'}</small></div>`)
+    + `<div class="cp-body lancar">
+      ${faixa ? `<div class="cp-faixa">${faixa}</div>` : ''}
+      ${CP.ultimo ? `<div class="cp-ult" role="status"><span>✓ ${CP.ultimo.txt}</span><button type="button" onclick="cpDesfaz('${CP.ultimo.rid}')">Desfazer</button></div>` : ''}
+      ${cpAviso()}
+      <div class="cp-visor" id="cpVisor">${cpVisorHtml()}</div>
+      ${multi && restam ? `<button type="button" class="cp-btn leve cp-todos" onclick="cpTodos()">${restam === 1 ? 'Marcar o que falta' : 'Marcar todos (faltam ' + restam + ')'}</button>` : ''}
+      <div class="cp-lista" id="cpLista">${cpListaHtml()}</div>
+      ${cpTeclado('brinco')}
+    </div>
+    <div class="cp-pe">${cpBtn(`Ver lançados (${n})`, '', "cpIr('lancados')", 'leve')}${cpBtn('Concluir', '', "cpIr('concluir')", 'pri')}</div>`;
+}
+function cpTecla(x) {
+  const t = CP.tela;
+  if (t === 'sair') { if (x === '⌫') CP.pin = (CP.pin || '').slice(0, -1); else if (/\d/.test(x) && (CP.pin || '').length < 4) CP.pin = (CP.pin || '') + x; CP.aviso = ''; renderCampo(); if ((CP.pin || '').length === 4) cpConfereSair(); return; }
+  if (t === 'peso' || t === 'pesoBez') {
+    let b = CP.buf || '';
+    if (x === '⌫') b = b.slice(0, -1); else if (x === ',') { if (!b.includes(',')) b = (b || '0') + ','; }
+    else if (b.replace(',', '').length < 6 && !(b.includes(',') && b.split(',')[1].length >= 1)) b += x;
+    CP.buf = b; CP.aviso = ''; const v = $('cpPesoV'); if (v) v.innerHTML = b ? `<b>${esc(b)}</b> kg` : '<span>0 kg</span>'; return;
+  }
+  if (t !== 'lancar') return;
+  if (x === 'ABC') { CP.texto = !CP.texto; renderCampo(); return; }
+  if (x === '⌫') CP.filtro = (CP.filtro || '').slice(0, -1); else if ((CP.filtro || '').length < 30) CP.filtro = (CP.filtro || '') + x;
+  CP.aviso = ''; const a = document.querySelector('#campo .cp-aviso'); if (a) a.remove();
+  $('cpVisor').innerHTML = cpVisorHtml(); $('cpLista').innerHTML = cpListaHtml();
+}
+/* OK: brinco exato em qualquer lote da fazenda; senão, se a lista tem um só, escolhe esse */
+function cpOk() {
+  const l = cpLida(); if (!l) return;
+  const b = normBrinco(CP.filtro);
+  if (!b) { cpErro('Digite o brinco.'); return; }
+  const f = findAnimalByBrinco(b);
+  if (f) { cpEscolhe(f.a.id); return; }
+  /* só números: "506" acha o BR-506 quando ele é o único com exatamente esses números */
+  if (/^\d+$/.test(b)) { const dig = animaisF().filter(a => a.brinco.replace(/\D/g, '') === b); if (dig.length === 1) { cpEscolhe(dig[0].id); return; } }
+  const feitos = new Set(l.registros.map(r => r.animalId)), q = b.toLowerCase();
+  const lista = cpBase(l).filter(s => (cpMulti(l) || !feitos.has(s.a.id)) && s.a.brinco.toLowerCase().includes(q));
+  if (lista.length === 1) { cpEscolhe(lista[0].a.id); return; }
+  cpErro(lista.length ? `Há ${lista.length} brincos com "${esc(b)}". Toque no certo.` : esc(naoEncontrado(b)));
+}
+function cpErro(msg) { CP.aviso = msg; vibra([60, 40, 60]); renderCampo(); }
+function cpValida(l, s) {
+  if (!s) return 'Animal não encontrado.';
+  if (l.tipo === 'nascimento' && s.a.sexo !== 'F') return `O ${esc(s.a.brinco)} está cadastrado como macho.`;
+  if (!s.ativo) return `O ${esc(s.a.brinco)} já saiu do rebanho${s.baixa ? ' em ' + fmtD(s.baixa.data) : ''}.`;
+  if (s.a.entradaEm && l.data < s.a.entradaEm) return `O ${esc(s.a.brinco)} chegou na fazenda em ${fmtD(s.a.entradaEm)}, depois da data desta lida.`;
+  if (l.tipo === 'troca' && s.lote === l.cab.loteDestinoId) return `O ${esc(s.a.brinco)} já está no lote ${esc(loteNome(l.cab.loteDestinoId))}.`;
+  return '';
+}
+function cpEscolhe(id) {
+  const l = cpLida(), s = compute()[id]; if (!l) return;
+  const ja = l.registros.find(r => r.animalId === id);
+  if (cpMulti(l) && ja) { l.registros = l.registros.filter(r => r !== ja); l.editadoEm = nowISO(); save(); vibra(15); CP.filtro = ''; CP.ultimo = null; CP.aviso = ''; renderCampo(); return; }
+  if (ja) { cpErro(`O ${esc(ja.brinco)} já foi lançado nesta lida.`); return; }
+  const e = cpValida(l, s); if (e) { cpErro(e); return; }
+  if (l.loteId && s.lote !== l.loteId && CP.foraOk !== id) { cpIr('fora', { sel: id }); return; }
+  CP.sel = id; CP.buf = ''; CP.aviso = '';
+  if (cpMulti(l)) { cpGrava(l, { id: uuid(), animalId: id, brinco: s.a.brinco }, `${esc(s.a.brinco)} lançado`); return; }
+  if (l.tipo === 'pesagem') { cpIr('peso'); return; }
+  if (l.tipo === 'baixa') { cpIr('causa', { obs: '' }); return; }
+  if (l.tipo === 'nascimento') { cpIr('sexo', { sexo: '', bez: '' }); return; }
+}
+function cpGrava(l, reg, txt) {
+  l.registros.push(reg); l.editadoEm = nowISO(); save(); updateCounts(); vibra(35);
+  CP = Object.assign({}, CP, { tela: 'lancar', filtro: '', texto: false, aviso: '', foraOk: null, sel: null, buf: '', ultimo: { rid: reg.id, txt } });
+  renderCampo();
+  const u = document.querySelector('#campo .cp-ult'); if (u) { u.classList.remove('flash'); void u.offsetWidth; u.classList.add('flash'); }
+}
+function cpDesfaz(rid) { const l = cpLida(); if (!l) return; l.registros = l.registros.filter(r => r.id !== rid); l.editadoEm = nowISO(); save(); CP.ultimo = null; renderCampo(); showToast('Lançamento desfeito.'); }
+function cpTodos() {
+  const l = cpLida(); if (!l) return; let n = 0;
+  cpBase(l).filter(s => !l.registros.some(r => r.animalId === s.a.id) && !cpValida(l, s)).forEach(s => { l.registros.push({ id: uuid(), animalId: s.a.id, brinco: s.a.brinco }); n++; });
+  l.editadoEm = nowISO(); save(); vibra(35); CP.ultimo = null; renderCampo(); showToast(`${n} animal(is) marcados.`);
+}
+function cpFora() {
+  const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return cpLancar();
+  const txt = l.tipo === 'troca' ? 'Ele sai do lote dele e vai para ' + esc(loteNome(l.cab.loteDestinoId)) + '.' : l.tipo === 'nascimento' || l.tipo === 'baixa' ? 'Pode incluir: o lote dele não muda.' : 'Pode incluir. O escritório decide se ele muda de lote.';
+  return cpHead('Animal de outro lote', '', "cpIr('lancar')")
+    + `<div class="cp-body"><p class="cp-q">O <b>${esc(s.a.brinco)}</b> está no lote <b>${esc(loteNome(s.lote))}</b>, não em ${esc(loteNome(l.loteId))}.</p><p class="cp-txt">${txt} Confira o brinco.</p>
+      <div class="cp-opc">${cpBtn('Brinco errado, voltar', '', "cpIr('lancar',{filtro:''})", 'leve')}${cpBtn('Está certo, incluir', '', `cpForaOk('${s.a.id}')`, 'pri')}</div></div>`;
+}
+function cpForaOk(id) { CP.foraOk = id; CP.tela = 'lancar'; cpEscolhe(id); }
+
+/* ---------- pesagem ---------- */
+function cpPeso() {
+  const l = cpLida(), bez = CP.tela === 'pesoBez', s = compute()[CP.sel]; if (!l || !s) return cpLancar();
+  const ult = !bez && s.ultimoPeso ? `Último peso: <b>${fmtN(s.ultimoPeso, 1)} kg</b>${s.ultimaPesagem ? ' em ' + fmtD(s.ultimaPesagem) : ''}` : bez ? 'Se não pesou, toque em Pular.' : 'Primeira pesagem deste animal.';
+  return cpHead(bez ? 'Peso do bezerro' : 'Peso do ' + s.a.brinco, bez ? `Mãe ${esc(s.a.brinco)} · ${esc(SEXOS[CP.sexo] || '')}` : esc(loteNome(s.lote)), bez ? "cpIr('sexo')" : "cpIr('lancar')")
+    + `<div class="cp-body lancar"><p class="cp-txt">${ult}</p>${cpAviso()}
+      <div class="cp-visor grande" id="cpPesoV">${CP.buf ? `<b>${esc(CP.buf)}</b> kg` : '<span>0 kg</span>'}</div>
+      <div class="cp-espaco"></div>${cpTeclado('peso')}</div>
+    <div class="cp-pe">${bez ? cpBtn('Pular', 'Sem peso', 'cpSalvaBez(true)', 'leve') : cpBtn('Voltar', '', "cpIr('lancar')", 'leve')}${cpBtn(bez ? 'Salvar nascimento' : 'Salvar peso', '', bez ? 'cpSalvaBez()' : 'cpSalvaPeso()', 'pri')}</div>`;
+}
+function cpSalvaPeso(confirmado) {
+  const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return;
+  const p = parseNum(CP.buf);
+  if (!(p > 0)) { cpErro('Digite o peso em kg.'); return; }
+  if (p > 1500) { cpErro('Peso acima de 1.500 kg. Confira.'); return; }
+  if (!confirmado && (p < 20 || (s.ultimoPeso && Math.abs(p - s.ultimoPeso) > s.ultimoPeso * 0.35))) { vibra([60, 40, 60]); cpIr('confPeso'); return; }
+  const peso = Math.round(p * 10) / 10;
+  cpGrava(l, { id: uuid(), animalId: s.a.id, brinco: s.a.brinco, peso }, `${esc(s.a.brinco)} · ${fmtN(peso, 1)} kg${s.ultimoPeso ? ` (${peso - s.ultimoPeso >= 0 ? '+' : ''}${fmtN(peso - s.ultimoPeso, 1)})` : ''}`);
+}
+function cpConfPeso() {
+  const s = compute()[CP.sel], p = parseNum(CP.buf); if (!s) return cpLancar();
+  return cpHead('Confira o peso', esc(s.a.brinco), "cpIr('peso')")
+    + `<div class="cp-body"><p class="cp-q">${fmtN(p, 1)} kg para o ${esc(s.a.brinco)}?</p><p class="cp-txt">${s.ultimoPeso ? `O último peso foi <b>${fmtN(s.ultimoPeso, 1)} kg</b>. A diferença está grande.` : 'O peso está muito baixo.'}</p>
+      <div class="cp-opc">${cpBtn('Corrigir o peso', '', "cpIr('peso',{buf:''})", 'leve')}${cpBtn('Está certo, salvar', '', 'cpSalvaPeso(true)', 'pri')}</div></div>`;
+}
+
+/* ---------- baixa ---------- */
+function cpCausa() {
+  const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return cpLancar();
+  const cs = CP_CAUSAS[l.cab.motivo] || [];
+  if (!cs.length) { CP.tela = 'confBaixa'; return cpConfBaixa(); }
+  return cpHead('Qual a causa?', `${esc(s.a.brinco)} · ${esc(MOTIVOS_BAIXA[l.cab.motivo])}`, "cpIr('lancar')")
+    + `<div class="cp-body"><div class="cp-grade">${cs.map(c => cpBtn(c, '', `cpIr('confBaixa',{obs:'${cpJs(c)}'})`)).join('')}</div>${cpBtn('Sem observação', '', "cpIr('confBaixa',{obs:''})", 'leve')}</div>`;
+}
+function cpConfBaixa() {
+  const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return cpLancar();
+  const venda = l.cab.motivo === 'venda';
+  return cpHead('Confirmar', esc(s.a.brinco), "cpIr('causa')")
+    + `<div class="cp-body"><p class="cp-q">Dar baixa no <b>${esc(s.a.brinco)}</b> por ${esc(MOTIVOS_BAIXA[l.cab.motivo]).toLowerCase()}${CP.obs ? ' (' + esc(CP.obs).toLowerCase() + ')' : ''}?</p>
+      ${venda && s.emCarencia ? `<div class="cp-aviso">Atenção: este animal está em carência até ${fmtD(s.carenciaAte)}. Não pode ser vendido para abate antes disso.</div>` : ''}
+      <p class="cp-txt">O escritório confere antes de tirar o animal do rebanho.</p>
+      <div class="cp-opc">${cpBtn('Cancelar', '', "cpIr('lancar',{filtro:''})", 'leve')}${cpBtn('Confirmar baixa', '', 'cpSalvaBaixa()', 'pri')}</div></div>`;
+}
+function cpSalvaBaixa() { const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return; cpGrava(l, { id: uuid(), animalId: s.a.id, brinco: s.a.brinco, obs: str(CP.obs, 80) }, `${esc(s.a.brinco)} · ${esc(MOTIVOS_BAIXA[l.cab.motivo])}${CP.obs ? ' · ' + esc(CP.obs) : ''}`); }
+
+/* ---------- nascimento ---------- */
+function cpSexo() {
+  const s = compute()[CP.sel]; if (!s) return cpLancar();
+  return cpHead('Nasceu macho ou fêmea?', `Mãe ${esc(s.a.brinco)}`, "cpIr('lancar')")
+    + `<div class="cp-body"><div class="cp-grade">${cpBtn('Macho', '', "cpBezSexo('M')", CP.sexo === 'M' ? 'on' : '')}${cpBtn('Fêmea', '', "cpBezSexo('F')", CP.sexo === 'F' ? 'on' : '')}</div>
+      <details class="cp-det"${CP.bez ? ' open' : ''}><summary>O bezerro já tem brinco?</summary>
+        <input id="cpBez" class="cp-input" autocapitalize="characters" autocomplete="off" maxlength="30" value="${esc(CP.bez || '')}" placeholder="Brinco do bezerro" oninput="CP.bez=normBrinco(this.value)">
+        <p class="cp-txt">Se deixar vazio, o app cria: brinco da mãe + mês e ano (ex.: ${esc(s.a.brinco)}-${hoje().slice(5, 7)}${hoje().slice(2, 4)}).</p></details>${cpAviso()}</div>`;
+}
+function cpBezSexo(sx) {
+  const l = cpLida(); CP.sexo = sx;
+  const bz = CP.bez ? normBrinco(CP.bez) : '';
+  if (bz && (brincoEmUso(bz) || l.registros.some(r => r.bezerroBrinco === bz))) { cpErro(`O brinco ${esc(bz)} já existe. Use outro ou deixe vazio.`); return; }
+  cpIr('pesoBez', { buf: '' });
+}
+function cpSalvaBez(pular) {
+  const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return;
+  let peso = null;
+  if (!pular && CP.buf) { peso = parseNum(CP.buf); if (!(peso > 0) || peso > 120) { cpErro('Peso de bezerro inválido (até 120 kg).'); return; } peso = Math.round(peso * 10) / 10; }
+  let bz = CP.bez ? normBrinco(CP.bez) : '';
+  if (!bz) { const [y, mo] = l.data.split('-'), base = s.a.brinco + '-' + mo + y.slice(2); bz = base; let k = 2; while (brincoEmUso(bz) || l.registros.some(r => r.bezerroBrinco === bz)) bz = base + '-' + (k++); }
+  cpGrava(l, { id: uuid(), animalId: s.a.id, brinco: s.a.brinco, bezerroBrinco: bz, sexo: CP.sexo === 'F' ? 'F' : 'M', peso }, `Bezerro ${esc(bz)} · ${esc(SEXOS[CP.sexo])}${peso ? ' · ' + fmtN(peso, 1) + ' kg' : ''} (mãe ${esc(s.a.brinco)})`);
+}
+
+/* ---------- conferir, corrigir data, concluir ---------- */
+function cpLancados() {
+  const l = cpLida(); if (!l) return cpInicio();
+  const linha = r => {
+    let d = '';
+    if (l.tipo === 'pesagem') d = fmtN(r.peso, 1) + ' kg';
+    if (l.tipo === 'nascimento') d = `bezerro ${esc(r.bezerroBrinco)} · ${esc(SEXOS[r.sexo] || '')}${r.peso ? ' · ' + fmtN(r.peso, 1) + ' kg' : ''}`;
+    if (l.tipo === 'baixa') d = esc(r.obs || 'sem observação');
+    return `<div class="cp-linha"><b>${esc(r.brinco)}</b><span>${d}</span><button type="button" onclick="cpTira('${r.id}')" aria-label="Tirar ${esc(r.brinco)}">Tirar</button></div>`;
+  };
+  return cpHead('Lançados', `${l.registros.length} animal(is)`, "cpIr('lancar')")
+    + `<div class="cp-body">${l.registros.length ? l.registros.slice().reverse().map(linha).join('') : '<p class="cp-txt">Nenhum animal lançado ainda.</p>'}</div>
+    <div class="cp-pe">${cpBtn('Continuar lançando', '', "cpIr('lancar')", 'pri')}</div>`;
+}
+function cpTira(rid) {
+  const l = cpLida(); if (!l) return; const r = l.registros.find(x => x.id === rid); if (!r) return;
+  l.registros = l.registros.filter(x => x.id !== rid); l.editadoEm = nowISO(); save(); if (CP.ultimo && CP.ultimo.rid === rid) CP.ultimo = null; renderCampo();
+  showToastAction(`${r.brinco} tirado da lida.`, 'Desfazer', () => { l.registros.push(r); save(); renderCampo(); });
+}
+function cpDataTela() {
+  const l = cpLida(); if (!l) return cpInicio();
+  const op = [[hoje(), 'Hoje'], [addDias(hoje(), -1), 'Ontem'], [addDias(hoje(), -2), 'Anteontem']];
+  return cpHead('Quando foi o manejo?', '', "cpIr('lancar')")
+    + `<div class="cp-body"><div class="cp-opc">${op.map(([d, t]) => cpBtn(t, fmtD(d), `cpSetData('${d}')`, l.data === d ? 'on' : '')).join('')}</div>
+      <p class="cp-sec">Outro dia</p><input type="date" id="cpDt" class="cp-input" max="${hoje()}" value="${esc(l.data)}">${cpBtn('Usar esta data', '', "cpSetData($('cpDt').value)", 'leve')}${cpAviso()}</div>`;
+}
+function cpSetData(d) {
+  const l = cpLida(); if (!l) return;
+  if (!validDate(d) || d > hoje()) { cpErro('Data inválida. Não pode ser no futuro.'); return; }
+  l.data = d; cpDatasRel(l); l.editadoEm = nowISO(); save(); cpIr('lancar');
+}
+function cpConcluir() {
+  const l = cpLida(); if (!l) return cpInicio();
+  const n = l.registros.length, A = CP_ACOES[l.tipo], c = l.cab;
+  if (!n) return cpHead('Concluir', A.t, "cpIr('lancar')") + `<div class="cp-body"><p class="cp-q">Nenhum animal foi lançado.</p>
+      <div class="cp-opc">${cpBtn('Voltar e lançar', '', "cpIr('lancar')", 'pri')}${cpBtn('Descartar esta lida', '', 'cpDescarta()', 'perigo')}</div></div>`;
+  let det = `${n} animal(is)`;
+  if (l.tipo === 'pesagem') { const ps = l.registros.filter(r => r.peso > 0); det += ps.length ? ` · média ${fmtN(avg(ps.map(r => r.peso)), 1)} kg` : ''; }
+  if (l.tipo === 'sanitario') det += ` · ${esc(c.produto)}`;
+  if (l.tipo === 'troca') det += ` → ${esc(loteNome(c.loteDestinoId))}`;
+  if (l.tipo === 'baixa') det += ` · ${esc(MOTIVOS_BAIXA[c.motivo])}`;
+  if (l.tipo === 'nascimento') det = `${n} bezerro(s)`;
+  const faltam = l.loteId && !['baixa', 'nascimento'].includes(l.tipo) ? cpBase(l).filter(s => !l.registros.some(r => r.animalId === s.a.id)).length : 0;
+  return cpHead('Concluir', `${A.t} · ${cpData(l)}`, "cpIr('lancar')")
+    + `<div class="cp-body"><div class="cp-resumo"><b>${det}</b><span>${l.loteId ? esc(loteNome(l.loteId)) : 'Vários lotes'} · ${fmtD(l.data)}</span></div>
+      ${faltam ? `<div class="cp-info">Faltam <b>${faltam}</b> animal(is) do lote. Se eles não passaram no curral, pode concluir assim mesmo.</div>` : ''}
+      <p class="cp-txt">Ao concluir, a lida vai para o gestor conferir. Depois disso ela não muda mais aqui.</p>
+      <div class="cp-opc">${cpBtn('Concluir e mandar para conferir', '', 'cpConclui()', 'pri')}${cpBtn('Continuar lançando', '', "cpIr('lancar')", 'leve')}</div>
+      <div class="cp-rodape"><button type="button" class="cp-link" onclick="cpDescarta()">Descartar esta lida</button></div></div>`;
+}
+function cpConclui() {
+  const l = cpLida(); if (!l || !l.registros.length) return;
+  l.status = 'conferir'; l.enviadaEm = nowISO(); touch(l); save(); updateCounts(); vibra([40, 60, 40]);
+  cpIr('pronto');
+}
+function cpDescarta() {
+  const l = cpLida(); if (!l) return;
+  if (l.registros.length && !confirm(`Descartar esta lida com ${l.registros.length} animal(is)? Ela vai para a lixeira.`)) return;
+  moveToTrash('lida', l); save(); updateCounts(); CP = { tela: 'inicio' }; renderCampo(); showToast('Lida descartada.');
+}
+function cpPronto() {
+  const l = cpLida(), n = l ? l.registros.length : 0;
+  return cpHead('Pronto', '', null) + `<div class="cp-body cp-centro"><div class="cp-check" aria-hidden="true">✓</div>
+    <p class="cp-q">Lida concluída: ${n} animal(is).</p><p class="cp-txt">Agora mande para o escritório. O gestor confere e finaliza.</p>
+    <div class="cp-opc">${cpBtn('Enviar para o escritório', 'WhatsApp, e-mail ou Drive', 'exportSync()', 'gold', 'i-up')}${cpBtn('Voltar ao início', 'Enviar depois', "cpIr('inicio')", 'leve')}</div></div>`;
+}
+
+/* ---------- mudar o lote de pasto (rotação) ---------- */
+function cpPastoLote() {
+  const lt = lotesF().filter(l => l.ativo !== false);
+  return cpHead('Mudar de pasto', 'Passo 1 de 2', "cpIr('inicio')") + `<div class="cp-body"><p class="cp-q">Qual lote vai mudar?</p>${cpAviso()}
+    <div class="cp-opc">${lt.map(l => { const o = ocupAberta(l); return cpBtn(esc(l.nome), `${cpAtivosLote(l.id).length} animal(is) · ${l.pastoId ? 'em ' + esc(pastoNome(l.pastoId)) + (o ? ' há ' + diasEntre(o.de, hoje()) + ' dia(s)' : '') : 'sem pasto'}`, `cpIr('pastoDest',{mvLote:'${l.id}'})`, '', 'i-rebanho'); }).join('')}</div></div>`;
+}
+function cpPastoDest() {
+  const l = S.lotes.find(x => x.id === CP.mvLote); if (!l) return cpInicio();
+  const ps = pastosAtivosF().filter(p => p.id !== l.pastoId);
+  const sit = p => { const c = pastoCiclo(p); return c.situacao === 'pronto' ? '✓ Pronto para entrar' : c.situacao === 'descanso' ? `Descansando há ${c.diasDesc} dia(s)` : c.situacao === 'ocupado' ? 'Já tem gado' : ''; };
+  return cpHead('Mudar de pasto', `Passo 2 de 2 · ${esc(l.nome)}`, "cpIr('pastoLote')") + `<div class="cp-body"><p class="cp-q">Para qual pasto?</p>
+    ${ps.length ? `<div class="cp-opc">${ps.map(p => { const c = pastoCiclo(p); return cpBtn(esc(p.nome), `${sit(p)}${p.areaHa ? ' · ' + fmtN(p.areaHa, 1) + ' ha' : ''}`, `cpIr('pastoConf',{mvPasto:'${p.id}',mvData:hoje()})`, c.situacao === 'pronto' ? 'on' : '', 'i-mapa'); }).join('')}</div>` : '<p class="cp-txt">Não há outro pasto cadastrado.</p>'}</div>`;
+}
+function cpPastoConf() {
+  const l = S.lotes.find(x => x.id === CP.mvLote); if (!l) return cpInicio();
+  const d = CP.mvData;
+  return cpHead('Confirmar', esc(l.nome), "cpIr('pastoDest')") + `<div class="cp-body"><p class="cp-q">Levar <b>${esc(l.nome)}</b> do ${esc(pastoNome(l.pastoId))} para o <b>${esc(pastoNome(CP.mvPasto))}</b>?</p>${cpAviso()}
+    <p class="cp-sec">Quando?</p><div class="cp-grade">${cpBtn('Hoje', fmtD(hoje()), `cpIr('pastoConf',{mvData:'${hoje()}'})`, d === hoje() ? 'on' : '')}${cpBtn('Ontem', fmtD(addDias(hoje(), -1)), `cpIr('pastoConf',{mvData:'${addDias(hoje(), -1)}'})`, d === addDias(hoje(), -1) ? 'on' : '')}</div>
+    <p class="cp-txt">O pasto que ficou vazio começa a contar o descanso.</p>
+    <div class="cp-opc">${cpBtn('Confirmar mudança', '', 'cpMovePasto()', 'pri')}</div></div>`;
+}
+function cpMovePasto() {
+  const l = S.lotes.find(x => x.id === CP.mvLote), d = CP.mvData; if (!l) return;
+  const o = ocupAberta(l);
+  if (o && d < o.de) { cpErro(`O lote entrou no pasto atual em ${fmtD(o.de)}. A data não pode ser antes disso.`); return; }
+  const de = pastoNome(l.pastoId);
+  aplicaMudancaPasto(l, CP.mvPasto, d); touch(l); save(); updateCounts(); vibra([40, 60, 40]);
+  cpIr('pastoOk', { mvDe: de });
+}
+function cpPastoOk() {
+  const l = S.lotes.find(x => x.id === CP.mvLote);
+  return cpHead('Pronto', '', null) + `<div class="cp-body cp-centro"><div class="cp-check" aria-hidden="true">✓</div>
+    <p class="cp-q">${esc(l ? l.nome : '')}: ${esc(CP.mvDe)} → ${esc(pastoNome(CP.mvPasto))}</p><p class="cp-txt">Fica registrado neste aparelho. Mande para o escritório quando puder.</p>
+    <div class="cp-opc">${cpBtn('Enviar para o escritório', '', 'exportSync()', 'gold', 'i-up')}${cpBtn('Voltar ao início', '', "cpIr('inicio')", 'leve')}</div></div>`;
+}
+
+/* ---------- sair (PIN do gestor) ---------- */
+function cpSair() {
+  if (!cpPinHash()) return cpHead('Sair do Modo Campo', '', "cpIr('inicio')") + `<div class="cp-body"><p class="cp-q">Voltar ao app completo?</p><div class="cp-opc">${cpBtn('Sim, sair', '', 'saiCampo()', 'pri')}${cpBtn('Ficar no Modo Campo', '', "cpIr('inicio')", 'leve')}</div></div>`;
+  const p = CP.pin || '';
+  return cpHead('PIN do gestor', 'Para voltar ao app completo', "cpIr('inicio')")
+    + `<div class="cp-body lancar"><div class="cp-pin" aria-label="${p.length} de 4 números">${[0, 1, 2, 3].map(i => `<span class="${i < p.length ? 'on' : ''}"></span>`).join('')}</div>${cpAviso()}
+      <div class="cp-espaco"></div>${cpTeclado('pin')}<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('esqueci')">Esqueci o PIN</button></div></div>`;
+}
+async function cpConfereSair() {
+  const h = await sha256('tapirucu-campo:' + CP.pin), ok = (h || CP.pin) === cpPinHash();
+  if (ok) { saiCampo(); return; }
+  CP.pin = ''; cpErro('PIN errado. Tente de novo.');
+}
+function cpEsqueci() {
+  return cpHead('Esqueci o PIN', '', "cpIr('sair',{pin:''})") + `<div class="cp-body"><p class="cp-txt">Digite o <b>nome deste aparelho</b>, do jeito que foi cadastrado no escritório.</p>
+    <input id="cpEsq" class="cp-input" autocomplete="off" data-foco onkeydown="if(event.key==='Enter')cpEsqOk()">${cpAviso()}${cpBtn('Sair do Modo Campo', '', 'cpEsqOk()', 'pri')}</div>`;
+}
+function cpEsqOk() {
+  const v = str($('cpEsq').value, 40).toLowerCase();
+  if (syncMeta.device && v && v === syncMeta.device.nome.toLowerCase()) { saiCampo(); return; }
+  cpErro('Nome não confere.');
+}
+
+/* Leitor de brinco por Bluetooth ou teclado físico: números e Enter vão direto para o lançamento */
+document.addEventListener('keydown', e => {
+  if (!cpLigado() || $('campo').hidden || $('modal').classList.contains('open')) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const t = CP.tela;
+  if (!['lancar', 'peso', 'pesoBez', 'sair'].includes(t)) return;
+  if (/^\d$/.test(e.key)) { e.preventDefault(); cpTecla(e.key); }
+  else if (e.key === 'Backspace') { e.preventDefault(); cpTecla('⌫'); }
+  else if ((e.key === ',' || e.key === '.') && t !== 'lancar') { e.preventDefault(); cpTecla(','); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (t === 'lancar') cpOk(); else if (t === 'peso') cpSalvaPeso(); else if (t === 'pesoBez') cpSalvaBez(); }
+});
+
 /* ---------- Tema: Automático (segue o sistema) · Claro · Escuro ---------- */
 const TEMAS = { auto: { nome: 'Automático', ico: '◐' }, claro: { nome: 'Claro', ico: '☀' }, escuro: { nome: 'Escuro', ico: '☾' } };
 function temaAtual() { try { return localStorage.getItem('tapirucu-tema') || 'auto'; } catch (e) { return 'auto'; } }
@@ -3332,6 +3955,7 @@ async function init() {
   document.querySelectorAll('.app-ver').forEach(e => e.textContent = APP_VERSION);
   aplicaTema(); aplicaMenu();
   renderFarmSel(); updateCounts(); refreshInstallUI(); goView('home');
+  if (cpLigado()) entraCampo();
   setTimeout(() => $('splash').classList.add('off'), 450);
   if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }
   checkUpdateLoop(); showWhatsNew(); checkUpdates(false);

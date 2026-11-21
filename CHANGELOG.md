@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [13] — 2026-11-21 — Modo Campo para o curral
+- Novo Modo Campo: ligado por aparelho, deixa o app simples para quem lança no curral. Uma pergunta por tela, botões grandes, teclado numérico próprio e confirmação clara a cada animal.
+- Cobre todos os apontamentos: pesar, vacina e remédio (produto, dose, carência e próxima aplicação), trocar de lote, mudar o lote de pasto, nascimento e morte, perda ou venda.
+- Ache o animal tocando no brinco da lista do lote ou digitando só os números. Também funciona com leitor de brinco por Bluetooth.
+- Proteções: peso muito diferente do último pede confirmação, animal de outro lote é avisado, e cada lançamento pode ser desfeito na hora.
+- A lida concluída no campo vai para o escritório como "Do campo · conferir": viaja na exportação, mas só altera o rebanho quando o gestor confere e finaliza.
+- Sair do Modo Campo exige o PIN do gestor.
+
 ## [12] — 2026-11-21 — Tela inicial com todas as fazendas
 - A tela inicial passa a mostrar o consolidado de todas as fazendas: cabeças, pastagem, lotação geral, arrobas em 90 dias, carência e animais sem manejo.
 - Logo abaixo, um cartão por fazenda com cabeças, pastos, lotes, UA/ha, GMD e os alertas dela. Tocar na fazenda passa a usá-la no aparelho e abre o painel dela.

@@ -21,7 +21,7 @@ sequenceDiagram
 | Viaja | Não viaja |
 |---|---|
 | Fazendas, lotes, animais | Lidas em aberto (rascunho do aparelho) |
-| Lidas **finalizadas** (R16) | Lixeira local |
+| Lidas **finalizadas** (R16) e lidas **conferir** (concluídas no Modo Campo, ainda sem efeito no rebanho) | Lixeira local |
 | Registro de exclusões | Nome e histórico de sincronização do aparelho |
 
 ## Formato do arquivo (formato 2)

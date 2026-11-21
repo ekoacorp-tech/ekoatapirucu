@@ -121,7 +121,9 @@ Remover um animal só é permitido para cadastro errado e se ele não estiver em
 | `tipo` | `pesagem`, `sanitario`, `troca`, `baixa`, `nascimento` | Sim | |
 | `data` | data | Sim | Retroativa permitida; futura bloqueada |
 | `loteId` | ID | Cond. | Obrigatório em pesagem e sanitário |
-| `status` | `aberta` / `finalizada` | Sim | Só `finalizada` altera o rebanho e é exportada (R01, R16) |
+| `status` | `aberta` / `conferir` / `finalizada` | Sim | Só `finalizada` altera o rebanho (R01). `conferir` = concluída no Modo Campo: é exportada, mas espera o gestor conferir e finalizar. `aberta` não é exportada (R16) |
+| `campo` | sim/não | Não | `true` quando a lida foi feita no Modo Campo |
+| `enviadaEm` | data e hora | Cond. | Quando o operador concluiu a lida no campo |
 | `finalizadaEm` | data e hora | Cond. | |
 | `obs` | texto (500) | Não | |
 | `cab` | objeto | Cond. | Campos do tipo (abaixo) |
