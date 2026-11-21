@@ -6,7 +6,7 @@
 
 **Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-7%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-8%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
@@ -35,7 +35,7 @@ O Tapiruçu resolve primeiro essa ponta: cada pesagem, vacina, troca de lote, mo
 </tr>
 <tr>
 <td><b>Início.</b> Nova lida a um toque, avisos do que está em aberto e do que ainda não foi exportado, e os números do rebanho.</td>
-<td><b>Lida de campo.</b> Brinco, Enter, peso, Enter. O app valida o brinco na hora, mostra o último peso e o ganho, e salva a cada registro.</td>
+<td><b>Lida em cascata.</b> Fazenda → lote → animais. O primeiro brinco define o lote, os demais entram na fila; brinco de outro lote pede confirmação e de outra fazenda é recusado.</td>
 </tr>
 <tr>
 <td><img src="assets/screenshots/03-rebanho.jpg" alt="Rebanho"></td>
@@ -43,7 +43,7 @@ O Tapiruçu resolve primeiro essa ponta: cada pesagem, vacina, troca de lote, mo
 </tr>
 <tr>
 <td><b>Rebanho.</b> Lote atual, último peso, GMD e situação de cada animal: carência sanitária (🔒) e alerta de animal sem manejo há mais de 30 dias.</td>
-<td><b>Painel.</b> Peso médio, GMD, UA/ha e ocupação por lote, baixas e nascimentos do mês e próximas aplicações sanitárias.</td>
+<td><b>Painel da fazenda.</b> Ganhos e perdas no período, arrobas estimadas e @/ha, evolução de 12 meses, comparativo entre fazendas e detalhe de cada piquete.</td>
 </tr>
 <tr>
 <td><img src="assets/screenshots/05-sincronizar.jpg" alt="Sincronização"></td>
@@ -59,6 +59,10 @@ O Tapiruçu resolve primeiro essa ponta: cada pesagem, vacina, troca de lote, mo
 <tr>
 <td width="50%"><img src="assets/screenshots/09-mapa.jpg" alt="Mapa da fazenda"></td>
 <td width="50%"><b>Mapa da fazenda.</b> Perímetro do CAR, piquetes coloridos pela ocupação e o rebanho de cada um. Importe o .zip do CAR, desenhe sobre o satélite ou percorra a cerca com o GPS; a área de cada piquete é calculada e entra na lotação.</td>
+</tr>
+<tr>
+<td><img src="assets/screenshots/11-ajuda.jpg" alt="Ekoa Ajuda"></td>
+<td><b>Ekoa Ajuda.</b> Um "?" em cada tela com passo a passo, regras, dúvidas e o que conferir no teste beta. Central com busca: "pesar", "CAR", "exportar".</td>
 </tr>
 </table>
 
@@ -155,6 +159,9 @@ docs/           arquitetura, sincronização, modelo de dados, homologação e p
 - [x] Exportação CSV (inventário, eventos e lotes)
 - [x] Localização da fazenda e dos pastos pelo GPS, com o modelo de dados pronto para o mapa
 - [x] Mapa da fazenda: perímetro do CAR, desenho e trajeto GPS dos piquetes, área calculada e rebanho por piquete ([detalhes](docs/mapa.md))
+- [x] Ekoa Ajuda contextual e central de ajuda
+- [x] Lidas em cascata (fazenda → lote → animal) e lida em grupo
+- [x] Painel da fazenda: ganhos e perdas, evolução, comparativo e detalhe por piquete
 - [ ] Histórico de ocupação e descanso por piquete (rotação de pastejo)
 - [ ] Indicadores definitivos da chave mestra (Fase 0)
 - [ ] Relatório em PDF por lote e por fazenda

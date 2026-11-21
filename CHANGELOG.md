@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [8 beta] · 21/11/2026 · Ekoa Ajuda, lidas em cascata e painel da fazenda
+- **Ekoa Ajuda:** botão "?" no cabeçalho de cada tela e do editor de lida (tecla F1 no computador); temas com para que serve, passo a passo, regras do app, dúvidas frequentes e os cenários do roteiro beta a conferir. Central de ajuda com busca (menu → Ajuda e Mais → Ekoa Ajuda).
+- **Cascata de cadastros nas lidas:** Fazenda → Lote/piquete → Animais. A fazenda só muda enquanto a lida não tem animais. Lista "Animais de …" com os elegíveis do lote (no nascimento, só fêmeas), busca e barra de progresso.
+- **Validação da pré-seleção:** brinco de outro lote pede confirmação antes de entrar; brinco de outra fazenda é recusado com o nome da fazenda dele.
+- **Lida em grupo:** sem lote escolhido, o primeiro brinco define o lote e os demais animais viram a fila. "Adicionar todos" em sanitário e troca.
+- **Painel da fazenda:** escopo (uma fazenda ou todas) e período; ganhos e perdas (rebanho inicial e final, entradas, vendas, perdas e % do rebanho, ganho de peso, GMD, arrobas estimadas e @/ha); evolução de 12 meses (cabeças, peso médio, ganho no mês) com dica e tabela; comparativo entre fazendas; detalhe do piquete com a evolução dele.
+- **Cálculo por fazenda** com histórico de lote de cada animal (trocas e mudança na finalização), para atribuir o ganho ao piquete onde o animal estava.
+- Cores dos gráficos validadas (teal `#00909F`, cobre `#C86A2C`): faixa de luminosidade, saturação, separação para daltonismo e contraste.
+
 ## [7 beta] · 21/11/2026 · Exportação corrigida no computador
 - **Corrigido:** "Exportar dados" no computador falhava com "Não foi possível exportar agora" quando havia lida em aberto. A confirmação consumia o clique recente e o compartilhamento nativo do Windows era recusado, sem plano B.
 - Computador: baixa o arquivo direto. Celular: compartilhamento nativo e, se o sistema recusar (exceto cancelamento), download.

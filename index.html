@@ -375,6 +375,51 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 .rm-types span{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--text-secondary)}.rm-types b{font-size:.92rem;color:var(--text-primary)}
 .rm-types select{min-height:40px;border-radius:10px;border:1px solid var(--border-color);padding:6px 10px;background:var(--bg-surface)}
 @media (max-width:900px){#gmMain{height:58vh}.map-tools .grow{display:none}.map-tools .btn.sm{flex:1 1 45%}}
+
+/* ===== Cascata: animais elegíveis do lote ===== */
+.eleg{margin:4px 0 14px;padding:12px 14px;border-radius:14px;background:var(--bg-surface);border:1px dashed var(--border-color)}
+.eleg-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.eleg-head .btn{margin-left:auto}
+.eleg-bar{height:6px;border-radius:99px;background:var(--row-hover);overflow:hidden;margin-bottom:10px}
+.eleg-bar span{display:block;height:100%;background:var(--teal);transition:width var(--ek-dur-base) var(--ek-ease-out)}
+.eleg-busca{width:100%;max-width:260px;min-height:40px;padding:6px 12px;border-radius:10px;border:1px solid var(--border-color);margin-bottom:8px;background:#fff}
+.eleg-chips{display:flex;flex-wrap:wrap;gap:8px;max-height:220px;overflow:auto}
+.eleg-chip{min-height:44px;min-width:64px;padding:6px 12px;border-radius:12px;border:1px solid var(--border-color);background:#fff;font:inherit;font-weight:700;cursor:pointer;color:var(--text-primary)}
+.eleg-chip:hover{border-color:var(--teal);background:rgba(59,138,151,.08)}
+.eleg-chip.car{border-color:var(--gold)}
+.eleg-ok{color:#166534;font-weight:600}
+
+/* ===== Ekoa Ajuda ===== */
+.help-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:10px;vertical-align:middle;border-radius:50%;border:1.5px solid var(--teal);background:var(--bg-surface);color:var(--teal);font:800 .95rem system-ui,sans-serif;cursor:pointer;position:relative;-webkit-text-fill-color:var(--teal)}
+.help-btn::after{content:"";position:absolute;inset:-8px}
+.help-btn:hover{background:var(--teal);color:#fff;-webkit-text-fill-color:#fff}
+.aj-resumo{font-size:.95rem;line-height:1.5;margin-bottom:6px}
+.aj-h{margin:16px 0 6px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--copper)}
+.aj-ol,.aj-ul{margin-left:20px;font-size:.9rem;line-height:1.6}
+.aj-faq{border:1px solid var(--border-color);border-radius:10px;padding:8px 12px;margin-bottom:6px;background:#fff}
+.aj-faq summary{cursor:pointer;font-weight:600;font-size:.9rem;min-height:28px}
+.aj-faq p{margin-top:6px;font-size:.88rem;color:var(--text-secondary);line-height:1.5}
+.aj-beta{margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(59,138,151,.08);border:1px solid rgba(59,138,151,.3);font-size:.86rem;line-height:1.6}
+.aj-busca{width:100%;min-height:46px;padding:10px 14px;border-radius:12px;border:1px solid var(--border-color);background:#fff;margin-bottom:4px}
+.aj-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.aj-item{display:flex;flex-direction:column;gap:3px;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-surface);cursor:pointer;font:inherit;color:inherit;min-height:44px}
+.aj-item:hover{border-color:var(--teal)}
+.aj-item b{font-size:.92rem}.aj-item span{font-size:.78rem;color:var(--text-secondary);line-height:1.35}
+
+/* ===== Painel: gráficos ===== */
+.pn-bar select{min-width:200px}
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.ch-t{font-size:.86rem;color:var(--text-primary);margin-bottom:4px;font-weight:700}
+.ch-t span{font-weight:400;color:var(--text-secondary);font-size:.78rem;margin-left:4px}
+.chart{width:100%;height:190px}
+.chart svg{display:block;overflow:visible}
+.ch-ax{font:11px system-ui,-apple-system,sans-serif;fill:#6E5D52}
+.ch-val{font:700 12px system-ui,-apple-system,sans-serif;fill:#3A2C24;paint-order:stroke;stroke:#FBF7F1;stroke-width:3px}
+.ch-hit{cursor:default;outline:none}
+.ch-hit:focus{stroke:#3B8A97;stroke-width:1}
+.ch-tab{margin-top:12px}.ch-tab summary{cursor:pointer;font-weight:600;color:var(--teal);min-height:32px}
+#vizTip{position:fixed;z-index:10000;pointer-events:none;padding:7px 10px;border-radius:9px;background:#1c2a30;color:#fff;font-size:.8rem;line-height:1.35;box-shadow:0 8px 20px rgba(0,0,0,.25);opacity:0;transition:opacity var(--ek-dur-micro)}
+#vizTip.on{opacity:1}
 </style>
 </head>
 <body data-view="home">
@@ -413,7 +458,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   <div>
     <div class="brand">
       <img src="assets/tapirucu-logo.png" alt="Ekoa Tapiruçu - Início" onclick="goView('home')" style="cursor:pointer">
-      <div><h1>Ekoa Tapiruçu</h1><a href="#" class="about-link" onclick="event.stopPropagation();openAbout();return false;">Versão <span class="app-ver"></span> beta • Sobre</a></div>
+      <div><h1>Ekoa Tapiruçu</h1><a href="#" class="about-link" onclick="event.stopPropagation();openAbout();return false;">Versão <span class="app-ver"></span> beta • Sobre</a> <a href="#" class="about-link" onclick="event.stopPropagation();openAjuda(null);return false;">• Ajuda</a></div>
     </div>
     <div class="farm-pick"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
     <nav class="side-nav">
@@ -531,6 +576,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
       <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, piquetes e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
+      <button onclick="openAjuda(null)"><svg><use href="#i-info"/></svg><div>Ekoa Ajuda<small>Passo a passo, regras e dúvidas de cada tela</small></div></button>
       <button onclick="openAbout()"><svg><use href="#i-info"/></svg><div>Sobre e versão<small>Novidades, atualização e instalação</small></div></button>
     </div>
   </section>
@@ -552,6 +598,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="vizTip" role="tooltip"></div>
 <input type="file" id="importFile" accept=".json,application/json" class="sr" onchange="onImportFile(event)">
 
 <script>
@@ -561,7 +608,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 7;
+const APP_VERSION = 8;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 2;            // 2: fazenda e lote com geolocalização (formato 1 continua importável)
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -651,14 +698,15 @@ function setFarm(id) { S.fazendaAtiva = id; save(); refreshAll(); }
    + lidas finalizadas, em ordem de data. É o mesmo princípio da futura
    integração: a lida é o evento, o Sankhya é quem oficializa.
    ========================================================================= */
-function compute() {
-  if (calc) return calc;
+const compute = () => computeF(S.fazendaAtiva);
+function computeF(fid) {
+  if (calc && calc[fid]) return calc[fid];
   const map = {};
-  animaisF().forEach(a => {
-    map[a.id] = { a, lote: a.loteId, pesos: [], eventos: [], carenciaAte: null, ultimoManejo: null, baixa: null };
+  S.animais.filter(a => a.fazendaId === fid).forEach(a => {
+    map[a.id] = { a, lote: a.loteId, pesos: [], eventos: [], carenciaAte: null, ultimoManejo: null, baixa: null, loteHist: [{ data: a.entradaEm || '0000-00-00', lote: a.loteId }] };
     if (a.pesoEntrada > 0 && a.entradaEm) map[a.id].pesos.push({ data: a.entradaEm, peso: a.pesoEntrada, lidaId: null });
   });
-  const fin = lidasF().filter(l => l.status === 'finalizada').sort((x, y) => (x.data + (x.finalizadaEm || '')).localeCompare(y.data + (y.finalizadaEm || '')));
+  const fin = S.lidas.filter(l => l.fazendaId === fid && l.status === 'finalizada').sort((x, y) => (x.data + (x.finalizadaEm || '')).localeCompare(y.data + (y.finalizadaEm || '')));
   fin.forEach(l => {
     (l.registros || []).forEach(r => {
       const st = map[r.animalId];
@@ -667,15 +715,15 @@ function compute() {
       if (st.baixa && l.data >= st.baixa.data) return; // nada acontece depois da baixa
       if (l.tipo === 'pesagem') {
         if (r.peso > 0) st.pesos.push({ data: l.data, peso: r.peso, lidaId: l.id });
-        st.ultimoManejo = l.data; if (r.mover && l.loteId) st.lote = l.loteId;
+        st.ultimoManejo = l.data; if (r.mover && l.loteId && st.lote !== l.loteId) { st.lote = l.loteId; st.loteHist.push({ data: l.data, lote: l.loteId }); }
         st.eventos.push({ data: l.data, tipo: 'pesagem', lidaId: l.id, txt: fmtN(r.peso, 1) + ' kg' });
       } else if (l.tipo === 'sanitario') {
         const c = l.cab || {};
         if (c.carenciaAte && (!st.carenciaAte || c.carenciaAte > st.carenciaAte)) st.carenciaAte = c.carenciaAte;
-        st.ultimoManejo = l.data; if (r.mover && l.loteId) st.lote = l.loteId;
+        st.ultimoManejo = l.data; if (r.mover && l.loteId && st.lote !== l.loteId) { st.lote = l.loteId; st.loteHist.push({ data: l.data, lote: l.loteId }); }
         st.eventos.push({ data: l.data, tipo: 'sanitario', lidaId: l.id, txt: (PROCEDIMENTOS[c.procedimento] || 'Sanitário') + (c.produto ? ': ' + c.produto : '') });
       } else if (l.tipo === 'troca') {
-        const de = st.lote; st.lote = (l.cab || {}).loteDestinoId || st.lote;
+        const de = st.lote; st.lote = (l.cab || {}).loteDestinoId || st.lote; if (st.lote !== de) st.loteHist.push({ data: l.data, lote: st.lote });
         st.eventos.push({ data: l.data, tipo: 'troca', lidaId: l.id, txt: loteNome(de) + ' → ' + loteNome(st.lote) });
       } else if (l.tipo === 'baixa') {
         st.baixa = { data: l.data, motivo: (l.cab || {}).motivo, lidaId: l.id };
@@ -699,7 +747,7 @@ function compute() {
     st.atrasado = st.ativo && st.diasSemManejo != null && st.diasSemManejo > DIAS_ATRASO;
     st.eventos.sort((x, y) => y.data.localeCompare(x.data));
   });
-  calc = map;
+  calc = calc || {}; calc[fid] = map;
   return map;
 }
 
@@ -719,6 +767,7 @@ function goView(v) {
   if (v === 'cadastros') renderCadastros();
   if (v === 'mapa') renderMapa();
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
+  poeAjuda();
   window.scrollTo({ top: 0 });
 }
 function refreshAll() { renderFarmSel(); updateCounts(); goView(currentView); }
@@ -746,7 +795,7 @@ function openModal(title, body, foot, wide) {
   setTimeout(() => { const f = $('mBody').querySelector('input,select,textarea') || $('mFoot').querySelector('button'); if (f) f.focus(); }, 30);
 }
 function closeModal() { $('modal').classList.remove('open'); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal').classList.contains('open')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal').classList.contains('open')) closeModal(); if (e.key === 'F1') { e.preventDefault(); openAjuda(); } });
 function fieldErr(id, msg) { const el = $(id); if (!el) return; const f = el.closest('.field'); if (f) { f.classList.toggle('has-err', !!msg); const er = f.querySelector('.err'); if (er) er.textContent = msg || ''; } }
 const fld = (id, label, input, req, hint) => `<div class="field"><label for="${id}">${label}${req ? ' <span class="req">*</span>' : ''}</label>${input}<div class="err"></div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
 const opts = (obj, sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + Object.entries(obj).map(([k, v]) => `<option value="${esc(k)}"${k === sel ? ' selected' : ''}>${esc(v)}</option>`).join('');
@@ -839,7 +888,7 @@ function createLida(tipo) {
   if (tipo === 'baixa') l.cab.motivo = 'morte';
   S.lidas.push(l); save(); closeModal(); openLida(l.id);
 }
-function openLida(id) { editLidaId = id; goView('lida'); }
+function openLida(id) { editLidaId = id; preSelOk = null; const l = S.lidas.find(x => x.id === id); if (l && l.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = l.fazendaId; calc = null; renderFarmSel(); } goView('lida'); }
 const curLida = () => S.lidas.find(l => l.id === editLidaId);
 
 function renderLidaEditor() {
@@ -847,8 +896,10 @@ function renderLidaEditor() {
   if (!l) { goView('lidas'); return; }
   const ro = l.status === 'finalizada', c = l.cab, T = TIPOS[l.tipo], dis = ro ? ' disabled' : '';
   const precisaLote = l.tipo !== 'baixa' && l.tipo !== 'nascimento';
-  let head = fld('lData', 'Data do manejo', `<input type="date" id="lData" value="${esc(l.data)}" max="${hoje()}"${dis} onchange="setCab('data',this.value)">`, true)
-    + fld('lLote', l.tipo === 'troca' ? 'Lote de origem (opcional)' : 'Lote do manejo', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, precisaLote && l.tipo !== 'troca' ? 'Selecione' : 'Qualquer lote')}</select>`, precisaLote && l.tipo !== 'troca');
+  const fzOpts = S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === l.fazendaId ? ' selected' : ''}>${esc(f.nome)}</option>`).join('');
+  let head = fld('lFaz', 'Fazenda', `<select id="lFaz"${ro || regs0(l) ? ' disabled' : ''} onchange="setLidaFazenda(this.value)">${fzOpts}</select>`, true, !ro && regs0(l) ? 'Para trocar a fazenda, remova os animais lançados.' : '')
+    + fld('lData', 'Data do manejo', `<input type="date" id="lData" value="${esc(l.data)}" max="${hoje()}"${dis} onchange="setCab('data',this.value)">`, true)
+    + fld('lLote', l.tipo === 'troca' ? 'Lote / piquete de origem' : 'Lote / piquete', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, 'Definir pelo primeiro brinco')}</select>`, precisaLote && l.tipo !== 'troca', ro ? '' : 'Escolha o lote, ou leia o primeiro brinco: o lote dele vira o lote da lida e os demais animais entram na fila.');
   if (l.tipo === 'pesagem') head += fld('lMot', 'Motivo', `<select id="lMot"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_PESAGEM, c.motivo)}</select>`);
   if (l.tipo === 'sanitario') head += fld('lProc', 'Procedimento', `<select id="lProc"${dis} onchange="setCab('cab.procedimento',this.value)">${opts(PROCEDIMENTOS, c.procedimento)}</select>`, true)
     + fld('lProd', 'Produto', `<input id="lProd" value="${esc(c.produto || '')}" maxlength="80"${dis} onchange="setCab('cab.produto',this.value)" placeholder="Ex.: Aftosa, Ivermectina">`, true)
@@ -875,8 +926,9 @@ function renderLidaEditor() {
         ${l.tipo === 'pesagem' ? fld('ePeso', 'Peso (kg)', `<input id="ePeso" inputmode="decimal" autocomplete="off" enterkeyhint="done">`, true) : ''}
         ${l.tipo === 'baixa' ? fld('eObs', 'Causa / obs.', `<input id="eObs" maxlength="80" autocomplete="off">`) : ''}
         <button class="btn teal" onclick="addRegistro()">Adicionar</button>
-        ${(l.tipo === 'sanitario' || l.tipo === 'troca') ? `<button class="btn" onclick="addTodosLote()">Todos do lote</button>` : ''}</div>`;
+        </div>`;
     }
+    entry += `<div id="eWarn"></div>` + elegiveisHtml(l);
   }
   const st = compute();
   const rows = regs.map((r, i) => {
@@ -908,6 +960,7 @@ function renderLidaEditor() {
       ${regs.length ? `<div class="tbl-wrap"><table><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">Nenhum animal lançado nesta lida.</div>'}</div>`;
       return regs.length ? anim + dados : dados + anim; // com lançamentos, a lista vem primeiro
     })()}`;
+  poeAjuda();
   const first = $('eBrinco') || $('eMae');
   if (first) {
     first.addEventListener('keydown', e => {
@@ -917,9 +970,11 @@ function renderLidaEditor() {
         const b = normBrinco(first.value); fieldErr('eBrinco', '');
         if (!b) { fieldErr('eBrinco', 'Informe o brinco.'); return; }
         const f = findAnimalByBrinco(b);
-        if (!f) { fieldErr('eBrinco', `Brinco ${b} não está cadastrado nesta fazenda. Cadastre em Rebanho.`); return; }
+        if (!f) { fieldErr('eBrinco', naoEncontrado(b)); return; }
         if (l.registros.some(r => r.animalId === f.a.id)) { fieldErr('eBrinco', `O brinco ${f.a.brinco} já está nesta lida.`); return; }
-        const s = compute()[f.a.id]; fieldErr('ePeso', ''); $('ePeso').placeholder = s && s.ultimoPeso ? 'último: ' + fmtN(s.ultimoPeso, 1) : '';
+        const s = compute()[f.a.id];
+        if (s && s.ativo && !conferirPreSelecao(l, s, () => { $('ePeso').focus(); })) return;
+        fieldErr('ePeso', ''); $('ePeso').placeholder = s && s.ultimoPeso ? 'último: ' + fmtN(s.ultimoPeso, 1) : '';
         p.focus();
       } else addRegistro();
     });
@@ -934,6 +989,7 @@ function setCab(path, val) {
   if (path === 'data' && val > hoje()) { alert('A data do manejo não pode ser futura.'); renderLidaEditor(); return; }
   if (path.startsWith('cab.')) l.cab[path.slice(4)] = str(val, 80); else l[path] = path === 'obs' ? str(val, 500) : val;
   l.editadoEm = nowISO(); save();
+  if (path === 'loteId') preSelOk = null;
   if (path === 'data' || path === 'loteId') renderLidaEditor();
 }
 function findAnimalByBrinco(b) {
@@ -950,10 +1006,12 @@ function addRegistro() {
     const mb = normBrinco($('eMae').value); fieldErr('eMae', ''); fieldErr('ePeso', ''); fieldErr('eBez', '');
     if (!mb) { fieldErr('eMae', 'Informe o brinco da vaca.'); return; }
     const f = findAnimalByBrinco(mb);
-    if (!f) { fieldErr('eMae', `Brinco ${mb} não está cadastrado nesta fazenda.`); return; }
+    if (!f) { fieldErr('eMae', naoEncontrado(mb)); return; }
     const m = st[f.a.id];
     if (f.a.sexo !== 'F') { fieldErr('eMae', `O brinco ${f.a.brinco} está cadastrado como macho.`); return; }
     if (!m || !m.ativo) { fieldErr('eMae', `A vaca ${f.a.brinco} está baixada.`); return; }
+    if (!conferirPreSelecao(l, m, () => addRegistro())) return;
+    definirLotePeloPrimeiro(l, m);
     const pRaw = $('ePeso').value.trim(), peso = pRaw ? parseNum(pRaw) : null;
     if (pRaw && (!(peso > 0) || peso > 120)) { fieldErr('ePeso', 'Peso de bezerro inválido (use até 120 kg).'); return; }
     let bz = normBrinco($('eBez').value);
@@ -967,10 +1025,11 @@ function addRegistro() {
   const raw = normBrinco($('eBrinco').value); fieldErr('eBrinco', ''); fieldErr('ePeso', '');
   if (!raw) { fieldErr('eBrinco', 'Informe o brinco.'); return; }
   const f = findAnimalByBrinco(raw);
-  if (!f) { fieldErr('eBrinco', `Brinco ${raw} não está cadastrado nesta fazenda. Cadastre em Rebanho.`); return; }
+  if (!f) { fieldErr('eBrinco', naoEncontrado(raw)); return; }
   const a = f.a, s = st[a.id];
   if (!s || !s.ativo) { fieldErr('eBrinco', `O animal ${a.brinco} está baixado desde ${fmtD(s && s.baixa && s.baixa.data)}.`); return; }
   if (l.registros.some(r => r.animalId === a.id)) { fieldErr('eBrinco', `O brinco ${a.brinco} já está nesta lida.`); return; }
+  if (!conferirPreSelecao(l, s, () => addRegistro())) return;
   if (s.a.entradaEm && l.data < s.a.entradaEm) { fieldErr('eBrinco', `O animal ${a.brinco} entrou na fazenda em ${fmtD(s.a.entradaEm)}, depois da data desta lida.`); return; }
   const reg = { id: uuid(), animalId: a.id, brinco: a.brinco };
   if (l.tipo === 'pesagem') {
@@ -982,10 +1041,72 @@ function addRegistro() {
   }
   if (l.tipo === 'baixa') reg.obs = str($('eObs').value, 80);
   if (l.tipo === 'baixa' && s.emCarencia && l.cab.motivo === 'venda' && !confirm(`O animal ${a.brinco} está em carência até ${fmtD(s.carenciaAte)}. Lançar venda mesmo assim?`)) return;
-  l.registros.push(reg); l.editadoEm = nowISO(); save(); keepEntryFocus = true; renderLidaEditor();
-  showToast(`${a.brinco} adicionado${f.caseHint ? ' (maiúsculas/minúsculas diferentes do cadastro)' : ''}.`);
+  const definiu = definirLotePeloPrimeiro(l, s);
+  l.registros.push(reg); l.editadoEm = nowISO(); preSelOk = null; save(); keepEntryFocus = true; renderLidaEditor();
+  showToast(definiu ? `${a.brinco} adicionado. Lote ${loteNome(l.loteId)} definido pelo primeiro brinco: os demais animais dele estão na fila.` : `${a.brinco} adicionado${f.caseHint ? ' (maiúsculas/minúsculas diferentes do cadastro)' : ''}.`);
 }
 function brincoEmUso(b) { return animaisF().some(a => a.brinco === b); }
+const regs0 = l => (l.registros || []).length > 0;
+/* Cascata: a lida pertence a uma fazenda; trocar só sem animais lançados */
+function setLidaFazenda(fid) {
+  const l = curLida(); if (!l || l.status !== 'aberta' || regs0(l)) return;
+  l.fazendaId = fid; l.loteId = ''; l.cab.loteDestinoId = ''; l.editadoEm = nowISO();
+  S.fazendaAtiva = fid; save(); renderFarmSel(); renderLidaEditor();
+}
+/* Brinco não encontrado na fazenda da lida: diz se ele é de outra fazenda */
+function naoEncontrado(b) {
+  const outro = S.animais.find(a => a.fazendaId !== S.fazendaAtiva && a.brinco.toLowerCase() === b.toLowerCase());
+  if (outro) { const fz = S.fazendas.find(f => f.id === outro.fazendaId); return `O brinco ${outro.brinco} é da ${fz ? fz.nome : 'outra fazenda'}, não desta. Confira o brinco ou troque a fazenda da lida.`; }
+  return `Brinco ${b} não está cadastrado nesta fazenda. Cadastre em Rebanho.`;
+}
+/* Valida o animal contra o lote pré-selecionado. Fora do lote: pergunta antes de incluir. */
+let preSelOk = null;   // id do animal já confirmado fora do lote
+function conferirPreSelecao(l, s, continuar) {
+  const w = $('eWarn'); if (w) w.innerHTML = '';
+  if (!l.loteId || s.lote === l.loteId || preSelOk === s.a.id) return true;
+  if (!w) return true;
+  w.innerHTML = `<div class="alert warn" role="alert"><span><b>${esc(s.a.brinco)} está no lote ${esc(loteNome(s.lote))}</b>, não em ${esc(loteNome(l.loteId))}. ${l.tipo === 'troca' ? 'Ele sai do lote atual dele.' : 'Se incluir, ao finalizar o app pergunta se ele deve passar para ' + esc(loteNome(l.loteId)) + '.'}</span>
+    <span class="actions"><button class="btn sm" id="ewFix">Corrigir brinco</button><button class="btn sm gold" id="ewOk">Incluir mesmo assim</button></span></div>`;
+  $('ewFix').onclick = () => { preSelOk = null; w.innerHTML = ''; const i = $('eBrinco') || $('eMae'); i.select(); i.focus(); };
+  $('ewOk').onclick = () => { preSelOk = s.a.id; w.innerHTML = ''; continuar(); };
+  $('ewOk').focus();
+  return false;
+}
+/* Lida em grupo: sem lote escolhido, o primeiro brinco define o lote da lida */
+function definirLotePeloPrimeiro(l, s) {
+  if (l.loteId || !s.lote) return false;
+  l.loteId = s.lote; return true;
+}
+function elegiveis(l) {
+  if (!l.loteId) return [];
+  return Object.values(compute()).filter(s => s.ativo && s.lote === l.loteId && !l.registros.some(r => r.animalId === s.a.id) && (l.tipo !== 'nascimento' || s.a.sexo === 'F'))
+    .sort((a, b) => a.a.brinco.localeCompare(b.a.brinco, 'pt-BR', { numeric: true }));
+}
+function elegiveisHtml(l) {
+  if (!l.loteId) return `<div class="eleg"><p class="muted">Sem lote escolhido. Leia o primeiro brinco: o lote dele define os demais animais elegíveis.</p></div>`;
+  const el = elegiveis(l), noLote = Object.values(compute()).filter(s => s.ativo && s.lote === l.loteId && (l.tipo !== 'nascimento' || s.a.sexo === 'F')).length;
+  const feitos = l.registros.filter(r => { const s = compute()[r.animalId]; return s && s.lote === l.loteId; }).length;
+  const pct = noLote ? Math.round(feitos / noLote * 100) : 0;
+  const multi = l.tipo === 'sanitario' || l.tipo === 'troca' || l.tipo === 'baixa';
+  return `<div class="eleg">
+    <div class="eleg-head"><b>Animais de ${esc(loteNome(l.loteId))}</b><span class="muted">${feitos} de ${noLote} lançados${l.tipo === 'nascimento' ? ' (fêmeas)' : ''}</span>
+      ${multi && el.length && l.tipo !== 'baixa' ? `<button class="btn sm" onclick="addTodosLote()">Adicionar todos (${el.length})</button>` : ''}</div>
+    <div class="eleg-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
+    ${el.length ? `${el.length > 12 ? `<input class="eleg-busca" type="search" placeholder="Filtrar brinco" oninput="filtraEleg(this.value)" aria-label="Filtrar animais do lote">` : ''}
+    <div class="eleg-chips" id="elegChips">${el.map(s => `<button type="button" class="eleg-chip${s.emCarencia ? ' car' : ''}" data-b="${esc(s.a.brinco.toLowerCase())}" onclick="escolherEleg('${s.a.id}')" title="${s.ultimoPeso ? 'último peso ' + fmtN(s.ultimoPeso, 1) + ' kg' : ''}">${esc(s.a.brinco)}${s.emCarencia ? ' 🔒' : ''}</button>`).join('')}</div>
+    <p class="hint">${l.tipo === 'pesagem' ? 'Toque no brinco do animal que entrou na balança e informe o peso.' : 'Toque para lançar. A ordem não importa.'}</p>`
+    : `<p class="eleg-ok">✓ Todos os animais do lote foram lançados.</p>`}
+  </div>`;
+}
+function filtraEleg(q) { q = q.trim().toLowerCase(); document.querySelectorAll('#elegChips .eleg-chip').forEach(b => { b.hidden = q && !b.dataset.b.includes(q); }); }
+function escolherEleg(id) {
+  const l = curLida(), s = compute()[id]; if (!l || !s) return;
+  if (l.tipo === 'nascimento') { $('eMae').value = s.a.brinco; $('eBez').focus(); return; }
+  $('eBrinco').value = s.a.brinco;
+  if (l.tipo === 'pesagem') { fieldErr('eBrinco', ''); $('ePeso').placeholder = s.ultimoPeso ? 'último: ' + fmtN(s.ultimoPeso, 1) : ''; $('ePeso').focus(); return; }
+  if (l.tipo === 'baixa') { $('eObs').focus(); return; }
+  addRegistro();
+}
 function addTodosLote() {
   const l = curLida(); if (!l) return;
   if (!l.loteId) { alert('Escolha o lote do manejo primeiro.'); return; }
@@ -1234,37 +1355,203 @@ function lotesResumo() {
       carencia: an.filter(s => s.emCarencia).length, atraso: an.filter(s => s.atrasado).length };
   });
 }
+/* =========================================================================
+   PAINEL DA FAZENDA — macro (fazenda ou todas) e micro (piquete)
+   Ganhos e perdas no período, evolução de 12 meses, comparativo de
+   fazendas e produtividade por piquete. Só lidas finalizadas.
+   Gráficos: uma série por gráfico, um eixo, cores validadas (teal #00909F,
+   cobre #C86A2C), dica ao passar o mouse e tabela com os mesmos números.
+   ========================================================================= */
+let painelTodas = false, painelDias = 90;
+const COR_CAB = '#00909F', COR_PESO = '#C86A2C', KG_ARROBA_VIVO = 30;
+const addDias = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+const fimMes = (y, m) => new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+function vivoEm(s, d) { return !!s.a.entradaEm && s.a.entradaEm <= d && (!s.baixa || s.baixa.data > d); }
+function pesoEm(s, d) { let p = null; for (const x of s.pesos) { if (x.data <= d) p = x.peso; else break; } return p; }
+function loteEm(s, d) { let l = s.a.loteId; for (const h of s.loteHist || []) { if (h.data <= d) l = h.lote; else break; } return l; }
+/* Ganho entre pesagens consecutivas, proporcional aos dias que caem no período; atribuído ao lote da pesagem final */
+function ganhoPeriodo(s, d0, d1) {
+  const p = s.pesos; let kg = 0, dias = 0; const porLote = {};
+  for (let i = 1; i < p.length; i++) {
+    const t1 = p[i - 1].data, t2 = p[i].data, tot = diasEntre(t1, t2); if (tot <= 0) continue;
+    const ov = diasEntre(t1 > d0 ? t1 : d0, t2 < d1 ? t2 : d1); if (ov <= 0) continue;
+    const g = (p[i].peso - p[i - 1].peso) * ov / tot; kg += g; dias += ov;
+    const lt = loteEm(s, t2); porLote[lt] = (porLote[lt] || 0) + g;
+  }
+  return { kg, dias, porLote };
+}
+function areaPastagemF(fid) { const f = S.fazendas.find(x => x.id === fid); if (f && f.areaHa) return f.areaHa; return S.lotes.filter(l => l.fazendaId === fid).reduce((t, l) => t + (areaLote(l) || 0), 0) || null; }
+function analise(fids, d0, d1, loteId) {
+  const r = { ini: 0, fim: 0, entCad: 0, entNasc: 0, venda: 0, morte: 0, perda: 0, kgVenda: 0, kgPerda: 0, ganho: 0, gmdS: 0, gmdN: 0, area: 0, lote: {} };
+  const dIni = addDias(d0, -1), noLote = (s, d) => !loteId || loteEm(s, d) === loteId;
+  fids.forEach(fid => {
+    if (!loteId) r.area += areaPastagemF(fid) || 0;
+    Object.values(computeF(fid)).forEach(s => {
+      if (vivoEm(s, dIni) && noLote(s, dIni)) r.ini++;
+      if (vivoEm(s, d1) && noLote(s, d1)) r.fim++;
+      if (s.a.entradaEm >= d0 && s.a.entradaEm <= d1 && noLote(s, s.a.entradaEm)) s.a.origemEntrada === 'nascimento' ? r.entNasc++ : r.entCad++;
+      if (s.baixa && s.baixa.data >= d0 && s.baixa.data <= d1 && noLote(s, s.baixa.data)) {
+        const kg = pesoEm(s, s.baixa.data) || 0;
+        if (s.baixa.motivo === 'venda') { r.venda++; r.kgVenda += kg; } else { s.baixa.motivo === 'morte' ? r.morte++ : r.perda++; r.kgPerda += kg; }
+      }
+      const g = ganhoPeriodo(s, d0, d1);
+      Object.entries(g.porLote).forEach(([l, kg]) => { const o = r.lote[l] = r.lote[l] || { kg: 0, gS: 0, gN: 0 }; o.kg += kg; });
+      const lFim = loteEm(s, d1);
+      if (g.dias > 0) { const o = r.lote[lFim] = r.lote[lFim] || { kg: 0, gS: 0, gN: 0 }; o.gS += g.kg / g.dias; o.gN++; }
+      if (!loteId) { r.ganho += g.kg; if (g.dias > 0) { r.gmdS += g.kg / g.dias; r.gmdN++; } }
+    });
+  });
+  if (loteId) { const o = r.lote[loteId] || { kg: 0, gS: 0, gN: 0 }; r.ganho = o.kg; r.gmdS = o.gS; r.gmdN = o.gN; const l = S.lotes.find(x => x.id === loteId); r.area = l ? areaLote(l) || 0 : 0; }
+  r.gmd = r.gmdN ? r.gmdS / r.gmdN : null; r.arrobas = r.ganho / KG_ARROBA_VIVO;
+  r.medio = (r.ini + r.fim) / 2; r.mort = r.medio ? (r.morte + r.perda) / r.medio * 100 : null;
+  r.arHa = r.area ? r.arrobas / r.area : null;
+  return r;
+}
+function evolucao(fids, loteId) {
+  const out = [], h = hoje(), base = new Date(h + 'T12:00:00');
+  for (let k = 11; k >= 0; k--) {
+    const y = base.getFullYear(), m = base.getMonth() - k, dt = new Date(Date.UTC(y, m, 1));
+    const ini = dt.toISOString().slice(0, 10), fim = fimMes(dt.getUTCFullYear(), dt.getUTCMonth()), ate = fim < h ? fim : h;
+    let cab = 0, pS = 0, pN = 0;
+    fids.forEach(fid => Object.values(computeF(fid)).forEach(s => {
+      if (!vivoEm(s, ate) || (loteId && loteEm(s, ate) !== loteId)) return; cab++;
+      const p = pesoEm(s, ate); if (p) { pS += p; pN++; }
+    }));
+    const g = analise(fids, ini, ate, loteId).ganho;
+    out.push({ rot: MESES[dt.getUTCMonth()] + '/' + String(dt.getUTCFullYear()).slice(2), cab, peso: pN ? pS / pN : null, ganho: g });
+  }
+  return out;
+}
+
+/* ---------- Gráficos (SVG medido no tamanho real do bloco) ---------- */
+const CHARTS = {};
+function chartBox(id, spec) { CHARTS[id] = spec; return `<div class="chart" id="${id}" role="img" aria-label="${esc(spec.titulo)}"></div>`; }
+function niceMax(v) { if (!(v > 0)) return 1; const e = 10 ** Math.floor(Math.log10(v)), f = v / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e; }
+const fmtEixo = v => Math.abs(v) >= 10000 ? fmtN(v / 1000, 0) + ' mil' : fmtN(v, v % 1 ? 1 : 0);
+function drawCharts() {
+  Object.entries(CHARTS).forEach(([id, sp]) => {
+    const el = $(id); if (!el) { delete CHARTS[id]; return; }
+    const W = el.clientWidth || 320, H = 190, L = 46, R = 14, T = 18, B = 26, pw = W - L - R, ph = H - T - B;
+    const vals = sp.dados.map(d => d.v).filter(v => v != null);
+    const vmin = sp.tipo === 'linha' && vals.length ? Math.min(...vals) : 0, vmaxRaw = vals.length ? Math.max(...vals) : 0;
+    const temNeg = sp.tipo === 'colunas' && vals.some(v => v < 0);
+    let max = niceMax(Math.max(vmaxRaw, 0) || 1), min = temNeg ? -niceMax(-Math.min(...vals)) : 0;
+    if (sp.tipo === 'linha' && vals.length) {   // marcas redondas: passo "bonito" e 4 intervalos que cobrem os dados
+      let step = niceMax(Math.max(1, (vmaxRaw - vmin) / 3)); min = Math.max(0, Math.floor(vmin / step) * step);
+      while (min + step * 4 < vmaxRaw) step = niceMax(step * 1.01); max = min + step * 4;
+    }
+    const y = v => T + ph - (v - min) / (max - min || 1) * ph, n = sp.dados.length, slot = pw / n, xc = i => L + slot * i + slot / 2;
+    let g = '';
+    for (let k = 0; k <= 4; k++) { const v = min + (max - min) * k / 4, yy = y(v); g += `<line x1="${L}" x2="${W - R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="#E7DED2" stroke-width="1"/><text x="${L - 6}" y="${(yy + 4).toFixed(1)}" text-anchor="end" class="ch-ax">${fmtEixo(v)}</text>`; }
+    const passo = slot < 22 ? 3 : slot < 40 ? 2 : 1;
+    sp.dados.forEach((d, i) => { if (i % passo === (n - 1) % passo) g += `<text x="${xc(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" class="ch-ax">${esc(d.rot)}</text>`; });
+    let marks = '';
+    if (sp.tipo === 'colunas') {
+      const bw = Math.min(24, slot * 0.62), y0 = y(0);
+      sp.dados.forEach((d, i) => {
+        const v = d.v || 0, yv = y(v), x = xc(i) - bw / 2, h = Math.abs(yv - y0), r = Math.min(4, h);
+        const path = v >= 0 ? `M${x},${y0}V${yv + r}Q${x},${yv} ${x + r},${yv}H${x + bw - r}Q${x + bw},${yv} ${x + bw},${yv + r}V${y0}Z` : `M${x},${y0}V${yv - r}Q${x},${yv} ${x + r},${yv}H${x + bw - r}Q${x + bw},${yv} ${x + bw},${yv - r}V${y0}Z`;
+        marks += `<path d="${path}" fill="${sp.cor}"/><rect class="ch-hit" x="${(xc(i) - slot / 2).toFixed(1)}" y="${T}" width="${slot.toFixed(1)}" height="${ph}" fill="transparent" tabindex="0" data-tip="${esc(d.rot + ': ' + sp.fmt(d.v))}"/>`;
+      });
+      const last = sp.dados[n - 1]; if (last && last.v != null) marks += `<text x="${xc(n - 1).toFixed(1)}" y="${(y(Math.max(0, last.v)) - 6).toFixed(1)}" text-anchor="middle" class="ch-val">${esc(sp.fmt(last.v))}</text>`;
+    } else {
+      const pts = sp.dados.map((d, i) => d.v == null ? null : [xc(i), y(d.v)]);
+      let dpath = '', on = false; pts.forEach(p => { if (!p) { on = false; return; } dpath += (on ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); on = true; });
+      marks += `<path d="${dpath}" fill="none" stroke="${sp.cor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      const li = pts.map((p, i) => p ? i : -1).filter(i => i >= 0).pop();
+      if (li != null) { const [x, yy] = pts[li], prev = pts.slice(0, li).filter(Boolean).pop(), topo = Math.min(yy, prev ? prev[1] : yy);
+        marks += `<circle cx="${x.toFixed(1)}" cy="${yy.toFixed(1)}" r="4" fill="${sp.cor}" stroke="#FBF7F1" stroke-width="2"/><text x="${(x + 4).toFixed(1)}" y="${Math.max(12, topo - 10).toFixed(1)}" text-anchor="end" class="ch-val">${esc(sp.fmt(sp.dados[li].v))}</text>`; }
+      sp.dados.forEach((d, i) => { marks += `<rect class="ch-hit" x="${(xc(i) - slot / 2).toFixed(1)}" y="${T}" width="${slot.toFixed(1)}" height="${ph}" fill="transparent" tabindex="0" data-tip="${esc(d.rot + ': ' + sp.fmt(d.v))}" data-x="${xc(i).toFixed(1)}"/>`; });
+      marks += `<line class="ch-cross" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="#9C8F84" stroke-width="1" visibility="hidden"/>`;
+    }
+    el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${g}${marks}</svg>`;
+  });
+}
+function chartTip(e) {
+  const t = e.target.closest && e.target.closest('.ch-hit'), tip = $('vizTip');
+  document.querySelectorAll('.ch-cross').forEach(c => c.setAttribute('visibility', 'hidden'));
+  if (!t) { tip.classList.remove('on'); return; }
+  tip.textContent = t.getAttribute('data-tip');
+  const r = t.getBoundingClientRect(); tip.style.left = Math.min(window.innerWidth - 180, r.left + r.width / 2 + 8) + 'px'; tip.style.top = (r.top + 8) + 'px'; tip.classList.add('on');
+  const x = t.getAttribute('data-x'); if (x) { const c = t.ownerSVGElement.querySelector('.ch-cross'); c.setAttribute('x1', x); c.setAttribute('x2', x); c.setAttribute('visibility', 'visible'); }
+}
+['pointerover', 'focusin'].forEach(ev => document.addEventListener(ev, chartTip));
+document.addEventListener('pointerout', e => { if (e.target.closest && e.target.closest('.ch-hit')) { $('vizTip').classList.remove('on'); document.querySelectorAll('.ch-cross').forEach(c => c.setAttribute('visibility', 'hidden')); } });
+window.addEventListener('resize', () => { clearTimeout(drawCharts._t); drawCharts._t = setTimeout(drawCharts, 150); });
+
+function evolHtml(ev, pref) {
+  return `<div class="ch-grid">
+    <div><h4 class="ch-t">Rebanho no fim do mês <span>cabeças</span></h4>${chartBox(pref + 'Cab', { titulo: 'Rebanho no fim de cada mês, em cabeças', tipo: 'colunas', cor: COR_CAB, dados: ev.map(m => ({ rot: m.rot, v: m.cab })), fmt: v => fmtN(v) + ' cab.' })}</div>
+    <div><h4 class="ch-t">Peso médio no fim do mês <span>kg</span></h4>${chartBox(pref + 'Peso', { titulo: 'Peso médio no fim de cada mês, em kg', tipo: 'linha', cor: COR_PESO, dados: ev.map(m => ({ rot: m.rot, v: m.peso })), fmt: v => v == null ? 'sem pesagem' : fmtN(v, 1) + ' kg' })}</div>
+    <div><h4 class="ch-t">Ganho de peso no mês <span>kg</span></h4>${chartBox(pref + 'Gan', { titulo: 'Ganho de peso em cada mês, em kg', tipo: 'colunas', cor: COR_CAB, dados: ev.map(m => ({ rot: m.rot, v: Math.round(m.ganho) })), fmt: v => fmtN(v) + ' kg' })}</div>
+  </div>
+  <details class="ch-tab"><summary>Ver em tabela</summary><div class="tbl-wrap"><table><thead><tr><th>Mês</th><th class="num">Cabeças</th><th class="num">Peso médio (kg)</th><th class="num">Ganho (kg)</th><th class="num">Arrobas (est.)</th></tr></thead><tbody>
+    ${ev.map(m => `<tr><td>${m.rot}</td><td class="num">${m.cab}</td><td class="num">${m.peso ? fmtN(m.peso, 1) : '—'}</td><td class="num">${fmtN(m.ganho, 0)}</td><td class="num">${fmtN(m.ganho / KG_ARROBA_VIVO, 1)}</td></tr>`).join('')}</tbody></table></div></details>`;
+}
+function ganhosHtml(r) {
+  const saldo = r.fim - r.ini, sinal = v => (v > 0 ? '+' : '') + fmtN(v);
+  return `<div class="kpis">
+    ${kpi('Rebanho', `${fmtN(r.ini)} → ${fmtN(r.fim)}`, 'navy', `saldo ${sinal(saldo)} cab.`)}
+    ${kpi('Entradas', fmtN(r.entCad + r.entNasc), 'teal', `${r.entCad} compra/carga · ${r.entNasc} nascimento(s)`)}
+    ${kpi('Saídas por venda', fmtN(r.venda), 'gold', r.kgVenda ? fmtN(r.kgVenda, 0) + ' kg vivos' : '')}
+    ${kpi('Perdas', fmtN(r.morte + r.perda), 'red', `${r.morte} morte(s) · ${r.perda} perda(s)${r.mort != null ? ' · ' + fmtN(r.mort, 1) + '% do rebanho' : ''}`)}
+    ${kpi('Ganho de peso', (r.ganho >= 0 ? '+' : '') + fmtN(r.ganho, 0) + ' kg', 'teal', r.gmd != null ? 'GMD médio ' + fmtN(r.gmd, 3) + ' kg/dia' : 'sem pesagens no período')}
+    ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' : 'informe a área para @/ha')}
+  </div>`;
+}
 function renderPainel() {
   const f = farm(); if (!f) return;
-  const st = Object.values(compute()), at = st.filter(s => s.ativo), ps = at.filter(s => s.ultimoPeso > 0), gm = at.filter(s => s.gmd != null);
-  const areaPast = areaPastagem(f), soma = ps.reduce((t, s) => t + s.ultimoPeso, 0), uaha = areaPast > 0 && ps.length ? soma / UA_KG / areaPast : null;
-  const mes = hoje().slice(0, 7), bx = st.filter(s => s.baixa && s.baixa.data.slice(0, 7) === mes);
-  const nasc = animaisF().filter(a => a.origemEntrada === 'nascimento' && (a.nascimento || '').slice(0, 7) === mes).length;
-  const rl = lotesResumo();
-  let h = `<div class="kpis">
-    ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
-    ${kpi('Peso médio', ps.length ? fmtN(soma / ps.length, 1) + ' kg' : '—', 'teal', `${ps.length} de ${at.length} com peso`)}
-    ${kpi('GMD médio', gm.length ? fmtN(avg(gm.map(s => s.gmd)), 3) + ' kg/dia' : '—', 'gold', `${gm.length} com 2+ pesagens`)}
-    ${kpi('Lotação da fazenda', uaha != null ? fmtN(uaha, 2) + ' UA/ha' : '—', 'teal', areaPast ? fmtN(areaPast, 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos piquetes)') : 'informe a área da fazenda')}
-    ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
-    ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
-    ${kpi('Baixas no mês', fmtN(bx.length), 'orange', Object.entries(MOTIVOS_BAIXA).map(([k, v]) => bx.filter(s => s.baixa.motivo === k).length + ' ' + v.split(' ')[0].toLowerCase()).join(' · '))}
-    ${kpi('Nascimentos no mês', fmtN(nasc), 'navy', '')}
-  </div>
-  <div class="card"><h3>Por lote <span class="sub">peso e GMD consideram só animais com pesagem</span></h3>
-  ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">Carência</th><th class="num">Sem manejo</th></tr></thead><tbody>
-  ${rl.map(r => `<tr class="click" onclick="goRebanho('ativos','${r.l.id}')"><td><b>${esc(r.l.nome)}</b>${r.l.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.qtd}<br><small class="muted">${r.machos}M · ${r.femeas}F</small></td>
-    <td class="num">${r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—'}</td><td class="num">${r.gmd != null ? fmtN(r.gmd, 3) : '—'}</td>
-    <td class="num">${r.uaha != null ? fmtN(r.uaha, 2) : (r.l.areaHa ? '—' : '<small class="muted">sem área</small>')}</td>
-    <td class="num">${r.ocup != null ? `<span class="chip ${r.ocup > 100 ? 'bad' : r.ocup > 85 ? 'warn' : 'ok'}">${r.ocup}%</span>` : '—'}</td>
-    <td class="num">${r.carencia || '—'}</td><td class="num">${r.atraso ? `<span class="chip bad">${r.atraso}</span>` : '—'}</td></tr>`).join('')}
-  </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
-  <p class="hint">UA = peso vivo ÷ 450 kg (R05). UA/ha = UA do lote ÷ área do lote. Ocupação = UA/ha ÷ lotação máxima (R06). GMD = ganho entre as duas últimas pesagens ÷ dias.</p></div>`;
-  const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
-  h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
-  h += `<div class="alert info"><span>Os indicadores de gestão definitivos serão fechados na <b>chave mestra</b> com o gestor (os "números de segunda-feira"). Este painel é o ponto de partida do piloto.</span></div>`;
+  for (const k in CHARTS) delete CHARTS[k];
+  const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
+  const fids = painelTodas ? S.fazendas.map(x => x.id) : [f.id];
+  const r = analise(fids, d0, d1), ev = evolucao(fids);
+  const escopo = `<select id="pnEsc" onchange="if(this.value==='__todas'){painelTodas=true;renderPainel()}else{painelTodas=false;setFarm(this.value)}" aria-label="Escopo">${S.fazendas.map(x => `<option value="${esc(x.id)}"${!painelTodas && x.id === f.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}${S.fazendas.length > 1 ? `<option value="__todas"${painelTodas ? ' selected' : ''}>Todas as fazendas</option>` : ''}</select>`;
+  const periodo = `<select id="pnPer" onchange="painelDias=+this.value;renderPainel()" aria-label="Período">${[[30, 'Últimos 30 dias'], [90, 'Últimos 90 dias'], [180, 'Últimos 6 meses'], [365, 'Últimos 12 meses'], [0, 'Desde o início']].map(([v, t]) => `<option value="${v}"${v === painelDias ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+  let h = `<div class="toolbar pn-bar">${escopo}${periodo}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span></div>
+    <div class="card"><h3>Ganhos e perdas no período <span class="sub">${painelTodas ? 'todas as fazendas' : esc(f.nome)}</span></h3>${ganhosHtml(r)}
+      <p class="hint">Ganho de peso: diferença entre pesagens, proporcional aos dias dentro do período. Arrobas estimadas = ganho de peso vivo ÷ ${KG_ARROBA_VIVO} kg (rendimento de carcaça de 50%); é estimativa, não pesagem de carcaça. Perdas em % do rebanho médio do período.</p></div>
+    <div class="card"><h3>Evolução <span class="sub">últimos 12 meses</span></h3>${evolHtml(ev, 'evF')}</div>`;
+  if (painelTodas) {
+    const linhas = S.fazendas.map(x => ({ f: x, r: analise([x.id], d0, d1), st: Object.values(computeF(x.id)).filter(s => s.ativo) }));
+    h += `<div class="card"><h3>Comparativo de fazendas <span class="sub">toque para abrir a fazenda</span></h3><div class="tbl-wrap"><table><thead><tr><th>Fazenda</th><th class="num">Cabeças</th><th class="num">Pastagem (ha)</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">GMD</th><th class="num">Perdas</th></tr></thead><tbody>
+      ${linhas.map(o => `<tr class="click" onclick="painelTodas=false;setFarm('${o.f.id}')"><td><b>${esc(o.f.nome)}</b></td><td class="num">${o.r.fim}</td><td class="num">${o.r.area ? fmtN(o.r.area, 1) : '—'}</td><td class="num">${fmtN(o.r.ganho, 0)}</td><td class="num">${fmtN(o.r.arrobas, 1)}</td><td class="num">${o.r.arHa != null ? fmtN(o.r.arHa, 2) : '—'}</td><td class="num">${o.r.gmd != null ? fmtN(o.r.gmd, 3) : '—'}</td><td class="num">${o.r.morte + o.r.perda ? `<span class="chip bad">${o.r.morte + o.r.perda}</span>` : '—'}</td></tr>`).join('')}
+      </tbody></table></div></div>`;
+  } else {
+    const st = Object.values(compute()), at = st.filter(s => s.ativo), rl = lotesResumo();
+    h += `<div class="card"><h3>Situação atual</h3><div class="kpis">
+      ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
+      ${kpi('Lotação da fazenda', (() => { const ar = areaPastagem(f), ps = at.filter(s => s.ultimoPeso > 0), so = ps.reduce((t, s) => t + s.ultimoPeso, 0); return ar && ps.length ? fmtN(so / UA_KG / ar, 2) + ' UA/ha' : '—'; })(), 'teal', areaPastagem(f) ? fmtN(areaPastagem(f), 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos piquetes)') : 'informe a área')}
+      ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
+      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
+    </div></div>
+    <div class="card"><h3>Piquetes e lotes <span class="sub">período em ${painelDias ? 'últimos ' + painelDias + ' dias' : 'todo o histórico'} · toque para o detalhe</span></h3>
+    ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote / piquete</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD período</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">Alertas</th></tr></thead><tbody>
+    ${rl.map(x => { const o = r.lote[x.l.id] || { kg: 0, gS: 0, gN: 0 }, ar = areaLote(x.l), arr = o.kg / KG_ARROBA_VIVO; return `<tr class="click" tabindex="0" onclick="openPiquete('${x.l.id}')" onkeydown="if(event.key==='Enter')openPiquete('${x.l.id}')"><td><b>${esc(x.l.nome)}</b>${x.l.pasto ? '<br><small class="muted">' + esc(x.l.pasto) + '</small>' : ''}</td><td class="num">${x.qtd}</td><td class="num">${x.pesoMedio ? fmtN(x.pesoMedio, 1) : '—'}</td><td class="num">${o.gN ? fmtN(o.gS / o.gN, 3) : '—'}</td><td class="num">${fmtN(o.kg, 0)}</td><td class="num">${fmtN(arr, 1)}</td><td class="num">${ar ? fmtN(arr / ar, 2) : '—'}</td><td class="num">${x.uaha != null ? fmtN(x.uaha, 2) : '—'}</td><td class="num">${x.ocup != null ? `<span class="chip ${x.ocup > 100 ? 'bad' : x.ocup > 85 ? 'warn' : 'ok'}">${x.ocup}%</span>` : '—'}</td><td class="num">${x.carencia ? `<span class="chip warn">🔒 ${x.carencia}</span> ` : ''}${x.atraso ? `<span class="chip bad">⚠ ${x.atraso}</span>` : ''}${!x.carencia && !x.atraso ? '—' : ''}</td></tr>`; }).join('')}
+    </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
+    <p class="hint">@/ha = arrobas estimadas do piquete no período ÷ área do piquete. UA = peso vivo ÷ 450 kg (R05); ocupação = UA/ha ÷ lotação máxima (R06).</p></div>`;
+    const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
+    h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
+  }
+  h += `<div class="alert info"><span>Os indicadores definitivos de gestão serão fechados na <b>chave mestra</b> com o gestor. Este painel é o ponto de partida do piloto.</span></div>`;
   $('painel').innerHTML = h;
+  requestAnimationFrame(drawCharts);
 }
+function openPiquete(id) {
+  const l = S.lotes.find(x => x.id === id); if (!l) return;
+  for (const k in CHARTS) if (k.startsWith('pq')) delete CHARTS[k];
+  const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
+  const r = analise([l.fazendaId], d0, d1, id), x = lotesResumo().find(o => o.l.id === id) || {};
+  openModal('Piquete ' + l.nome, `
+    <p class="muted" style="margin-bottom:10px">${esc(farm() ? farm().nome : '')}${l.pasto ? ' · ' + esc(l.pasto) : ''} · ${areaLote(l) ? fmtN(areaLote(l), 2) + ' ha' : 'sem área'} · período ${fmtD(d0)} a ${fmtD(d1)}</p>
+    ${ganhosHtml(r)}
+    <div class="kpis">${kpi('Ocupação atual', x.ocup != null ? x.ocup + '%' : '—', x.ocup > 100 ? 'red' : x.ocup > 85 ? 'orange' : 'teal', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '')}${kpi('Peso médio atual', x.pesoMedio ? fmtN(x.pesoMedio, 1) + ' kg' : '—', 'teal', '')}</div>
+    <h4 class="aj-h">Evolução do piquete</h4>${evolHtml(evolucao([l.fazendaId], id), 'pq')}
+    <p class="hint">Os números do piquete seguem o lote em que cada animal estava em cada data (trocas de lote incluídas).</p>`,
+    `<button class="btn" onclick="closeModal();mapSel='${id}';goView('mapa')">Ver no mapa</button><button class="btn" onclick="closeModal();goRebanho('ativos','${id}')">Ver animais</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+  requestAnimationFrame(drawCharts);
+}
+
 
 
 /* =========================================================================
@@ -1706,7 +1993,7 @@ function askDraw(modo) {
   openModal(modo === 'gps' ? 'Percorrer a cerca com o GPS' : 'Desenhar contorno no mapa', `
     ${fld('dAlvo', 'O contorno é de', `<select id="dAlvo" onchange="$('dNovoBox').hidden=this.value!=='__novo'">${opts}</select>`, true)}
     <div id="dNovoBox" ${mapSel ? 'hidden' : 'hidden'}>${fld('dNovo', 'Nome do novo lote', '<input id="dNovo" maxlength="60" placeholder="Ex.: Piquete 7">', true)}</div>
-    <p class="hint">${modo === 'gps' ? 'Ande ou rode junto à cerca com o celular. O app grava um ponto a cada 3 metros, só com precisão de até 30 m. Funciona sem internet. Ao voltar ao início, toque em Concluir.' : 'Toque nos cantos do piquete, em ordem, sobre a imagem de satélite. Use + e − ou dois dedos para aproximar. Ao terminar, toque em Concluir.'}</p>`,
+    <p class="hint">${modo === 'gps' ? 'Ande ou rode junto à cerca com o celular. O app grava um ponto a cada 3 metros, só com precisão de até 30 m. Funciona sem internet. Ao voltar ao início, toque em Concluir.' : 'Toque nos cantos do piquete, em ordem, sobre a imagem de satélite. Use + e − ou dois dedos para aproximar. Ao terminar, toque em Concluir.'} <a href="#" onclick="openAjuda('desenhar');return false;">Ajuda</a></p>`,
     `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="dGo">Começar</button>`);
   $('dGo').onclick = () => {
     let v = $('dAlvo').value, alvo;
@@ -1777,7 +2064,7 @@ function removeGeom(alvo) {
 function openGeoImport() {
   geoImport = null;
   openModal('Importar contorno', `
-    <p class="muted" style="margin-bottom:10px">Aceita o <b>.zip do CAR</b> (shapefile baixado da consulta pública do SICAR), <b>.kml/.kmz</b> do Google Earth e <b>.geojson</b>.</p>
+    <p class="muted" style="margin-bottom:10px"><a href="#" onclick="openAjuda('importar');return false;">Como obter o arquivo do CAR?</a> Aceita o <b>.zip do CAR</b> (shapefile baixado da consulta pública do SICAR), <b>.kml/.kmz</b> do Google Earth e <b>.geojson</b>.</p>
     <input type="file" id="giFile" accept=".zip,.kml,.kmz,.geojson,.json" class="btn" style="width:100%">
     <div id="giPrev" style="margin-top:12px"></div>`,
     `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="giOk" disabled onclick="applyGeoImport()">Aplicar</button>`, true);
@@ -1833,6 +2120,150 @@ function miniMapa(el, loteId) {
   m.setLayers(mapLayers({ sel: loteId, mini: true }));
   requestAnimationFrame(() => m.fit(foco, 28, g && g.poligono ? 17 : 15));
   return true;
+}
+
+/* =========================================================================
+   EKOA AJUDA — ajuda contextual de cada tela (como o "Sankhya Ajuda")
+   Cada tema: para que serve, passo a passo, regras do app, dúvidas e o que
+   conferir no teste beta (cenários do roteiro de homologação).
+   ========================================================================= */
+const AJUDA = {
+  inicio: { t: 'Início', g: 'Visão geral',
+    s: 'Ponto de partida do dia: nova lida, atalhos e os números do rebanho da fazenda ativa.',
+    p: ['Confira a fazenda ativa no menu (ou no topo, no celular).', 'Toque em Nova lida para registrar um manejo.', 'Toque num indicador (Animais ativos, Em carência, Sem manejo, Fazendas) para abrir a lista correspondente.', 'Os avisos amarelos mostram lidas em aberto e registros ainda não exportados.'],
+    r: ['Tudo fica salvo no aparelho, mesmo sem internet.', 'Os números consideram só lidas finalizadas.'],
+    d: [['Por que um animal não aparece nos números?', 'Ele só conta depois de cadastrado e, para peso e GMD, depois de lidas de pesagem finalizadas.'], ['O que é "Sem manejo +30 dias"?', 'Animais sem pesagem nem sanitário há mais de 30 dias (regra R19).']],
+    b: ['H01', 'H22'] },
+  lidas: { t: 'Lidas', g: 'Campo',
+    s: 'Lista de todos os manejos: em aberto, finalizados e ainda não exportados.',
+    p: ['Use os filtros de situação e tipo.', 'Toque numa lida para abrir, continuar ou corrigir.', 'Para um manejo novo, toque em Nova lida e escolha o tipo.'],
+    r: ['Lida em aberto não altera o rebanho e não é exportada.', 'Lida finalizada pode ser reaberta para correção; ela vira uma nova versão e precisa ser exportada de novo.', 'Excluir manda para a lixeira (Sincronizar → Lixeira).'],
+    d: [['Esqueci de finalizar uma lida. Perdi?', 'Não. Ela fica salva em aberto; abra e toque em Finalizar lida.'], ['Posso lançar com data passada?', 'Sim, a data pode ser retroativa; só não pode ser futura.']],
+    b: ['H11', 'H12'] },
+  'lida-comum': { t: 'Como funciona uma lida', g: 'Campo',
+    s: 'A lida segue a árvore Fazenda → Lote/piquete → Animais. O app só oferece o que pertence à escolha anterior.',
+    p: ['Confira a Fazenda (só muda enquanto não há animais lançados).', 'Escolha o Lote/piquete, ou leia o primeiro brinco: o lote dele vira o lote da lida (lida em grupo).', 'Os animais do lote aparecem em "Animais de …". Toque no brinco ou digite e tecle Enter.', 'Acompanhe a barra: quantos do lote já foram lançados.', 'Ao terminar, toque em Finalizar lida.'],
+    r: ['Brinco de outro lote: o app avisa e só inclui se você confirmar. Ao finalizar, pergunta se o animal deve passar para o lote do manejo (R04).', 'Brinco de outra fazenda é recusado, com o nome da fazenda dele.', 'Brinco aceita letras e números e diferencia maiúsculas de minúsculas (R02).', 'Animal baixado ou com entrada depois da data da lida não entra.'],
+    d: [['O animal está no curral, mas não aparece na lista do lote.', 'Ele está em outro lote no app. Digite o brinco: o app mostra onde ele está e pergunta se deve incluir.'], ['Como mudo o lote depois de lançar?', 'Remova os animais lançados ou finalize e faça uma lida de Troca de lote.']],
+    b: ['H04', 'H06', 'H29'] },
+  'lida-pesagem': { t: 'Pesagem', g: 'Campo', sub: 'lida-comum',
+    s: 'Registra o peso individual e calcula o ganho e o GMD.',
+    p: ['Escolha o lote ou leia o primeiro brinco.', 'Brinco → Enter → peso → Enter. O campo volta ao brinco para o próximo animal.', 'Pela lista, toque no brinco do animal que entrou na balança e informe o peso.', 'Confira a coluna "Ganho desde a última".', 'Finalize ao terminar o lote.'],
+    r: ['Peso aceita 452,5 · 452.5 · 1.050.', 'Acima de 1.500 kg é recusado; abaixo de 20 kg ou variação maior que 35% pede confirmação.', 'GMD = ganho entre as duas últimas pesagens ÷ dias (precisa de duas datas diferentes).'],
+    d: [['Digitei o peso errado.', 'Antes de finalizar: Remover na linha e lançar de novo. Depois: Reabrir para corrigir.']],
+    b: ['H04', 'H05'] },
+  'lida-sanitario': { t: 'Sanitário', g: 'Campo', sub: 'lida-comum',
+    s: 'Vacina, vermífugo ou medicamento aplicados no lote, com carência e próxima aplicação.',
+    p: ['Escolha o lote, o procedimento e o produto.', 'Informe a carência, se houver, e a próxima aplicação.', 'Use "Adicionar todos" ou toque animal por animal.', 'Finalize.'],
+    r: ['O produto é obrigatório.', 'Com carência, o animal fica com 🔒 até a data (R14) e a venda pede confirmação.', 'A próxima aplicação aparece no Painel.'],
+    d: [['Apliquei só em parte do lote.', 'Lance só os animais tratados; não use "Adicionar todos".']],
+    b: ['H07'] },
+  'lida-troca': { t: 'Troca de lote', g: 'Campo', sub: 'lida-comum',
+    s: 'Move animais de um lote/piquete para outro, mantendo o histórico.',
+    p: ['Escolha o lote de origem (ou leia o primeiro brinco).', 'Escolha o lote de destino.', 'Lance os animais e finalize.'],
+    r: ['O lote do animal muda só por esta lida, para manter a rastreabilidade.', 'Animais já no destino não contam como troca.'],
+    d: [['Quero mover o lote inteiro.', 'Escolha a origem e toque em "Adicionar todos".']],
+    b: ['H08'] },
+  'lida-baixa': { t: 'Baixa', g: 'Campo', sub: 'lida-comum',
+    s: 'Saída do animal por morte, perda ou venda.',
+    p: ['Escolha o motivo.', 'Lance o brinco e a causa (ex.: picada de cobra).', 'Finalize e confirme.'],
+    r: ['A baixa tira o animal do inventário (R03).', 'Cadastro errado não é baixa: use Remover na ficha do animal.', 'Venda de animal em carência pede confirmação.'],
+    d: [['Baixei o animal errado.', 'Reabra a lida, remova o animal e finalize de novo.']],
+    b: ['H09'] },
+  'lida-nascimento': { t: 'Nascimento', g: 'Campo', sub: 'lida-comum',
+    s: 'Registra o bezerro ao pé da vaca; ele entra no rebanho, no lote da mãe.',
+    p: ['Escolha o lote: a lista mostra só as fêmeas.', 'Informe a vaca, o brinco do bezerro (ou deixe vazio), sexo e peso.', 'Finalize.'],
+    r: ['Brinco vazio vira brinco da vaca + mês e ano (R17).', 'Peso do bezerro até 120 kg.'],
+    d: [['O bezerro não aparece no rebanho.', 'Ele entra quando a lida é finalizada.']],
+    b: ['H10'] },
+  rebanho: { t: 'Rebanho', g: 'Cadastros',
+    s: 'Todos os animais da fazenda ativa, com lote atual, peso, GMD e situação.',
+    p: ['Busque por brinco, raça ou categoria; filtre por lote e situação.', 'Toque no cabeçalho para ordenar.', 'Toque no animal para abrir a ficha: localização, minimapa e histórico.', 'Adicionar animais: carga inicial por lista ou faixa (NL001-NL050).', 'Inventário CSV leva tudo para o Excel.'],
+    r: ['Brinco único por fazenda.', 'O lote só muda por lida de Troca de lote.', 'Remover é só para cadastro errado e sem lidas; saída é Baixa.'],
+    d: [['Como cadastro 200 animais de uma vez?', 'Adicionar animais → Brincos: digite a faixa, por exemplo NL001-NL200.']],
+    b: ['H03', 'H28'] },
+  mapa: { t: 'Mapa da fazenda', g: 'Mapa',
+    s: 'Fazendas, perímetro, piquetes coloridos pela ocupação e onde está o rebanho.',
+    p: ['Escolha a fazenda nos cartões do topo.', 'Fundo: Mapa, Satélite ou Sem fundo.', 'Toque num piquete para ver animais, peso, GMD, área e ocupação.', 'Importar contorno: perímetro do CAR ou piquetes de arquivo.', 'Desenhar: toque nos cantos do piquete sobre o satélite.', 'Percorrer cerca: grave o contorno andando com o GPS.'],
+    r: ['Cores: verde até 85% da lotação máxima, amarelo até 100%, vermelho acima, azul sem lotação máxima.', 'A área do piquete é calculada pelo contorno e entra no UA/ha.', 'O fundo precisa de internet; o que já foi visto fica guardado no aparelho.'],
+    d: [['O mapa está vazio.', 'Importe o perímetro do CAR, desenhe um piquete ou capture o ponto do lote em Fazenda e lotes.'], ['Por que o animal não tem ponto no mapa?', 'A localização é a do piquete. A posição individual exigiria coleira com rastreador.']],
+    b: ['H23', 'H25', 'H27'] },
+  importar: { t: 'Importar contorno (CAR, KML, GeoJSON)', g: 'Mapa', sub: 'mapa',
+    s: 'Traz o perímetro oficial do CAR ou piquetes já desenhados em outro programa.',
+    p: ['Na consulta pública do SICAR (consultapublica.car.gov.br), localize o imóvel pelo número do recibo e baixe o .zip.', 'No app: Mapa da fazenda → Importar contorno → escolha o .zip.', 'Escolha a camada do imóvel e "Perímetro da fazenda".', 'Para piquetes: um .kml/.kmz do Google Earth ou .geojson, destino "Piquetes".'],
+    r: ['Coordenadas devem estar em graus (SIRGAS 2000 ou WGS84); UTM é recusado.', 'Em "Piquetes", polígonos com o mesmo nome de um lote atualizam esse lote; os demais viram lotes novos.', 'A área é sempre recalculada pelo app.'],
+    d: [['O .zip tem várias camadas.', 'O CAR traz imóvel, APP, reserva legal e outras. Para o perímetro, use a camada do imóvel.'], ['O CAR é a medida oficial?', 'É declaratório. Georreferenciamento SIGEF, quando existe, é mais preciso; a cerca percorrida com GPS mostra o real do campo.']],
+    b: ['H23', 'H24'] },
+  desenhar: { t: 'Desenhar e percorrer a cerca', g: 'Mapa', sub: 'mapa',
+    s: 'Cria o contorno de um piquete ou do perímetro direto no app.',
+    p: ['Toque em Desenhar ou Percorrer cerca e escolha o lote (ou crie um novo).', 'Desenhar: toque nos cantos, em ordem. Use + e − para aproximar.', 'Percorrer: ande junto à cerca; o app grava um ponto a cada 3 m.', 'Desfazer ponto corrige o último; Concluir salva.'],
+    r: ['São necessários pelo menos 3 pontos.', 'O GPS só grava com precisão de até 30 m. Funciona sem internet.', 'Substituir um contorno existente pede confirmação.'],
+    d: [['O GPS diz "aguardando precisão melhor".', 'Vá para um local aberto e espere alguns segundos.']],
+    b: ['H25', 'H26'] },
+  painel: { t: 'Painel da fazenda', g: 'Gestão',
+    s: 'Visão macro da fazenda (ou de todas) no período, e o detalhe micro de cada piquete.',
+    p: ['Escolha o escopo (uma fazenda ou todas) e o período.', 'Leia os ganhos e perdas: rebanho no início e no fim, entradas, saídas, peso ganho e arrobas estimadas.', 'Veja a evolução mês a mês.', 'Toque num piquete para o detalhe: produtividade por hectare, ocupação e animais.'],
+    r: ['Arrobas estimadas = ganho de peso vivo ÷ 30 (rendimento de carcaça de 50%). É estimativa, não pesagem de carcaça.', 'Mortalidade = mortes e perdas ÷ rebanho médio do período.', 'Só entram lidas finalizadas.'],
+    d: [['Os números do período estão zerados.', 'Precisa haver pesagens finalizadas dentro do período escolhido.']],
+    b: ['H30'] },
+  cadastros: { t: 'Fazenda e lotes', g: 'Cadastros',
+    s: 'O pilar da árvore: fazendas e seus lotes/piquetes.',
+    p: ['Nova fazenda: nome, município, área de pastagem, recibo do CAR e localização da sede.', 'Novo lote: nome, pasto, área, lotação máxima (UA/ha) e ponto pelo GPS.', 'Use a fazenda certa antes de criar lotes: eles pertencem à fazenda ativa.'],
+    r: ['Nome de lote único por fazenda.', 'Lote com animais ativos não pode ser inativado.', 'Sem lotação máxima, a ocupação não é calculada.'],
+    d: [['A área digitada e a do mapa são diferentes.', 'Com contorno, vale a área do mapa.']],
+    b: ['H02', 'H19', 'H20'] },
+  sync: { t: 'Sincronizar', g: 'Dados',
+    s: 'Leva os dados de um aparelho para outro por arquivo, sem servidor.',
+    p: ['Dê um nome ao aparelho (ex.: Celular do João).', 'Exportar dados: no computador o arquivo vai para Downloads; no celular abre o compartilhamento (WhatsApp, e-mail, Drive).', 'No outro aparelho: Importar arquivo, confira a prévia e aplique.', 'Se algo der errado: Desfazer última importação.'],
+    r: ['Só lidas finalizadas viajam.', 'A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.', 'Arquivo alterado ou sem verificação de integridade é recusado.', 'Todos os aparelhos devem estar na mesma versão do app.'],
+    d: [['O arquivo não importa: "versão mais nova".', 'Atualize o app neste aparelho pelo aviso de nova versão.'], ['Exportei por engano duas vezes.', 'Sem problema: a segunda importação mostra "nada a importar".']],
+    b: ['H13', 'H14', 'H15', 'H16', 'H21'] },
+  app: { t: 'Instalar e atualizar', g: 'Dados',
+    s: 'Como ter o app na tela inicial e receber as novas versões.',
+    p: ['Android/computador: botão Instalar app ou menu do navegador → Instalar app.', 'iPhone: Safari → Compartilhar → Adicionar à Tela de Início.', 'Abra uma vez com internet; depois funciona offline.', 'Nova versão: aparece a barra "Atualizar agora". Os dados ficam salvos.'],
+    r: ['Abrir com internet já traz a versão mais nova.', 'Se a versão ainda estiver sendo publicada, o app pede para tentar em alguns minutos.'],
+    d: [['A barra de atualização não some.', 'Feche o app por completo e abra de novo com internet.']],
+    b: ['H01', 'H17'] }
+};
+const AJUDA_GRUPOS = ['Visão geral', 'Campo', 'Cadastros', 'Mapa', 'Gestão', 'Dados'];
+function ajudaKey() {
+  if (currentView === 'lida') { const l = curLida(); return l ? 'lida-' + l.tipo : 'lidas'; }
+  return { home: 'inicio', mais: 'inicio' }[currentView] || (AJUDA[currentView] ? currentView : 'inicio');
+}
+function openAjuda(key) {
+  if (key === undefined) key = ajudaKey();
+  if (!key) { ajudaIndice(); return; }
+  const h = AJUDA[key]; if (!h) { ajudaIndice(); return; }
+  const lst = a => a.map(x => `<li>${esc(x)}</li>`).join('');
+  const sub = h.sub && AJUDA[h.sub] ? `<button class="btn sm" onclick="openAjuda('${h.sub}')">Ver também: ${esc(AJUDA[h.sub].t)}</button>` : '';
+  const rel = Object.entries(AJUDA).filter(([k, x]) => x.sub === key).map(([k, x]) => `<button class="btn sm" onclick="openAjuda('${k}')">${esc(x.t)}</button>`).join('');
+  openModal('Ekoa Ajuda · ' + h.t, `
+    <p class="aj-resumo">${esc(h.s)}</p>
+    <h4 class="aj-h">Passo a passo</h4><ol class="aj-ol">${lst(h.p)}</ol>
+    <h4 class="aj-h">Regras do app</h4><ul class="aj-ul">${lst(h.r)}</ul>
+    ${h.d && h.d.length ? `<h4 class="aj-h">Dúvidas frequentes</h4>${h.d.map(([q, r]) => `<details class="aj-faq"><summary>${esc(q)}</summary><p>${esc(r)}</p></details>`).join('')}` : ''}
+    ${h.b && h.b.length ? `<div class="aj-beta"><b>No teste beta, confira:</b> ${h.b.map(c => `<span class="chip info">${c}</span>`).join(' ')}<br><small>Cenários do roteiro de homologação (docs/homologacao.md no repositório).</small></div>` : ''}
+    ${sub || rel ? `<div class="actions" style="margin-top:12px">${sub}${rel}</div>` : ''}`,
+    `<button class="btn" onclick="ajudaIndice()">Todos os temas</button><button class="btn primary" onclick="closeModal()">Entendi</button>`, true);
+}
+function ajudaIndice(q) {
+  const termo = (q || '').trim().toLowerCase();
+  const casa = h => !termo || [h.t, h.s, ...h.p, ...h.r, ...(h.d || []).flat()].join(' ').toLowerCase().includes(termo);
+  const grupos = AJUDA_GRUPOS.map(g => { const itens = Object.entries(AJUDA).filter(([k, h]) => h.g === g && casa(h)); return itens.length ? `<h4 class="aj-h">${g}</h4><div class="aj-lista">${itens.map(([k, h]) => `<button type="button" class="aj-item" onclick="openAjuda('${k}')"><b>${esc(h.t)}</b><span>${esc(h.s)}</span></button>`).join('')}</div>` : ''; }).join('');
+  const html = `<input type="search" id="ajBusca" class="aj-busca" placeholder="O que você quer fazer? Ex.: pesar, CAR, exportar" value="${esc(q || '')}" aria-label="Buscar na ajuda">
+    <div id="ajRes">${grupos || '<p class="muted">Nada encontrado. Tente outra palavra.</p>'}</div>`;
+  if ($('modal').classList.contains('open') && $('ajBusca')) { $('ajRes').innerHTML = grupos || '<p class="muted">Nada encontrado. Tente outra palavra.</p>'; return; }
+  openModal('Ekoa Ajuda · Central', html, `<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+  $('ajBusca').addEventListener('input', e => ajudaIndice(e.target.value));
+}
+/* Botão "?" no cabeçalho de cada tela */
+function poeAjuda() {
+  const v = document.querySelector('.view[id="v-' + currentView + '"]') || $('v-lida');
+  const alvo = currentView === 'home' ? document.querySelector('.home-hero > div') : (currentView === 'lida' ? $('lidaEditor').querySelector('.topbar > div') : v && v.querySelector('.topbar > div'));
+  if (!alvo || alvo.querySelector('.help-btn')) return;
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'help-btn'; b.setAttribute('aria-label', 'Ajuda desta tela'); b.title = 'Ekoa Ajuda'; b.textContent = '?';
+  b.onclick = () => openAjuda();
+  const h = alvo.querySelector('h1,h2'); (h || alvo).appendChild(b);
 }
 
 /* =========================================================================

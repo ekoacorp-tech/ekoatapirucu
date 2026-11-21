@@ -1,9 +1,20 @@
 {
-  "versao": 7,
-  "rotulo": "7 beta",
+  "versao": 8,
+  "rotulo": "8 beta",
   "data": "2026-11-21",
-  "titulo": "Exportação corrigida no computador",
+  "titulo": "Ekoa Ajuda, lidas em cascata e painel da fazenda",
   "notas": {
+    "8": {
+      "data": "2026-11-21",
+      "titulo": "Ekoa Ajuda, lidas em cascata e painel da fazenda",
+      "itens": [
+        "Ekoa Ajuda: botão ? em cada tela com passo a passo, regras, dúvidas e o que conferir no teste beta. Central de ajuda com busca (menu → Ajuda).",
+        "Lidas em cascata: Fazenda → Lote/piquete → Animais. A lista mostra os animais do lote; toque para lançar.",
+        "Brinco digitado é conferido: se for de outro lote, o app pergunta antes de incluir; se for de outra fazenda, avisa qual.",
+        "Lida em grupo: sem lote escolhido, o primeiro brinco define o lote e os demais animais entram na fila, com a barra de progresso.",
+        "Painel da fazenda: ganhos e perdas no período, arrobas estimadas, evolução de 12 meses, comparativo entre fazendas e detalhe por piquete com @/ha."
+      ]
+    },
     "7": {
       "data": "2026-11-21",
       "titulo": "Exportação corrigida no computador",

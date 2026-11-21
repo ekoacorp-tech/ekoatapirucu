@@ -69,6 +69,20 @@ Por isso corrigir uma lida antiga (reabrir e finalizar de novo) corrige automati
 
 > Lição registrada (v5): nunca baixar a versão nova por um caminho que o service worker atende pela cópia guardada, e nunca recarregar sem conferir a versão recebida. O mesmo padrão existe no Ekoa Saber e deve ser revisado lá.
 
+## Painel da fazenda
+
+| Medida | Cálculo |
+|---|---|
+| Rebanho inicial e final | Animais com entrada até a data e sem baixa até ela (dia anterior ao início e último dia do período). |
+| Ganho de peso | Para cada par de pesagens consecutivas, a diferença proporcional aos dias que caem no período; atribuída ao lote em que o animal estava na pesagem final. |
+| GMD do período | Média, por animal, do ganho no período ÷ dias com pesagem no período. |
+| Arrobas (estimativa) | Ganho de peso vivo ÷ 30 kg (rendimento de carcaça de 50%). |
+| @/ha | Arrobas ÷ área de pastagem (fazenda) ou área do piquete. |
+| Perdas | Mortes e perdas ÷ rebanho médio do período (média entre inicial e final). |
+| Evolução | Fim de cada um dos últimos 12 meses: cabeças, peso médio (última pesagem até a data) e ganho no mês. |
+
+O cálculo do rebanho é feito por fazenda (`computeF`) e guarda o histórico de lote de cada animal (`loteHist`).
+
 ## Mapa
 
 - **Motor próprio** (`class GeoMap`): projeção Web Mercator, blocos de 256 px, desenho dos contornos em SVG, arrastar, aproximar por botões, roda do mouse e dois dedos. Sem bibliotecas.
