@@ -1,9 +1,17 @@
 {
-  "versao": 1,
-  "rotulo": "1 beta",
+  "versao": 2,
+  "rotulo": "2 beta",
   "data": "2026-11-21",
-  "titulo": "App piloto: lidas de campo offline",
+  "titulo": "Logo oficial do Tapiruçu",
   "notas": {
+    "2": {
+      "data": "2026-11-21",
+      "titulo": "Logo oficial do Tapiruçu",
+      "itens": [
+        "O app passa a usar a logo oficial do Ekoa Tapiruçu na abertura, no menu, no topo do celular e no ícone instalado.",
+        "Seus dados continuam salvos: a atualização não mexe no que já foi lançado."
+      ]
+    },
     "1": {
       "data": "2026-11-21",
       "titulo": "App piloto: lidas de campo offline",

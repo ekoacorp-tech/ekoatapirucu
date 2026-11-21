@@ -2,6 +2,10 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [2 beta] · 21/11/2026 · Logo oficial do Tapiruçu
+- Logo oficial aplicada na abertura, no menu, no topo do celular, no "Sobre" e nos ícones do app instalado.
+- A logo entra no cache offline.
+
 ## [1 beta] · 21/11/2026 · App piloto: lidas de campo offline
 - **PWA offline**, instalável em Android, iPhone e computador, com o mesmo padrão de engenharia do Ekoa Saber.
 - **Cadastros:** fazenda (área de pastagem), lotes (pasto, área e lotação máxima) e carga inicial do rebanho por lista ou faixa de brincos.
