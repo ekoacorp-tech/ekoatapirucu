@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [3 beta] · 21/11/2026 · Visual Ekoa Saber
+- Identidade visual do Ekoa Saber: abertura clara com a logo, menu em degradê petróleo → café, início com logo e cartões, indicadores em blocos, tabelas leves, botões e modais arredondados.
+- Rodapé do menu com a marca Ekoa Tech e o bloco Cliente (Blendcoffee).
+- Movimento conforme o padrão Ekoa: só abertura, modais, avisos e hover; nada anima ao trocar de tela.
+
 ## [2 beta] · 21/11/2026 · Logo oficial do Tapiruçu
 - Logo oficial aplicada na abertura, no menu, no topo do celular, no "Sobre" e nos ícones do app instalado.
 - A logo entra no cache offline.

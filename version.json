@@ -1,9 +1,19 @@
 {
-  "versao": 2,
-  "rotulo": "2 beta",
+  "versao": 3,
+  "rotulo": "3 beta",
   "data": "2026-11-21",
-  "titulo": "Logo oficial do Tapiruçu",
+  "titulo": "Visual Ekoa Saber",
   "notas": {
+    "3": {
+      "data": "2026-11-21",
+      "titulo": "Visual Ekoa Saber",
+      "itens": [
+        "Novo visual, no mesmo padrão do Ekoa Saber: abertura com a logo, menu em degradê petróleo e café, cartões arredondados e tabelas mais leves.",
+        "Rodapé do menu com Ekoa Tech e o cliente Blendcoffee.",
+        "A versão e o \"Sobre\" ficam no topo do menu.",
+        "Seus dados continuam salvos: a atualização não mexe no que já foi lançado."
+      ]
+    },
     "2": {
       "data": "2026-11-21",
       "titulo": "Logo oficial do Tapiruçu",

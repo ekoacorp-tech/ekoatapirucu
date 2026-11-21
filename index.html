@@ -22,6 +22,7 @@
 body{background:var(--bg-body);color:var(--text-primary);display:flex;min-height:100vh;overflow-x:hidden}
 button,input,select,textarea{font-size:16px;color:inherit}
 :focus-visible{outline:3px solid var(--brand-gold);outline-offset:2px}
+[hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* Splash */
@@ -207,15 +208,127 @@ td .btn.sm{min-height:34px}
   .modal-box{max-height:94vh;border-radius:14px 14px 0 0}
   .hide-m{display:none}
   .entry .btn{flex:1 1 100%}
-  .hero{grid-template-columns:1fr 1fr;gap:10px}
-  .tile{min-height:92px;padding:12px}
-  .tile.main-act{grid-column:1/-1;min-height:84px}
-  .tile span{font-size:.76rem}
   .kpis{grid-template-columns:1fr 1fr}
 }
 @media (min-width:901px){.only-m{display:none!important}}
 @media print{.sidebar,.mobile-header,.bottom-nav,#toast,.actions,.toolbar{display:none!important}.main{padding:0}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== Identidade Ekoa Saber aplicada ao Tapiruçu (paleta Ekoa: petróleo, ouro, cobre, café, sálvia, areia) ===== */
+:root{--petrol:#23505F;--teal:#3B8A97;--sage:#8FB8A0;--gold:#C9922E;--copper:#C0714A;--coffee:#6B4A32;
+  --ek-dur-micro:120ms;--ek-dur-base:200ms;--ek-dur-panel:280ms;--ek-ease-out:cubic-bezier(.2,.8,.2,1);--ek-ease-in:cubic-bezier(.4,0,1,1)}
+body{background:radial-gradient(1200px 600px at 85% -10%,rgba(201,146,46,.14),transparent 60%),radial-gradient(900px 600px at -10% 110%,rgba(59,138,151,.14),transparent 60%),var(--bg-body);background-attachment:fixed}
+/* abertura */
+#splash{background:linear-gradient(160deg,#EFE6DA,#DCE6E6 55%,#E9D3C0);color:#13234A;gap:14px;transition:opacity 500ms var(--ek-ease-out),visibility 500ms}
+#splash.off{visibility:hidden}
+#splash img{width:150px;height:150px;background:none;border-radius:0;padding:0;filter:drop-shadow(0 12px 22px rgba(35,80,95,.22));animation:pop 600ms var(--ek-ease-out) both}
+#splash b{font:800 1.7rem/1 Montserrat,"Segoe UI",system-ui,sans-serif;color:#13234A;letter-spacing:.06em;margin-top:6px}
+#splash span{font:600 .72rem system-ui,sans-serif;letter-spacing:.2em;color:#C0714A}
+#splash em{margin-top:22px;font:500 .74rem system-ui,sans-serif;font-style:normal;letter-spacing:.14em;color:#6E5D52}
+#splash em strong{color:#13234A;letter-spacing:.2em}
+/* menu lateral */
+.sidebar{width:290px;background:linear-gradient(170deg,#23505F 0%,#2C5663 45%,#4A3428 100%);border-right:2px solid var(--gold)}
+.brand{gap:14px;border-bottom-color:rgba(255,255,255,.18)}
+.brand img,.mobile-header img{background:#FBF7F1;object-fit:contain;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.brand img{width:48px;height:48px;border-radius:14px;padding:4px}
+.brand h1{font-size:1.02rem;font-weight:700;letter-spacing:.02em}
+.about-link{color:#cfe3e6;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.45);font-size:.75rem}
+.farm-pick select{border-radius:11px}
+.side-nav{margin:14px 0 18px}
+.side-nav button{border-radius:11px;padding:11px 12px;color:#e6eef0;font-weight:500;transition:background-color var(--ek-dur-micro)}
+.side-nav button svg{width:19px;height:19px;opacity:.85}
+.side-nav button.on{background:rgba(255,255,255,.14);color:#fff;box-shadow:inset 3px 0 0 var(--gold)}
+.side-nav .count{background:rgba(255,255,255,.16);border-radius:99px;min-width:22px;padding:0 7px;line-height:20px;text-align:center;font-weight:700}
+.side-nav .count.alert{background:var(--copper)}
+.ekoa-footer{border-top-color:rgba(255,255,255,.22);gap:12px}
+.ekoa-mark{width:36px;height:36px;border-radius:10px;background:#FBF7F1;padding:2px;object-fit:contain;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.ekoa-text{letter-spacing:.14em;font-weight:800;font-size:.95rem;display:block}
+.ekoa-sub{font-size:.66rem;color:#94a3b8;white-space:nowrap}
+.client-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#cbbfae}
+.blend-slot{display:inline-flex;align-items:center;justify-content:center;height:38px;min-width:38px;padding:3px;border-radius:11px;background:#FBF7F1;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.blend-slot img{height:100%;max-width:132px;object-fit:contain}
+.blend-fb{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:10px;background:#111827;line-height:1.1;padding:0 6px}
+.blend-fb b{color:#C9922E;font-size:9px;letter-spacing:.05em}.blend-fb i{color:#cbd5e1;font-size:7px;font-style:normal;letter-spacing:.12em}
+.saved-ind{margin-bottom:6px}
+/* topo do celular */
+.mobile-header{background:linear-gradient(90deg,#23505F,#3a5560 60%,#5a4030);border-bottom:2px solid var(--gold)}
+.mobile-header img{width:38px;height:38px;border-radius:11px;padding:3px}
+.mobile-header b{font-weight:700;letter-spacing:.02em}
+.bottom-nav{backdrop-filter:blur(10px);background:rgba(251,247,241,.94)}
+/* início (hero e cartões do Ekoa Saber) */
+.home-hero{display:flex;align-items:center;gap:20px;margin:8px 0 22px}
+.home-mark{width:92px;height:92px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 10px 18px rgba(35,80,95,.2))}
+.home-title{font-size:2rem;font-weight:800;letter-spacing:.01em;color:#13234A;line-height:1.1}
+.home-sub{margin-top:4px;font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--copper)}
+.home-farm{margin-top:8px;font-size:.92rem;color:var(--text-secondary)}
+.home-farm b{color:var(--text-primary)}
+.beta{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--gold);color:#fff;font-size:.62rem;letter-spacing:.08em;vertical-align:middle}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px}
+.home-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:160px;padding:22px;border-radius:18px;border:1px solid var(--border-color);background:var(--bg-surface);color:var(--text-primary);font:inherit;text-align:left;cursor:pointer;transition:transform var(--ek-dur-micro) var(--ek-ease-out),box-shadow var(--ek-dur-base),border-color var(--ek-dur-micro)}
+.home-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(35,80,95,.16);border-color:var(--teal)}
+.home-card:active{transform:scale(.98)}
+.home-card.primary{background:linear-gradient(150deg,#23505F,#2E6672 55%,#5a4030);color:#fff;border-color:transparent}
+.home-card.primary .hc-d{color:#d9e6e8}
+.hc-ico{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;background:var(--row-hover);color:var(--teal)}
+.home-card.primary .hc-ico{background:rgba(255,255,255,.14);color:#F0C77A}
+.hc-ico svg{width:22px;height:22px}
+.hc-t{margin-top:auto;font-size:1.08rem;font-weight:700}
+.hc-d{font-size:.84rem;line-height:1.4;color:var(--text-secondary)}
+#installBox{margin-bottom:16px;padding:14px 16px;border-radius:14px;background:var(--bg-surface);border:1px solid var(--teal);align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+/* indicadores (tiles do Ekoa Saber) */
+.kpis{gap:12px;margin-bottom:16px}
+.kpi{padding:14px 16px;border-radius:14px;border:1px solid var(--border-color);border-left-width:4px}
+.kpi small{font-size:.74rem}
+.kpi b{display:block;font-size:1.6rem;font-weight:800;margin-top:4px;color:var(--text-primary);font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi em{font-size:.72rem;margin-top:2px}
+/* cabeçalho das telas */
+.topbar{background:transparent;border:0;box-shadow:none;padding:0;margin:4px 0 18px}
+.topbar h2{font-size:1.35rem;color:var(--text-primary)}
+.topbar p{font-size:.84rem}
+/* cartões, botões, campos */
+.card{border-radius:16px;padding:18px;margin-bottom:16px}
+.card h3{color:var(--text-primary);font-size:1rem}
+.btn{border-radius:12px;transition:transform var(--ek-dur-micro) var(--ek-ease-out),box-shadow var(--ek-dur-base),background-color var(--ek-dur-micro),border-color var(--ek-dur-micro)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(35,80,95,.18)}
+.btn:active{transform:scale(.96)}
+.btn.gold{color:#fff}
+.field input,.field select,.field textarea,.toolbar input,.toolbar select{border-radius:11px;background:var(--bg-surface)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal)!important;box-shadow:0 0 0 3px rgba(59,138,151,.22)}
+.entry{border-radius:14px}
+.type-btn{border-radius:16px}
+.lida-item{border-radius:14px;background:var(--bg-surface);transition:border-color var(--ek-dur-micro),box-shadow var(--ek-dur-base)}
+.lida-item:hover{background:var(--bg-surface);box-shadow:0 6px 16px rgba(35,80,95,.12)}
+.alert{border-radius:12px}
+.alert.warn{background:rgba(201,146,46,.14);color:#6b4a0c;border:1px solid var(--gold)}
+.alert.info{background:rgba(59,138,151,.10);color:#1d5660;border:1px solid rgba(59,138,151,.35)}
+.alert.ok{background:rgba(42,116,128,.10);color:#1d5660;border:1px solid #2A7480}
+/* tabelas no estilo leve do Ekoa Saber */
+.tbl-wrap{border-radius:14px;background:var(--bg-surface)}
+th{background:transparent;color:var(--text-secondary);font-size:.7rem;letter-spacing:.05em;font-weight:700;border-bottom:1px solid var(--border-color)}
+td{font-variant-numeric:tabular-nums}
+tr:nth-child(even) td{background:transparent}
+tbody tr:last-child td{border-bottom:0}
+/* modal, toast, atualização (movimento só de estado e continuidade) */
+.modal{backdrop-filter:blur(6px)}
+.modal.open .modal-box{animation:pop var(--ek-dur-panel) var(--ek-ease-out) both}
+.modal-box{border-radius:20px}
+.modal-head,.modal-foot{background:var(--bg-surface)}
+#toast{background:#1c2a30;border-radius:12px;transition:opacity var(--ek-dur-base) var(--ek-ease-out),transform var(--ek-dur-base) var(--ek-ease-out)}
+#toast .t-act{background:none;color:#F0C77A;text-decoration:underline}
+#updateBar{background:linear-gradient(90deg,#23505F,#2E6672);color:#fff;border:0;border-radius:14px}
+#updateBar .btn.gold{color:#fff}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#c9b8a4;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+@media (max-width:900px){
+  .home-hero{gap:14px;margin-bottom:18px}.home-mark{width:64px;height:64px}.home-title{font-size:1.5rem}
+  .home-sub{font-size:.66rem;letter-spacing:.08em}.home-farm{margin-top:4px}
+  .home-grid{grid-template-columns:1fr 1fr;gap:10px}.home-card{min-height:128px;padding:16px}
+  .home-card.primary{grid-column:1/-1;min-height:112px}
+  .home-card.hide-m{display:none}
+  .hc-d{font-size:.78rem}
+  .kpi b{font-size:1.3rem}
+  .card{padding:14px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body data-view="home">
@@ -244,16 +357,16 @@ td .btn.sm{min-height:34px}
 <header class="mobile-header">
   <div class="mh-left" onclick="goView('home')" style="cursor:pointer">
     <img src="assets/tapirucu-logo.png" alt="Ekoa Tapiruçu - Início">
-    <div><b>TAPIRUÇU</b><small id="mFarm">—</small></div>
+    <div><b>Ekoa Tapiruçu</b><small id="mFarm">—</small></div>
   </div>
   <span class="saved-ind" id="mSaved" style="color:#cbd5e1"></span>
 </header>
 
 <aside class="sidebar" aria-label="Menu">
   <div>
-    <div class="brand" onclick="goView('home')" style="cursor:pointer">
-      <img src="assets/tapirucu-logo.png" alt="Ekoa Tapiruçu">
-      <div><h1>EKOA TAPIRUÇU</h1><p>Gestão do rebanho · piloto</p></div>
+    <div class="brand">
+      <img src="assets/tapirucu-logo.png" alt="Ekoa Tapiruçu - Início" onclick="goView('home')" style="cursor:pointer">
+      <div><h1>Ekoa Tapiruçu</h1><a href="#" class="about-link" onclick="event.stopPropagation();openAbout();return false;">Versão <span class="app-ver"></span> beta • Sobre</a></div>
     </div>
     <div class="farm-pick"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
     <nav class="side-nav">
@@ -263,12 +376,12 @@ td .btn.sm{min-height:34px}
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span>Painel</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span>Sincronizar</span><span class="count" id="cPend" hidden></span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span>Fazenda e lotes</span></button>
-      <button data-nav="sobre" onclick="openAbout()"><svg><use href="#i-info"/></svg><span>Sobre e versão</span></button>
     </nav>
   </div>
   <div>
     <p class="saved-ind" id="dSaved" style="color:#cbd5e1"></p>
-    <div class="ekoa-footer"><div class="ekoa-icon">e</div><div><span class="ekoa-text">EKOA</span><span class="ekoa-sub">Gestão e Processo · Ekoa Tech</span></div></div>
+    <div class="ekoa-footer"><img class="ekoa-mark" src="icons/ekoa-mark.png" alt="Ekoa"><div><span class="ekoa-text">EKOA TECH</span><span class="ekoa-sub">Processos • Tecnologia • Resultado</span></div></div>
+    <div class="client-row"><span>Cliente</span><span class="blend-slot"><img src="icons/logo-blend.png" alt="Blendcoffee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="blend-fb"><b>BLEND</b><i>COFFEE</i></span></span></div>
   </div>
 </aside>
 
@@ -276,20 +389,25 @@ td .btn.sm{min-height:34px}
   <div id="updateBar" role="status"></div>
 
   <!-- INÍCIO -->
-  <section class="view" id="v-home" aria-labelledby="hTitle">
-    <div class="topbar">
-      <div><h2 id="hTitle">Bom trabalho no campo</h2><p id="hSub">Tudo o que você lança fica salvo neste aparelho, mesmo sem internet.</p></div>
-      <div id="installBox" class="actions"><span class="muted" id="installHint" style="align-self:center"></span><button class="btn gold" id="installBtn" onclick="installApp()">Instalar app</button></div>
+  <section class="view" id="v-home" aria-label="Início">
+    <div class="home-hero">
+      <img class="home-mark" src="assets/tapirucu-logo.png" alt="">
+      <div>
+        <h1 class="home-title">Ekoa Tapiruçu</h1>
+        <p class="home-sub">Gestão do rebanho &bull; Ekoa Tech <b class="beta">BETA</b></p>
+        <p class="home-farm" id="hFarm"></p>
+      </div>
     </div>
+    <div id="installBox"><div><b>Instale o app</b><br><span class="muted" id="installHint"></span></div><button class="btn gold" id="installBtn" onclick="installApp()">Instalar app</button></div>
     <div id="homeAlerts"></div>
-    <div class="hero">
-      <button class="tile main-act" onclick="newLida()"><svg><use href="#i-lida"/></svg><b>Nova lida</b><span>Pesagem, sanitário, troca de lote, baixa ou nascimento</span></button>
-      <button class="tile" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><b>Rebanho</b><span id="tRebanho">Animais e lotes</span></button>
-      <button class="tile" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><b>Painel</b><span>Peso, GMD, lotação e alertas</span></button>
-      <button class="tile" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><b>Sincronizar</b><span id="tSync">Exportar e importar dados</span></button>
+    <div class="home-grid">
+      <button class="home-card primary" onclick="newLida()"><span class="hc-ico"><svg><use href="#i-lida"/></svg></span><span class="hc-t">Nova lida</span><span class="hc-d">Pesagem, sanitário, troca de lote, baixa ou nascimento</span></button>
+      <button class="home-card" onclick="goView('rebanho')"><span class="hc-ico"><svg><use href="#i-rebanho"/></svg></span><span class="hc-t">Rebanho</span><span class="hc-d" id="tRebanho">Animais e lotes</span></button>
+      <button class="home-card" onclick="goView('painel')"><span class="hc-ico"><svg><use href="#i-painel"/></svg></span><span class="hc-t">Painel</span><span class="hc-d">Peso, GMD, lotação e alertas</span></button>
+      <button class="home-card hide-m" onclick="goView('sync')"><span class="hc-ico"><svg><use href="#i-sync"/></svg></span><span class="hc-t">Sincronizar</span><span class="hc-d" id="tSync">Exportar e importar dados</span></button>
     </div>
     <div class="kpis" id="homeKpis"></div>
-    <div class="card"><h3>Últimas lidas</h3><div id="homeLidas"></div></div>
+    <div class="card"><h3>Últimas lidas</h3><div id="homeLidas" style="margin-top:10px"></div></div>
   </section>
 
   <!-- LIDAS -->
@@ -388,7 +506,7 @@ td .btn.sm{min-height:34px}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 2;
+const APP_VERSION = 3;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 1;
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -558,6 +676,7 @@ function pendentesCount() {
 function updateCounts() {
   const ab = lidasF().filter(l => l.status === 'aberta').length, pd = pendentesCount();
   [['cAbertas', ab], ['bAbertas', ab], ['cPend', pd], ['bPend', pd]].forEach(([id, n]) => { const e = $(id); if (e) { e.hidden = !n; e.textContent = n; } });
+  const ca = $('cAbertas'); if (ca) ca.classList.add('alert');
 }
 
 /* ---------------- Modal ---------------- */
@@ -586,14 +705,12 @@ function showToastAction(msg, label, fn) { const t = $('toast'); t.innerHTML = `
 function renderHome() {
   const f = farm(), al = $('homeAlerts');
   if (!f) {
-    $('hTitle').textContent = 'Bem-vindo ao Ekoa Tapiruçu';
-    $('hSub').textContent = 'Comece cadastrando a fazenda. Depois os lotes e os animais.';
+    $('hFarm').innerHTML = 'Comece cadastrando a fazenda. Depois os lotes e os animais.';
     al.innerHTML = `<div class="alert info"><span>Nenhuma fazenda cadastrada neste aparelho. Se outro aparelho já tem os dados, importe o arquivo de sincronização.</span></div>
       <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
     $('homeKpis').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
   }
-  $('hTitle').textContent = f.nome;
-  $('hSub').textContent = 'Tudo o que você lança fica salvo neste aparelho, mesmo sem internet.';
+  $('hFarm').innerHTML = `<b>${esc(f.nome)}</b><span class="hide-m"> · os lançamentos ficam salvos neste aparelho, mesmo sem internet</span>`;
   const st = Object.values(compute()), at = st.filter(x => x.ativo);
   const ab = lidasF().filter(l => l.status === 'aberta'), pd = pendentesCount();
   let h = '';
@@ -1441,7 +1558,7 @@ function showUpdateBar() {
   bar.innerHTML = `<span><b>Nova versão ${esc(remoteInfo.rotulo || remoteInfo.versao)} disponível.</b> ${esc(remoteInfo.titulo || '')}</span><span class="actions"><button class="btn gold" onclick="applyUpdate()">Atualizar agora</button></span>`;
   bar.classList.add('on');
 }
-const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png'];
+const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png', './icons/ekoa-mark.png', './icons/logo-blend.png'];
 async function applyUpdate() {
   const bar = $('updateBar'); bar.innerHTML = '<span><b>Atualizando…</b> seus dados permanecem salvos neste aparelho.</span>';
   try {
@@ -1471,6 +1588,7 @@ async function init() {
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);
   } catch (e) { alert('Este navegador bloqueou o armazenamento local (modo anônimo?). Os dados não serão guardados.'); }
   if (!farm() && S.fazendas.length) S.fazendaAtiva = S.fazendas[0].id;
+  document.querySelectorAll('.app-ver').forEach(e => e.textContent = APP_VERSION);
   renderFarmSel(); updateCounts(); refreshInstallUI(); goView('home');
   setTimeout(() => $('splash').classList.add('off'), 450);
   if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }

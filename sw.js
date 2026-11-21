@@ -1,7 +1,7 @@
 /* Service Worker — cache do app para uso offline.
    Ao publicar uma nova versão: troque o número em V, APP_VERSION no index.html e o version.json. */
-const V = 'ekoa-tapirucu-v2';
-const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png'];
+const V = 'ekoa-tapirucu-v3';
+const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png', './icons/ekoa-mark.png', './icons/logo-blend.png'];
 
 self.addEventListener('install', e => {
   // cache: 'reload' evita gravar no cache uma cópia antiga vinda do cache HTTP do navegador
