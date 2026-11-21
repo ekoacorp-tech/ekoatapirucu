@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [9] — 2026-11-21 — Modo escuro e sincronização mais clara
+- Modo escuro nos tons do Ekoa Saber. O botão de tema alterna Automático (segue o celular), Claro e Escuro, e a escolha fica guardada no aparelho.
+- Corrigido: importar o próprio arquivo mostrava registros "em conflito" sem diferença real. Agora eles aparecem como iguais.
+- O nome do arquivo exportado usa a hora local do aparelho (antes saía em UTC, 3 horas à frente de Brasília).
+- A prévia avisa quando o arquivo saiu do mesmo aparelho e explica: exporte no celular e importe no computador.
+- Ao nomear o aparelho, o app sugere "Celular de …" ou "Computador do escritório" e alerta se o nome for igual ao de uma fazenda.
+
 ## [8 beta] · 21/11/2026 · Ekoa Ajuda, lidas em cascata e painel da fazenda
 - **Ekoa Ajuda:** botão "?" no cabeçalho de cada tela e do editor de lida (tecla F1 no computador); temas com para que serve, passo a passo, regras do app, dúvidas frequentes e os cenários do roteiro beta a conferir. Central de ajuda com busca (menu → Ajuda e Mais → Ekoa Ajuda).
 - **Cascata de cadastros nas lidas:** Fazenda → Lote/piquete → Animais. A fazenda só muda enquanto a lida não tem animais. Lista "Animais de …" com os elegíveis do lote (no nascimento, só fêmeas), busca e barra de progresso.

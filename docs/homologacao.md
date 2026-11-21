@@ -33,6 +33,8 @@ Cada cenário segue **Entrada → Processamento → Resultado → Evidência**. 
 | H28 | Ficha do animal | Abrir um animal de um piquete com contorno | Fazenda, lote, localização e minimapa com o piquete destacado | Print |
 | H29 | Lida em cascata e em grupo | Pesagem sem lote: ler um brinco; depois um de outro lote e um de outra fazenda | Primeiro brinco define o lote; outro lote pede confirmação; outra fazenda é recusada com o nome | Prints |
 | H30 | Painel da fazenda | Período de 90 dias; trocar para "Todas as fazendas"; abrir um piquete | Rebanho inicial e final batem com entradas e saídas; ganho de 1 animal conferido à mão; evolução e detalhe abrem | Print + conta |
+| H32 | Celular → computador | Nomear o celular ("Celular do João") e o PC ("Computador do escritório"); exportar no celular, importar no PC; depois reimportar o mesmo arquivo no celular | Nome do arquivo com a hora local; no PC tudo entra como novo; no celular a prévia mostra "iguais", 0 conflitos, e o aviso de mesmo aparelho | Prints da prévia |
+| H33 | Modo escuro | Alternar o tema (Automático → Claro → Escuro); fechar e reabrir; conferir Início, Rebanho, Painel, Mapa e uma lida | Escolha mantida ao reabrir, sem piscar claro; textos, gráficos, alertas e chips legíveis; Automático segue o celular | Prints claro x escuro |
 | H31 | Ekoa Ajuda | Tocar no "?" de 3 telas e buscar "CAR" na central | Ajuda do assunto da tela; busca encontra o tema de importação | Prints |
 | H18 | CSV | Exportar inventário, eventos e lotes | Abre no Excel com acentos, decimais e datas corretos | Planilha |
 

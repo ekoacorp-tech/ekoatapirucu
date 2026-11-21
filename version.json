@@ -1,9 +1,20 @@
 {
-  "versao": 8,
-  "rotulo": "8 beta",
+  "versao": 9,
+  "rotulo": "9 beta",
   "data": "2026-11-21",
-  "titulo": "Ekoa Ajuda, lidas em cascata e painel da fazenda",
+  "titulo": "Modo escuro e sincronização mais clara",
   "notas": {
+    "9": {
+      "data": "2026-11-21",
+      "titulo": "Modo escuro e sincronização mais clara",
+      "itens": [
+        "Modo escuro nos tons do Ekoa Saber. O botão de tema alterna Automático (segue o celular), Claro e Escuro, e a escolha fica guardada no aparelho.",
+        "Corrigido: importar o próprio arquivo mostrava registros \"em conflito\" sem diferença real. Agora eles aparecem como iguais.",
+        "O nome do arquivo exportado usa a hora local do aparelho (antes saía em UTC, 3 horas à frente de Brasília).",
+        "A prévia avisa quando o arquivo saiu do mesmo aparelho e explica: exporte no celular e importe no computador.",
+        "Ao nomear o aparelho, o app sugere \"Celular de …\" ou \"Computador do escritório\" e alerta se o nome for igual ao de uma fazenda."
+      ]
+    },
     "8": {
       "data": "2026-11-21",
       "titulo": "Ekoa Ajuda, lidas em cascata e painel da fazenda",

@@ -27,7 +27,7 @@ sequenceDiagram
 ## Formato do arquivo (formato 2)
 
 ```text
-{ app: "ekoa-tapirucu", formato: 2, versaoApp, exportadoEm, exportId,
+{ app: "ekoa-tapirucu", formato: 2, versaoApp, exportadoEm, exportadoEmLocal, fusoHorario, exportId,
   dispositivo: { id, nome },
   resumo: { fazendas, lotes, animais, lidas, registros, excluidos },
   dados: { fazendas: [...], lotes: [...], animais: [...], lidas: [...] },
@@ -35,7 +35,9 @@ sequenceDiagram
   integridade: SHA-256 de { dados, excluidos } }
 ```
 
-Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`.
+Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`, na **hora local** do aparelho (desde a versão 9; antes saía em UTC, 3 h à frente de Brasília).
+
+**Datas e fuso.** Dentro do arquivo, `exportadoEm` e os carimbos dos registros ficam em UTC (ISO 8601, sufixo `Z`): é o padrão para comparar versões entre aparelhos em fusos diferentes e para a futura integração com o Sankhya. Para leitura humana, o arquivo leva `exportadoEmLocal` (ex.: `21/11/2026 15:02 (UTC-03:00)`) e `fusoHorario` (ex.: `America/Sao_Paulo`). A tela do app sempre mostra no horário local. `exportadoEmLocal` e `fusoHorario` não entram na integridade, então arquivos da versão 8 continuam válidos.
 
 | Formato | Versões do app | Diferença |
 |---|---|---|
@@ -72,7 +74,9 @@ Excluir gera um **registro de exclusão** (ID, tipo, data e aparelho), que viaja
 - **Desfazer última importação**, com a cópia de segurança feita antes de aplicar.
 - **Integridade obrigatória:** arquivo alterado, corrompido ou sem integridade é recusado.
 - **Arquivo errado:** PDF, CSV, planilha ou arquivo do Ekoa Saber recebem mensagem explicando qual arquivo usar.
-- **Arquivo repetido**, **mais antigo** que outro já importado do mesmo aparelho, ou **do próprio aparelho:** aviso na prévia.
+- **Arquivo repetido**, **mais antigo** que outro já importado do mesmo aparelho, ou **do próprio aparelho:** aviso na prévia. No caso do próprio aparelho, a prévia orienta: exporte no aparelho de origem e importe no de destino.
+- **Nome do aparelho:** cada aparelho tem nome próprio (ex.: "Celular do João", "Computador do escritório"). O app alerta se o nome digitado for igual ao de uma fazenda, porque isso confunde a origem do arquivo.
+- **Registros idênticos:** a comparação usa o registro limpo dos dois lados; reimportar o mesmo arquivo mostra tudo como "iguais", sem falso conflito (corrigido na versão 9).
 - **Lidas em aberto:** a exportação avisa que elas ficam de fora.
 - **Exportação cancelada** (o usuário fechou o compartilhamento): nada é marcado como exportado.
 
