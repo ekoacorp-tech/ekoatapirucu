@@ -2,6 +2,9 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [11] — 2026-11-21 — Nome da fazenda sempre visível no mapa geral
+- No mapa com todas as fazendas, o nome e as cabeças de cada uma aparecem mesmo com o mapa afastado. Antes, fazendas pequenas na tela ficavam sem rótulo.
+
 ## [10] — 2026-11-21 — Pasto e lote separados, painéis em árvore e foto do animal
 - Pasto e lote deixam de ser a mesma coisa: o pasto é o lugar (área, contorno, lotação e metas de manejo) e o lote é o grupo de animais que o ocupa. A atualização converte os cadastros atuais sozinha, sem perder nada.
 - Rotação de pastagem: "Mover de pasto" registra a saída e a entrada com data. O app passa a mostrar dias de ocupação, dias de descanso, ciclos e quando o pasto está pronto para receber o lote.

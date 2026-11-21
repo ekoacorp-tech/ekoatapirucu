@@ -686,7 +686,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 10;
+const APP_VERSION = 11;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -2122,7 +2122,7 @@ class GeoMap {
       }
       if (L.label) {
         const p = L.point || (L.geom ? centroid(L.geom) : null); if (!p) return;
-        if (L.geom) { const xs = allCoords(L.geom).map(c => this.toScreen(c)[0]); if (Math.max(...xs) - Math.min(...xs) < 64) return; }   // piquete pequeno na tela: rótulo aparece ao aproximar
+        if (L.geom && !L.rotuloSempre) { const xs = allCoords(L.geom).map(c => this.toScreen(c)[0]); if (Math.max(...xs) - Math.min(...xs) < 64) return; }   // piquete pequeno na tela: rótulo aparece ao aproximar
         const [x, y] = this.toScreen(p); if (x < -80 || y < -30 || x > w + 80 || y > h + 30) return;
         const lines = String(L.label).split('\n'), y0 = y - (L.point ? 16 : (lines.length - 1) * 7);
         labels += `<text class="gm-label" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle">${lines.map((t, k) => `<tspan x="${x.toFixed(1)}" dy="${k ? 15 : 0}"${k ? ' class="gm-sub"' : ''}>${esc(t)}</tspan>`).join('')}</text>`;
@@ -2287,9 +2287,9 @@ function mapLayersTodas() {
     const cab = cabecasF(x.id), at = x.id === S.fazendaAtiva, g = x.geo || {};
     const label = `${x.nome}\n${cab} cab.`;
     const click = () => { mapaTodas = false; mapSel = null; setFarm(x.id); };
-    if (g.perimetro) L.push({ geom: g.perimetro, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: at ? 0.22 : 0.16, stroke: at ? '#E0A83A' : '#2E6672', width: at ? 3 : 2 }, label, onClick: click });
+    if (g.perimetro) L.push({ geom: g.perimetro, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: at ? 0.22 : 0.16, stroke: at ? '#E0A83A' : '#2E6672', width: at ? 3 : 2 }, label, rotuloSempre: true, onClick: click });
     else if (g.ponto) L.push({ point: [g.ponto.lng, g.ponto.lat], style: { fill: at ? '#C9922E' : '#3B8A97', r: at ? 10 : 8 }, label, onClick: click });
-    else S.pastos.filter(p => p.fazendaId === x.id && p.geo && p.geo.poligono).slice(0, 1).forEach(p => L.push({ geom: p.geo.poligono, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: 0.18, stroke: '#2E6672', width: 2 }, label, onClick: click }));
+    else S.pastos.filter(p => p.fazendaId === x.id && p.geo && p.geo.poligono).slice(0, 1).forEach(p => L.push({ geom: p.geo.poligono, style: { fill: at ? '#C9922E' : '#3B8A97', fillOpacity: 0.18, stroke: '#2E6672', width: 2 }, label, rotuloSempre: true, onClick: click }));
   });
   return L;
 }

@@ -1,9 +1,16 @@
 {
-  "versao": 10,
-  "rotulo": "10 beta",
+  "versao": 11,
+  "rotulo": "11 beta",
   "data": "2026-11-21",
-  "titulo": "Pasto e lote separados, painéis em árvore e foto do animal",
+  "titulo": "Nome da fazenda sempre visível no mapa geral",
   "notas": {
+    "11": {
+      "data": "2026-11-21",
+      "titulo": "Nome da fazenda sempre visível no mapa geral",
+      "itens": [
+        "No mapa com todas as fazendas, o nome e as cabeças de cada uma aparecem mesmo com o mapa afastado. Antes, fazendas pequenas na tela ficavam sem rótulo."
+      ]
+    },
     "10": {
       "data": "2026-11-21",
       "titulo": "Pasto e lote separados, painéis em árvore e foto do animal",
