@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [14] — 2026-11-22 — Piloto mais seguro: lida sem duplicidade e Modo Campo reforçado
+- Leitura repetida do mesmo brinco (leitor Bluetooth ou digitação) deixa de tirar o animal da lida: o app avisa que ele já está lá e nada muda. Tirar um animal continua possível tocando nele na lista, com Desfazer.
+- Brinco digitado ou lido com letras agora é respeitado por inteiro. Antes, as letras eram descartadas e "XX001" podia virar o animal NL001.
+- O mesmo parto lançado em dois aparelhos não duplica mais o bezerro: o app confere o brinco ao finalizar a lida e ao importar o arquivo, e lista na prévia o que ficou de fora.
+- Conflito de edição entre aparelhos passa a aparecer na prévia da importação e em Sincronizar, com a versão que não valeu guardada.
+- Arquivo com identificador inválido (como "constructor") não trava mais o app. Se algo impedir a abertura, uma tela de recuperação permite baixar uma cópia dos dados e voltar à última cópia automática.
+- Modo Campo: o nome do aparelho sai do cabeçalho, o PIN tem bloqueio após 5 erros e "Esqueci o PIN" passa a usar um código de recuperação mostrado uma única vez ao ligar.
+- Teclado de peso inteiro em telas baixas (iPhone SE/5), paisagem com teclado ao lado e app instalado travado em retrato.
+- Toque duplo em Salvar peso não cai mais em Concluir; o botão da data ficou com área de toque de 44 px.
+- Datas inexistentes (31/02) e anos fora de 1900-2100 são recusados.
+- Exportação avisa quando o arquivo passa de 24 MB (fotos) e oferece exportar sem elas; a importação explica o limite de 30 MB.
+
 ## [13] — 2026-11-21 — Modo Campo para o curral
 - Novo Modo Campo: ligado por aparelho, deixa o app simples para quem lança no curral. Uma pergunta por tela, botões grandes, teclado numérico próprio e confirmação clara a cada animal.
 - Cobre todos os apontamentos: pesar, vacina e remédio (produto, dose, carência e próxima aplicação), trocar de lote, mudar o lote de pasto, nascimento e morte, perda ou venda.

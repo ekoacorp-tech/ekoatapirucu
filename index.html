@@ -513,10 +513,10 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 .cp-voltar{width:52px;height:52px;flex-shrink:0;border-radius:14px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:2.2rem;line-height:1;cursor:pointer;padding-bottom:4px}
 .cp-logo img{width:46px;height:46px;border-radius:12px;background:#FBF7F1;padding:4px;object-fit:contain;display:block}
 .cp-head-btn{border:1px solid rgba(255,255,255,.45);background:none;color:#fff;border-radius:12px;padding:6px 10px;font-weight:700;font-size:.8rem;min-height:48px;cursor:pointer;line-height:1.2}
-.cp-data{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:2px 8px;font-weight:700;font-size:.85rem;cursor:pointer;min-height:28px}
+.cp-data{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:10px;padding:6px 12px;font-weight:700;font-size:.9rem;cursor:pointer;min-height:44px}
 .cp-cont{text-align:right;flex-shrink:0}.cp-cont b{display:block;font-size:1.7rem;line-height:1}.cp-cont small{font-size:.8rem;opacity:.9}
 .cp-body{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
-.cp-body.lancar{overflow:hidden;gap:10px}
+.cp-body.lancar{overflow:auto;gap:10px}
 .cp-q{font-size:1.4rem;font-weight:800;color:var(--title-ink);line-height:1.3}
 .cp-txt{font-size:1.02rem;color:var(--text-secondary);line-height:1.45}
 .cp-sec{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-top:4px}
@@ -579,6 +579,10 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 .cp-det .cp-input{margin:6px 0}
 .home-card.campo .hc-ico{background:var(--brand-orange)}
 @media (min-width:700px){#campo .cp-body,#campo .cp-pe{width:100%;max-width:560px;margin:0 auto}#campo .cp-pe{border-radius:16px 16px 0 0}}
+/* Telas baixas (iPhone SE/5 em pé, 568 px): o teclado inteiro, com o 0 e a vírgula, tem que caber sem rolar */
+@media (max-height:640px){.cp-head{min-height:60px;padding-top:calc(6px + env(safe-area-inset-top,0px));padding-bottom:6px}.cp-voltar{width:46px;height:46px}.cp-body{padding:10px 14px;gap:8px}.cp-body.lancar{gap:6px}.cp-visor{min-height:52px}.cp-visor.grande{min-height:60px;font-size:2.4rem}.cp-tec{gap:6px}.cp-tec button{min-height:48px;font-size:1.5rem}.cp-tec button.ok{min-height:48px}.cp-pe{padding-top:8px;padding-bottom:calc(8px + var(--safe-bottom))}.cp-pe .cp-btn{min-height:52px}}
+/* Paisagem baixa (celular deitado): teclado ao lado, não embaixo */
+@media (orientation:landscape) and (max-height:500px){.cp-head{min-height:52px}.cp-body.lancar{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content;gap:6px 12px;align-content:start}.cp-body.lancar>*{grid-column:1}.cp-body.lancar>.cp-tec{grid-column:2;grid-row:1 / span 8}.cp-body.lancar .cp-lista{min-height:56px;max-height:30vh}.cp-visor.grande{min-height:48px;font-size:2rem}.cp-tec button{min-height:44px;font-size:1.35rem}.cp-tec button.ok{min-height:44px}.cp-pe .cp-btn{min-height:46px}.cp-pe{padding-top:6px;padding-bottom:calc(6px + var(--safe-bottom))}}
 @media (prefers-reduced-motion:reduce){.cp-ult.flash{animation:none}.cp-btn{transition:none}}
 @media print{#campo{display:none!important}}
 </style>
@@ -781,7 +785,7 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -834,7 +838,11 @@ function parseNum(v) {
   return /^-?\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
 }
 function normBrinco(v) { return String(v == null ? '' : v).trim().replace(/\s+/g, ''); }
-function validDate(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T12:00:00')); }
+function validDate(s) {  // calendário de verdade: 31/02 e ano fora de 1900-2100 não passam
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const y = +s.slice(0, 4), m = +s.slice(5, 7), d = +s.slice(8, 10);
+  return y >= 1900 && y <= 2100 && m >= 1 && m <= 12 && d >= 1 && d <= new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
 function deviceRef() { return syncMeta.device ? { id: syncMeta.device.id, nome: syncMeta.device.nome } : null; }
 
 /* ---------------- IndexedDB ---------------- */
@@ -972,7 +980,7 @@ function migraPastos() {
 const compute = () => computeF(S.fazendaAtiva);
 function computeF(fid) {
   if (calc && calc[fid]) return calc[fid];
-  const map = {};
+  const map = Object.create(null);   // sem protótipo: um id como "constructor" não pode colidir
   S.animais.filter(a => a.fazendaId === fid).forEach(a => {
     map[a.id] = { a, lote: a.loteId, pesos: [], eventos: [], carenciaAte: null, ultimoManejo: null, baixa: null, loteHist: [{ data: a.entradaEm || '0000-00-00', lote: a.loteId }] };
     if (a.pesoEntrada > 0 && a.entradaEm) map[a.id].pesos.push({ data: a.entradaEm, peso: a.pesoEntrada, lidaId: null });
@@ -983,7 +991,7 @@ function computeF(fid) {
       const st = map[r.animalId];
       if (l.tipo === 'nascimento') { const m = map[r.animalId]; if (m) m.eventos.push({ data: l.data, tipo: 'parto', lidaId: l.id, txt: 'Pariu ' + (r.bezerroBrinco || '') }); return; }
       if (!st) return;
-      if (st.baixa && l.data >= st.baixa.data) return; // nada acontece depois da baixa
+      if (st.baixa && (l.tipo === 'pesagem' ? l.data > st.baixa.data : l.data >= st.baixa.data)) return; // nada acontece depois da baixa; só a pesagem do próprio dia da baixa (caminhão) ainda vale
       if (l.tipo === 'pesagem') {
         if (r.peso > 0) st.pesos.push({ data: l.data, peso: r.peso, lidaId: l.id });
         st.ultimoManejo = l.data; if (r.mover && l.loteId && st.lote !== l.loteId) { st.lote = l.loteId; st.loteHist.push({ data: l.data, lote: l.loteId }); }
@@ -1009,7 +1017,7 @@ function computeF(fid) {
     st.ultimoPeso = n ? p[n - 1].peso : null;
     st.ultimaPesagem = n ? p[n - 1].data : null;
     st.gmd = null;  // GMD só com duas ou mais pesagens, entre as duas últimas com intervalo > 0
-    if (n >= 2) { const d = diasEntre(p[n - 2].data, p[n - 1].data); if (d > 0) st.gmd = (p[n - 1].peso - p[n - 2].peso) / d; }
+    if (n >= 2) { let j = n - 2; while (j > 0 && diasEntre(p[j].data, p[n - 1].data) <= 0) j--; const d = diasEntre(p[j].data, p[n - 1].data); if (d > 0) st.gmd = (p[n - 1].peso - p[j].peso) / d; }   // repesagem no mesmo dia não zera o GMD
     st.gmdTotal = (n >= 2 && diasEntre(p[0].data, p[n - 1].data) > 0) ? (p[n - 1].peso - p[0].peso) / diasEntre(p[0].data, p[n - 1].data) : null;
     st.ativo = !st.baixa;
     st.emCarencia = !!(st.ativo && st.carenciaAte && st.carenciaAte >= hj);
@@ -1018,7 +1026,7 @@ function computeF(fid) {
     st.atrasado = st.ativo && st.diasSemManejo != null && st.diasSemManejo > DIAS_ATRASO;
     st.eventos.sort((x, y) => y.data.localeCompare(x.data));
   });
-  calc = calc || {}; calc[fid] = map;
+  calc = calc || Object.create(null); calc[fid] = map;
   return map;
 }
 
@@ -1381,7 +1389,7 @@ function addRegistro() {
   const f = findAnimalByBrinco(raw);
   if (!f) { fieldErr('eBrinco', naoEncontrado(raw)); return; }
   const a = f.a, s = st[a.id];
-  if (!s || !s.ativo) { fieldErr('eBrinco', `O animal ${a.brinco} está baixado desde ${fmtD(s && s.baixa && s.baixa.data)}.`); return; }
+  if (!s || (!s.ativo && !(l.tipo === 'pesagem' && s.baixa && s.baixa.data === l.data))) { fieldErr('eBrinco', `O animal ${a.brinco} está baixado desde ${fmtD(s && s.baixa && s.baixa.data)}.`); return; }
   if (l.registros.some(r => r.animalId === a.id)) { fieldErr('eBrinco', `O brinco ${a.brinco} já está nesta lida.`); return; }
   if (!conferirPreSelecao(l, s, () => addRegistro())) return;
   if (s.a.entradaEm && l.data < s.a.entradaEm) { fieldErr('eBrinco', `O animal ${a.brinco} entrou na fazenda em ${fmtD(s.a.entradaEm)}, depois da data desta lida.`); return; }
@@ -1479,15 +1487,25 @@ function finalizeLida() {
   if (l.tipo === 'sanitario' && c.carenciaAte && c.carenciaAte < l.data) errs.push('A carência termina antes da data do manejo.');
   if (l.tipo === 'troca' && !c.loteDestinoId) errs.push('Escolha o lote de destino.');
   if (!l.registros.length) errs.push('Nenhum animal lançado.');
+  if (l.tipo === 'nascimento') {   // R02: brinco único na fazenda, conferido também na finalização (cobre o mesmo parto lançado em 2 aparelhos)
+    const vistos = new Set(), dup = [];
+    l.registros.forEach(r => { const b = r.bezerroBrinco; if (!b) return;
+      if (vistos.has(b) || (!S.animais.some(a => a.id === r.id) && S.animais.some(a => a.fazendaId === l.fazendaId && a.brinco === b))) dup.push(b); vistos.add(b); });
+    if (dup.length) errs.push(`Brinco de bezerro que já existe na fazenda: ${[...new Set(dup)].join(', ')}. Pode ser o mesmo parto lançado em dois aparelhos. Confira a outra lida antes de finalizar.`);
+  }
   const st = compute();
   if (l.tipo === 'troca') { const mesmos = l.registros.filter(r => st[r.animalId] && st[r.animalId].lote === c.loteDestinoId); if (mesmos.length === l.registros.length) errs.push('Todos os animais já estão no lote de destino.'); }
-  const baix = l.registros.filter(r => l.tipo !== 'nascimento' && st[r.animalId] && st[r.animalId].baixa && st[r.animalId].baixa.data <= l.data);
+  const baix = l.registros.filter(r => l.tipo !== 'nascimento' && st[r.animalId] && st[r.animalId].baixa && (l.tipo === 'pesagem' ? st[r.animalId].baixa.data < l.data : st[r.animalId].baixa.data <= l.data));
   if (baix.length) errs.push('Animal(is) já baixado(s): ' + baix.map(r => r.brinco).join(', ') + '.');
   if (errs.length) { alert('Não foi possível finalizar:\n\n• ' + errs.join('\n• ')); return; }
   // R04: animais de outro lote no manejo
   if ((l.tipo === 'pesagem' || l.tipo === 'sanitario') && l.loteId) {
     const outros = l.registros.filter(r => st[r.animalId] && st[r.animalId].lote !== l.loteId);
     if (outros.length) { const mv = confirm(`${outros.length} animal(is) estão em outro lote (${outros.slice(0, 5).map(r => r.brinco).join(', ')}${outros.length > 5 ? '…' : ''}).\n\nOK = trocar para o lote ${loteNome(l.loteId)}\nCancelar = manter no lote atual`); outros.forEach(r => r.mover = mv); }
+  }
+  if (l.tipo === 'nascimento') {
+    const rep2 = l.registros.filter(r => S.lidas.some(x => x.id !== l.id && x.tipo === 'nascimento' && x.status === 'finalizada' && x.fazendaId === l.fazendaId && x.data === l.data && (x.registros || []).some(y => y.animalId === r.animalId)));
+    if (rep2.length && !confirm(`A vaca ${[...new Set(rep2.map(r => r.brinco))].join(', ')} já tem parto registrado nesta mesma data em outra lida. Pode ser parto duplicado (ou gêmeos).\n\nFinalizar mesmo assim?`)) return;
   }
   if (l.tipo === 'baixa' && !confirm(`Confirmar a baixa de ${l.registros.length} animal(is) por ${MOTIVOS_BAIXA[c.motivo]}? Eles saem do inventário.`)) return;
   if (l.tipo === 'nascimento') {
@@ -1502,6 +1520,7 @@ function finalizeLida() {
 }
 function reopenLida() {
   const l = curLida(); if (!l) return;
+  if (l.tipo === 'nascimento') { alert('Um nascimento finalizado não pode ser reaberto: o bezerro já faz parte do rebanho.\n\nPara corrigir, exclua esta lida (os bezerros vão junto para a lixeira) e lance o nascimento de novo.'); return; }
   if (!confirm('Reabrir a lida? Ela deixa de valer no rebanho até ser finalizada de novo, e precisará ser exportada outra vez.')) return;
   l.status = 'aberta'; touch(l); save(); renderLidaEditor();
 }
@@ -1778,7 +1797,7 @@ function loteEm(s, d) { let l = s.a.loteId; for (const h of s.loteHist || []) { 
 /* Ganho entre pesagens consecutivas, proporcional aos dias que caem no período; atribuído ao lote da pesagem final */
 function pastoEmS(s, d) { return pastoDoLoteId(loteEm(s, d), d); }
 function ganhoPeriodo(s, d0, d1) {
-  const p = s.pesos; let kg = 0, dias = 0; const porLote = {}, porPasto = {};
+  const p = s.pesos; let kg = 0, dias = 0; const porLote = Object.create(null), porPasto = Object.create(null);
   for (let i = 1; i < p.length; i++) {
     const t1 = p[i - 1].data, t2 = p[i].data, tot = diasEntre(t1, t2); if (tot <= 0) continue;
     const ov = diasEntre(t1 > d0 ? t1 : d0, t2 < d1 ? t2 : d1); if (ov <= 0) continue;
@@ -2054,10 +2073,10 @@ function pnLoteHtml(id, d0, d1) {
 function pnRebanhoHtml(f, d0, d1) {
   const at = Object.values(compute()).filter(s => s.ativo), comP = at.filter(s => s.ultimoPeso > 0), comG = at.filter(s => s.gmd != null);
   const faixa = v => Math.floor(v / 50) * 50;
-  const buckets = {};
+  const buckets = Object.create(null);
   comP.forEach(s => { const k = faixa(s.ultimoPeso); buckets[k] = (buckets[k] || 0) + 1; });
   const ks = Object.keys(buckets).map(Number).sort((a, b) => a - b);
-  const cats = {}; at.forEach(s => { const k = str(s.a.categoria, 40) || '(sem categoria)'; cats[k] = (cats[k] || 0) + 1; });
+  const cats = Object.create(null); at.forEach(s => { const k = str(s.a.categoria, 40) || '(sem categoria)'; cats[k] = (cats[k] || 0) + 1; });
   const idade = at.filter(s => s.a.nascimento).map(s => diasEntre(s.a.nascimento, hoje()) / 30.44);
   const melhores = comG.slice().sort((a, b) => b.gmd - a.gmd).slice(0, 5), piores = comG.slice().sort((a, b) => a.gmd - b.gmd).slice(0, 5);
   const linha = s => `<tr class="click" onclick="openAnimal('${s.a.id}')"><td><b>${esc(s.a.brinco)}</b></td><td>${esc(loteNome(s.lote))}</td><td class="num">${fmtN(s.ultimoPeso, 1)}</td><td class="num">${fmtN(s.gmd, 3)}</td></tr>`;
@@ -3090,6 +3109,8 @@ async function exportSync() {
     fotos: S.fotos && Object.keys(S.fotos).length ? S.fotos : undefined,
     excluidos: S.excluidos
   };
+  const estimado = JSON.stringify(pkg.dados).length + (pkg.fotos ? tamanhoFotos() : 0);
+  if (pkg.fotos && estimado > 24e6 && confirm(`O arquivo ficaria com cerca de ${fmtN(estimado / 1048576, 0)} MB, perto do limite de 30 MB para importar.\n\nOK = exportar SEM as fotos (elas continuam neste aparelho)\nCancelar = exportar com as fotos`)) pkg.fotos = undefined;
   // marca exportado antes de gerar a integridade, para o arquivo refletir o estado final
   const mark = o => { if (isPend(o)) o.exportadoEm = agora; };
   const prev = JSON.parse(JSON.stringify({ f: S.fazendas, pa: S.pastos, lo: S.lotes, a: S.animais, li: S.lidas }));
@@ -3124,7 +3145,7 @@ function wrongFileHint(name, text) {
   return null;
 }
 /* Entrada não confiável: cada campo é validado e limitado */
-const okId = v => ID_OK.test(String(v || ''));
+const okId = v => ID_OK.test(String(v || '')) && !(String(v) in Object.prototype);   // barra "constructor", "toString"…
 const okDate = v => validDate(String(v || '')) ? String(v) : null;
 const okIso = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOString() : null; };
 const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && n <= max ? n : null; };
@@ -3154,7 +3175,7 @@ const tombOf = id => S.excluidos.find(t => t.id === id);
 async function onImportFile(ev) {
   const fileIn = ev.target, f = fileIn.files && fileIn.files[0]; fileIn.value = '';
   if (!f) return;
-  if (f.size > 30 * 1024 * 1024) { alert('Arquivo grande demais (limite de 30 MB).'); return; }
+  if (f.size > 30 * 1024 * 1024) { alert(`Arquivo grande demais (${fmtN(f.size / 1048576, 1)} MB; o limite é 30 MB). Quase sempre são as fotos: peça uma nova exportação sem as fotos.`); return; }
   const text = await f.text();
   const wrong = wrongFileHint(f.name, text); if (wrong) { alert(wrong); return; }
   let pkg; try { pkg = JSON.parse(text); } catch (e) { alert('O arquivo não é um JSON válido ou está corrompido.'); return; }
@@ -3221,6 +3242,24 @@ function planImport(pkg) {
     plan.tombs.push(tt);
     const pc = plan.cols[col]; pc.novos = pc.novos.filter(x => x.id !== tt.id);
   });
+  /* R02 no merge: dois aparelhos podem ter criado o mesmo brinco (ex.: o mesmo parto lançado nos dois).
+     Vale o que já está aqui; entre os que chegam, o mais antigo. O que colidir NÃO entra e é listado na prévia. */
+  plan.brincosDup = [];
+  const pa = plan.cols.animais, CHV = ['novos', 'restaurados', 'atualizados', 'conflitosImp'];
+  for (let volta = 0; volta < 5; volta++) {
+    const aplic = CHV.flatMap(k => pa[k]), ids = new Set(aplic.map(x => x.id)), vistos = new Set(), bloq = new Set();
+    S.animais.filter(a => !ids.has(a.id)).forEach(a => vistos.add(a.fazendaId + '|' + a.brinco));
+    aplic.slice().sort((x, y) => (x.criadoEm || '').localeCompare(y.criadoEm || '')).forEach(a => { const k = a.fazendaId + '|' + a.brinco; if (vistos.has(k)) bloq.add(a.id); else vistos.add(k); });
+    if (!bloq.size) break;
+    aplic.filter(a => bloq.has(a.id)).forEach(a => plan.brincosDup.push(a.brinco));
+    CHV.forEach(k => { pa[k] = pa[k].filter(x => !bloq.has(x.id)); });
+  }
+  const rot = (col, r) => col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+  plan.conflitos = [];
+  Object.entries(plan.cols).forEach(([col, p]) => {
+    p.conflitosImp.forEach(x => plan.conflitos.push({ col, id: x.id, rotulo: rot(col, S[col].find(y => y.id === x.id) || x), vence: 'arquivo', rec: S[col].find(y => y.id === x.id) || null }));
+    p.conflitosLoc.forEach(x => plan.conflitos.push({ col, id: x.id, rotulo: rot(col, x), vence: 'aqui', rec: x }));
+  });
   return plan;
 }
 function renderImportPreview() {
@@ -3232,7 +3271,8 @@ function renderImportPreview() {
     <dl class="dl" style="margin-bottom:12px"><dt>Arquivo</dt><dd>${esc(arquivo)}</dd><dt>De</dt><dd>${esc(pkg.dispositivo ? pkg.dispositivo.nome : 'Aparelho sem nome')}</dd><dt>Exportado em</dt><dd>${fmtDT(pkg.exportadoEm)} <small class="muted">(horário deste aparelho)</small></dd><dt>Integridade</dt><dd><span class="chip ok">✓ verificada</span></dd></dl>
     ${avisos.map(a => `<div class="alert warn"><span>${esc(a)}</span></div>`).join('')}
     <div class="tbl-wrap"><table><thead><tr><th></th><th class="num">Entram</th><th class="num">Atualizam</th><th class="num">Iguais</th><th class="num">Ficam como aqui</th></tr></thead><tbody>${rows}</tbody></table></div>
-    ${conf ? `<div class="alert warn" style="margin-top:10px"><span>${conf} conflito(s): mesma versão editada nos dois aparelhos. Vale a edição mais recente.</span></div>` : ''}
+    ${plan.brincosDup.length ? `<div class="alert bad" style="margin-top:10px"><span><b>${plan.brincosDup.length} animal(is) NÃO serão importados</b> porque o brinco já existe na fazenda: ${esc([...new Set(plan.brincosDup)].slice(0, 8).join(', '))}${plan.brincosDup.length > 8 ? '…' : ''}. Costuma ser o mesmo parto ou cadastro lançado em dois aparelhos. Confira com quem lançou.</span></div>` : ''}
+    ${conf ? `<div class="alert warn" style="margin-top:10px"><span><b>${conf} conflito(s):</b> o mesmo registro foi editado nos dois aparelhos. Vale a edição mais recente, e a outra versão fica guardada. ${esc(plan.conflitos.slice(0, 8).map(c => c.rotulo + ' (vale ' + (c.vence === 'arquivo' ? 'o arquivo' : 'a daqui') + ')').join('; '))}${plan.conflitos.length > 8 ? '…' : ''}</span></div>` : ''}
     ${plan.excluirAqui.length ? `<div class="alert warn" style="margin-top:10px"><span>${plan.excluirAqui.length} item(ns) excluído(s) no outro aparelho vão para a lixeira aqui.</span></div>` : ''}
     ${plan.mantidosEditados.length ? `<div class="alert info" style="margin-top:10px"><span>${plan.mantidosEditados.length} item(ns) excluído(s) lá foram editados aqui depois e serão mantidos.</span></div>` : ''}
     ${plan.invalidos ? `<div class="alert bad" style="margin-top:10px"><span>${plan.invalidos} registro(s) inválido(s) ou repetido(s) no arquivo serão ignorados.</span></div>` : ''}
@@ -3244,6 +3284,11 @@ async function applyImport() {
   const { pkg, plan, arquivo } = pendingImport;
   try { await idbSet('backupPreImport', { em: nowISO(), de: pkg.dispositivo ? pkg.dispositivo.nome : null, dados: JSON.parse(JSON.stringify(S)) }); }
   catch (e) { alert('Não foi possível criar a cópia de segurança. A importação foi cancelada para proteger seus dados.'); return; }
+  if ((plan.conflitos || []).length) {   // a versão que perdeu fica guardada, e o conflito aparece em Sincronizar
+    try { const ant = (await idbGet('conflitosPerdidos')) || [], em = nowISO();
+      await idbSet('conflitosPerdidos', plan.conflitos.map(c => ({ em, col: c.col, id: c.id, rotulo: c.rotulo, venceu: c.vence, perdedor: JSON.parse(JSON.stringify(c.rec)) })).concat(ant).slice(0, 200)); } catch (e) {}
+    syncMeta.conflitos = [{ em: nowISO(), arquivo, itens: plan.conflitos.slice(0, 50).map(c => ({ col: c.col, rotulo: c.rotulo, venceu: c.vence })) }].concat(syncMeta.conflitos || []).slice(0, 10);
+  }
   const res = { novos: 0, atualizados: 0 };
   Object.entries(plan.cols).forEach(([col, p]) => {
     const rep = inc => { const k = S[col].findIndex(x => x.id === inc.id); if (k >= 0) S[col][k] = inc; res.atualizados++; };
@@ -3286,6 +3331,9 @@ function renderSync() {
     <div class="card"><h3>Importar (receber)</h3>
       <div class="actions"><button class="btn teal" onclick="$('importFile').click()"><svg><use href="#i-down"/></svg>Importar arquivo</button><button class="btn" onclick="undoImport()">Desfazer última importação</button></div>
       <p class="hint">Mostra uma prévia antes de aplicar. A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.</p></div>
+    ${(syncMeta.conflitos || []).length ? `<div class="card"><h3>Conflitos recentes <span class="sub">editado nos dois aparelhos</span></h3>
+      <div class="tbl-wrap"><table><thead><tr><th>Quando</th><th>Arquivo</th><th>O que aconteceu</th></tr></thead><tbody>${syncMeta.conflitos.slice(0, 5).map(c => `<tr><td>${fmtDT(c.em)}</td><td>${esc(c.arquivo)}</td><td>${c.itens.slice(0, 6).map(i => esc(i.rotulo) + ' <small class="muted">(valeu ' + (i.venceu === 'arquivo' ? 'o arquivo' : 'o daqui') + ')</small>').join('; ')}${c.itens.length > 6 ? ` e mais ${c.itens.length - 6}` : ''}</td></tr>`).join('')}</tbody></table></div>
+      <p class="hint">A versão que não valeu fica guardada neste aparelho. Confira se algo importante se perdeu.</p></div>` : ''}
     <div class="card"><h3>Histórico</h3>
       ${exp.length || imp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Quando</th><th>Operação</th><th>Detalhe</th></tr></thead><tbody>
         ${exp.map(e => `<tr><td>${fmtDT(e.em)}</td><td><span class="chip info">Exportação</span></td><td>${e.lidas} lida(s), ${e.animais} animal(is) · ${esc(e.arquivo)}</td></tr>`).join('')}
@@ -3405,7 +3453,14 @@ async function showWhatsNew() {
    com status "conferir": viaja na exportação, mas só altera o rebanho quando
    o gestor confere e finaliza no escritório. Sair do modo exige o PIN.
    ========================================================================= */
-const CP_KEY = 'tapirucu-campo', CP_PIN = 'tapirucu-campo-pin';
+const CP_KEY = 'tapirucu-campo', CP_PIN = 'tapirucu-campo-pin', CP_REC = 'tapirucu-campo-rec', CP_TRY = 'tapirucu-campo-try';
+const cpRecHash = () => { try { return localStorage.getItem(CP_REC) || ''; } catch (e) { return ''; } };
+/* Tentativas: 5 erros bloqueiam por 1 min, e cada erro a mais soma 1 min (máx. 15). O bloqueio vale para o PIN e para o código de recuperação. */
+function cpTrava() { try { const t = JSON.parse(localStorage.getItem(CP_TRY) || 'null'); if (t && t.ate > Date.now()) return Math.ceil((t.ate - Date.now()) / 1000); } catch (e) {} return 0; }
+function cpFalhou() { let t = { n: 0, ate: 0 }; try { t = JSON.parse(localStorage.getItem(CP_TRY) || 'null') || t; } catch (e) {} t.n = (t.n || 0) + 1; if (t.n >= 5) t.ate = Date.now() + Math.min(15, t.n - 4) * 60000; try { localStorage.setItem(CP_TRY, JSON.stringify(t)); } catch (e) {} return t; }
+const cpLimpaTent = () => { try { localStorage.removeItem(CP_TRY); } catch (e) {} };
+const cpTravaTxt = sg => sg >= 60 ? Math.ceil(sg / 60) + ' min' : sg + ' s';
+function cpNovoCodigo() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', b = new Uint8Array(8); if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b); else b.forEach((_, i) => { b[i] = Math.floor(Math.random() * 256); }); return Array.from(b, x => A[x % 32]).join(''); }
 const cpLigado = () => { try { return localStorage.getItem(CP_KEY) === '1'; } catch (e) { return false; } };
 const cpPinHash = () => { try { return localStorage.getItem(CP_PIN) || ''; } catch (e) { return ''; } };
 let CP = { tela: 'inicio' };
@@ -3421,7 +3476,8 @@ const CP_PASSOS = { pesagem: ['lote', 'motivo'], sanitario: ['lote', 'proc', 'pr
 const CP_CAUSAS = { morte: ['Doença', 'Picada de cobra', 'Raio', 'Acidente', 'Parto', 'Desconhecida'], perda: ['Desaparecido', 'Roubo', 'Outro'], venda: [] };
 const vibra = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
 const cpLida = () => S.lidas.find(l => l.id === CP.lidaId);
-const cpIr = (tela, extra) => { CP = Object.assign({}, CP, { tela, aviso: '' }, extra || {}); renderCampo(); };
+const cpIr = (tela, extra) => { if (tela === 'concluir' && Date.now() - (CP.gravouEm || 0) < 500) return;   /* toque duplo em Salvar não cai em Concluir */
+   CP = Object.assign({}, CP, { tela, aviso: '', nota: '', erroFiltro: false }, extra || {}); renderCampo(); };
 const cpEsc = s => esc(s).replace(/`/g, '&#96;');
 const cpJs = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
@@ -3432,15 +3488,20 @@ function ativarCampo() {
     <p style="margin-bottom:10px">O Modo Campo deixa o app simples para quem lança no curral: <b>uma pergunta por tela, botões grandes e teclado próprio</b>. Menu, painel e mapa ficam escondidos.</p>
     <ul class="aj-ul" style="margin-bottom:12px"><li>Vale só para <b>${esc(syncMeta.device.nome)}</b>. Os outros aparelhos não mudam.</li><li>A lida concluída no campo vai para o escritório como <b>"conferir"</b>: só altera o rebanho depois que o gestor confere e finaliza.</li><li>Para sair do Modo Campo é preciso o PIN do gestor.</li></ul>
     <div class="grid">${fld('cpPin1', 'PIN do gestor (4 números)', `<input id="cpPin1" type="password" inputmode="numeric" maxlength="4" autocomplete="off" pattern="[0-9]*">`, true)}
-    ${fld('cpPin2', 'Repita o PIN', `<input id="cpPin2" type="password" inputmode="numeric" maxlength="4" autocomplete="off" pattern="[0-9]*">`, true, 'Anote o PIN. Se esquecer, dá para sair digitando o nome deste aparelho.')}</div>`,
+    ${fld('cpPin2', 'Repita o PIN', `<input id="cpPin2" type="password" inputmode="numeric" maxlength="4" autocomplete="off" pattern="[0-9]*">`, true, 'Anote o PIN. Ao ligar, o app mostra um código de recuperação para o caso de esquecer.')}</div>`,
     `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="cpLiga">Ligar Modo Campo</button>`);
   $('cpLiga').onclick = async () => {
     const a = $('cpPin1').value.trim(), b = $('cpPin2').value.trim(); fieldErr('cpPin1', ''); fieldErr('cpPin2', '');
     if (!/^\d{4}$/.test(a)) { fieldErr('cpPin1', 'Use exatamente 4 números.'); return; }
     if (a !== b) { fieldErr('cpPin2', 'Os dois PINs não conferem.'); return; }
-    const h = await sha256('tapirucu-campo:' + a);
-    try { localStorage.setItem(CP_PIN, h || a); localStorage.setItem(CP_KEY, '1'); } catch (e) { alert('Este navegador não permitiu guardar a configuração.'); return; }
-    closeModal(); entraCampo(); showToast('Modo Campo ligado neste aparelho.');
+    const h = await sha256('tapirucu-campo:' + a), cod = cpNovoCodigo(), hr = await sha256('tapirucu-campo-rec:' + cod);
+    try { localStorage.setItem(CP_PIN, h || a); localStorage.setItem(CP_REC, hr || cod); } catch (e) { alert('Este navegador não permitiu guardar a configuração.'); return; }
+    cpLimpaTent();
+    openModal('Código de recuperação', `<p style="margin-bottom:10px">Se o PIN for esquecido, este código desliga o Modo Campo. <b>Anote agora: ele não aparece de novo.</b></p>
+      <p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;padding:14px;border:2px dashed var(--brand-teal);border-radius:12px">${cod.slice(0, 4)}-${cod.slice(4)}</p>
+      <p class="hint">Guarde com o gestor, longe de quem lança no curral.</p>`,
+      `<button class="btn primary" id="cpLiga2">Anotei, ligar o Modo Campo</button>`);
+    $('cpLiga2').onclick = () => { try { localStorage.setItem(CP_KEY, '1'); } catch (e) { alert('Este navegador não permitiu guardar a configuração.'); return; } closeModal(); entraCampo(); showToast('Modo Campo ligado neste aparelho.'); };
   };
 }
 function entraCampo() {
@@ -3484,13 +3545,13 @@ function renderCampo() {
 }
 
 function cpInicio() {
-  const f = farm(), dev = syncMeta.device ? syncMeta.device.nome : 'Aparelho sem nome';
+  const f = farm();
   const sair = `<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('sair',{pin:''})">Sair do Modo Campo</button></div>`;
   const receber = cpBtn('Receber do escritório', 'Abrir o arquivo que o escritório mandou', "$('importFile').click()", 'leve', 'i-down');
-  if (!f) return cpHead('Modo Campo', esc(dev)) + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">Peça ao escritório o arquivo do app e abra aqui.</p>${receber}${sair}</div>`;
+  if (!f) return cpHead('Modo Campo') + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">Peça ao escritório o arquivo do app e abra aqui.</p>${receber}${sair}</div>`;
   const abertas = lidasF().filter(l => l.status === 'aberta' && l.campo);
   const conf = lidasF().filter(l => l.status === 'conferir').length, pd = pendentesCount();
-  return cpHead(f.nome, `Modo Campo · ${esc(dev)}`, null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
+  return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
     + `<div class="cp-body">
       ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
       <p class="cp-sec">O que vai fazer agora?</p>
@@ -3633,7 +3694,7 @@ function cpLancar() {
     + `<div class="cp-body lancar">
       ${faixa ? `<div class="cp-faixa">${faixa}</div>` : ''}
       ${CP.ultimo ? `<div class="cp-ult" role="status"><span>✓ ${CP.ultimo.txt}</span><button type="button" onclick="cpDesfaz('${CP.ultimo.rid}')">Desfazer</button></div>` : ''}
-      ${cpAviso()}
+      ${cpAviso()}${CP.nota ? `<div class="cp-info" role="status">${esc(CP.nota)}</div>` : ''}
       <div class="cp-visor" id="cpVisor">${cpVisorHtml()}</div>
       ${multi && restam ? `<button type="button" class="cp-btn leve cp-todos" onclick="cpTodos()">${restam === 1 ? 'Marcar o que falta' : 'Marcar todos (faltam ' + restam + ')'}</button>` : ''}
       <div class="cp-lista" id="cpLista">${cpListaHtml()}</div>
@@ -3653,7 +3714,7 @@ function cpTecla(x) {
   if (t !== 'lancar') return;
   if (x === 'ABC') { CP.texto = !CP.texto; renderCampo(); return; }
   if (x === '⌫') CP.filtro = (CP.filtro || '').slice(0, -1); else if ((CP.filtro || '').length < 30) CP.filtro = (CP.filtro || '') + x;
-  CP.aviso = ''; const a = document.querySelector('#campo .cp-aviso'); if (a) a.remove();
+  CP.aviso = ''; CP.nota = ''; document.querySelectorAll('#campo .cp-aviso,#campo .cp-body.lancar > .cp-info').forEach(e => e.remove());
   $('cpVisor').innerHTML = cpVisorHtml(); $('cpLista').innerHTML = cpListaHtml();
 }
 /* OK: brinco exato em qualquer lote da fazenda; senão, se a lista tem um só, escolhe esse */
@@ -3662,27 +3723,34 @@ function cpOk() {
   const b = normBrinco(CP.filtro);
   if (!b) { cpErro('Digite o brinco.'); return; }
   const f = findAnimalByBrinco(b);
-  if (f) { cpEscolhe(f.a.id); return; }
+  if (f) { cpEscolhe(f.a.id, true); return; }
   /* só números: "506" acha o BR-506 quando ele é o único com exatamente esses números */
-  if (/^\d+$/.test(b)) { const dig = animaisF().filter(a => a.brinco.replace(/\D/g, '') === b); if (dig.length === 1) { cpEscolhe(dig[0].id); return; } }
+  if (/^\d+$/.test(b)) { const dig = animaisF().filter(a => a.brinco.replace(/\D/g, '') === b); if (dig.length === 1) { cpEscolhe(dig[0].id, true); return; } }
   const feitos = new Set(l.registros.map(r => r.animalId)), q = b.toLowerCase();
   const lista = cpBase(l).filter(s => (cpMulti(l) || !feitos.has(s.a.id)) && s.a.brinco.toLowerCase().includes(q));
-  if (lista.length === 1) { cpEscolhe(lista[0].a.id); return; }
+  if (lista.length === 1) { cpEscolhe(lista[0].a.id, true); return; }
   cpErro(lista.length ? `Há ${lista.length} brincos com "${esc(b)}". Toque no certo.` : esc(naoEncontrado(b)));
 }
-function cpErro(msg) { CP.aviso = msg; vibra([60, 40, 60]); renderCampo(); }
+function cpErro(msg) { CP.aviso = msg; if (CP.tela === 'lancar') CP.erroFiltro = true; vibra([60, 40, 60]); renderCampo(); }   // erroFiltro: a próxima leitura do leitor começa do zero, sem herdar o brinco errado
 function cpValida(l, s) {
   if (!s) return 'Animal não encontrado.';
   if (l.tipo === 'nascimento' && s.a.sexo !== 'F') return `O ${esc(s.a.brinco)} está cadastrado como macho.`;
-  if (!s.ativo) return `O ${esc(s.a.brinco)} já saiu do rebanho${s.baixa ? ' em ' + fmtD(s.baixa.data) : ''}.`;
+  if (!s.ativo && !(l.tipo === 'pesagem' && s.baixa && s.baixa.data === l.data)) return `O ${esc(s.a.brinco)} já saiu do rebanho${s.baixa ? ' em ' + fmtD(s.baixa.data) : ''}.`;
   if (s.a.entradaEm && l.data < s.a.entradaEm) return `O ${esc(s.a.brinco)} chegou na fazenda em ${fmtD(s.a.entradaEm)}, depois da data desta lida.`;
   if (l.tipo === 'troca' && s.lote === l.cab.loteDestinoId) return `O ${esc(s.a.brinco)} já está no lote ${esc(loteNome(l.cab.loteDestinoId))}.`;
   return '';
 }
-function cpEscolhe(id) {
+/* digitado = veio do teclado, do leitor ou do OK: ler o mesmo brinco de novo NUNCA tira o animal da lida.
+   Só o toque na lista (ação deliberada) desmarca, e mesmo assim com "Desfazer". */
+function cpEscolhe(id, digitado) {
   const l = cpLida(), s = compute()[id]; if (!l) return;
   const ja = l.registros.find(r => r.animalId === id);
-  if (cpMulti(l) && ja) { l.registros = l.registros.filter(r => r !== ja); l.editadoEm = nowISO(); save(); vibra(15); CP.filtro = ''; CP.ultimo = null; CP.aviso = ''; renderCampo(); return; }
+  if (ja && digitado) { CP.filtro = ''; CP.aviso = ''; CP.ultimo = null; CP.nota = `O ${ja.brinco} já está na lida. Nada foi alterado.`; vibra(20); renderCampo(); return; }
+  if (cpMulti(l) && ja) {
+    l.registros = l.registros.filter(r => r !== ja); l.editadoEm = nowISO(); save(); vibra(15); CP.filtro = ''; CP.ultimo = null; CP.aviso = ''; CP.nota = ''; renderCampo();
+    showToastAction(`${ja.brinco} tirado da lida.`, 'Desfazer', () => { if (!l.registros.some(r => r.animalId === id)) { l.registros.push(ja); l.editadoEm = nowISO(); save(); } renderCampo(); });
+    return;
+  }
   if (ja) { cpErro(`O ${esc(ja.brinco)} já foi lançado nesta lida.`); return; }
   const e = cpValida(l, s); if (e) { cpErro(e); return; }
   if (l.loteId && s.lote !== l.loteId && CP.foraOk !== id) { cpIr('fora', { sel: id }); return; }
@@ -3694,7 +3762,7 @@ function cpEscolhe(id) {
 }
 function cpGrava(l, reg, txt) {
   l.registros.push(reg); l.editadoEm = nowISO(); save(); updateCounts(); vibra(35);
-  CP = Object.assign({}, CP, { tela: 'lancar', filtro: '', texto: false, aviso: '', foraOk: null, sel: null, buf: '', ultimo: { rid: reg.id, txt } });
+  CP = Object.assign({}, CP, { gravouEm: Date.now(), tela: 'lancar', filtro: '', texto: false, aviso: '', nota: '', foraOk: null, sel: null, buf: '', ultimo: { rid: reg.id, txt } });
   renderCampo();
   const u = document.querySelector('#campo .cp-ult'); if (u) { u.classList.remove('flash'); void u.offsetWidth; u.classList.add('flash'); }
 }
@@ -3894,18 +3962,26 @@ function cpSair() {
       <div class="cp-espaco"></div>${cpTeclado('pin')}<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('esqueci')">Esqueci o PIN</button></div></div>`;
 }
 async function cpConfereSair() {
+  const w = cpTrava(); if (w) { CP.pin = ''; cpErro(`Muitas tentativas. Aguarde ${cpTravaTxt(w)}.`); return; }
   const h = await sha256('tapirucu-campo:' + CP.pin), ok = (h || CP.pin) === cpPinHash();
-  if (ok) { saiCampo(); return; }
-  CP.pin = ''; cpErro('PIN errado. Tente de novo.');
+  if (ok) { cpLimpaTent(); saiCampo(); return; }
+  CP.pin = ''; const t = cpFalhou(), w2 = cpTrava();
+  cpErro(w2 ? `PIN errado. Bloqueado por ${cpTravaTxt(w2)}.` : `PIN errado. Restam ${5 - t.n} tentativa(s) antes do bloqueio.`);
 }
 function cpEsqueci() {
-  return cpHead('Esqueci o PIN', '', "cpIr('sair',{pin:''})") + `<div class="cp-body"><p class="cp-txt">Digite o <b>nome deste aparelho</b>, do jeito que foi cadastrado no escritório.</p>
-    <input id="cpEsq" class="cp-input" autocomplete="off" data-foco onkeydown="if(event.key==='Enter')cpEsqOk()">${cpAviso()}${cpBtn('Sair do Modo Campo', '', 'cpEsqOk()', 'pri')}</div>`;
+  const tem = !!cpRecHash();
+  return cpHead('Esqueci o PIN', '', "cpIr('sair',{pin:''})") + `<div class="cp-body"><p class="cp-txt">${tem ? 'Digite o <b>código de recuperação</b> que o gestor anotou ao ligar o Modo Campo.' : 'Este aparelho foi configurado numa versão anterior e não tem código de recuperação. Digite o <b>nome deste aparelho</b>, como foi cadastrado, ou peça ao gestor para ligar o Modo Campo de novo e anotar o código.'}</p>
+    <input id="cpEsq" class="cp-input" autocomplete="off" autocapitalize="characters" data-foco onkeydown="if(event.key==='Enter')cpEsqOk()">${cpAviso()}${cpBtn('Sair do Modo Campo', '', 'cpEsqOk()', 'pri')}</div>`;
 }
-function cpEsqOk() {
-  const v = str($('cpEsq').value, 40).toLowerCase();
-  if (syncMeta.device && v && v === syncMeta.device.nome.toLowerCase()) { saiCampo(); return; }
-  cpErro('Nome não confere.');
+async function cpEsqOk() {
+  const w = cpTrava(); if (w) { cpErro(`Muitas tentativas. Aguarde ${cpTravaTxt(w)}.`); return; }
+  const raw = str($('cpEsq').value, 40), rec = cpRecHash();
+  let ok = false;
+  if (rec) { const cod = raw.toUpperCase().replace(/[^A-Z0-9]/g, ''), h = cod ? await sha256('tapirucu-campo-rec:' + cod) : ''; ok = !!cod && (h || cod) === rec; }
+  else ok = !!(syncMeta.device && raw && raw.toLowerCase() === syncMeta.device.nome.toLowerCase());
+  if (ok) { cpLimpaTent(); saiCampo(); return; }
+  cpFalhou(); const w2 = cpTrava();
+  cpErro(w2 ? `Não confere. Bloqueado por ${cpTravaTxt(w2)}.` : (rec ? 'Código não confere.' : 'Nome não confere.'));
 }
 
 /* Leitor de brinco por Bluetooth ou teclado físico: números e Enter vão direto para o lançamento */
@@ -3915,7 +3991,9 @@ document.addEventListener('keydown', e => {
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   const t = CP.tela;
   if (!['lancar', 'peso', 'pesoBez', 'sair'].includes(t)) return;
-  if (/^\d$/.test(e.key)) { e.preventDefault(); cpTecla(e.key); }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (t === 'lancar' && /^[A-Za-z0-9-]$/.test(e.key)) { e.preventDefault(); if (CP.erroFiltro) { CP.filtro = ''; CP.erroFiltro = false; } cpTecla(e.key); }   // o leitor manda o brinco inteiro, com letras
+  else if (/^\d$/.test(e.key)) { e.preventDefault(); cpTecla(e.key); }
   else if (e.key === 'Backspace') { e.preventDefault(); cpTecla('⌫'); }
   else if ((e.key === ',' || e.key === '.') && t !== 'lancar') { e.preventDefault(); cpTecla(','); }
   else if (e.key === 'Enter') { e.preventDefault(); if (t === 'lancar') cpOk(); else if (t === 'peso') cpSalvaPeso(); else if (t === 'pesoBez') cpSalvaBez(); }
@@ -3945,11 +4023,32 @@ if (mqEscuro && mqEscuro.addEventListener) mqEscuro.addEventListener('change', (
 /* =========================================================================
    INICIALIZAÇÃO
    ========================================================================= */
+/* Se algo nos dados impedir a abertura, o app não fica mudo: mostra uma tela de recuperação, sem apagar nada. */
+function mostraRecuperacao(err) {
+  const sp = $('splash'); if (sp) sp.classList.add('off');
+  let box = document.getElementById('recuperacao');
+  if (!box) { box = document.createElement('div'); box.id = 'recuperacao'; box.setAttribute('role', 'alert'); box.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#EFE6DA;color:#2b2118;overflow:auto;padding:24px 18px;font:16px/1.5 system-ui,sans-serif'; document.body.appendChild(box); }
+  const bt = 'min-height:56px;border-radius:14px;border:2px solid #23505F;background:#fff;color:#23505F;font:700 1rem system-ui,sans-serif;padding:0 14px;cursor:pointer;text-align:left';
+  box.innerHTML = `<div style="max-width:520px;margin:0 auto"><h2 style="margin:0 0 8px">O app não conseguiu abrir os dados</h2>
+    <p>Seus dados continuam guardados neste aparelho e nada foi apagado. Siga na ordem:</p>
+    <div style="display:grid;gap:10px;margin:14px 0"><button style="${bt}" id="recBaixar">1. Baixar uma cópia dos dados (guarde o arquivo)</button>
+    <button style="${bt}" id="recVolta">2. Voltar para a última cópia automática</button>
+    <button style="${bt}" onclick="location.reload()">3. Tentar abrir de novo</button></div>
+    <p id="recMsg" style="font-weight:700"></p><p style="font-size:.85rem;color:#6b5b4d">Detalhe técnico: ${esc(String((err && err.message) || err))}</p></div>`;
+  const msg = t => { const m = document.getElementById('recMsg'); if (m) m.textContent = t; };
+  document.getElementById('recBaixar').onclick = async () => { try { const d = await idbGet('dados'), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d || {})], { type: 'application/json' })); a.download = 'Tapirucu_copia_' + Date.now() + '.json'; document.body.appendChild(a); a.click(); a.remove(); msg('Cópia baixada.'); } catch (e) { msg('Não foi possível baixar: ' + e.message); } };
+  document.getElementById('recVolta').onclick = async () => { try {
+    const bs = [await idbGet('backupPreImport'), await idbGet('backupPreUpdate')].filter(b => b && b.dados).sort((x, y) => String(y.em).localeCompare(String(x.em)));
+    if (!bs.length) { msg('Não há cópia automática neste aparelho.'); return; }
+    if (!confirm('Voltar para a cópia de ' + fmtDT(bs[0].em) + '? O que foi lançado depois dela será perdido. Baixe a cópia do passo 1 antes.')) return;
+    await idbSet('dados', bs[0].dados); location.reload(); } catch (e) { msg('Não foi possível restaurar: ' + e.message); } };
+}
 async function init() {
   try {
     const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);
   } catch (e) { alert('Este navegador bloqueou o armazenamento local (modo anônimo?). Os dados não serão guardados.'); }
+  try {
   migraPastos();
   if (!farm() && S.fazendas.length) S.fazendaAtiva = S.fazendas[0].id;
   document.querySelectorAll('.app-ver').forEach(e => e.textContent = APP_VERSION);
@@ -3959,6 +4058,7 @@ async function init() {
   setTimeout(() => $('splash').classList.add('off'), 450);
   if (navigator.storage && navigator.storage.persist) { try { await navigator.storage.persist(); } catch (e) {} }
   checkUpdateLoop(); showWhatsNew(); checkUpdates(false);
+  } catch (e) { mostraRecuperacao(e); }
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdates(false); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
