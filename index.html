@@ -645,6 +645,9 @@ th{font-size:.75rem}
 .beta{font-size:.72rem}
 /* v16 — tabela larga: sombra lateral indica que há mais colunas para rolar */
 .tbl-wrap{background:linear-gradient(to right,var(--card-bg) 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,var(--card-bg) 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.22),rgba(0,0,0,0)) left center/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.22),rgba(0,0,0,0)) right center/12px 100% no-repeat scroll,var(--card-bg)}
+#porteiro #apForm{display:flex;flex-direction:column;gap:10px}
+#porteiro .ap-link{align-self:center}
+#porteiro .ap-btn{padding:10px 14px;line-height:1.25}
 </style>
 </head>
 <body data-view="home">
@@ -4182,6 +4185,32 @@ function apFalhou() { let t = { n: 0, ate: 0 }; try { t = JSON.parse(localStorag
 const apLimpaTent = () => { try { localStorage.removeItem(AP_TRY); } catch (e) {} };
 const fmtCod = c => c.slice(0, 4) + '-' + c.slice(4);
 const apNorm = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+/* ---- e-mail de recuperação ----
+   O e-mail fica só neste aparelho. O serviço de e-mail da Ekoa (pasta servidor-email) envia a boas-vindas e o código de nova senha.
+   Enquanto EKOA_MAIL_API estiver vazio, o app guarda o e-mail e avisa que o envio ainda não está ativo. */
+const EKOA_MAIL_API = '';
+const apApiUrl = () => { try { return localStorage.getItem('tapirucu-mail-api') || EKOA_MAIL_API; } catch (e) { return EKOA_MAIL_API; } };
+const apMailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+const apMailMask = e => { const p = String(e || '').split('@'), u = p[0] || ''; return u.slice(0, 1) + '•••' + '@' + (p[1] || ''); };
+const apNovoId = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), x => x.toString(16).padStart(2, '0')).join('');
+async function apApi(rota, corpo) {
+  const base = apApiUrl(); if (!base) return { ok: false, motivo: 'sem-servico' };
+  if (navigator.onLine === false) return { ok: false, motivo: 'offline' };
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch(base.replace(/\/$/, '') + '/' + rota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo), signal: ctl.signal });
+    let j = {}; try { j = await r.json(); } catch (e) {}
+    return { ok: r.ok && j.ok !== false, status: r.status, motivo: r.ok ? '' : (r.status === 429 ? 'limite' : (r.status === 400 || r.status === 401 ? 'recusado' : 'erro')) };
+  } catch (e) { return { ok: false, motivo: 'offline' }; } finally { clearTimeout(t); }
+}
+/* boas-vindas pendentes (cadastro feito sem internet ou e-mail novo): tenta de novo quando houver conexão */
+let apBvOcupado = false;
+async function apBoasVindas() {
+  const c = apCfg(); if (!c || !c.mail || !c.mailPend || !apApiUrl() || apBvOcupado) return;
+  apBvOcupado = true;
+  try { const r = await apApi('boas-vindas', { email: c.mail, did: c.did, url: location.origin + location.pathname }); if (r.ok) { const n = apCfg(); if (n && n.mail === c.mail) { delete n.mailPend; apSalva(n); } } } finally { apBvOcupado = false; }
+}
+window.addEventListener('online', () => { apBoasVindas(); });
 /* ---- digital / rosto do aparelho (WebAuthn, autenticador de plataforma) ----
    A conferência é local: o app valida o desafio e que o aparelho confirmou presença e identidade do usuário.
    Não há servidor para validar a assinatura, então é conveniência de entrada, não segurança forte. A senha continua como alternativa. */
@@ -4224,28 +4253,38 @@ function porteiro() {
   });
 }
 function apTelaCriar(box, libera, recup) {
+  const o0 = apCfg(), temMail = !!(recup && o0 && o0.mail);
   apBase(box, `<h1>${recup ? 'Crie uma nova senha' : 'Proteja este aparelho'}</h1>
-    <p>${recup ? 'O código de recuperação foi aceito. Escolha a nova senha.' : 'Crie uma senha para abrir o aplicativo. Ela fica só neste aparelho e será pedida sempre que o app for aberto de novo.'}</p>
+    <p>${recup ? 'Identidade confirmada. Escolha a nova senha.' : 'Crie uma senha para abrir o aplicativo. Ela fica só neste aparelho e será pedida sempre que o app for aberto de novo.'}</p>
+    ${temMail ? '' : `<label for="apEm">E-mail <small>(para boas-vindas e recuperar a senha)</small></label><input class="ap-in" id="apEm" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="nome@empresa.com.br">
+    <p class="ap-nota ap-nota-em">Usamos o e-mail só para enviar a boas-vindas e um código caso você esqueça a senha. Ele fica guardado neste aparelho.</p>`}
     <label for="apS1">Senha <small>(mínimo ${AP_MIN} caracteres)</small></label><input class="ap-in" id="apS1" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
     <label for="apS2">Repita a senha</label><input class="ap-in" id="apS2" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
     <label class="ap-chk"><input type="checkbox" id="apVer"> Mostrar a senha</label>
-    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit">Criar senha</button>`);
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit">Criar senha</button>
+    ${temMail ? '' : '<button class="ap-link" id="apSemMail" type="button">Continuar sem e-mail</button>'}`);
   apVer(box);
-  const ir = async () => {
-    const a = box.querySelector('#apS1').value, b = box.querySelector('#apS2').value;
+  const em = box.querySelector('#apEm'), us = box.querySelector('.ap-user');
+  if (em && us) em.addEventListener('input', () => { us.value = em.value.trim() || 'Tapiruçu'; });
+  const ir = async (semMail) => {
+    const a = box.querySelector('#apS1').value, b = box.querySelector('#apS2').value, mail = em ? em.value.trim().toLowerCase() : '';
+    if (em && !semMail) { if (!mail) { apErro(box, 'Informe o e-mail ou toque em Continuar sem e-mail.'); em.focus(); return; } if (!apMailOk(mail)) { apErro(box, 'Esse e-mail não parece completo. Confira, por exemplo nome@empresa.com.br.'); em.focus(); return; } }
     if (a.length < AP_MIN) { apErro(box, 'A senha precisa ter pelo menos ' + AP_MIN + ' caracteres.'); return; }
     if (a !== b) { apErro(box, 'As duas senhas não são iguais.'); return; }
     const bt = box.querySelector('#apOk'); bt.disabled = true;
     const salt = cpNovoCodigo() + cpNovoCodigo(), cod = cpNovoCodigo(), h = await apHash(a, salt), r = await apHash(cod, salt + 'r');
-    const o = apCfg(), her = recup && o ? { bio: o.bio, lembra: o.lembra } : {};
-    apTelaCodigo(box, libera, Object.assign({ s: salt, h, r, em: nowISO() }, her), cod);
+    const her = recup && o0 ? { bio: o0.bio, lembra: o0.lembra, mail: o0.mail, did: o0.did, mailPend: o0.mailPend } : {};
+    Object.keys(her).forEach(k => { if (her[k] === undefined) delete her[k]; });
+    const novoMail = (!semMail && mail) ? { mail, did: apNovoId(), mailPend: 'bv' } : (recup ? {} : { did: apNovoId() });
+    apTelaCodigo(box, libera, Object.assign({ s: salt, h, r, em: nowISO() }, her, novoMail), cod);
   };
-  apEnter(box, ir);
-  setTimeout(() => { const i = box.querySelector('#apS1'); if (i) i.focus(); }, 50);
+  apEnter(box, () => ir(false));
+  const sm = box.querySelector('#apSemMail'); if (sm) sm.onclick = () => ir(true);
+  setTimeout(() => { const i = box.querySelector(em ? '#apEm' : '#apS1'); if (i) i.focus(); }, 50);
 }
 function apTelaCodigo(box, libera, cfg, cod) {
   apBase(box, `<h1>Anote o código de recuperação</h1>
-    <p>Se você esquecer a senha, este código é a única forma de criar outra. Anote em lugar seguro. Ele não será mostrado de novo.</p>
+    <p>Se você esquecer a senha, este código é uma das formas de criar outra${cfg.mail ? ' (a outra é o código enviado para ' + apMailMask(cfg.mail) + ')' : ''}. Anote em lugar seguro. Ele não será mostrado de novo.</p>
     <div class="ap-cod" id="apCod" aria-label="Código de recuperação">${fmtCod(cod)}</div>
     <label class="ap-chk"><input type="checkbox" id="apAnotei"> Anotei o código</label>
     <label class="ap-chk" id="apBioLn" hidden><input type="checkbox" id="apBioCk"> Entrar com digital ou rosto neste aparelho</label>
@@ -4260,7 +4299,7 @@ function apTelaCodigo(box, libera, cfg, cod) {
       if (!id) { quer.checked = false; apErro(box, 'Não foi possível ativar a digital ou o rosto agora. Toque em Entrar para seguir só com a senha; dá para ativar depois em Mais > Senha do aplicativo.'); return; }
       cfg.bio = id;
     }
-    if (!apSalva(cfg)) { apErro(box, 'Este navegador não permitiu guardar a senha. Tente de novo fora do modo anônimo.'); return; } libera();
+    if (!apSalva(cfg)) { apErro(box, 'Este navegador não permitiu guardar a senha. Tente de novo fora do modo anônimo.'); return; } libera(); apBoasVindas();
   };
 }
 function apTelaEntrar(box, libera) {
@@ -4281,7 +4320,7 @@ function apTelaEntrar(box, libera) {
     const i = box.querySelector('#apS'); i.value = ''; i.focus();
   };
   apEnter(box, ir);
-  box.querySelector('#apEsq').onclick = () => apTelaRecuperar(box, libera);
+  box.querySelector('#apEsq').onclick = () => (cfg.mail && apApiUrl() ? apTelaEsqueci(box, libera) : apTelaRecuperar(box, libera));
   const tentaBio = async (manual) => {
     if (!(await bioConferir(cfg.bio))) { if (manual) apErro(box, 'Não foi possível confirmar a digital ou o rosto. Use a senha.'); const i = box.querySelector('#apS'); if (i) i.focus(); return; }
     libera();
@@ -4304,8 +4343,50 @@ function apTelaRecuperar(box, libera) {
     apErro(box, sg2 ? 'Código incorreto. Aguarde ' + cpTravaTxt(sg2) + '.' : 'Código incorreto. ' + (5 - t.n) + ' tentativa(s) antes do bloqueio.');
   };
   apEnter(box, ir);
-  box.querySelector('#apVolta').onclick = () => apTelaEntrar(box, libera);
+  box.querySelector('#apVolta').onclick = () => (cfg.mail && apApiUrl() ? apTelaEsqueci(box, libera) : apTelaEntrar(box, libera));
   setTimeout(() => { const i = box.querySelector('#apC'); if (i) i.focus(); }, 50);
+}
+function apTelaEsqueci(box, libera) {
+  const cfg = apCfg();
+  apBase(box, `<h1>Esqueci a senha</h1><p>Escolha como confirmar que é você. Os dados deste aparelho continuam guardados.</p>
+    <button class="ap-btn" id="apPorMail" type="button">Receber um código em ${apMailMask(cfg.mail)}</button>
+    <button class="ap-btn alt" id="apPorCod" type="button">Tenho o código de recuperação</button>
+    <button class="ap-link" id="apVolta" type="button">Voltar</button>`);
+  box.querySelector('#apPorMail').onclick = () => apTelaMail(box, libera);
+  box.querySelector('#apPorCod').onclick = () => apTelaRecuperar(box, libera);
+  box.querySelector('#apVolta').onclick = () => apTelaEntrar(box, libera);
+}
+function apTelaMail(box, libera) {
+  const cfg = apCfg(), mk = apMailMask(cfg.mail);
+  apBase(box, `<h1>Código por e-mail</h1><p id="apMsg" role="status">Enviando o código para <b>${mk}</b>…</p>
+    <label for="apC">Código de 8 caracteres</label><input class="ap-in" id="apC" type="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" disabled>
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit" disabled>Continuar</button>
+    <button class="ap-link" id="apReenv" type="button" disabled>Reenviar código</button>
+    <button class="ap-link" id="apVolta" type="button">Voltar</button>
+    <p class="ap-nota">Confira também a caixa de spam. O código vale por 15 minutos. Se o e-mail não chegar, use o código de recuperação que você anotou.</p>`);
+  const msg = t => { const m = box.querySelector('#apMsg'); if (m) m.innerHTML = t; };
+  const motivo = r => r.motivo === 'sem-servico' ? 'O envio de e-mail ainda não está ativo neste app. Use o código de recuperação.' : r.motivo === 'offline' ? 'Sem conexão agora. Conecte-se e toque em Reenviar, ou use o código de recuperação.' : r.motivo === 'limite' ? 'Muitos pedidos seguidos. Aguarde alguns minutos e tente de novo.' : 'Não conseguimos enviar agora. Tente de novo em instantes.';
+  let tm = null;
+  const cool = (seg) => { const b = box.querySelector('#apReenv'); clearInterval(tm); let n = seg; const pinta = () => { const x = box.querySelector('#apReenv'); if (!x) { clearInterval(tm); return; } x.disabled = n > 0; x.textContent = n > 0 ? 'Reenviar código (' + n + ' s)' : 'Reenviar código'; n--; }; pinta(); tm = setInterval(pinta, 1000); };
+  const envia = async () => {
+    apErro(box, ''); const b = box.querySelector('#apReenv'); if (b) b.disabled = true;
+    const r = await apApi('redefinir', { email: cfg.mail, did: cfg.did });
+    if (r.ok) { msg('Enviamos um código para <b>' + mk + '</b>. Digite-o abaixo.'); const i = box.querySelector('#apC'), o = box.querySelector('#apOk'); if (i) { i.disabled = false; i.focus(); } if (o) o.disabled = false; cool(60); }
+    else { msg('Não foi possível enviar o código para <b>' + mk + '</b>.'); apErro(box, motivo(r)); cool(r.motivo === 'limite' ? 120 : 10); }
+  };
+  box.querySelector('#apReenv').onclick = envia;
+  box.querySelector('#apVolta').onclick = () => { clearInterval(tm); apTelaEsqueci(box, libera); };
+  const ir = async () => {
+    const sg = apTrava(); if (sg) { apErro(box, 'Muitas tentativas. Tente de novo em ' + cpTravaTxt(sg) + '.'); return; }
+    const c = apNorm(box.querySelector('#apC').value); if (c.length < 8) { apErro(box, 'Digite os 8 caracteres do código.'); return; }
+    const bt = box.querySelector('#apOk'); bt.disabled = true;
+    const r = await apApi('validar', { email: cfg.mail, did: cfg.did, codigo: c }); bt.disabled = false;
+    if (r.ok) { clearInterval(tm); apLimpaTent(); apTelaCriar(box, libera, true); return; }
+    if (r.motivo === 'recusado') { const t = apFalhou(), sg2 = apTrava(); apErro(box, sg2 ? 'Código incorreto ou vencido. Aguarde ' + cpTravaTxt(sg2) + '.' : 'Código incorreto ou vencido. ' + (5 - t.n) + ' tentativa(s) antes do bloqueio.'); return; }
+    apErro(box, motivo(r));
+  };
+  apEnter(box, ir);
+  envia();
 }
 /* ---- gerenciar a senha (menu) ---- */
 async function openSenhaApp() {
@@ -4315,6 +4396,7 @@ async function openSenhaApp() {
   openModal('Senha do aplicativo', `<p>A senha está <b>ativa</b> neste aparelho desde ${fmtDT(c.em)}. O Modo Campo não pede.</p>
     <div class="grid">${fld('apLembra', 'Não pedir a senha de novo por', `<select id="apLembra" onchange="apSetLembra(this.value)">${op}</select>`, false, 'Quanto maior o prazo, mais rápido o acesso e menor a proteção se alguém pegar o aparelho já aberto. Bloquear agora zera o prazo.')}</div>
     ${bio ? (c.bio ? `<p><span class="chip ok">Digital ou rosto ativo</span> <button class="btn sm" type="button" onclick="apDesativarBio()">Desativar digital ou rosto</button></p>` : `<p><button class="btn sm" type="button" onclick="apAtivarBio()">Ativar digital ou rosto</button> <small class="muted">usa o desbloqueio do próprio aparelho</small></p>`) : '<p class="hint">Digital ou rosto não está disponível neste aparelho ou navegador.</p>'}
+    ${c.mail ? `<p>E-mail de recuperação: <b>${esc(apMailMask(c.mail))}</b> <button class="btn sm" type="button" onclick="apEmail()">Alterar</button>${c.mailPend ? ' <span class="chip warn">boas-vindas aguardando envio</span>' : ''}</p>` : `<p><button class="btn sm" type="button" onclick="apEmail()">Adicionar e-mail de recuperação</button> <small class="muted">para receber um código se esquecer a senha</small></p>`}
     <p><button class="btn sm" type="button" onclick="apTrocar()">Trocar senha</button> <button class="btn sm" type="button" onclick="apDesativar()">Desativar a senha</button></p>
     <p class="hint">É uma proteção para demonstrações: impede que alguém abra o app por curiosidade, mas não criptografa os dados guardados no aparelho. A senha em si não é guardada; o navegador pode oferecer salvá-la no gerenciador de senhas dele.</p>`,
     `<button class="btn" onclick="closeModal()">Fechar</button><button class="btn primary" onclick="apBloquearAgora()">Bloquear agora</button>`);
@@ -4334,6 +4416,16 @@ function apPedeAtual(titulo, extra, corpoOk) {
     apLimpaTent(); await corpoOk(c);
   };
 }
+function apEmail() {
+  const c0 = apCfg();
+  apPedeAtual(c0 && c0.mail ? 'Alterar o e-mail' : 'Adicionar e-mail de recuperação', fld('apEmN', 'E-mail', `<input id="apEmN" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(c0 && c0.mail || '')}">`, false, 'Usado só para boas-vindas e para enviar um código se você esquecer a senha. Deixe em branco para remover.'), async c => {
+    fieldErr('apEmN', ''); const m = $('apEmN').value.trim().toLowerCase();
+    if (m && !apMailOk(m)) { fieldErr('apEmN', 'Esse e-mail não parece completo.'); return; }
+    const n = Object.assign({}, c); if (m) { n.mail = m; n.did = n.did || apNovoId(); if (m !== c.mail) n.mailPend = 'bv'; } else { delete n.mail; delete n.mailPend; }
+    if (!apSalva(n)) { fieldErr('apEmN', 'Não foi possível guardar.'); return; }
+    closeModal(); showToast(m ? 'E-mail de recuperação guardado.' : 'E-mail removido.'); apBoasVindas();
+  });
+}
 function apTrocar() {
   apPedeAtual('Trocar a senha', `${fld('apN1', 'Nova senha', `<input id="apN1" type="password" autocomplete="new-password" autocapitalize="off">`, true, 'Mínimo ' + AP_MIN + ' caracteres.')}${fld('apN2', 'Repita a nova senha', `<input id="apN2" type="password" autocomplete="new-password" autocapitalize="off">`, true)}`, async c => {
     fieldErr('apN1', ''); fieldErr('apN2', '');
@@ -4352,7 +4444,7 @@ function apDesativar() {
   });
 }
 async function init() {
-  await porteiro();
+  await porteiro(); apBoasVindas();
   try {
     const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);

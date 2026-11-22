@@ -2,7 +2,9 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
-## [16] — 2026-11-23 — Acabamento visual: textos completos, contraste e toque
+## [16] — 2026-11-23 — Acabamento visual e e-mail para recuperar a senha
+- Cadastro da senha agora pede e-mail (com a opção Continuar sem e-mail). O e-mail fica só neste aparelho e recebe uma mensagem de boas-vindas; sem internet, o envio espera a conexão voltar.
+- Esqueci a senha: além do código anotado, dá para receber um código de 8 caracteres no e-mail cadastrado (vale 15 min, 5 tentativas). Em Mais > Senha do aplicativo dá para adicionar, alterar ou remover o e-mail. O envio depende de ativar o serviço de e-mail da Ekoa (pasta servidor-email); até lá o app segue com o código anotado.
 - Nomes longos de fazenda, pasto, lote e brinco passam a quebrar em várias linhas em vez de serem cortados (Início, Modo Campo e listas).
 - No tema escuro, títulos de janelas, asterisco de campo obrigatório e botões de alerta ficaram legíveis (antes, contraste muito baixo).
 - Links, botões verdes e dourados e subtítulos com contraste de leitura adequado; botões pequenos, ajuda (?) e links ganharam área de toque de 44 px no celular.

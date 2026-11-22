@@ -1,0 +1,12 @@
+name = "ekoa-tapirucu-email"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Crie o KV com:  npx wrangler kv namespace create LIMITE   e cole o id abaixo
+[[kv_namespaces]]
+binding = "LIMITE"
+id = "COLE_O_ID_DO_KV_AQUI"
+
+[vars]
+DE = "Ekoa Tapiruçu <nao-responda@SEU-DOMINIO>"
+ORIGENS = "https://ekoacorp-tech.github.io"
