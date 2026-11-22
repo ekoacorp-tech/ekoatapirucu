@@ -22,3 +22,22 @@ Nada de e-mail ou senha. O KV guarda contadores com prazo curto, identificados p
 - O código vai sempre para o e-mail guardado no aparelho, nunca para um digitado na hora.
 - Máximo de 5 pedidos de código por hora e 5 tentativas erradas por janela por aparelho.
 - O Resend processa o e-mail do usuário: informe isso na política de privacidade (LGPD).
+
+---
+
+## Opção B — Gmail (Google Apps Script), sem domínio e sem custo
+
+Use quando não há domínio próprio. O e-mail sai da conta Gmail de quem publica o script.
+
+1. Abra https://script.google.com e crie um **Novo projeto** (nome sugerido: Ekoa Tapirucu E-mail).
+2. Apague o conteúdo padrão e cole o arquivo `gmail/Codigo.gs`. Salve.
+3. No seletor de funções, escolha **configurar** e clique em **Executar**. Autorize o acesso (Revisar permissões → sua conta → Avançado → Acessar → Permitir). Isso cria o segredo e libera o envio.
+4. **Implantar → Nova implantação → Aplicativo da Web**. Executar como: **Eu**. Quem pode acessar: **Qualquer pessoa**. Implantar.
+5. Copie a URL terminada em `/exec` e informe à Ekoa (vai na constante `EKOA_MAIL_API` do app).
+
+Limites e cuidados
+- Cota do Gmail comum: cerca de 100 destinatários por dia; o script para em 80 (`TETO_DIA`).
+- Pode cair em spam nas primeiras vezes; o remetente é o Gmail pessoal.
+- Alterou o código? Use **Implantar → Gerenciar implantações → Editar → Nova versão** (a URL se mantém).
+- Para produto profissional, migrar para a Opção A (domínio + Resend).
+- Teste local da lógica: `node gmail/teste.cjs`.

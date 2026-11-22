@@ -4196,13 +4196,17 @@ const apNovoId = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), x 
 async function apApi(rota, corpo) {
   const base = apApiUrl(); if (!base) return { ok: false, motivo: 'sem-servico' };
   if (navigator.onLine === false) return { ok: false, motivo: 'offline' };
-  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
   try {
-    const r = await fetch(base.replace(/\/$/, '') + '/' + rota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo), signal: ctl.signal });
+    /* text/plain + rota no corpo: "requisição simples" (sem preflight), aceita por Worker e por Apps Script */
+    const r = await fetch(base, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ rota }, corpo)), redirect: 'follow', signal: ctl.signal });
     let j = {}; try { j = await r.json(); } catch (e) {}
-    return { ok: r.ok && j.ok !== false, status: r.status, motivo: r.ok ? '' : (r.status === 429 ? 'limite' : (r.status === 400 || r.status === 401 ? 'recusado' : 'erro')) };
+    const ok = r.ok && j.ok !== false;
+    const m = ok ? '' : (j.motivo || (r.status === 429 ? 'limite' : (r.status === 400 || r.status === 401 || r.status === 403 ? 'recusado' : 'erro')));
+    return { ok, status: r.status, motivo: m };
   } catch (e) { return { ok: false, motivo: 'offline' }; } finally { clearTimeout(t); }
 }
+
 /* boas-vindas pendentes (cadastro feito sem internet ou e-mail novo): tenta de novo quando houver conexão */
 let apBvOcupado = false;
 async function apBoasVindas() {

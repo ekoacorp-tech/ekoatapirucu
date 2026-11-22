@@ -4,7 +4,7 @@ const kv = new Map(); const KV = { get: async k => kv.get(k) ?? null, put: async
 const env = { RESEND_KEY: 'x', SEGREDO: 'segredo-de-teste-com-mais-de-32-caracteres!!', DE: 'Teste <a@b.c>', ORIGENS: 'https://app.teste', LIMITE: KV };
 const enviados = []; globalThis.fetch = async (url, o) => { enviados.push(JSON.parse(o.body)); return new Response('{}', { status: 200 }); };
 const ID = 'a1b2c3d4e5f60718293a4b5c', EM = 'ana@empresa.com.br';
-const chama = async (rota, corpo, origem = 'https://app.teste', metodo = 'POST') => { const r = await w.fetch(new Request('https://w.test' + rota, { method: metodo, headers: { 'Content-Type': 'application/json', ...(origem ? { Origin: origem } : {}) }, body: metodo === 'POST' ? JSON.stringify(corpo) : undefined }), env); return { s: r.status, j: await r.json().catch(() => null), h: r.headers }; };
+const chama = async (rota, corpo, origem = 'https://app.teste', metodo = 'POST') => { const r = await w.fetch(new Request('https://w.test/', { method: metodo, headers: { 'Content-Type': 'text/plain;charset=utf-8', ...(origem ? { Origin: origem } : {}) }, body: metodo === 'POST' ? JSON.stringify({ rota: rota.replace(/^\//, ''), ...(corpo || {}) }) : undefined }), env); return { s: r.status, j: await r.json().catch(() => null), h: r.headers }; };
 let falhas = 0; const ck = (n, c, x = '') => { if (!c) falhas++; console.log((c ? 'ok    ' : 'FALHA ') + n + (c ? '' : ' → ' + x)); };
 const codDoEmail = () => { const t = enviados[enviados.length - 1].text; return t.match(/: ([A-Z0-9]{4}-[A-Z0-9]{4})\./)[1].replace('-', ''); };
 
@@ -17,7 +17,9 @@ r = await chama('/boas-vindas', { email: 'sem-arroba', did: ID }); ck('e-mail in
 r = await chama('/boas-vindas', { email: EM, did: 'x' }); ck('did inválido → 400', r.s === 400);
 for (let i = 0; i < 3; i++) r = await chama('/boas-vindas', { email: EM, did: ID });
 ck('limite de boas-vindas por hora (429 na 4ª)', r.s === 429, r.s);
-enviados.length = 0;
+r = await chama('/boas-vindas', { email: EM, did: 'ffffffffffffffffffffffff' }); ck('trocar o did não escapa do limite por e-mail', r.s === 429, r.s);
+ck('429 traz motivo "limite" no corpo', r.j && r.j.motivo === 'limite', JSON.stringify(r.j));
+enviados.length = 0; kv.clear();
 r = await chama('/redefinir', { email: EM, did: ID }); const cod = codDoEmail();
 ck('redefinir envia código de 8 caracteres', r.s === 200 && /^[A-Z2-9]{8}$/.test(cod) && /15 minutos/.test(enviados[0].text), cod);
 r = await chama('/validar', { email: EM, did: ID, codigo: 'AAAAAAAA' }); ck('código errado → 400', r.s === 400);
@@ -37,5 +39,5 @@ kv.clear(); Date.now = () => base + 31 * 60 * 1000; r = await chama('/validar', 
 Date.now = real;
 r = await chama('/x', { email: EM, did: ID }); ck('rota desconhecida → 404', r.s === 404);
 r = await chama('/redefinir', null, 'https://app.teste', 'GET'); ck('GET → 405', r.s === 405);
-const semKv = { ...env }; delete semKv.LIMITE; const rr = await w.fetch(new Request('https://w.test/redefinir', { method: 'POST', body: '{}' }), semKv); ck('sem KV/segredo → 500 (não funciona sem limite)', rr.status === 500);
+const semKv = { ...env }; delete semKv.LIMITE; const rr = await w.fetch(new Request('https://w.test/', { method: 'POST', body: '{"rota":"redefinir"}' }), semKv); ck('sem KV/segredo → 500 (não funciona sem limite)', rr.status === 500);
 console.log(falhas ? falhas + ' FALHA(S)' : 'TUDO OK'); process.exit(falhas ? 1 : 0);

@@ -32,7 +32,8 @@ function cors(req, env) {
   if (ok.includes(o) || ok.includes('*')) h['Access-Control-Allow-Origin'] = o || '*';
   return h;
 }
-const resp = (req, env, status, corpo) => new Response(JSON.stringify(corpo), { status, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, cors(req, env)) });
+const MOTIVO = { 400: 'recusado', 401: 'recusado', 403: 'recusado', 429: 'limite' };
+const resp = (req, env, status, corpo) => new Response(JSON.stringify(status >= 400 ? Object.assign({ motivo: MOTIVO[status] || 'erro' }, corpo) : corpo), { status, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, cors(req, env)) });
 
 /* contador com prazo (KV): devolve o valor depois de somar 1 */
 async function conta(env, chaveKv, ttl) {
@@ -70,23 +71,25 @@ async function envia(env, para, m) {
 
 export default {
   async fetch(req, env) {
-    const u = new URL(req.url), rota = u.pathname.replace(/\/+$/, '');
+    const u = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req, env) });
     if (req.method !== 'POST') return resp(req, env, 405, { ok: false });
     if (!env.SEGREDO || !env.RESEND_KEY || !env.DE || !env.LIMITE) return resp(req, env, 500, { ok: false, erro: 'configuracao-incompleta' });
     const o = req.headers.get('Origin') || '';
     if (o && !cors(req, env)['Access-Control-Allow-Origin']) return resp(req, env, 403, { ok: false });
     let b; try { b = await req.json(); } catch (e) { return resp(req, env, 400, { ok: false }); }
+    const rota = '/' + String(b.rota || u.pathname).replace(/^\/+|\/+$/g, '');
     const email = String(b.email || '').trim().toLowerCase(), did = String(b.did || '');
     if (!emailOk(email) || !didOk(did)) return resp(req, env, 400, { ok: false });
-    const k = await chave(env.SEGREDO, email, did), agora = Date.now(), janela = Math.floor(agora / JANELA_MS);
+    const k = await chave(env.SEGREDO, email, did), ke = await chave(env.SEGREDO, email, ''), agora = Date.now(), janela = Math.floor(agora / JANELA_MS);
+    const dia = new Date(agora).toISOString().slice(0, 10), teto = parseInt(env.TETO_DIA, 10) || 200;
 
     if (rota === '/boas-vindas') {
-      if (await conta(env, 'bv:' + k, 3600) > 3) return resp(req, env, 429, { ok: false });
+      if (await conta(env, 'bv:' + ke, 3600) > 3 || await conta(env, 'dia:' + dia, 86400) > teto) return resp(req, env, 429, { ok: false });
       return resp(req, env, await envia(env, email, msgBoasVindas(b.url)) ? 200 : 502, { ok: true });
     }
     if (rota === '/redefinir') {
-      if (await conta(env, 'rd:' + k, 3600) > 5) return resp(req, env, 429, { ok: false });
+      if (await conta(env, 'rd:' + ke, 3600) > 5 || await conta(env, 'dia:' + dia, 86400) > teto) return resp(req, env, 429, { ok: false });
       await env.LIMITE.delete('ok:' + k);
       const c = await codigo(env.SEGREDO, email, did, janela);
       return resp(req, env, await envia(env, email, msgCodigo(c)) ? 200 : 502, { ok: true });
