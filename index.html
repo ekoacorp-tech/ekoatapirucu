@@ -371,7 +371,7 @@ tbody tr:last-child td{border-bottom:0}
 .gm-label{font:700 12.5px system-ui,-apple-system,sans-serif;fill:#13234A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
 .gm-label .gm-sub{font-weight:600;font-size:11px;fill:#3A2C24}
 .gm-zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
-.gm-zoom button{width:44px;height:44px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-surface);font-size:1.35rem;font-weight:700;cursor:pointer;color:var(--brand-navy);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.gm-zoom button{width:44px;height:44px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-surface);font-size:1.35rem;font-weight:700;cursor:pointer;color:var(--title-ink);box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .gm-attr{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.82);font-size:.66rem;padding:2px 7px;border-top-left-radius:8px;z-index:2}
 .gm-attr a{color:#1d5660}
 #gmMain{height:min(62vh,560px)}
@@ -608,6 +608,43 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 #porteiro .ap-btn.alt{background:#fff;color:#23505F;border:2px solid #23505F}
 #porteiro [hidden]{display:none}
 #porteiro .ap-nota{font-size:.85rem;color:#6b5b4d}
+
+/* v16 — qualidade visual: nomes longos não podem cortar informação */
+.cp-tit b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;font-size:clamp(1rem,4.8vw,1.2rem)}
+.cp-tit small{overflow-wrap:anywhere}
+.cp-ani{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.cp-ani.lg{font-size:.82rem;line-height:1.15;grid-column:span 2}
+.lida-item{flex-wrap:wrap}
+.lida-item .li-main{flex:1 1 11rem;overflow-wrap:anywhere}
+.lida-item b,.lida-item span{overflow-wrap:anywhere}
+/* v16 — contraste AA: cores de marca só em preenchimento/borda; texto usa variantes mais escuras */
+:root{--teal-txt:#2B6F7B;--copper-txt:#9A4A28}
+.nb-link,.kpi-go,.help-btn,.ch-tab summary,.cp-det summary,.hint a,.modal-box a:not(.btn){color:var(--teal-txt);-webkit-text-fill-color:var(--teal-txt)}
+.help-btn{border-color:var(--teal-txt)}
+.home-title-sub,.aj-h,.home-sub{color:var(--copper-txt)}
+.btn.teal{background:#2F7480;border-color:#2F7480;color:#fff}
+.beta{background:var(--gold);color:#111827}
+.btn.gold,#updateBar .btn.gold{color:#111827}
+.cp-btn.pri{background:#2F7480;border-color:#2F7480}
+.dark-mode .nb-link,.dark-mode .kpi-go,.dark-mode .help-btn,.dark-mode .ch-tab summary,.dark-mode .cp-det summary,.dark-mode .hint a,.dark-mode .modal-box a:not(.btn){color:#7cc4cc;-webkit-text-fill-color:#7cc4cc}
+.dark-mode .help-btn{border-color:#45A0A8}
+.dark-mode .home-title-sub,.dark-mode .aj-h,.dark-mode .home-sub{color:#E58A63}
+/* v16 — alvos de toque */
+.nb-link,.modal-box a:not(.btn),.hint a{display:inline-block;padding:8px 0;min-height:32px;line-height:1.3}
+.help-btn{width:32px;height:32px}
+.aj-faq summary,.ch-tab summary{min-height:40px;display:flex;align-items:center}
+.nb-farm{min-height:32px}
+@media (pointer:coarse){.btn.sm,td .btn.sm{min-height:44px}.nb-farm{min-height:44px}.help-btn{width:44px;height:44px}.nb-link,.modal-box a:not(.btn),.hint a{min-height:44px;display:inline-flex;align-items:center}.aj-faq summary,.ch-tab summary{min-height:44px}}
+/* v16 — tema escuro: títulos de janela e asterisco de obrigatório */
+.dark-mode .modal-head h3{color:#F3EBDF}
+.dark-mode .field label .req,.dark-mode .req{color:#FCA5A5}
+.cp-tec button.abc{color:var(--teal-txt)}
+.dark-mode .cp-tec button.abc{color:#7cc4cc}
+.dark-mode .cp-btn.perigo{color:#FCA5A5;border-color:#F87171}
+th{font-size:.75rem}
+.beta{font-size:.72rem}
+/* v16 — tabela larga: sombra lateral indica que há mais colunas para rolar */
+.tbl-wrap{background:linear-gradient(to right,var(--card-bg) 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,var(--card-bg) 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.22),rgba(0,0,0,0)) left center/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.22),rgba(0,0,0,0)) right center/12px 100% no-repeat scroll,var(--card-bg)}
 </style>
 </head>
 <body data-view="home">
@@ -810,7 +847,7 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 15;
+const APP_VERSION = 16;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1656,7 +1693,7 @@ function openAnimal(id) {
       <dt>GMD (período)</dt><dd>${s.gmdTotal != null ? fmtN(s.gmdTotal, 3) + ' kg/dia' : '—'}</dd>
       <dt>Último manejo</dt><dd>${s.ultimoManejo ? fmtD(s.ultimoManejo) + ' (' + s.diasSemManejo + ' dias)' : 'nenhum'}</dd>
     </dl>
-    <h4 style="margin:16px 0 8px;color:var(--brand-navy)">Histórico</h4>
+    <h4 style="margin:16px 0 8px;color:var(--title-ink)">Histórico</h4>
     ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
     <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
     `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${pst ? `<button class="btn" onclick="closeModal();selectPasto('${pst.id}',true);goView('mapa')">Ver no mapa</button>` : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
@@ -3452,9 +3489,9 @@ async function openAbout() {
   const n = notes && notes.notas ? Object.entries(notes.notas).sort((a, b) => b[0] - a[0]).slice(0, 3) : [];
   openModal('Sobre o Ekoa Tapiruçu - Gestão do Rebanho', `
     <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px"><img src="assets/tapirucu-logo.png" alt="" width="64" height="64" style="background:#FBF7F1;border-radius:14px;border:1px solid var(--border-color);padding:6px;object-fit:contain">
-      <div><b style="font-size:1.1rem;color:var(--brand-navy)">Ekoa Tapiruçu - Gestão do Rebanho</b><br><span class="muted">Do curral ao indicador, mesmo sem sinal. · versão ${APP_VERSION} beta</span></div></div>
+      <div><b style="font-size:1.1rem;color:var(--title-ink)">Ekoa Tapiruçu - Gestão do Rebanho</b><br><span class="muted">Do curral ao indicador, mesmo sem sinal. · versão ${APP_VERSION} beta</span></div></div>
     <p class="muted" style="margin-bottom:10px">Coleta de manejo em campo, offline, com envio sob comando. Fase 1 do plano: o piloto roda sozinho; a integração com o ERP vem depois, a partir dos mesmos registros.</p>
-    ${n.length ? n.map(([v, x]) => `<h4 style="margin:12px 0 6px;color:var(--brand-navy)">Versão ${esc(v)} · ${fmtD(x.data)} · ${esc(x.titulo)}</h4><ul style="margin-left:18px;font-size:.88rem;line-height:1.5">${x.itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('') : '<p class="hint">As novidades aparecem aqui quando o app está conectado.</p>'}
+    ${n.length ? n.map(([v, x]) => `<h4 style="margin:12px 0 6px;color:var(--title-ink)">Versão ${esc(v)} · ${fmtD(x.data)} · ${esc(x.titulo)}</h4><ul style="margin-left:18px;font-size:.88rem;line-height:1.5">${x.itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('') : '<p class="hint">As novidades aparecem aqui quando o app está conectado.</p>'}
     <p class="hint" style="margin-top:14px">© 2026 Ekoa Tech · Gestão e Processo. Produto Grupo Blendcoffee, desenvolvido pela Ekoa.</p>`,
     `<button class="btn" onclick="checkUpdates(true)">Verificar atualizações</button>${deferredInstall ? '<button class="btn gold" onclick="installApp()">Instalar app</button>' : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
 }
@@ -3748,7 +3785,7 @@ function cpListaHtml() {
   if (q) base = base.filter(s => s.a.brinco.toLowerCase().includes(q));
   if (!base.length) return q ? `<p class="cp-txt">Nenhum animal ${l.loteId ? 'deste lote ' : ''}com "${esc(CP.filtro)}". Toque em <b>OK</b> para procurar em toda a fazenda.</p>` : `<p class="cp-ok">✓ Todos os animais do lote foram lançados.</p>`;
   const max = 80, mostra = base.slice(0, max);
-  return mostra.map(s => `<button type="button" class="cp-ani${feitos.has(s.a.id) ? ' ok' : ''}${s.emCarencia ? ' car' : ''}" onclick="cpEscolhe('${s.a.id}')" aria-pressed="${feitos.has(s.a.id)}">${feitos.has(s.a.id) ? '✓ ' : ''}${esc(s.a.brinco)}${s.emCarencia ? '<i>carência</i>' : ''}</button>`).join('')
+  return mostra.map(s => `<button type="button" class="cp-ani${String(s.a.brinco).length > 9 ? ' lg' : ''}${feitos.has(s.a.id) ? ' ok' : ''}${s.emCarencia ? ' car' : ''}" onclick="cpEscolhe('${s.a.id}')" aria-pressed="${feitos.has(s.a.id)}">${feitos.has(s.a.id) ? '✓ ' : ''}${esc(s.a.brinco)}${s.emCarencia ? '<i>carência</i>' : ''}</button>`).join('')
     + (base.length > max ? `<p class="cp-txt" style="grid-column:1/-1">+${base.length - max} animais. Digite mais números para achar.</p>` : '');
 }
 function cpVisorHtml() {

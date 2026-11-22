@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [16] — 2026-11-23 — Acabamento visual: textos completos, contraste e toque
+- Nomes longos de fazenda, pasto, lote e brinco passam a quebrar em várias linhas em vez de serem cortados (Início, Modo Campo e listas).
+- No tema escuro, títulos de janelas, asterisco de campo obrigatório e botões de alerta ficaram legíveis (antes, contraste muito baixo).
+- Links, botões verdes e dourados e subtítulos com contraste de leitura adequado; botões pequenos, ajuda (?) e links ganharam área de toque de 44 px no celular.
+- Tabelas largas mostram uma sombra na lateral quando há mais colunas para rolar; cabeçalhos e selo BETA ficaram maiores.
+
 ## [15] — 2026-11-23 — Excluir fazenda e senha de acesso para demonstrações
 - Excluir fazenda do aparelho: em Editar fazenda, o botão Excluir mostra o que sai junto (animais, lotes, pastos, lidas e fotos) e guarda uma cópia para desfazer. A exclusão vale só neste aparelho e não apaga a fazenda nos outros.
 - Senha ao abrir o app: no primeiro acesso o app pede para criar uma senha e mostra um código de recuperação uma única vez. Há bloqueio após 5 erros. Em Mais > Senha do aplicativo dá para bloquear agora, trocar, desativar, ativar digital ou rosto do aparelho e escolher por quanto tempo o app não pede a senha de novo (1 h a 7 dias). É uma proteção para demonstrações; não criptografa os dados. O Modo Campo continua com o PIN próprio e não pede a senha.

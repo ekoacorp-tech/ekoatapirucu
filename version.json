@@ -1,9 +1,19 @@
 {
-  "versao": 15,
-  "rotulo": "15 beta",
+  "versao": 16,
+  "rotulo": "16 beta",
   "data": "2026-11-23",
-  "titulo": "Excluir fazenda e senha de acesso para demonstrações",
+  "titulo": "Acabamento visual: textos completos, contraste e toque",
   "notas": {
+    "16": {
+      "data": "2026-11-23",
+      "titulo": "Acabamento visual: textos completos, contraste e toque",
+      "itens": [
+        "Nomes longos de fazenda, pasto, lote e brinco passam a quebrar em várias linhas em vez de serem cortados (Início, Modo Campo e listas).",
+        "No tema escuro, títulos de janelas, asterisco de campo obrigatório e botões de alerta ficaram legíveis (antes, contraste muito baixo).",
+        "Links, botões verdes e dourados e subtítulos com contraste de leitura adequado; botões pequenos, ajuda (?) e links ganharam área de toque de 44 px no celular.",
+        "Tabelas largas mostram uma sombra na lateral quando há mais colunas para rolar; cabeçalhos e selo BETA ficaram maiores."
+      ]
+    },
     "15": {
       "data": "2026-11-23",
       "titulo": "Excluir fazenda e senha de acesso para demonstrações",

@@ -6,7 +6,7 @@
      de 4 s; sem sinal, usa a cópia guardada. Assim, abrir o app com internet já traz a versão nova.
    - Demais arquivos: cópia guardada primeiro (rápido e offline) e atualização em segundo plano.
    - version.json e pedidos marcados com ?fresh= nunca passam pela cópia guardada. */
-const V = 'ekoa-tapirucu-v15';
+const V = 'ekoa-tapirucu-v16';
 const TILES = 'tapirucu-mapa-v1';   // blocos do mapa já vistos (não é apagado nas atualizações)
 const TILE_HOSTS = ['tile.openstreetmap.org', 'server.arcgisonline.com'];
 const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './assets/tapirucu-logo.png', './icons/ekoa-mark.png', './icons/logo-blend.png'];
