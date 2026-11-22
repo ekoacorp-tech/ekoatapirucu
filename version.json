@@ -1,9 +1,17 @@
 {
-  "versao": 14,
-  "rotulo": "14 beta",
-  "data": "2026-11-22",
-  "titulo": "Piloto mais seguro: lida sem duplicidade e Modo Campo reforçado",
+  "versao": 15,
+  "rotulo": "15 beta",
+  "data": "2026-11-23",
+  "titulo": "Excluir fazenda e senha de acesso para demonstrações",
   "notas": {
+    "15": {
+      "data": "2026-11-23",
+      "titulo": "Excluir fazenda e senha de acesso para demonstrações",
+      "itens": [
+        "Excluir fazenda do aparelho: em Editar fazenda, o botão Excluir mostra o que sai junto (animais, lotes, pastos, lidas e fotos) e guarda uma cópia para desfazer. A exclusão vale só neste aparelho e não apaga a fazenda nos outros.",
+        "Senha ao abrir o app: no primeiro acesso o app pede para criar uma senha e mostra um código de recuperação uma única vez. Há bloqueio após 5 erros. Em Mais > Senha do aplicativo dá para bloquear agora, trocar, desativar, ativar digital ou rosto do aparelho e escolher por quanto tempo o app não pede a senha de novo (1 h a 7 dias). É uma proteção para demonstrações; não criptografa os dados. O Modo Campo continua com o PIN próprio e não pede a senha."
+      ]
+    },
     "14": {
       "data": "2026-11-22",
       "titulo": "Piloto mais seguro: lida sem duplicidade e Modo Campo reforçado",

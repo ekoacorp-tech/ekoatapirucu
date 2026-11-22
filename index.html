@@ -585,6 +585,29 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 @media (orientation:landscape) and (max-height:500px){.cp-head{min-height:52px}.cp-body.lancar{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content;gap:6px 12px;align-content:start}.cp-body.lancar>*{grid-column:1}.cp-body.lancar>.cp-tec{grid-column:2;grid-row:1 / span 8}.cp-body.lancar .cp-lista{min-height:56px;max-height:30vh}.cp-visor.grande{min-height:48px;font-size:2rem}.cp-tec button{min-height:44px;font-size:1.35rem}.cp-tec button.ok{min-height:44px}.cp-pe .cp-btn{min-height:46px}.cp-pe{padding-top:6px;padding-bottom:calc(6px + var(--safe-bottom))}}
 @media (prefers-reduced-motion:reduce){.cp-ult.flash{animation:none}.cp-btn{transition:none}}
 @media print{#campo{display:none!important}}
+
+/* porteiro: tela de senha ao abrir o app */
+#porteiro{position:fixed;inset:0;z-index:100000;background:#EFE6DA;color:#2b2118;overflow:auto;padding:24px 18px;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+#porteiro .ap-wrap{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+#porteiro .ap-logo{width:72px;height:72px;object-fit:contain;margin:8px auto 0}
+#porteiro .ap-marca{text-align:center;letter-spacing:.08em;color:#23505F}
+#porteiro h1{font-size:1.4rem;margin:8px 0 0;color:#23505F}
+#porteiro p{margin:0}
+#porteiro label{font-weight:700;display:block;margin-top:6px}
+#porteiro label small{font-weight:400;color:#6b5b4d}
+#porteiro .ap-in{width:100%;min-height:52px;border:2px solid #23505F;border-radius:12px;padding:0 14px;font-size:1.1rem;background:#fff;color:#2b2118}
+#porteiro .ap-in:focus-visible,#porteiro .ap-btn:focus-visible,#porteiro .ap-link:focus-visible,#porteiro input[type=checkbox]:focus-visible{outline:3px solid #C9922E;outline-offset:2px}
+#porteiro .ap-chk{display:flex;align-items:center;gap:10px;font-weight:400;min-height:44px}
+#porteiro .ap-chk input{width:24px;height:24px}
+#porteiro .ap-btn{min-height:56px;border:0;border-radius:14px;background:#23505F;color:#fff;font:700 1.05rem system-ui,sans-serif;cursor:pointer}
+#porteiro .ap-btn:disabled{opacity:.45;cursor:not-allowed}
+#porteiro .ap-link{min-height:48px;background:none;border:0;color:#23505F;font:600 1rem system-ui,sans-serif;text-decoration:underline;cursor:pointer}
+#porteiro .ap-erro{min-height:1.4em;color:#9B2C22;font-weight:700}
+#porteiro .ap-cod{font:800 2rem ui-monospace,Consolas,monospace;letter-spacing:.12em;text-align:center;background:#fff;border:2px dashed #23505F;border-radius:12px;padding:16px 8px;user-select:all}
+#porteiro .ap-user{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+#porteiro .ap-btn.alt{background:#fff;color:#23505F;border:2px solid #23505F}
+#porteiro [hidden]{display:none}
+#porteiro .ap-nota{font-size:.85rem;color:#6b5b4d}
 </style>
 </head>
 <body data-view="home">
@@ -636,6 +659,7 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
       <button onclick="ativarCampo()"><svg><use href="#i-campo"/></svg><span class="s-lbl">Modo Campo</span></button>
+      <button onclick="openSenhaApp()"><svg><use href="#i-info"/></svg><span class="s-lbl">Senha do aplicativo</span></button>
     </nav>
   </div>
   <div>
@@ -750,6 +774,7 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
       <button onclick="ativarCampo()"><svg><use href="#i-campo"/></svg><div>Modo Campo<small>Tela simples para lançar no curral, com PIN para sair</small></div></button>
+      <button onclick="openSenhaApp()"><svg><use href="#i-info"/></svg><div>Senha do aplicativo<small>Bloquear agora, trocar ou desativar a senha deste aparelho</small></div></button>
       <button onclick="openAjuda(null)"><svg><use href="#i-info"/></svg><div>Ekoa Ajuda<small>Passo a passo, regras e dúvidas de cada tela</small></div></button>
       <button onclick="ciclaTema()"><svg><use href="#i-info"/></svg><div>Tema: <span class="tema-nome"></span><small>Claro, escuro ou automático (segue o celular)</small></div></button>
       <button onclick="openAbout()"><svg><use href="#i-info"/></svg><div>Sobre e versão<small>Novidades, atualização e instalação</small></div></button>
@@ -785,7 +810,7 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 14;
+const APP_VERSION = 15;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -2854,7 +2879,7 @@ function poeAjuda() {
    ========================================================================= */
 function renderCadastros() {
   const f = farm();
-  let h = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
+  let h = avisoExclFazenda() + `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
     const rp = pastosResumo(), rl = lotesResumo(), rec = piquetesRecomendados(f.id);
     h += `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
@@ -2879,7 +2904,7 @@ function openFarm(id) {
     ${fld('fArea', 'Área de pastagem (ha)', `<input id="fArea" inputmode="decimal" value="${x && x.areaHa ? fmtN(x.areaHa, 2) : ''}">`, false, 'Base do UA/ha da fazenda.')}
     ${fld('fCar', 'Nº do recibo do CAR', `<input id="fCar" maxlength="60" autocapitalize="characters" value="${esc(x ? x.car || '' : '')}" placeholder="Ex.: GO-5208707-XXXX…">`, false, 'Cadastro Ambiental Rural. Na próxima etapa, o perímetro oficial é importado a partir dele.')}
     ${geoField('fGeo', x && x.geo ? x.geo.ponto : null, 'Localização da sede')}
-    </div>${x && x.geo && x.geo.perimetro ? '<p class="hint">Perímetro da fazenda cadastrado (' + esc(x.geo.fontePoligono || '') + ').</p>' : ''}`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveFarm('${id || ''}')">Salvar</button>`);
+    </div>${x && x.geo && x.geo.perimetro ? '<p class="hint">Perímetro da fazenda cadastrado (' + esc(x.geo.fontePoligono || '') + ').</p>' : ''}`, `${x ? `<button class="btn danger" style="margin-right:auto" onclick="openExcluirFazenda('${x.id}')">Excluir fazenda</button>` : ''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveFarm('${id || ''}')">Salvar</button>`);
 }
 function saveFarm(id) {
   const nome = str($('fNome').value, 80), aRaw = $('fArea').value.trim(), area = aRaw ? parseNum(aRaw) : null;
@@ -2895,6 +2920,59 @@ function saveFarm(id) {
   if (x) { Object.assign(x, dados); touch(x); }
   else { x = stampNew(dados); S.fazendas.push(x); S.fazendaAtiva = x.id; }
   save(); closeModal(); refreshAll(); showToast('Fazenda salva.');
+}
+/* ---------- excluir fazenda deste aparelho ----------
+   v15: sem trava, em cascata. A exclusão vale só para ESTE aparelho: não vira registro de exclusão e não some dos outros aparelhos.
+   Regra futura (por cadeia): trocar EXCLUI_EM_CASCATA para false; aí só se apaga a fazenda depois de excluir tudo o que está ligado a ela. */
+const EXCLUI_EM_CASCATA = true;
+function fazendaVinculos(fid) {
+  const an = S.animais.filter(a => a.fazendaId === fid), ls = S.lidas.filter(l => l.fazendaId === fid);
+  return { pastos: S.pastos.filter(p => p.fazendaId === fid).length, lotes: S.lotes.filter(l => l.fazendaId === fid).length, animais: an.length, lidas: ls.length,
+    aguardando: ls.filter(l => l.status === 'conferir').length, abertas: ls.filter(l => l.status === 'aberta').length, fotos: an.filter(a => fotoDe(a.id)).length };
+}
+const totalVinculos = v => v.pastos + v.lotes + v.animais + v.lidas;
+function openExcluirFazenda(id) {
+  const x = S.fazendas.find(f => f.id === id); if (!x) return;
+  const v = fazendaVinculos(id), tot = totalVinculos(v);
+  if (!EXCLUI_EM_CASCATA && tot > 0) { openModal('Fazenda com registros ligados', `<p>A fazenda <b>${esc(x.nome)}</b> ainda tem ${v.animais} animal(is), ${v.lotes} lote(s), ${v.pastos} pasto(s) e ${v.lidas} lida(s). Exclua esses registros primeiro.</p>`, `<button class="btn primary" onclick="closeModal()">Entendi</button>`); return; }
+  const li = [[v.animais, 'animal(is)'], [v.lotes, 'lote(s)'], [v.pastos, 'pasto(s)'], [v.lidas, 'lida(s)'], [v.fotos, 'foto(s)']].filter(a => a[0] > 0).map(a => `<li><b>${a[0]}</b> ${a[1]}</li>`).join('');
+  openModal('Excluir fazenda deste aparelho', `<p>Você vai excluir <b>${esc(x.nome)}</b> e tudo o que está ligado a ela:</p>
+    ${li ? `<ul class="sq">${li}</ul>` : '<p class="hint">Esta fazenda não tem registros ligados.</p>'}
+    ${v.aguardando + v.abertas ? `<p class="hint" style="color:var(--bad-txt)"><b>Atenção:</b> ${v.aguardando ? v.aguardando + ' lida(s) do Modo Campo ainda não conferida(s)' : ''}${v.aguardando && v.abertas ? ' e ' : ''}${v.abertas ? v.abertas + ' lida(s) aberta(s)' : ''} serão perdida(s).</p>` : ''}
+    <p class="hint">A exclusão vale <b>só neste aparelho</b>. Outros aparelhos e arquivos exportados não mudam, e importar um arquivo com esta fazenda a traz de volta. Antes de excluir, o app guarda uma cópia para você desfazer.</p>
+    <p><button class="btn sm" type="button" onclick="exportSync()">Exportar uma cópia antes</button></p>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn danger" id="exFzOk" onclick="excluirFazenda('${x.id}')">Excluir fazenda${tot ? ' e ' + tot + ' registro(s)' : ''}</button>`);
+}
+async function excluirFazenda(id) {
+  const x = S.fazendas.find(f => f.id === id); if (!x) return;
+  const v = fazendaVinculos(id);
+  if (!EXCLUI_EM_CASCATA && totalVinculos(v) > 0) return;
+  const bt = $('exFzOk'); if (bt) { if (bt.disabled) return; bt.disabled = true; bt.textContent = 'Excluindo...'; }
+  try { await idbSet('backupPreFazenda', { em: nowISO(), nome: x.nome, dados: JSON.parse(JSON.stringify(S)) }); }
+  catch (e) { if (!confirm('Não foi possível guardar a cópia de segurança. Excluir mesmo assim?')) { if (bt) { bt.disabled = false; bt.textContent = 'Excluir fazenda'; } return; } }
+  const ids = new Set(S.animais.filter(a => a.fazendaId === id).map(a => a.id));
+  S.pastos = S.pastos.filter(p => p.fazendaId !== id); S.lotes = S.lotes.filter(l => l.fazendaId !== id);
+  S.animais = S.animais.filter(a => a.fazendaId !== id); S.lidas = S.lidas.filter(l => l.fazendaId !== id);
+  S.lixeira = S.lixeira.filter(t => !t.item || (t.item.fazendaId !== id && t.item.id !== id));
+  if (S.fotos) ids.forEach(i => { delete S.fotos[i]; });
+  S.fazendas = S.fazendas.filter(f => f.id !== id);
+  if (S.fazendaAtiva === id) S.fazendaAtiva = S.fazendas[0] ? S.fazendas[0].id : null;
+  calc = null; pnNivel = { tipo: 'fazenda', id: null }; mapaTodas = false;
+  syncMeta.exclFazenda = { em: nowISO(), nome: x.nome, resumo: v }; saveSyncMeta();
+  await save(); closeModal(); refreshAll();
+  showToastAction('Fazenda "' + x.nome + '" excluída deste aparelho.', 'Desfazer', desfazerExclusaoFazenda);
+}
+async function desfazerExclusaoFazenda() {
+  let b = null; try { b = await idbGet('backupPreFazenda'); } catch (e) {}
+  if (!b || !b.dados) { alert('Não há exclusão de fazenda para desfazer.'); return; }
+  if (!confirm(`Restaurar a fazenda "${b.nome}" e tudo o que estava ligado a ela?\n\nO app volta ao estado de ${fmtDT(b.em)}. Qualquer coisa lançada neste aparelho depois disso será perdida.`)) return;
+  S = Object.assign(S, b.dados); calc = null; await save();
+  try { await idbSet('backupPreFazenda', null); } catch (e) {}
+  delete syncMeta.exclFazenda; saveSyncMeta(); closeModal(); refreshAll(); showToast('Fazenda restaurada.');
+}
+function avisoExclFazenda() {
+  const e = syncMeta.exclFazenda; if (!e) return '';
+  return `<div class="card"><p style="margin:0"><b>Última exclusão neste aparelho:</b> ${esc(e.nome)}, em ${fmtDT(e.em)}.${e.resumo ? ' ' + e.resumo.animais + ' animal(is) e ' + e.resumo.lidas + ' lida(s) saíram junto.' : ''} <button class="btn sm" type="button" onclick="desfazerExclusaoFazenda()">Restaurar</button></p></div>`;
 }
 function openLote(id) {
   if (!farm()) { openFarm(); return; }
@@ -4038,12 +4116,206 @@ function mostraRecuperacao(err) {
   const msg = t => { const m = document.getElementById('recMsg'); if (m) m.textContent = t; };
   document.getElementById('recBaixar').onclick = async () => { try { const d = await idbGet('dados'), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d || {})], { type: 'application/json' })); a.download = 'Tapirucu_copia_' + Date.now() + '.json'; document.body.appendChild(a); a.click(); a.remove(); msg('Cópia baixada.'); } catch (e) { msg('Não foi possível baixar: ' + e.message); } };
   document.getElementById('recVolta').onclick = async () => { try {
-    const bs = [await idbGet('backupPreImport'), await idbGet('backupPreUpdate')].filter(b => b && b.dados).sort((x, y) => String(y.em).localeCompare(String(x.em)));
+    const bs = [await idbGet('backupPreImport'), await idbGet('backupPreUpdate'), await idbGet('backupPreFazenda')].filter(b => b && b.dados).sort((x, y) => String(y.em).localeCompare(String(x.em)));
     if (!bs.length) { msg('Não há cópia automática neste aparelho.'); return; }
     if (!confirm('Voltar para a cópia de ' + fmtDT(bs[0].em) + '? O que foi lançado depois dela será perdido. Baixe a cópia do passo 1 antes.')) return;
     await idbSet('dados', bs[0].dados); location.reload(); } catch (e) { msg('Não foi possível restaurar: ' + e.message); } };
 }
+/* =========================================================================
+   SENHA DO APLICATIVO — pré-camada de proteção para demonstrações
+   Pede a senha ao abrir o app. Fica só neste aparelho: não criptografa os dados guardados e não substitui controle de acesso de verdade.
+   O Modo Campo não é barrado (ele tem o próprio PIN).
+   ========================================================================= */
+const AP_KEY = 'tapirucu-app-senha', AP_SES = 'tapirucu-app-ok', AP_TRY = 'tapirucu-app-try', AP_ATE = 'tapirucu-app-ate', AP_MIN = 6;
+const apRaw = () => { try { return JSON.parse(localStorage.getItem(AP_KEY) || 'null'); } catch (e) { return null; } };
+const apCfg = () => { const c = apRaw(); return c && c.h && c.s ? c : null; };
+const apSessao = () => { try { return sessionStorage.getItem(AP_SES) === '1'; } catch (e) { return false; } };
+async function apHash(txt, salt) {
+  try {
+    if (window.crypto && crypto.subtle) {
+      const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(txt), 'PBKDF2', false, ['deriveBits']);
+      const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(salt), iterations: 100000 }, k, 256);
+      return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (e) {}
+  return 'f:' + ((await sha256('tapirucu-app:' + salt + ':' + txt)) || txt);
+}
+function apTrava() { try { const t = JSON.parse(localStorage.getItem(AP_TRY) || 'null'); if (t && t.ate > Date.now()) return Math.ceil((t.ate - Date.now()) / 1000); } catch (e) {} return 0; }
+function apFalhou() { let t = { n: 0, ate: 0 }; try { t = JSON.parse(localStorage.getItem(AP_TRY) || 'null') || t; } catch (e) {} t.n = (t.n || 0) + 1; if (t.n >= 5) t.ate = Date.now() + Math.min(15, t.n - 4) * 60000; try { localStorage.setItem(AP_TRY, JSON.stringify(t)); } catch (e) {} return t; }
+const apLimpaTent = () => { try { localStorage.removeItem(AP_TRY); } catch (e) {} };
+const fmtCod = c => c.slice(0, 4) + '-' + c.slice(4);
+const apNorm = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+/* ---- digital / rosto do aparelho (WebAuthn, autenticador de plataforma) ----
+   A conferência é local: o app valida o desafio e que o aparelho confirmou presença e identidade do usuário.
+   Não há servidor para validar a assinatura, então é conveniência de entrada, não segurança forte. A senha continua como alternativa. */
+const b64u = { enc: b => btoa(String.fromCharCode.apply(null, new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)) };
+async function bioDisponivel() { try { return !!(window.PublicKeyCredential && navigator.credentials && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch (e) { return false; } }
+async function bioCadastrar() {
+  try {
+    const cred = await navigator.credentials.create({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rp: { name: 'Ekoa Tapiruçu' },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'tapirucu', displayName: 'Tapiruçu neste aparelho' }, pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' }, timeout: 60000, attestation: 'none' } });
+    return cred ? b64u.enc(cred.rawId) : '';
+  } catch (e) { return ''; }
+}
+async function bioConferir(id) {
+  try {
+    const ch = crypto.getRandomValues(new Uint8Array(32));
+    const a = await navigator.credentials.get({ publicKey: { challenge: ch, allowCredentials: [{ type: 'public-key', id: b64u.dec(id), transports: ['internal'] }], userVerification: 'required', timeout: 60000 } });
+    if (!a) return false;
+    const cd = JSON.parse(new TextDecoder().decode(a.response.clientDataJSON)), ad = new Uint8Array(a.response.authenticatorData);
+    return cd.type === 'webauthn.get' && cd.challenge === b64u.enc(ch) && !!(ad[32] & 0x01) && !!(ad[32] & 0x04);   // presença + usuário verificado
+  } catch (e) { return false; }
+}
+const apSalva = c => { try { localStorage.setItem(AP_KEY, JSON.stringify(c)); return true; } catch (e) { return false; } };
+const apDefineAte = c => { try { if (c && c.lembra > 0) localStorage.setItem(AP_ATE, String(Date.now() + c.lembra * 3600000)); else localStorage.removeItem(AP_ATE); } catch (e) {} };
+function apBase(box, corpo) {
+  box.innerHTML = `<div class="ap-wrap"><img class="ap-logo" src="assets/tapirucu-logo.png" alt=""><b class="ap-marca">EKOA TAPIRUÇU</b><form id="apForm" novalidate><input class="ap-user" type="text" name="username" value="Tapiruçu" autocomplete="username" tabindex="-1" aria-hidden="true">${corpo}</form></div>`;
+}
+function apVer(box) { const v = box.querySelector('#apVer'); if (v) v.onchange = () => box.querySelectorAll('input.ap-in').forEach(i => { i.type = v.checked ? 'text' : 'password'; }); }
+const apErro = (box, t) => { const e = box.querySelector('#apErro'); if (e) e.textContent = t || ''; };
+const apEnter = (box, fn) => box.querySelector('#apForm').addEventListener('submit', ev => { ev.preventDefault(); fn(); });
+function porteiro() {
+  const raw = apRaw();
+  let ate = 0; try { ate = +localStorage.getItem(AP_ATE) || 0; } catch (e) {}
+  if ((raw && raw.off) || apSessao() || cpLigado() || ate > Date.now()) return Promise.resolve();
+  return new Promise(ok => {
+    let box = document.getElementById('porteiro');
+    if (!box) { box = document.createElement('div'); box.id = 'porteiro'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Acesso ao Ekoa Tapiruçu'); document.body.appendChild(box); }
+    const libera = () => { try { sessionStorage.setItem(AP_SES, '1'); } catch (e) {} apLimpaTent(); apDefineAte(apCfg()); box.remove(); ok(); };
+    if (apCfg()) apTelaEntrar(box, libera); else apTelaCriar(box, libera, false);
+  });
+}
+function apTelaCriar(box, libera, recup) {
+  apBase(box, `<h1>${recup ? 'Crie uma nova senha' : 'Proteja este aparelho'}</h1>
+    <p>${recup ? 'O código de recuperação foi aceito. Escolha a nova senha.' : 'Crie uma senha para abrir o aplicativo. Ela fica só neste aparelho e será pedida sempre que o app for aberto de novo.'}</p>
+    <label for="apS1">Senha <small>(mínimo ${AP_MIN} caracteres)</small></label><input class="ap-in" id="apS1" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
+    <label for="apS2">Repita a senha</label><input class="ap-in" id="apS2" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
+    <label class="ap-chk"><input type="checkbox" id="apVer"> Mostrar a senha</label>
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit">Criar senha</button>`);
+  apVer(box);
+  const ir = async () => {
+    const a = box.querySelector('#apS1').value, b = box.querySelector('#apS2').value;
+    if (a.length < AP_MIN) { apErro(box, 'A senha precisa ter pelo menos ' + AP_MIN + ' caracteres.'); return; }
+    if (a !== b) { apErro(box, 'As duas senhas não são iguais.'); return; }
+    const bt = box.querySelector('#apOk'); bt.disabled = true;
+    const salt = cpNovoCodigo() + cpNovoCodigo(), cod = cpNovoCodigo(), h = await apHash(a, salt), r = await apHash(cod, salt + 'r');
+    const o = apCfg(), her = recup && o ? { bio: o.bio, lembra: o.lembra } : {};
+    apTelaCodigo(box, libera, Object.assign({ s: salt, h, r, em: nowISO() }, her), cod);
+  };
+  apEnter(box, ir);
+  setTimeout(() => { const i = box.querySelector('#apS1'); if (i) i.focus(); }, 50);
+}
+function apTelaCodigo(box, libera, cfg, cod) {
+  apBase(box, `<h1>Anote o código de recuperação</h1>
+    <p>Se você esquecer a senha, este código é a única forma de criar outra. Anote em lugar seguro. Ele não será mostrado de novo.</p>
+    <div class="ap-cod" id="apCod" aria-label="Código de recuperação">${fmtCod(cod)}</div>
+    <label class="ap-chk"><input type="checkbox" id="apAnotei"> Anotei o código</label>
+    <label class="ap-chk" id="apBioLn" hidden><input type="checkbox" id="apBioCk"> Entrar com digital ou rosto neste aparelho</label>
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="button" disabled>Entrar no aplicativo</button>`);
+  const ck = box.querySelector('#apAnotei'), bt = box.querySelector('#apOk');
+  ck.onchange = () => { bt.disabled = !ck.checked; };
+  bioDisponivel().then(v => { const l = box.querySelector('#apBioLn'); if (v && l) l.hidden = false; });
+  bt.onclick = async () => {
+    const quer = box.querySelector('#apBioCk');
+    if (quer && quer.checked && !box.querySelector('#apBioLn').hidden) {
+      bt.disabled = true; const id = await bioCadastrar(); bt.disabled = !ck.checked;
+      if (!id) { quer.checked = false; apErro(box, 'Não foi possível ativar a digital ou o rosto agora. Toque em Entrar para seguir só com a senha; dá para ativar depois em Mais > Senha do aplicativo.'); return; }
+      cfg.bio = id;
+    }
+    if (!apSalva(cfg)) { apErro(box, 'Este navegador não permitiu guardar a senha. Tente de novo fora do modo anônimo.'); return; } libera();
+  };
+}
+function apTelaEntrar(box, libera) {
+  const cfg = apCfg();
+  apBase(box, `<h1>Digite a senha</h1><p>Esta senha foi criada neste aparelho.</p>
+    <button class="ap-btn alt" id="apBio" type="button" hidden>Entrar com digital ou rosto</button>
+    <label for="apS">Senha</label><input class="ap-in" id="apS" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false">
+    <label class="ap-chk"><input type="checkbox" id="apVer"> Mostrar a senha</label>
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit">Entrar</button>
+    <button class="ap-link" id="apEsq" type="button">Esqueci a senha</button>`);
+  apVer(box);
+  const ir = async () => {
+    const sg = apTrava(); if (sg) { apErro(box, 'Muitas tentativas. Tente de novo em ' + cpTravaTxt(sg) + '.'); return; }
+    const v = box.querySelector('#apS').value; if (!v) { apErro(box, 'Digite a senha.'); return; }
+    if ((await apHash(v, cfg.s)) === cfg.h) { libera(); return; }
+    const t = apFalhou(), sg2 = apTrava();
+    apErro(box, sg2 ? 'Senha incorreta. Aguarde ' + cpTravaTxt(sg2) + ' para tentar de novo.' : 'Senha incorreta. ' + (5 - t.n) + ' tentativa(s) antes do bloqueio.');
+    const i = box.querySelector('#apS'); i.value = ''; i.focus();
+  };
+  apEnter(box, ir);
+  box.querySelector('#apEsq').onclick = () => apTelaRecuperar(box, libera);
+  const tentaBio = async (manual) => {
+    if (!(await bioConferir(cfg.bio))) { if (manual) apErro(box, 'Não foi possível confirmar a digital ou o rosto. Use a senha.'); const i = box.querySelector('#apS'); if (i) i.focus(); return; }
+    libera();
+  };
+  if (cfg.bio) bioDisponivel().then(v => { const b = box.querySelector('#apBio'); if (!v || !b) return; b.hidden = false; b.onclick = () => tentaBio(true); tentaBio(false); });
+  setTimeout(() => { const i = box.querySelector('#apS'); if (i && !cfg.bio) i.focus(); }, 50);
+}
+function apTelaRecuperar(box, libera) {
+  const cfg = apCfg();
+  apBase(box, `<h1>Esqueci a senha</h1><p>Digite o código de recuperação que você anotou ao criar a senha.</p>
+    <label for="apC">Código de recuperação</label><input class="ap-in" id="apC" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX">
+    <p id="apErro" class="ap-erro" role="alert"></p><button class="ap-btn" id="apOk" type="submit">Continuar</button>
+    <button class="ap-link" id="apVolta" type="button">Voltar</button>
+    <p class="ap-nota">Sem o código, não há como abrir o app por aqui. Os dados continuam neste aparelho; limpar os dados do navegador apaga a senha e também os registros.</p>`);
+  const ir = async () => {
+    const sg = apTrava(); if (sg) { apErro(box, 'Muitas tentativas. Tente de novo em ' + cpTravaTxt(sg) + '.'); return; }
+    const c = apNorm(box.querySelector('#apC').value); if (!c) { apErro(box, 'Digite o código.'); return; }
+    if ((await apHash(c, (cfg.rs || cfg.s) + 'r')) === cfg.r) { apLimpaTent(); apTelaCriar(box, libera, true); return; }
+    const t = apFalhou(), sg2 = apTrava();
+    apErro(box, sg2 ? 'Código incorreto. Aguarde ' + cpTravaTxt(sg2) + '.' : 'Código incorreto. ' + (5 - t.n) + ' tentativa(s) antes do bloqueio.');
+  };
+  apEnter(box, ir);
+  box.querySelector('#apVolta').onclick = () => apTelaEntrar(box, libera);
+  setTimeout(() => { const i = box.querySelector('#apC'); if (i) i.focus(); }, 50);
+}
+/* ---- gerenciar a senha (menu) ---- */
+async function openSenhaApp() {
+  const c = apCfg(), bio = c ? await bioDisponivel() : false;
+  if (!c) { openModal('Senha do aplicativo', '<p>Este aparelho está <b>sem senha</b>. Qualquer pessoa que abrir o app vê os dados.</p>', `<button class="btn" onclick="closeModal()">Fechar</button><button class="btn primary" onclick="apLigarDeNovo()">Criar senha</button>`); return; }
+  const op = [[0, 'Sempre pedir ao abrir'], [1, '1 hora'], [8, '8 horas'], [24, '24 horas'], [168, '7 dias']].map(o => `<option value="${o[0]}"${(c.lembra || 0) === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('');
+  openModal('Senha do aplicativo', `<p>A senha está <b>ativa</b> neste aparelho desde ${fmtDT(c.em)}. O Modo Campo não pede.</p>
+    <div class="grid">${fld('apLembra', 'Não pedir a senha de novo por', `<select id="apLembra" onchange="apSetLembra(this.value)">${op}</select>`, false, 'Quanto maior o prazo, mais rápido o acesso e menor a proteção se alguém pegar o aparelho já aberto. Bloquear agora zera o prazo.')}</div>
+    ${bio ? (c.bio ? `<p><span class="chip ok">Digital ou rosto ativo</span> <button class="btn sm" type="button" onclick="apDesativarBio()">Desativar digital ou rosto</button></p>` : `<p><button class="btn sm" type="button" onclick="apAtivarBio()">Ativar digital ou rosto</button> <small class="muted">usa o desbloqueio do próprio aparelho</small></p>`) : '<p class="hint">Digital ou rosto não está disponível neste aparelho ou navegador.</p>'}
+    <p><button class="btn sm" type="button" onclick="apTrocar()">Trocar senha</button> <button class="btn sm" type="button" onclick="apDesativar()">Desativar a senha</button></p>
+    <p class="hint">É uma proteção para demonstrações: impede que alguém abra o app por curiosidade, mas não criptografa os dados guardados no aparelho. A senha em si não é guardada; o navegador pode oferecer salvá-la no gerenciador de senhas dele.</p>`,
+    `<button class="btn" onclick="closeModal()">Fechar</button><button class="btn primary" onclick="apBloquearAgora()">Bloquear agora</button>`);
+}
+function apSetLembra(h) { const c = apCfg(); if (!c) return; c.lembra = parseInt(h, 10) || 0; apSalva(c); apDefineAte(c); showToast(c.lembra ? 'Senha só será pedida de novo depois de ' + (c.lembra >= 24 ? c.lembra / 24 + ' dia(s)' : c.lembra + ' hora(s)') + '.' : 'A senha será pedida sempre que o app abrir.'); }
+async function apAtivarBio() { const id = await bioCadastrar(); if (!id) { alert('Não foi possível ativar a digital ou o rosto agora.'); return; } const c = apCfg(); c.bio = id; apSalva(c); showToast('Digital ou rosto ativado.'); openSenhaApp(); }
+function apDesativarBio() { const c = apCfg(); delete c.bio; apSalva(c); showToast('Digital ou rosto desativado.'); openSenhaApp(); }
+function apBloquearAgora() { try { sessionStorage.removeItem(AP_SES); localStorage.removeItem(AP_ATE); } catch (e) {} location.reload(); }
+function apLigarDeNovo() { try { localStorage.removeItem(AP_KEY); localStorage.removeItem(AP_ATE); sessionStorage.removeItem(AP_SES); } catch (e) {} location.reload(); }
+function apPedeAtual(titulo, extra, corpoOk) {
+  openModal(titulo, `<div class="grid">${fld('apAt', 'Senha atual', `<input id="apAt" type="password" autocomplete="current-password" autocapitalize="off">`, true)}${extra || ''}</div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="apAtOk">Confirmar</button>`);
+  $('apAtOk').onclick = async () => {
+    fieldErr('apAt', ''); const c = apCfg(), sg = apTrava();
+    if (sg) { fieldErr('apAt', 'Muitas tentativas. Tente em ' + cpTravaTxt(sg) + '.'); return; }
+    if ((await apHash($('apAt').value, c.s)) !== c.h) { apFalhou(); fieldErr('apAt', 'Senha incorreta.'); return; }
+    apLimpaTent(); await corpoOk(c);
+  };
+}
+function apTrocar() {
+  apPedeAtual('Trocar a senha', `${fld('apN1', 'Nova senha', `<input id="apN1" type="password" autocomplete="new-password" autocapitalize="off">`, true, 'Mínimo ' + AP_MIN + ' caracteres.')}${fld('apN2', 'Repita a nova senha', `<input id="apN2" type="password" autocomplete="new-password" autocapitalize="off">`, true)}`, async c => {
+    fieldErr('apN1', ''); fieldErr('apN2', '');
+    const a = $('apN1').value, b = $('apN2').value;
+    if (a.length < AP_MIN) { fieldErr('apN1', 'Pelo menos ' + AP_MIN + ' caracteres.'); return; }
+    if (a !== b) { fieldErr('apN2', 'As senhas não são iguais.'); return; }
+    const salt = cpNovoCodigo() + cpNovoCodigo(), nova = Object.assign({}, c, { s: salt, h: await apHash(a, salt), rs: c.rs || c.s, em: nowISO() });
+    /* o código de recuperação foi derivado do sal antigo: guarda o sal dele para continuar valendo */
+    try { localStorage.setItem(AP_KEY, JSON.stringify(nova)); } catch (e) { fieldErr('apN1', 'Não foi possível guardar.'); return; }
+    closeModal(); showToast('Senha trocada.');
+  });
+}
+function apDesativar() {
+  apPedeAtual('Desativar a senha', '', async () => {
+    try { localStorage.setItem(AP_KEY, JSON.stringify({ off: true, em: nowISO() })); localStorage.removeItem(AP_ATE); } catch (e) {} closeModal(); showToast('Senha desativada neste aparelho.');
+  });
+}
 async function init() {
+  await porteiro();
   try {
     const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);

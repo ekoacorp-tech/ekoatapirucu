@@ -2,6 +2,10 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [15] — 2026-11-23 — Excluir fazenda e senha de acesso para demonstrações
+- Excluir fazenda do aparelho: em Editar fazenda, o botão Excluir mostra o que sai junto (animais, lotes, pastos, lidas e fotos) e guarda uma cópia para desfazer. A exclusão vale só neste aparelho e não apaga a fazenda nos outros.
+- Senha ao abrir o app: no primeiro acesso o app pede para criar uma senha e mostra um código de recuperação uma única vez. Há bloqueio após 5 erros. Em Mais > Senha do aplicativo dá para bloquear agora, trocar, desativar, ativar digital ou rosto do aparelho e escolher por quanto tempo o app não pede a senha de novo (1 h a 7 dias). É uma proteção para demonstrações; não criptografa os dados. O Modo Campo continua com o PIN próprio e não pede a senha.
+
 ## [14] — 2026-11-22 — Piloto mais seguro: lida sem duplicidade e Modo Campo reforçado
 - Leitura repetida do mesmo brinco (leitor Bluetooth ou digitação) deixa de tirar o animal da lida: o app avisa que ele já está lá e nada muda. Tirar um animal continua possível tocando nele na lista, com Desfazer.
 - Brinco digitado ou lido com letras agora é respeitado por inteiro. Antes, as letras eram descartadas e "XX001" podia virar o animal NL001.
