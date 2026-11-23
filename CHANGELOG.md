@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [17] — 2026-11-23 — E-mail ativado
+- O envio de e-mail passa a funcionar: o cadastro envia a mensagem de boas-vindas e o Esqueci a senha envia o código de 8 caracteres para o e-mail cadastrado.
+- O envio sai por uma conta Gmail da Ekoa, com limite diário e limite por e-mail para evitar abuso. Se o envio não estiver disponível, o app segue com o código anotado.
+- Sem internet, a mensagem de boas-vindas espera a conexão voltar.
+
 ## [16] — 2026-11-23 — Acabamento visual e e-mail para recuperar a senha
 - Cadastro da senha agora pede e-mail (com a opção Continuar sem e-mail). O e-mail fica só neste aparelho e recebe uma mensagem de boas-vindas; sem internet, o envio espera a conexão voltar.
 - Esqueci a senha: além do código anotado, dá para receber um código de 8 caracteres no e-mail cadastrado (vale 15 min, 5 tentativas). Em Mais > Senha do aplicativo dá para adicionar, alterar ou remover o e-mail. O envio depende de ativar o serviço de e-mail da Ekoa (pasta servidor-email); até lá o app segue com o código anotado.

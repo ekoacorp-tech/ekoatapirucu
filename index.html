@@ -850,7 +850,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 16;
+const APP_VERSION = 17;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -4188,8 +4188,8 @@ const apNorm = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 /* ---- e-mail de recuperação ----
    O e-mail fica só neste aparelho. O serviço de e-mail da Ekoa (pasta servidor-email) envia a boas-vindas e o código de nova senha.
    Enquanto EKOA_MAIL_API estiver vazio, o app guarda o e-mail e avisa que o envio ainda não está ativo. */
-const EKOA_MAIL_API = '';
-const apApiUrl = () => { try { return localStorage.getItem('tapirucu-mail-api') || EKOA_MAIL_API; } catch (e) { return EKOA_MAIL_API; } };
+const EKOA_MAIL_API = 'https://script.google.com/macros/s/AKfycby9Q_Rdt012F2s_h6PjSo3RZgOPm_WnlKYShnrYOPwDQ5u9bQfL-s55nowZO9NdDIrU/exec';
+const apApiUrl = () => { try { const o = localStorage.getItem('tapirucu-mail-api'); return o === null ? EKOA_MAIL_API : o; } catch (e) { return EKOA_MAIL_API; } }; /* override de desenvolvimento: valor vazio desliga o envio */
 const apMailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 const apMailMask = e => { const p = String(e || '').split('@'), u = p[0] || ''; return u.slice(0, 1) + '•••' + '@' + (p[1] || ''); };
 const apNovoId = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), x => x.toString(16).padStart(2, '0')).join('');

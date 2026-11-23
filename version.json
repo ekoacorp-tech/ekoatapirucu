@@ -1,9 +1,18 @@
 {
-  "versao": 16,
-  "rotulo": "16 beta",
+  "versao": 17,
+  "rotulo": "17 beta",
   "data": "2026-11-23",
-  "titulo": "Acabamento visual e e-mail para recuperar a senha",
+  "titulo": "E-mail ativado: boas-vindas e código para recuperar a senha",
   "notas": {
+    "17": {
+      "data": "2026-11-23",
+      "titulo": "E-mail ativado: boas-vindas e código para recuperar a senha",
+      "itens": [
+        "O envio de e-mail passa a funcionar: o cadastro envia a mensagem de boas-vindas e o Esqueci a senha envia o código de 8 caracteres para o e-mail cadastrado.",
+        "O envio sai por uma conta Gmail da Ekoa, com limite diário e limite por e-mail para evitar abuso. Se o envio não estiver disponível, o app segue com o código anotado.",
+        "Sem internet, a mensagem de boas-vindas espera a conexão voltar."
+      ]
+    },
     "16": {
       "data": "2026-11-23",
       "titulo": "Acabamento visual e e-mail para recuperar a senha",
