@@ -614,6 +614,11 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 #porteiro .ap-btn.alt{background:#fff;color:#23505F;border:2px solid #23505F}
 #porteiro [hidden]{display:none}
 #porteiro .ap-nota{font-size:.85rem;color:#6b5b4d}
+.ap-priv{grid-column:1/-1;margin:8px 0 12px;border:1px solid var(--border-color,#d9cfc3);border-radius:10px;padding:0 12px;font-size:.85rem;line-height:1.45;text-align:left}
+.ap-priv summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--link-ink,#17636b)}
+.ap-priv-c{padding:0 0 10px}.ap-priv-c p{margin:0 0 8px}
+#porteiro .ap-priv{background:rgba(255,255,255,.55);color:#3d3228}
+#porteiro .ap-priv-c p{margin:0 0 8px}
 
 /* v16 — qualidade visual: nomes longos não podem cortar informação */
 .cp-tit b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;font-size:clamp(1rem,4.8vw,1.2rem)}
@@ -4325,12 +4330,21 @@ function porteiro() {
     if (apCfg()) apTelaEntrar(box, libera); else apTelaCriar(box, libera, false);
   });
 }
+/* aviso de privacidade do e-mail (LGPD): descreve só o que o app e o serviço de envio fazem de fato */
+const AP_CONTATO = 'ekoacorp@gmail.com';
+const apPrivHtml = () => `<details class="ap-priv"><summary>Como usamos o seu e-mail</summary><div class="ap-priv-c">
+  <p><b>O que pedimos.</b> Só o e-mail. Informar é opcional: sem ele o app funciona normalmente e a recuperação da senha fica só pelo código anotado no cadastro.</p>
+  <p><b>Para quê.</b> Enviar a mensagem de boas-vindas e, se você esquecer a senha, um código de 8 caracteres. Não usamos para propaganda nem enviamos a terceiros.</p>
+  <p><b>Onde fica.</b> O e-mail fica guardado neste aparelho. Ele só sai daqui no momento do envio, para o serviço de e-mail da Ekoa, que usa uma conta do Google (Gmail) para enviar a mensagem. Esse serviço não mantém lista de e-mails, mas a mensagem enviada fica na caixa de saída da conta da Ekoa.</p>
+  <p><b>Sua senha e seus dados</b> do rebanho nunca são enviados: ficam só no aparelho.</p>
+  <p><b>Seus direitos.</b> Você pode remover o e-mail quando quiser em Mais &gt; Senha do aplicativo. Para pedir a exclusão das mensagens enviadas ou tirar dúvidas, escreva para ${AP_CONTATO}.</p>
+  <p class="ap-nota">Base legal: seu consentimento (LGPD, art. 7º, I), dado ao informar o e-mail.</p></div></details>`;
 function apTelaCriar(box, libera, recup) {
   const o0 = apCfg(), temMail = !!(recup && o0 && o0.mail);
   apBase(box, `<h1>${recup ? 'Crie uma nova senha' : 'Proteja este aparelho'}</h1>
     <p>${recup ? 'Identidade confirmada. Escolha a nova senha.' : 'Crie uma senha para abrir o aplicativo. Ela fica só neste aparelho e será pedida sempre que o app for aberto de novo.'}</p>
     ${temMail ? '' : `<label for="apEm">E-mail <small>(para boas-vindas e recuperar a senha)</small></label><input class="ap-in" id="apEm" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="nome@empresa.com.br">
-    <p class="ap-nota ap-nota-em">Usamos o e-mail só para enviar a boas-vindas e um código caso você esqueça a senha. Ele fica guardado neste aparelho.</p>`}
+    <p class="ap-nota ap-nota-em">Usamos o e-mail só para enviar a boas-vindas e um código caso você esqueça a senha. Ele fica guardado neste aparelho.</p>${apPrivHtml()}`}
     <label for="apS1">Senha <small>(mínimo ${AP_MIN} caracteres)</small></label><input class="ap-in" id="apS1" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
     <label for="apS2">Repita a senha</label><input class="ap-in" id="apS2" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
     <label class="ap-chk"><input type="checkbox" id="apVer"> Mostrar a senha</label>
@@ -4491,7 +4505,7 @@ function apPedeAtual(titulo, extra, corpoOk) {
 }
 function apEmail() {
   const c0 = apCfg();
-  apPedeAtual(c0 && c0.mail ? 'Alterar o e-mail' : 'Adicionar e-mail de recuperação', fld('apEmN', 'E-mail', `<input id="apEmN" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(c0 && c0.mail || '')}">`, false, 'Usado só para boas-vindas e para enviar um código se você esquecer a senha. Deixe em branco para remover.'), async c => {
+  apPedeAtual(c0 && c0.mail ? 'Alterar o e-mail' : 'Adicionar e-mail de recuperação', fld('apEmN', 'E-mail', `<input id="apEmN" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(c0 && c0.mail || '')}">`, false, 'Usado só para boas-vindas e para enviar um código se você esquecer a senha. Deixe em branco para remover.') + apPrivHtml(), async c => {
     fieldErr('apEmN', ''); const m = $('apEmN').value.trim().toLowerCase();
     if (m && !apMailOk(m)) { fieldErr('apEmN', 'Esse e-mail não parece completo.'); return; }
     const n = Object.assign({}, c); if (m) { n.mail = m; n.did = n.did || apNovoId(); if (m !== c.mail) n.mailPend = 'bv'; } else { delete n.mail; delete n.mailPend; }
