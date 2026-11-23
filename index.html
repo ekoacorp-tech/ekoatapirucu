@@ -111,7 +111,11 @@ body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .kpi{background:var(--bg-surface);border:1px solid var(--border-color);border-left:4px solid var(--brand-gold);border-radius:8px;padding:10px 12px}
 .kpi.teal{border-left-color:var(--brand-teal)}.kpi.orange{border-left-color:var(--brand-orange)}.kpi.navy{border-left-color:var(--brand-navy)}.kpi.red{border-left-color:#dc2626}
-.kpi small{display:block;font-size:.74rem;color:var(--text-secondary)}
+.kpiw{position:relative}.kpiw>.kpi{height:100%;width:100%;text-align:left}
+.kpi-q{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border-color);background:var(--bg-surface);color:var(--text-secondary);font-size:.8rem;font-weight:700;cursor:pointer;padding:0;line-height:1}
+.kpi-q:focus-visible{outline:2px solid var(--brand-teal)}
+.kpi-aj p{margin:0 0 12px;line-height:1.5}
+.kpi small{display:block;font-size:.74rem;color:var(--text-secondary);padding-right:26px}
 .kpi b{font-size:1.3rem;color:var(--brand-navy)}
 .kpi em{font-style:normal;font-size:.74rem;color:var(--text-secondary);display:block}
 .alert{border-radius:8px;padding:10px 12px;font-size:.86rem;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;line-height:1.4}
@@ -328,6 +332,22 @@ body{background:radial-gradient(1200px 600px at 85% -10%,rgba(201,146,46,.14),tr
 .hc-t{margin-top:auto;font-size:1.08rem;font-weight:700}
 .hc-d{font-size:.84rem;line-height:1.4;color:var(--text-secondary)}
 #installBox{margin-bottom:16px;padding:14px 16px;border-radius:14px;background:var(--bg-surface);border:1px solid var(--teal);align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+.pn-abas{display:flex;gap:6px;margin:0 0 12px;overflow-x:auto}
+.pn-abas button{flex:1 1 0;min-height:44px;padding:8px 4px;font-size:.88rem;border-radius:999px;border:1px solid var(--border-color);background:var(--bg-surface);color:var(--text-secondary);font-weight:600;cursor:pointer}
+.pn-abas button.on{background:var(--brand-navy);border-color:var(--brand-navy);color:#fff}
+.pn-abas button:focus-visible{outline:2px solid var(--brand-teal);outline-offset:2px}
+.pn-atencao{border:1px solid var(--border-color);border-left:4px solid var(--brand-orange);border-radius:10px;background:var(--bg-surface);padding:10px 12px;margin:0 0 10px}
+.pn-atencao.ok{border-left-color:var(--brand-teal)}
+.pn-atencao>b{display:block;font-size:.86rem;margin-bottom:6px;color:var(--brand-navy)}
+.pn-atencao>b span{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--brand-orange);color:#fff;font-size:.74rem;text-align:center}
+.pn-atencao p{margin:0;font-size:.84rem;color:var(--text-secondary)}
+.pn-at{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 10px;margin:0 0 4px;border:1px solid var(--border-color);border-left:3px solid var(--brand-orange);border-radius:8px;background:var(--bg-surface);text-align:left;font-size:.86rem;cursor:pointer;color:inherit}
+.pn-at.red{border-left-color:#dc2626}
+.pn-at:focus-visible{outline:2px solid var(--brand-teal)}
+.pn-fresco{margin:0 0 12px}
+.pn-sub{margin:14px 0 6px;color:var(--brand-navy)}
+.tr-up{color:#0f766e}.tr-dn{color:#b91c1c}
 /* indicadores (tiles do Ekoa Saber) */
 .kpis{gap:12px;margin-bottom:16px}
 .kpi{padding:14px 16px;border-radius:14px;border:1px solid var(--border-color);border-left-width:4px}
@@ -477,6 +497,8 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 
 /* ===== Painel: gráficos ===== */
 .pn-bar select{min-width:200px}
+.pn-csv{margin:0 0 8px}.pn-csv summary{display:inline-flex;align-items:center;min-height:36px;cursor:pointer;list-style:none}.pn-csv .actions{margin-top:8px}
+@media (max-width:640px){#pnSub{display:none}.pn-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pn-bar select{min-width:0;width:100%}.pn-bar .muted{grid-column:1/-1;font-size:.78rem}.pn-bar .grow{display:none}.pn-bar>.btn{grid-column:1/-1}}
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
 .ch-t{font-size:.86rem;color:var(--text-primary);margin-bottom:4px;font-weight:700}
 .ch-t span{font-weight:400;color:var(--text-secondary);font-size:.78rem;margin-left:4px}
@@ -854,7 +876,7 @@ th{font-size:.75rem}
   <section class="view" id="v-painel">
     <div class="topbar">
       <div><h2>Painel</h2><p id="pnSub">Indicadores calculados a partir das lidas finalizadas.</p></div>
-      <div class="actions"><button class="btn" onclick="exportPastosCSV()"><svg><use href="#i-down"/></svg>Pastos CSV</button><button class="btn" onclick="exportLotesCSV()"><svg><use href="#i-down"/></svg>Lotes CSV</button><button class="btn" onclick="exportEventosCSV()"><svg><use href="#i-down"/></svg>Eventos CSV</button></div>
+      <details class="pn-csv"><summary class="btn sm">Planilhas (CSV)</summary><div class="actions"><button class="btn" onclick="exportPastosCSV()"><svg><use href="#i-down"/></svg>Pastos CSV</button><button class="btn" onclick="exportLotesCSV()"><svg><use href="#i-down"/></svg>Lotes CSV</button><button class="btn" onclick="exportEventosCSV()"><svg><use href="#i-down"/></svg>Eventos CSV</button></div></details>
     </div>
     <div id="painel"></div>
   </section>
@@ -926,7 +948,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 26;
+const APP_VERSION = 27;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1258,10 +1280,10 @@ function computeF(fid) {
 let currentView = 'home', navHist = [];
 const VIEW_NOME = { home: 'Início', lidas: 'Lidas', lida: 'Lida', rebanho: 'Rebanho', mapa: 'Mapa da fazenda', painel: 'Painel', cadastros: 'Fazenda, pastos e lotes', sync: 'Sincronizar', mais: 'Mais' };
 const TELAS_LARGAS = ['painel', 'mapa', 'rebanho', 'cadastros'];
-function estadoNav() { return { v: currentView, pn: Object.assign({}, pnNivel), sel: mapSel, todas: mapaTodas }; }
+function estadoNav() { return { v: currentView, pn: Object.assign({}, pnNivel), all: pnAll, sel: mapSel, todas: mapaTodas }; }
 function voltar() {
   const h = navHist.pop(); if (!h) return;
-  pnNivel = h.pn; mapSel = h.sel; mapaTodas = h.todas;
+  pnNivel = h.pn; pnAll = !!h.all; mapSel = h.sel; mapaTodas = h.todas;
   goView(h.v, true);
 }
 function nivelNome(pn) {
@@ -1269,6 +1291,8 @@ function nivelNome(pn) {
   if (pn.tipo === 'pasto') return 'Pasto ' + pastoNome(pn.id);
   if (pn.tipo === 'lote') return 'Lote ' + loteNome(pn.id);
   if (pn.tipo === 'rebanho') return 'Rebanho';
+  if (pn.tipo === 'lotes') return 'Lotes';
+  if (pn.tipo === 'pastos') return 'Pastos';
   return 'Fazenda';
 }
 function rotuloEstado(h) { return h.v !== 'painel' ? (VIEW_NOME[h.v] || '') : 'Painel · ' + nivelNome(h.pn); }
@@ -1276,8 +1300,8 @@ function renderNavBar() {
   const bar = $('navBar'); if (!bar) return;
   const h = navHist[navHist.length - 1];
   const trilha = [];
-  if (currentView === 'painel' && pnNivel.tipo !== 'fazenda' && pnNivel.tipo !== 'todas') {
-    trilha.push(`<button class="nb-link" onclick="irPainel('fazenda')">Painel da fazenda</button>`);
+  if (currentView === 'painel' && (pnNivel.tipo === 'lote' || pnNivel.tipo === 'pasto')) {
+    trilha.push(`<button class="nb-link" onclick="irPainel('${pnNivel.tipo}s')">${pnNivel.tipo === 'lote' ? 'Lotes' : 'Pastos'}</button>`);
     trilha.push(`<b>${esc(nivelNome(pnNivel))}</b>`);
   } else trilha.push(`<b>${esc(currentView === 'painel' ? 'Painel · ' + nivelNome(pnNivel) : (VIEW_NOME[currentView] || ''))}</b>`);
   const sel = S.fazendas.length ? `<select class="nb-farm" aria-label="Fazenda que você está vendo" onchange="setFarm(this.value)">${S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('')}</select>` : '';
@@ -1420,9 +1444,56 @@ function renderHome() {
   const ult = S.lidas.slice().sort((a, b) => (b.editadoEm || '').localeCompare(a.editadoEm || '')).slice(0, 6);
   $('homeLidas').innerHTML = ult.length ? `<div class="lida-list">${ult.map(lidaItem).join('')}</div>` : '<div class="empty">Nenhuma lida ainda. Toque em <b>Nova lida</b> para começar.</div>';
 }
-const kpi = (l, v, c, e, go) => go
+/* v27: dicionário dos números do app. Cada um diz o que é, como é calculado e o que fazer. */
+const KPI_AJUDA = {
+  'Animais ativos': ['Animais que estão hoje na fazenda.', 'Cadastrados e não baixados (venda, morte ou perda).', 'Compare com a contagem do curral. Diferença é sinal de baixa ou lida pendente.'],
+  'Animais': ['Animais do grupo que estão hoje na fazenda.', 'Soma dos ativos do lote ou pasto.', 'Toque para ver a lista de brincos.'],
+  'Ativos': ['Animais que estão hoje na fazenda.', 'Cadastrados e não baixados.', 'Toque para ver a lista.'],
+  'Cabeças': ['Quantidade de animais ativos.', 'Soma dos animais ativos nas fazendas do filtro.', 'Use o filtro de fazenda para separar.'],
+  'Rebanho': ['Quantas cabeças havia no início e no fim do período.', 'Início e fim contados pelas datas de entrada e baixa.', 'O saldo mostra se o rebanho cresceu ou encolheu.'],
+  'Entradas': ['Animais que entraram no período.', 'Compra ou carga mais nascimentos.', 'Entrada sem peso inicial atrapalha o ganho de peso.'],
+  'Saídas por venda': ['Animais vendidos no período.', 'Baixas com motivo venda; o peso vem da última pesagem.', 'Registre o peso da venda para o número ficar fiel.'],
+  'Perdas': ['Mortes e perdas no período.', 'Baixas por morte ou perda. A porcentagem é sobre o rebanho médio do período.', 'Veja a causa mais comum e trate a origem (sanidade, manejo, água).'],
+  'Ganho de peso': ['Quantos quilos o gado ganhou no período.', 'Diferença entre pesagens, proporcional aos dias dentro do período.', 'Pouca pesagem deixa o número incompleto. A nota mostra a cobertura.'],
+  'GMD médio': ['Ganho médio por dia, por animal.', 'Ganho de peso ÷ dias, médio dos animais com 2 ou mais pesagens.', 'Se cair de uma pesagem para outra, olhe pasto, água, sal e verme.'],
+  'GMD atual': ['Ganho médio por dia entre as duas últimas pesagens.', 'Média dos animais do lote com 2 pesagens.', 'Compare com a pesagem anterior: caiu, revise o pasto e a suplementação.'],
+  'Arrobas produzidas (est.)': ['Estimativa da carne produzida no período.', 'Ganho de peso vivo ÷ 30 kg (rendimento de carcaça de 50%). Não é pesagem de carcaça.', 'Divida pela área para ver o @/ha e comparar pastos.'],
+  'Arrobas no período (est.)': ['Estimativa da carne produzida no período.', 'Ganho de peso vivo ÷ 30 kg. É estimativa, não carcaça.', 'Divida pela área para ver o @/ha.'],
+  'Lotação da fazenda': ['Quanta carga de gado a pastagem carrega.', 'Peso vivo dos animais pesados ÷ 450 kg (1 UA) ÷ área de pastagem.', 'Muito acima do máximo cansa o pasto; muito abaixo desperdiça capacidade.'],
+  'Lotação geral': ['Carga de gado nas fazendas, em UA por hectare.', 'Peso vivo ÷ 450 kg ÷ área de pastagem. Conta só animais com peso.', 'Animal sem peso fica fora: pese para o número ficar certo.'],
+  'Lotação': ['Carga de gado no pasto, em UA por hectare.', 'Peso vivo ÷ 450 kg ÷ área. A % compara com a lotação máxima do pasto.', 'Acima de 100% da máxima: tire animais ou mude de pasto.'],
+  'Pastos ocupados': ['Quantos pastos têm gado agora.', 'Pastos com um lote em ocupação aberta.', 'Os "prontos" já cumpriram o descanso e podem receber gado.'],
+  'Em carência': ['Animais que não podem ir para abate ou venda.', 'Aplicação sanitária com carência ainda em vigor.', 'Toque para ver quem é e até quando.'],
+  'Sem manejo +30 dias': ['Animais sem nenhum manejo registrado há mais de 30 dias.', 'Último registro de pesagem, sanitário, troca ou outro evento.', 'Pode ser animal esquecido ou lida que ficou no campo sem sincronizar.'],
+  'Aplicações atrasadas': ['Aplicações sanitárias vencidas.', 'Data da próxima aplicação já passou.', 'Toque para ver os animais e programar a lida.'],
+  'Peso médio atual': ['Peso médio do lote hoje.', 'Último peso de cada animal pesado, em média.', 'A nota mostra quantos têm peso. Pouca cobertura, média fraca.'],
+  'Peso médio': ['Peso médio hoje.', 'Último peso de cada animal pesado, em média.', 'A nota mostra quantos têm pesagem.'],
+  'Dias de ocupação': ['Há quantos dias o gado está neste pasto.', 'Hoje menos a data de entrada do lote.', 'Compare com a meta. Passou da meta: hora de mudar de pasto.'],
+  'Dias de descanso': ['Há quantos dias o pasto está sem gado.', 'Hoje menos a data da última saída.', 'Só volte com gado depois da meta de descanso e da altura certa.'],
+  'Descanso médio': ['Quanto tempo o pasto costuma descansar.', 'Média dos intervalos entre uma saída e a entrada seguinte.', 'Abaixo da meta por muitos ciclos desgasta a forrageira.'],
+  'Ciclos no período': ['Quantas vezes o pasto recebeu gado.', 'Cada entrada de lote é um ciclo.', 'Mais ciclos com ocupação curta indica rotação mais intensa.'],
+  'Ganho no pasto': ['Quanto o gado ganhou de peso neste pasto.', 'Ganho de peso dos animais enquanto estavam aqui.', 'Divida pela área para o @/ha.'],
+  'Sem pesagem': ['Animais que nunca foram pesados.', 'Ativos sem nenhuma pesagem registrada.', 'Sem peso o app não calcula GMD nem lotação deles.'],
+  'Idade média': ['Idade média do rebanho, em meses.', 'Da data de nascimento até hoje, só para quem tem nascimento.', 'Informe o nascimento para o número ser completo.'],
+  'Área': ['Tamanho do pasto.', 'Área desenhada no mapa ou informada no cadastro.', 'Sem área não há UA/ha nem @/ha.'],
+  'Pastagem': ['Área de pasto da fazenda.', 'Soma dos pastos cadastrados, ou a área informada da fazenda.', 'Mantenha os pastos cadastrados para os números por hectare.'],
+  'Capacidade ociosa': ['Quanto gado ainda cabe nos pastos.', 'Capacidade dos pastos (área × lotação máxima) menos a carga atual em UA.', 'Sobra grande é espaço para comprar ou reter gado. Negativo é pasto sobrecarregado.'],
+  'Perderam peso': ['Animais que pesaram menos que na pesagem anterior.', 'GMD negativo entre as duas últimas pesagens.', 'Separe e examine: verme, doença, falta de pasto ou de água.'],
+  'Pesagem vencida': ['Animais sem pesar há mais de 45 dias.', 'Dias desde a última pesagem de cada animal.', 'Sem pesagem recente o ganho de peso fica desatualizado.'],
+  'Uniformidade do peso': ['Se o lote tem animais parecidos em peso.', 'Variação dos pesos em torno da média (até 10% uniforme; acima de 15% desigual).', 'Lote desigual rende menos: considere separar leves e pesados.'],
+  'Última pesagem': ['Data da pesagem mais recente do lote.', 'A maior data de pesagem entre os animais do lote; a % mostra quantos foram pesados.', 'Pesagem em dia dá GMD confiável.'],
+  'Lotes pedindo ação': ['Lotes com ganho parado, em queda ou sem pesar.', 'Lotes cujo GMD é zero ou negativo, caiu 30% ou mais, ou sem pesagem há mais de 45 dias.', 'Toque no lote da lista para ver o motivo.'],
+  'Pastos pedindo ação': ['Pastos que passaram da meta ou estão acima da lotação.', 'Dias de ocupação ou descanso fora da meta, ou lotação acima de 100% do máximo.', 'Mude o lote de pasto ou ajuste a lotação.'],
+  'Animais hoje': ['Animais que estão neste pasto agora.', 'Soma dos animais dos lotes em ocupação aberta.', 'Toque para ver os brincos.']
+};
+const kpiQ = l => KPI_AJUDA[l] ? `<button type="button" class="kpi-q" onclick="kpiAjuda(this.dataset.k)" data-k="${esc(l)}" aria-label="O que é: ${esc(l)}">?</button>` : '';
+function kpiAjuda(l) {
+  const a = KPI_AJUDA[l]; if (!a) return;
+  openModal(l, `<div class="kpi-aj"><p><b>O que é</b><br>${esc(a[0])}</p><p><b>Como é calculado</b><br>${esc(a[1])}</p><p><b>O que fazer com ele</b><br>${esc(a[2])}</p><p class="hint">O app mostra produção, não lucro. Custo e preço ainda não entram na conta.</p></div>`, '<button class="btn primary" onclick="closeModal()">Entendi</button>');
+}
+const kpi = (l, v, c, e, go) => `<div class="kpiw">${go
   ? `<button type="button" class="kpi click ${c}" onclick="${go}" aria-label="${esc(l)}: abrir lista"><small>${esc(l)} <span class="kpi-go" aria-hidden="true">›</span></small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</button>`
-  : `<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</div>`;
+  : `<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b>${e ? `<em>${esc(e)}</em>` : ''}</div>`}${kpiQ(l)}</div>`;
 const ondeTxt = l => l.length === 1 ? 'em ' + l[0].f.nome : 'em ' + l.length + ' fazendas';
 /* KPI consolidado: leva à fazenda onde os animais estão, dizendo qual é */
 function verOndeEstao(sit) {
@@ -1433,7 +1504,7 @@ function verOndeEstao(sit) {
   }
   goRebanho(sit);
 }
-function abrirFazenda(id) { S.fazendaAtiva = id; calc = null; save(); pnNivel = { tipo: 'fazenda', id: null }; renderFarmSel(); updateCounts(); goView('painel'); }
+function abrirFazenda(id) { S.fazendaAtiva = id; calc = null; save(); pnAll = false; pnNivel = { tipo: 'fazenda', id: null }; renderFarmSel(); updateCounts(); goView('painel'); }
 function goRebanho(sit, loteId) { rbPending = { sit: sit || 'ativos', lote: loteId || '' }; goView('rebanho'); }
 const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
 
@@ -2233,14 +2304,97 @@ function ganhosHtml(r) {
   </div>`;
 }
 /* ---------- Painéis em árvore: todas → fazenda → pasto / lote / rebanho ---------- */
-let pnNivel = { tipo: 'fazenda', id: null };
-function irPainel(tipo, id) { if (currentView === 'painel') { navHist.push(estadoNav()); if (navHist.length > 20) navHist.shift(); } pnNivel = { tipo, id: id || null }; goView('painel', true); }
+let pnNivel = { tipo: 'fazenda', id: null }, pnAll = false;
+function irPainel(tipo, id) {
+  if (currentView === 'painel') { navHist.push(estadoNav()); if (navHist.length > 20) navHist.shift(); }
+  if (tipo === 'todas') { pnAll = true; tipo = 'fazenda'; id = null; }
+  if ((tipo === 'lote' || tipo === 'pasto') && id) {   // abrir um lote/pasto de outra fazenda leva junto a fazenda dele
+    const o = tipo === 'lote' ? S.lotes.find(l => l.id === id) : S.pastos.find(q => q.id === id);
+    if (o && o.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = o.fazendaId; calc = null; save(); renderFarmSel(); updateCounts(); }
+  }
+  pnNivel = { tipo, id: id || null }; goView('painel', true);
+}
 const openPastoPainel = id => irPainel('pasto', id);
 const openLotePainel = id => irPainel('lote', id);
 const openPiquete = id => irPainel('lote', id);
+const pnAba = () => { const t = pnNivel.tipo; return t === 'lote' || t === 'lotes' ? 'lotes' : t === 'pasto' || t === 'pastos' ? 'pastos' : t === 'rebanho' ? 'rebanho' : 'fazenda'; };
+const pnTodas = () => pnAll && S.fazendas.length > 1 && pnNivel.tipo !== 'lote' && pnNivel.tipo !== 'pasto';
+const pnFids = () => pnTodas() ? S.fazendas.map(x => x.id) : [S.fazendaAtiva];
 function pnEscopoSel() {
-  const f = farm(), todas = pnNivel.tipo === 'todas';
-  return `<select id="pnEsc" onchange="if(this.value==='__todas'){irPainel('todas')}else{pnNivel={tipo:'fazenda',id:null};setFarm(this.value)}" aria-label="Escopo">${S.fazendas.map(x => `<option value="${esc(x.id)}"${!todas && x.id === f.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}${S.fazendas.length > 1 ? `<option value="__todas"${todas ? ' selected' : ''}>Todas as fazendas</option>` : ''}</select>`;
+  const f = farm(), todas = pnTodas();
+  return `<select id="pnEsc" onchange="if(this.value==='__todas'){pnAll=true;irPainel(pnAba())}else{pnAll=false;pnNivel={tipo:pnAba(),id:null};setFarm(this.value)}" aria-label="Filtro de fazenda">${S.fazendas.map(x => `<option value="${esc(x.id)}"${!todas && x.id === f.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}${S.fazendas.length > 1 ? `<option value="__todas"${todas ? ' selected' : ''}>Todas as fazendas</option>` : ''}</select>`;
+}
+function pnAbasHtml() {
+  const at = pnAba();
+  return `<div class="pn-abas" role="tablist" aria-label="Camadas do painel">${[['fazenda', 'Fazenda'], ['lotes', 'Lotes'], ['pastos', 'Pastos'], ['rebanho', 'Rebanho']].map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === at}" class="${k === at ? 'on' : ''}" onclick="irPainel('${k}')">${n}</button>`).join('')}</div>`;
+}
+/* v27: os mesmos cálculos de uma fazenda, repetidos em cada fazenda do filtro (a ativa é restaurada no fim) */
+function emFazendas(fids, fn) {
+  const ant = S.fazendaAtiva, out = [];
+  try { for (const fid of fids) { S.fazendaAtiva = fid; const r = fn(S.fazendas.find(x => x.id === fid), Object.values(compute())); if (r) out.push(...r); } }
+  finally { S.fazendaAtiva = ant; }
+  return out;
+}
+const DIAS_PESAGEM_VENCIDA = 45;
+function gmdAnterior(s) {
+  const p = s.pesos, n = p.length; if (n < 3) return null;
+  const d = diasEntre(p[n - 3].data, p[n - 2].data); return d > 0 ? (p[n - 2].peso - p[n - 3].peso) / d : null;
+}
+function loteInfo(x, st) {
+  const an = st.filter(q => q.ativo && q.lote === x.l.id), ant = an.map(gmdAnterior).filter(v => v != null);
+  const gmdAnt = ant.length ? avg(ant) : null, ult = an.map(q => q.ultimaPesagem).filter(Boolean).sort().pop() || null;
+  const diasUlt = ult ? diasEntre(ult, hoje()) : null, pe = an.filter(q => q.ultimoPeso > 0).map(q => q.ultimoPeso);
+  let cv = null; if (pe.length >= 5) { const m = avg(pe); cv = Math.sqrt(avg(pe.map(v => (v - m) * (v - m)))) / m * 100; }
+  const o = ocupAberta(x.l);
+  let sinal = 'ok';
+  if (!x.qtd) sinal = 'vazio';
+  else if (x.gmd != null && x.gmd <= 0) sinal = 'parou';
+  else if (x.gmd != null && gmdAnt != null && gmdAnt > 0 && x.gmd < gmdAnt * 0.7) sinal = 'queda';
+  else if (diasUlt == null || diasUlt > DIAS_PESAGEM_VENCIDA) sinal = 'vencida';
+  return { gmdAnt, ult, diasUlt, cv, diasPasto: o ? diasEntre(o.de, hoje()) : null, sinal, cobertura: x.qtd ? Math.round(x.comPeso / x.qtd * 100) : null };
+}
+const SINAL_LOTE = { parou: ['Parou de ganhar peso', 'bad'], queda: ['Ganho caiu', 'warn'], vencida: ['Pesagem vencida', 'warn'], ok: ['Em dia', 'ok'], vazio: ['Sem animais', 'gray'] };
+const SINAL_ORD = { parou: 0, queda: 1, vencida: 2, ok: 3, vazio: 4 };
+const uniforme = cv => cv == null ? null : cv <= 10 ? 'uniforme' : cv <= 15 ? 'pouco desigual' : 'desigual';
+function todosLotes(fids) {
+  return emFazendas(fids, (f, st) => lotesResumo().map(x => ({ f, x, i: loteInfo(x, st) })));
+}
+function todosPastos(fids, d0, d1) {
+  return emFazendas(fids, f => pastosResumo().filter(r => r.p.ativo !== false).map(r => ({ f, r, a: analise([f.id], d0, d1, { pasto: r.p.id }) })));
+}
+/* "Atenção agora": o que pede ação, na ordem de importância, com um toque até a lista certa */
+function pnItens(fids) {
+  const it = [], todas = fids.length > 1;
+  const nAtraso = aplicacoesAtrasadas(fids).length;
+  if (nAtraso) it.push({ k: 'reb', c: 'red', t: `${nAtraso} aplicação(ões) sanitária(s) atrasada(s)`, go: todas ? "irPainel('todas')" : "irPainel('fazenda')" });
+  todosLotes(fids).forEach(o => {
+    if (o.i.sinal === 'parou') it.push({ k: 'lote', c: 'red', t: `Lote ${o.x.l.nome}${todas ? ' (' + o.f.nome + ')' : ''}: parou de ganhar peso`, go: `irPainel('lote','${o.x.l.id}')` });
+    else if (o.i.sinal === 'queda') it.push({ k: 'lote', c: 'orange', t: `Lote ${o.x.l.nome}${todas ? ' (' + o.f.nome + ')' : ''}: ganho caiu de ${fmtN(o.i.gmdAnt, 2)} para ${fmtN(o.x.gmd, 2)} kg/dia`, go: `irPainel('lote','${o.x.l.id}')` });
+    else if (o.i.sinal === 'vencida') it.push({ k: 'lote', c: 'orange', t: `Lote ${o.x.l.nome}${todas ? ' (' + o.f.nome + ')' : ''}: ${o.i.diasUlt == null ? 'nunca pesado' : 'sem pesar há ' + o.i.diasUlt + ' dias'}`, go: `irPainel('lote','${o.x.l.id}')` });
+  });
+  emFazendas(fids, f => pastosResumo().filter(r => r.p.ativo !== false).map(r => ({ f, r }))).forEach(o => {
+    const r = o.r;
+    if (r.aviso) it.push({ k: 'pasto', c: 'orange', t: `Pasto ${r.p.nome}${todas ? ' (' + o.f.nome + ')' : ''}: ${r.aviso}`, go: `irPainel('pasto','${r.p.id}')` });
+    if (r.ocup != null && r.ocup > 100) it.push({ k: 'pasto', c: 'red', t: `Pasto ${r.p.nome}${todas ? ' (' + o.f.nome + ')' : ''}: lotação em ${r.ocup}% do máximo`, go: `irPainel('pasto','${r.p.id}')` });
+  });
+  const ativos = fids.flatMap(fid => Object.values(computeF(fid)).filter(q => q.ativo));
+  const nAt = ativos.filter(q => q.atrasado).length, nCar = ativos.filter(q => q.emCarencia).length;
+  const go = sit => todas ? `verOndeEstao('${sit}')` : `goRebanho('${sit}')`;
+  if (nAt) it.push({ k: 'reb', c: 'orange', t: `${nAt} animal(is) sem manejo há mais de 30 dias`, go: go('atraso') });
+  if (nCar) it.push({ k: 'reb', c: 'orange', t: `${nCar} animal(is) em carência: não podem sair`, go: go('carencia') });
+  const nPerd = ativos.filter(q => q.gmd != null && q.gmd < 0).length;
+  if (nPerd) it.push({ k: 'reb', c: 'red', t: `${nPerd} animal(is) perderam peso na última pesagem`, go: todas ? "irPainel('rebanho')" : "irPainel('rebanho')" });
+  return it.sort((a, b) => (a.c === 'red' ? 0 : 1) - (b.c === 'red' ? 0 : 1));
+}
+function atencaoHtml(itens) {
+  const l = itens.slice(0, 5);
+  if (!l.length) return `<div class="pn-atencao ok"><b>Atenção agora</b><p>Nada pedindo ação neste recorte. Siga os números abaixo.</p></div>`;
+  return `<div class="pn-atencao"><b>Atenção agora <span>${itens.length}</span></b>${l.map(i => `<button type="button" class="pn-at ${i.c}" onclick="${i.go}"><span>${esc(i.t)}</span><span aria-hidden="true">›</span></button>`).join('')}${itens.length > 5 ? `<p class="hint">Mais ${itens.length - 5} no detalhe de cada aba.</p>` : ''}</div>`;
+}
+/* idade do dado: o painel diz de quando é o que mostra */
+function frescorHtml(fids) {
+  const ult = fids.flatMap(fid => Object.values(computeF(fid)).filter(q => q.ativo).map(q => q.ultimaPesagem)).filter(Boolean).sort().pop();
+  return `<p class="hint pn-fresco">${ult ? 'Última pesagem lançada: ' + fmtD(ult) + ' (há ' + diasEntre(ult, hoje()) + ' dias).' : 'Nenhuma pesagem lançada ainda: sem ela não há ganho de peso nem arrobas.'} O painel mostra produção; custo e preço ainda não entram.</p>`;
 }
 function pnPeriodoSel() {
   return `<select id="pnPer" onchange="painelDias=+this.value;renderPainel()" aria-label="Período">${[[30, 'Últimos 30 dias'], [90, 'Últimos 90 dias'], [180, 'Últimos 6 meses'], [365, 'Últimos 12 meses'], [0, 'Desde o início']].map(([v, t]) => `<option value="${v}"${v === painelDias ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
@@ -2248,27 +2402,68 @@ function pnPeriodoSel() {
 function renderPainel() {
   const f = farm(); if (!f) return;
   for (const k in CHARTS) delete CHARTS[k];
-  if (pnNivel.tipo === 'pasto' && !pastoDe(pnNivel.id)) pnNivel = { tipo: 'fazenda', id: null };
-  if (pnNivel.tipo === 'lote' && !S.lotes.find(l => l.id === pnNivel.id)) pnNivel = { tipo: 'fazenda', id: null };
+  if (pnNivel.tipo === 'todas') { pnAll = true; pnNivel = { tipo: 'fazenda', id: null }; }
+  if (pnNivel.tipo === 'pasto' && !pastoDe(pnNivel.id)) pnNivel = { tipo: 'pastos', id: null };
+  if (pnNivel.tipo === 'lote' && !S.lotes.find(l => l.id === pnNivel.id)) pnNivel = { tipo: 'lotes', id: null };
   const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
-  const todas = pnNivel.tipo === 'todas', fids = todas ? S.fazendas.map(x => x.id) : [f.id];
-  let h = `<div class="toolbar pn-bar">${pnEscopoSel()}${pnPeriodoSel()}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span>
-    <span class="grow"></span>${pnNivel.tipo === 'pasto' || pnNivel.tipo === 'lote' || pnNivel.tipo === 'rebanho' ? `<button class="btn sm" onclick="irPainel('fazenda')">‹ Painel da fazenda</button>` : ''}<button class="btn sm" onclick="relAbrir()" aria-label="Gerar relatório em PDF deste painel">📄 Relatório PDF</button></div>`;
-  if (todas) h += pnTodasHtml(fids, d0, d1);
-  else if (pnNivel.tipo === 'pasto') h += pnPastoHtml(pnNivel.id, d0, d1);
-  else if (pnNivel.tipo === 'lote') h += pnLoteHtml(pnNivel.id, d0, d1);
-  else if (pnNivel.tipo === 'rebanho') h += pnRebanhoHtml(f, d0, d1);
+  const todas = pnTodas(), fids = pnFids(), t = pnNivel.tipo, det = t === 'lote' || t === 'pasto';
+  const camada = { fazenda: null, lotes: 'lote', pastos: 'pasto', rebanho: 'reb' }[pnAba()];
+  let h = pnAbasHtml();
+  const barra = `<div class="toolbar pn-bar">${pnEscopoSel()}${pnPeriodoSel()}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span>
+    <span class="grow"></span>${det ? `<button class="btn sm" onclick="irPainel('${t}s')">‹ ${t === 'lote' ? 'Lotes' : 'Pastos'}</button>` : ''}<button class="btn sm" onclick="relAbrir()" aria-label="Gerar relatório em PDF deste painel">📄 Relatório PDF</button></div>`;
+  h += barra;
+  if (!det) h += atencaoHtml(pnItens(fids).filter(i => !camada || i.k === camada || (camada === 'reb' && i.k === 'reb'))) + frescorHtml(fids);
+  if (t === 'pasto') h += pnPastoHtml(pnNivel.id, d0, d1);
+  else if (t === 'lote') h += pnLoteHtml(pnNivel.id, d0, d1);
+  else if (t === 'lotes') h += pnLotesHtml(fids, d0, d1);
+  else if (t === 'pastos') h += pnPastosHtml(fids, d0, d1);
+  else if (t === 'rebanho') h += pnRebanhoHtml(fids, d0, d1);
+  else if (todas) h += pnTodasHtml(fids, d0, d1);
   else h += pnFazendaHtml(f, d0, d1);
-  h += `<div class="alert info"><span>Os indicadores definitivos de gestão serão fechados na <b>chave mestra</b> com o gestor. Este painel é o ponto de partida do piloto.</span></div>`;
   $('painel').innerHTML = h;
   requestAnimationFrame(drawCharts);
+}
+function pnLotesHtml(fids, d0, d1) {
+  const L = todosLotes(fids).filter(o => o.i.sinal !== 'vazio' || true).sort((a, b) => SINAL_ORD[a.i.sinal] - SINAL_ORD[b.i.sinal] || a.x.l.nome.localeCompare(b.x.l.nome));
+  if (!L.length) return '<div class="card"><div class="empty">Nenhum lote cadastrado ainda. Crie o lote em Cadastros para acompanhar o ganho de cada grupo.</div></div>';
+  const cab = L.reduce((t, o) => t + o.x.qtd, 0), gm = L.filter(o => o.x.gmd != null && o.x.qtd);
+  const gmdP = gm.length ? gm.reduce((t, o) => t + o.x.gmd * o.x.qtd, 0) / gm.reduce((t, o) => t + o.x.qtd, 0) : null;
+  const prob = L.filter(o => o.i.sinal === 'parou' || o.i.sinal === 'queda' || o.i.sinal === 'vencida').length;
+  const varia = o => o.x.gmd == null || o.i.gmdAnt == null ? '' : (o.x.gmd >= o.i.gmdAnt ? ' <span class="tr-up" title="acima da pesagem anterior">▲</span>' : ' <span class="tr-dn" title="abaixo da pesagem anterior">▼</span>');
+  return `<div class="card"><h3>Lotes <span class="sub">${esc(fids.length > 1 ? 'todas as fazendas' : farm().nome)} · toque para abrir</span></h3><div class="kpis">
+      ${kpi('Animais', fmtN(cab), 'navy', L.length + ' lote(s)')}
+      ${kpi('GMD médio', gmdP != null ? fmtN(gmdP, 3) + ' kg/dia' : '—', 'gold', gm.length + ' de ' + L.length + ' lote(s) com 2 pesagens')}
+      ${kpi('Lotes pedindo ação', fmtN(prob), prob ? 'red' : 'teal', prob ? 'ganho parado, em queda ou sem pesar' : 'todos em dia')}
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>Lote</th>${fids.length > 1 ? '<th>Fazenda</th>' : ''}<th>Pasto</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">GMD (kg/dia)</th><th class="num">Dias no pasto</th><th>Situação</th></tr></thead><tbody>
+    ${L.map(o => { const sg = SINAL_LOTE[o.i.sinal], un = uniforme(o.i.cv); return `<tr class="click" tabindex="0" onclick="irPainel('lote','${o.x.l.id}')" onkeydown="if(event.key==='Enter')irPainel('lote','${o.x.l.id}')"><td><b>${esc(o.x.l.nome)}</b>${un ? `<br><small class="muted">peso ${un} (${fmtN(o.i.cv, 0)}%)</small>` : ''}</td>${fids.length > 1 ? `<td>${esc(o.f.nome)}</td>` : ''}<td>${o.x.p ? esc(o.x.p.nome) : '—'}</td><td class="num">${o.x.qtd}</td><td class="num">${o.x.pesoMedio ? fmtN(o.x.pesoMedio, 0) + ' kg' : '—'}${o.i.cobertura != null && o.i.cobertura < 100 ? `<br><small class="muted">${o.i.cobertura}% pesados</small>` : ''}</td><td class="num">${o.x.gmd != null ? fmtN(o.x.gmd, 3) + varia(o) : '—'}</td><td class="num">${o.i.diasPasto != null ? o.i.diasPasto : '—'}</td><td><span class="chip ${sg[1]}">${sg[0]}</span></td></tr>`; }).join('')}
+    </tbody></table></div>
+    <p class="hint">GMD é o ganho de peso por dia entre as duas últimas pesagens; a seta compara com a pesagem anterior. "Parou de ganhar" = GMD zero ou negativo. "Ganho caiu" = queda de 30% ou mais. "Pesagem vencida" = sem pesar há mais de ${DIAS_PESAGEM_VENCIDA} dias.</p></div>`;
+}
+function pnPastosHtml(fids, d0, d1) {
+  const P = todosPastos(fids, d0, d1);
+  if (!P.length) return '<div class="card"><div class="empty">Nenhum pasto cadastrado ainda. Cadastre os pastos para acompanhar ocupação, descanso e @/ha.</div></div>';
+  const ordem = { ocupado: 0, pronto: 1, descanso: 2, livre: 3 };
+  const ocup = P.filter(o => o.r.ocupado).length, prontos = P.filter(o => o.r.situacao === 'pronto').length, estour = P.filter(o => o.r.aviso || (o.r.ocup != null && o.r.ocup > 100)).length;
+  const ar = P.reduce((t, o) => t + (o.r.ar || 0), 0), arr = P.reduce((t, o) => t + o.a.arrobas, 0);
+  const blocos = fids.map(fid => { const rp = P.filter(o => o.f.id === fid).map(o => o.r); const f = S.fazendas.find(x => x.id === fid); return rp.length ? `${fids.length > 1 ? `<h4 class="pn-sub">${esc(f.nome)}</h4>` : ''}${ocupVisualHtml(rp)}` : ''; }).join('');
+  return `<div class="card"><h3>Pastos <span class="sub">${esc(fids.length > 1 ? 'todas as fazendas' : farm().nome)} · situação de cada um agora</span></h3><div class="kpis">
+      ${kpi('Pastos ocupados', `${ocup} de ${P.length}`, 'teal', prontos + ' pronto(s) para entrar')}
+      ${kpi('Pastos pedindo ação', fmtN(estour), estour ? 'red' : 'teal', estour ? 'passou da meta ou acima da lotação' : 'dentro das metas')}
+      ${kpi('Arrobas produzidas (est.)', fmtN(arr, 1) + ' @', 'gold', ar ? fmtN(arr / ar, 2) + ' @/ha no período' : 'informe a área dos pastos')}
+    </div>${blocos}</div>
+    <div class="card"><h3>Produtividade por pasto <span class="sub">período · toque para abrir</span></h3><div class="tbl-wrap"><table><thead><tr><th>Pasto</th>${fids.length > 1 ? '<th>Fazenda</th>' : ''}<th>Situação</th><th class="num">Animais</th><th class="num">UA/ha</th><th class="num">Dias vs meta</th><th class="num">@/ha</th></tr></thead><tbody>
+    ${P.slice().sort((a, b) => (b.r.aviso ? 1 : 0) - (a.r.aviso ? 1 : 0) || ordem[a.r.situacao] - ordem[b.r.situacao] || a.r.p.nome.localeCompare(b.r.p.nome)).map(o => { const r = o.r, p = r.p, d = r.ocupado ? r.diasOcup : r.diasDesc, m = r.ocupado ? p.diasOcupacao : p.diasDescanso;
+      return `<tr class="click" tabindex="0" onclick="irPainel('pasto','${p.id}')" onkeydown="if(event.key==='Enter')irPainel('pasto','${p.id}')"><td><b>${esc(p.nome)}</b></td>${fids.length > 1 ? `<td>${esc(o.f.nome)}</td>` : ''}<td>${sitPastoChip(r)}</td><td class="num">${r.qtd}</td><td class="num">${r.uaha != null ? fmtN(r.uaha, 2) + (r.ocup != null ? `<br><small class="muted">${r.ocup}% do máx.</small>` : '') : '—'}</td><td class="num">${d != null && (r.ocupado || r.situacao === 'descanso' || r.situacao === 'pronto') ? d + (m ? ' / ' + m : '') : '—'}</td><td class="num">${o.a.arHa != null ? fmtN(o.a.arHa, 2) : '—'}</td></tr>`; }).join('')}
+    </tbody></table></div>
+    <p class="hint">@/ha = arrobas estimadas produzidas ali no período ÷ área do pasto. UA/ha compara com a lotação máxima do pasto. "Dias vs meta" mostra o tempo atual de ocupação ou descanso contra a meta da forrageira.</p></div>`;
 }
 /* ---------- Relatório em PDF (v21): o painel, em folha A4, para salvar ou imprimir ---------- */
 let relCtx = null, relTituloAnt = '';
 const REL_TIPOS = { todas: 'Relatório geral', fazenda: 'Relatório da fazenda', pasto: 'Relatório do pasto', lote: 'Relatório do lote', rebanho: 'Relatório do rebanho', animal: 'Ficha do animal' };
 function relLimpa(html) {
   const t = document.createElement('div'); t.innerHTML = html;
-  t.querySelectorAll('.actions,.pn-bar,.alert,button.btn,.btn,label.btn,input,select,textarea').forEach(e => e.remove());
+  t.querySelectorAll('.actions,.pn-bar,.alert,button.btn,.btn,label.btn,input,select,textarea,.kpi-q,.pn-abas,.pn-atencao').forEach(e => e.remove());
   t.querySelectorAll('details').forEach(d => { d.open = true; const s = d.querySelector('summary'); if (s) s.textContent = 'Em tabela'; });
   t.querySelectorAll('[onclick],[onkeydown],[tabindex]').forEach(e => { e.removeAttribute('onclick'); e.removeAttribute('onkeydown'); e.removeAttribute('tabindex'); e.classList.remove('click'); });
   t.querySelectorAll('button.kpi').forEach(b => { const d = document.createElement('div'); d.className = b.className; d.innerHTML = b.innerHTML.replace(/<span class="kpi-go"[^>]*>.*?<\/span>/, ''); b.replaceWith(d); });
@@ -2301,7 +2496,7 @@ function relCorpoAnimal(id) {
 }
 function relAbrir(tipo, id) {
   const f = farm(); if (!f && tipo !== 'animal') return;
-  if (!tipo) { tipo = pnNivel.tipo; id = pnNivel.id; }
+  if (!tipo) { tipo = pnNivel.tipo; id = pnNivel.id; if (tipo === 'lotes' || tipo === 'pastos') tipo = 'fazenda'; if (tipo === 'fazenda' && pnTodas()) tipo = 'todas'; }
   if (tipo === 'pasto' && !pastoDe(id)) tipo = 'fazenda';
   if (tipo === 'lote' && !S.lotes.find(l => l.id === id)) tipo = 'fazenda';
   const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
@@ -2311,7 +2506,7 @@ function relAbrir(tipo, id) {
   else if (tipo === 'todas') { nome = 'Todas as fazendas'; sub = S.fazendas.length + ' fazenda(s)'; corpo = pnTodasHtml(S.fazendas.map(x => x.id), d0, d1); }
   else if (tipo === 'pasto') { nome = pastoNome(id); sub = f.nome; corpo = pnPastoHtml(id, d0, d1); }
   else if (tipo === 'lote') { nome = loteNome(id); sub = f.nome; corpo = pnLoteHtml(id, d0, d1); }
-  else if (tipo === 'rebanho') { nome = f.nome; sub = 'Composição de hoje'; corpo = pnRebanhoHtml(f, d0, d1); }
+  else if (tipo === 'rebanho') { nome = f.nome; sub = 'Composição de hoje'; corpo = pnRebanhoHtml([f.id], d0, d1); }
   else { tipo = 'fazenda'; nome = f.nome; sub = 'Visão da fazenda'; corpo = pnFazendaHtml(f, d0, d1); }
   corpo = relLimpa(corpo);
   const ids = Object.keys(CHARTS), novo = {};   // ids próprios: o painel e o relatório não disputam o mesmo gráfico
@@ -2371,7 +2566,7 @@ function pnTodasHtml(fids, d0, d1) {
     <div class="card"><h3>Ganhos e perdas no período <span class="sub">todas as fazendas</span></h3>${ganhosHtml(r)}</div>
     <div class="card"><h3>Evolução <span class="sub">últimos 12 meses, consolidado</span></h3>${evolHtml(ev, 'evT')}</div>
     <div class="card"><h3>Comparativo de fazendas <span class="sub">toque para abrir a fazenda</span></h3><div class="tbl-wrap"><table><thead><tr><th>Fazenda</th><th class="num">Cabeças</th><th class="num">Pastagem (ha)</th><th class="num">Pastos</th><th class="num">Ganho (kg)</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">GMD</th><th class="num">Perdas</th></tr></thead><tbody>
-      ${linhas.map(o => `<tr class="click" tabindex="0" onclick="pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')" onkeydown="if(event.key==='Enter'){pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')}"><td><b>${esc(o.f.nome)}</b></td><td class="num">${o.r.fim}</td><td class="num">${o.r.area ? fmtN(o.r.area, 1) : '—'}</td><td class="num">${S.pastos.filter(p => p.fazendaId === o.f.id && p.ativo !== false).length}</td><td class="num">${fmtN(o.r.ganho, 0)}</td><td class="num">${fmtN(o.r.arrobas, 1)}</td><td class="num">${o.r.arHa != null ? fmtN(o.r.arHa, 2) : '—'}</td><td class="num">${o.r.gmd != null ? fmtN(o.r.gmd, 3) : '—'}</td><td class="num">${o.r.morte + o.r.perda ? `<span class="chip bad">${o.r.morte + o.r.perda}</span>` : '—'}</td></tr>`).join('')}
+      ${linhas.map(o => `<tr class="click" tabindex="0" onclick="pnAll=false;pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')" onkeydown="if(event.key==='Enter'){pnAll=false;pnNivel={tipo:'fazenda',id:null};setFarm('${o.f.id}')}"><td><b>${esc(o.f.nome)}</b></td><td class="num">${o.r.fim}</td><td class="num">${o.r.area ? fmtN(o.r.area, 1) : '—'}</td><td class="num">${S.pastos.filter(p => p.fazendaId === o.f.id && p.ativo !== false).length}</td><td class="num">${fmtN(o.r.ganho, 0)}</td><td class="num">${fmtN(o.r.arrobas, 1)}</td><td class="num">${o.r.arHa != null ? fmtN(o.r.arHa, 2) : '—'}</td><td class="num">${o.r.gmd != null ? fmtN(o.r.gmd, 3) : '—'}</td><td class="num">${o.r.morte + o.r.perda ? `<span class="chip bad">${o.r.morte + o.r.perda}</span>` : '—'}</td></tr>`).join('')}
       </tbody></table></div></div>`;
 }
 /* Nível 2: a fazenda */
@@ -2385,6 +2580,7 @@ function pnFazendaHtml(f, d0, d1) {
       ${kpi('Animais ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "irPainel('rebanho')")}
       ${kpi('Lotação da fazenda', ar && ps.length ? fmtN(so / UA_KG / ar, 2) + ' UA/ha' : '—', 'teal', ar ? fmtN(ar, 1) + ' ha de pastagem' + (f.areaHa ? '' : ' (soma dos pastos)') : 'informe a área')}
       ${kpi('Pastos ocupados', `${rp.filter(x => x.ocupado).length} de ${rp.length}`, 'teal', rp.filter(x => x.situacao === 'pronto').length + ' pronto(s) para entrar')}
+      ${(() => { const cap = rp.filter(x => x.ar > 0 && x.p.lotacaoMax > 0).reduce((t, x) => t + x.ar * x.p.lotacaoMax, 0); return cap ? kpi('Capacidade ociosa', fmtN(Math.max(0, cap - so / UA_KG), 0) + ' UA', cap - so / UA_KG > 0 ? 'teal' : 'red', 'de ' + fmtN(cap, 0) + ' UA que os pastos comportam') : ''; })()}
       ${kpi('Em carência', fmtN(at.filter(s => s.emCarencia).length), 'orange', 'quarentena sanitária', "goRebanho('carencia')")}
       ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
     </div></div>
@@ -2438,14 +2634,17 @@ function pnPastoHtml(id, d0, d1) {
 /* Nível 3: o lote (o grupo) */
 function pnLoteHtml(id, d0, d1) {
   const x = lotesResumo().find(o => o.l.id === id); if (!x) return '';
+  const li = loteInfo(x, Object.values(compute())), sg = SINAL_LOTE[li.sinal];
   const l = x.l, r = analise([l.fazendaId], d0, d1, { lote: id }), o = ocupAberta(l);
-  return `<div class="card"><h3>${esc(l.nome)} <span class="sub">lote · ${x.p ? 'no pasto ' + esc(x.p.nome) : 'sem pasto'}</span></h3>
+  return `<div class="card"><h3>${esc(l.nome)} <span class="sub">lote · ${x.p ? 'no pasto ' + esc(x.p.nome) : 'sem pasto'}</span> <span class="chip ${sg[1]}">${sg[0]}</span></h3>
     <p class="muted" style="margin-bottom:10px">${o ? 'Neste pasto há <b>' + diasEntre(o.de, hoje()) + ' dia(s)</b>, desde ' + fmtD(o.de) + '.' : 'Sem ocupação aberta.'} Período ${fmtD(d0)} a ${fmtD(d1)}.</p>
     ${ganhosHtml(r)}
     <div class="kpis">
       ${kpi('Animais', fmtN(x.qtd), 'navy', `${x.machos} M · ${x.femeas} F`, `goRebanho('ativos','${id}')`)}
       ${kpi('Peso médio atual', x.pesoMedio ? fmtN(x.pesoMedio, 1) + ' kg' : '—', 'teal', x.comPeso + ' com peso')}
-      ${kpi('GMD atual', x.gmd != null ? fmtN(x.gmd, 3) + ' kg/dia' : '—', 'gold', 'entre as duas últimas pesagens')}
+      ${kpi('GMD atual', x.gmd != null ? fmtN(x.gmd, 3) + ' kg/dia' : '—', li.sinal === 'parou' ? 'red' : li.sinal === 'queda' ? 'orange' : 'gold', li.gmdAnt != null && x.gmd != null ? (x.gmd >= li.gmdAnt ? '▲ ' : '▼ ') + 'pesagem anterior: ' + fmtN(li.gmdAnt, 3) : 'entre as duas últimas pesagens')}
+      ${kpi('Uniformidade do peso', li.cv != null ? uniforme(li.cv) : '—', li.cv != null && li.cv > 15 ? 'orange' : 'teal', li.cv != null ? 'variação de ' + fmtN(li.cv, 0) + '% em torno da média' : 'precisa de 5 animais pesados')}
+      ${kpi('Última pesagem', li.ult ? fmtD(li.ult) : 'nunca', li.sinal === 'vencida' ? 'orange' : 'teal', li.diasUlt != null ? 'há ' + li.diasUlt + ' dias · ' + li.cobertura + '% do lote pesado' : 'o lote não tem pesagem')}
       ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : 'teal', (x.ocup != null ? x.ocup + '% da lotação máxima' : 'informe a lotação do pasto') + avisoSemPeso(x.qtd - x.comPeso))}
       ${kpi('Em carência', fmtN(x.carencia), 'orange', '', x.carencia ? `goRebanho('carencia','${id}')` : null)}
       ${kpi('Sem manejo +30 dias', fmtN(x.atraso), 'red', '', x.atraso ? `goRebanho('atraso','${id}')` : null)}
@@ -2458,8 +2657,9 @@ function pnLoteHtml(id, d0, d1) {
       </tbody></table></div>` : '<div class="empty">Sem histórico.</div>'}</div>`;
 }
 /* Nível 3: o rebanho (composição) */
-function pnRebanhoHtml(f, d0, d1) {
-  const at = Object.values(compute()).filter(s => s.ativo), comP = at.filter(s => s.ultimoPeso > 0), comG = at.filter(s => s.gmd != null);
+function pnRebanhoHtml(fids, d0, d1) {
+  const f = fids.length > 1 ? { nome: 'todas as fazendas' } : S.fazendas.find(x => x.id === fids[0]), um = fids.length === 1;
+  const at = fids.flatMap(fid => Object.values(computeF(fid))).filter(s => s.ativo), comP = at.filter(s => s.ultimoPeso > 0), comG = at.filter(s => s.gmd != null);
   const faixa = v => Math.floor(v / 50) * 50;
   const buckets = Object.create(null);
   comP.forEach(s => { const k = faixa(s.ultimoPeso); buckets[k] = (buckets[k] || 0) + 1; });
@@ -2467,14 +2667,16 @@ function pnRebanhoHtml(f, d0, d1) {
   const cats = Object.create(null); at.forEach(s => { const k = str(s.a.categoria, 40) || '(sem categoria)'; cats[k] = (cats[k] || 0) + 1; });
   const idade = at.filter(s => s.a.nascimento).map(s => diasEntre(s.a.nascimento, hoje()) / 30.44);
   const melhores = comG.slice().sort((a, b) => b.gmd - a.gmd).slice(0, 5), piores = comG.slice().sort((a, b) => a.gmd - b.gmd).slice(0, 5);
-  const linha = s => `<tr class="click" onclick="openAnimal('${s.a.id}')"><td><b>${esc(s.a.brinco)}</b></td><td>${esc(loteNome(s.lote))}</td><td class="num">${fmtN(s.ultimoPeso, 1)}</td><td class="num">${fmtN(s.gmd, 3)}</td></tr>`;
+  const linha = s => `<tr class="click" onclick="${um ? '' : `S.fazendaAtiva='${s.a.fazendaId}';calc=null;save();renderFarmSel();`}openAnimal('${s.a.id}')"><td><b>${esc(s.a.brinco)}</b></td><td>${esc(loteNome(s.lote))}</td><td class="num">${fmtN(s.ultimoPeso, 1)}</td><td class="num">${fmtN(s.gmd, 3)}</td></tr>`;
   return `<div class="card"><h3>Rebanho de ${esc(f.nome)} <span class="sub">composição de hoje</span></h3><div class="kpis">
-      ${kpi('Ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, "goRebanho('ativos')")}
+      ${kpi('Ativos', fmtN(at.length), 'navy', `${at.filter(s => s.a.sexo === 'M').length} M · ${at.filter(s => s.a.sexo === 'F').length} F`, um ? "goRebanho('ativos')" : null)}
       ${kpi('Peso médio', comP.length ? fmtN(avg(comP.map(s => s.ultimoPeso)), 1) + ' kg' : '—', 'teal', comP.length + ' com pesagem')}
       ${kpi('GMD médio', comG.length ? fmtN(avg(comG.map(s => s.gmd)), 3) + ' kg/dia' : '—', 'gold', comG.length + ' com 2+ pesagens')}
       ${kpi('Idade média', idade.length ? fmtN(avg(idade), 0) + ' meses' : '—', 'teal', idade.length + ' com nascimento informado')}
-      ${kpi('Sem pesagem', fmtN(at.length - comP.length), 'orange', 'nunca pesados', at.length - comP.length ? "goRebanho('ativos')" : null)}
-      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
+      ${kpi('Sem pesagem', fmtN(at.length - comP.length), 'orange', 'nunca pesados', um && at.length - comP.length ? "goRebanho('ativos')" : null)}
+      ${kpi('Perderam peso', fmtN(at.filter(s => s.gmd != null && s.gmd < 0).length), at.some(s => s.gmd != null && s.gmd < 0) ? 'red' : 'teal', 'GMD negativo na última pesagem')}
+      ${kpi('Pesagem vencida', fmtN(at.filter(s => s.ultimaPesagem && diasEntre(s.ultimaPesagem, hoje()) > DIAS_PESAGEM_VENCIDA).length), 'orange', 'sem pesar há mais de ' + DIAS_PESAGEM_VENCIDA + ' dias')}
+      ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'sem nenhum registro', um ? "goRebanho('atraso')" : null)}
     </div></div>
     <div class="card"><h3>Distribuição por faixa de peso <span class="sub">último peso conhecido</span></h3>
       ${ks.length ? chartBox('rbFaixa', { titulo: 'Animais por faixa de peso', tipo: 'colunas', cor: COR_CAB, dados: ks.map(k => ({ rot: k + '–' + (k + 49), v: buckets[k] })), fmt: v => fmtN(v) + ' cab.' }) : '<div class="empty">Nenhum animal pesado ainda.</div>'}
@@ -2484,7 +2686,7 @@ function pnRebanhoHtml(f, d0, d1) {
       </tbody></table></div></div>
     <div class="ch-grid">
       <div class="card"><h3>Maiores ganhos <span class="sub">GMD das duas últimas pesagens</span></h3>${melhores.length ? `<div class="tbl-wrap"><table><thead><tr><th>Brinco</th><th>Lote</th><th class="num">Peso</th><th class="num">GMD</th></tr></thead><tbody>${melhores.map(linha).join('')}</tbody></table></div>` : '<div class="empty">Sem GMD ainda.</div>'}</div>
-      <div class="card"><h3>Menores ganhos <span class="sub">candidatos a olhar de perto</span></h3>${piores.length ? `<div class="tbl-wrap"><table><thead><tr><th>Brinco</th><th>Lote</th><th class="num">Peso</th><th class="num">GMD</th></tr></thead><tbody>${piores.map(linha).join('')}</tbody></table></div>` : '<div class="empty">Sem GMD ainda.</div>'}</div>
+      <div class="card"><h3>Menores ganhos <span class="sub">os 5 piores GMD: olhe de perto</span></h3>${piores.length ? `<div class="tbl-wrap"><table><thead><tr><th>Brinco</th><th>Lote</th><th class="num">Peso</th><th class="num">GMD</th></tr></thead><tbody>${piores.map(linha).join('')}</tbody></table></div>` : '<div class="empty">Sem GMD ainda.</div>'}</div>
     </div>`;
 }
 
@@ -3336,7 +3538,7 @@ async function excluirFazenda(id) {
   if (S.fotos) ids.forEach(i => { delete S.fotos[i]; });
   S.fazendas = S.fazendas.filter(f => f.id !== id);
   if (S.fazendaAtiva === id) S.fazendaAtiva = S.fazendas[0] ? S.fazendas[0].id : null;
-  calc = null; pnNivel = { tipo: 'fazenda', id: null }; mapaTodas = false;
+  calc = null; pnAll = false; pnNivel = { tipo: 'fazenda', id: null }; mapaTodas = false;
   syncMeta.exclFazenda = { em: nowISO(), nome: x.nome, resumo: v }; saveSyncMeta();
   await save(); closeModal(); refreshAll();
   showToastAction('Fazenda "' + x.nome + '" excluída deste aparelho.', 'Desfazer', desfazerExclusaoFazenda);
