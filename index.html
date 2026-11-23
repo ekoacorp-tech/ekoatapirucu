@@ -910,7 +910,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1370,8 +1370,8 @@ function renderHome() {
     <div class="kpis">
       ${kpi('Cabeças', fmtN(tot.cab), 'navy', `${tot.pastos} pasto(s) em ${S.fazendas.length} fazenda(s)`, uma ? "goRebanho('ativos')" : "irPainel('todas')")}
       ${kpi('Pastagem', tot.ar ? fmtN(tot.ar, 1) + ' ha' : '—', 'teal', 'ver todas no mapa', "mapaTodas=S.fazendas.length>1;goView('mapa')")}
-      ${kpi('Lotação geral', tot.ar && tot.comPeso ? fmtN(tot.peso / UA_KG / tot.ar, 2) + ' UA/ha' : '—', 'teal', 'peso vivo ÷ 450 kg')}
-      ${kpi('Arrobas em 90 dias (est.)', fmtN(rGeral.arrobas, 1) + ' @', 'gold', rGeral.gmd != null ? 'GMD médio ' + fmtN(rGeral.gmd, 3) + ' kg/dia' : 'sem pesagens no período', uma ? "irPainel('fazenda')" : "irPainel('todas')")}
+      ${kpi('Lotação geral', tot.ar && tot.comPeso ? fmtN(tot.peso / UA_KG / tot.ar, 2) + ' UA/ha' : '—', 'teal', 'peso vivo ÷ 450 kg · só animais com peso')}
+      ${kpi('Arrobas em 90 dias (est.)', fmtN(rGeral.arrobas, 1) + ' @', 'gold', rGeral.gmd != null ? 'GMD médio ' + fmtN(rGeral.gmd, 3) + ' kg/dia' + semDados(rGeral) : 'sem pesagens no período', uma ? "irPainel('fazenda')" : "irPainel('todas')")}
       ${kpi('Em carência', fmtN(tot.carencia), 'orange', tot.carencia && !uma ? ondeTxt(linhas.filter(o => o.carencia)) : 'não podem sair', tot.carencia ? "verOndeEstao('carencia')" : null)}
       ${kpi('Sem manejo +30 dias', fmtN(tot.atraso), 'red', tot.atraso && !uma ? ondeTxt(linhas.filter(o => o.atraso)) : 'pesagem ou sanitário', tot.atraso ? "verOndeEstao('atraso')" : null)}
     </div>
@@ -1710,6 +1710,12 @@ function finalizeLida() {
     const outros = l.registros.filter(r => st[r.animalId] && st[r.animalId].lote !== l.loteId);
     if (outros.length) { const mv = confirm(`${outros.length} animal(is) estão em outro lote (${outros.slice(0, 5).map(r => r.brinco).join(', ')}${outros.length > 5 ? '…' : ''}).\n\nOK = trocar para o lote ${loteNome(l.loteId)}\nCancelar = manter no lote atual`); outros.forEach(r => r.mover = mv); }
   }
+  if (l.tipo === 'pesagem') {   // revalida os pesos do campo contra o último peso de cada animal
+    const sus = l.registros.filter(r => { const sa = st[r.animalId]; if (!sa || !r.peso) return false; const ant = pesoEm(sa, addDias(l.data, -1)); return ant && Math.abs(r.peso - ant) / ant > 0.3; });
+    if (sus.length && !confirm(`${sus.length} peso(s) diferem mais de 30% do peso anterior: ${sus.slice(0, 5).map(r => r.brinco + ' (' + fmtN(r.peso, 0) + ' kg)').join(', ')}${sus.length > 5 ? '…' : ''}.\n\nConfira antes de finalizar. Finalizar mesmo assim?`)) return;
+  }
+  const pend = lidasF().filter(x => x.id !== l.id && (x.status === 'aberta' || x.status === 'conferir') && x.tipo === l.tipo && (x.loteId || '') === (l.loteId || ''));
+  if (pend.length && !confirm(`Existe outra lida de ${TIPOS[l.tipo].nome} deste lote ainda ${pend.some(x => x.status === 'conferir') ? 'esperando conferência' : 'aberta'} (${fmtD(pend[0].data)}). Pode ser a mesma lida lançada em outro aparelho.\n\nFinalizar esta mesmo assim?`)) return;
   if (l.tipo === 'nascimento') {
     const rep2 = l.registros.filter(r => S.lidas.some(x => x.id !== l.id && x.tipo === 'nascimento' && x.status === 'finalizada' && x.fazendaId === l.fazendaId && x.data === l.data && (x.registros || []).some(y => y.animalId === r.animalId)));
     if (rep2.length && !confirm(`A vaca ${[...new Set(rep2.map(r => r.brinco))].join(', ')} já tem parto registrado nesta mesma data em outra lida. Pode ser parto duplicado (ou gêmeos).\n\nFinalizar mesmo assim?`)) return;
@@ -2004,20 +2010,28 @@ function loteEm(s, d) { let l = s.a.loteId; for (const h of s.loteHist || []) { 
 /* Ganho entre pesagens consecutivas, proporcional aos dias que caem no período; atribuído ao lote da pesagem final */
 function pastoEmS(s, d) { return pastoDoLoteId(loteEm(s, d), d); }
 function ganhoPeriodo(s, d0, d1) {
-  const p = s.pesos; let kg = 0, dias = 0; const porLote = Object.create(null), porPasto = Object.create(null);
+  const p = s.pesos; let kg = 0, dias = 0, ate = null; const porLote = Object.create(null), porPasto = Object.create(null);
+  const mud = (s.loteHist || []).map(h => h.data).filter(Boolean);
   for (let i = 1; i < p.length; i++) {
     const t1 = p[i - 1].data, t2 = p[i].data, tot = diasEntre(t1, t2); if (tot <= 0) continue;
-    const ov = diasEntre(t1 > d0 ? t1 : d0, t2 < d1 ? t2 : d1); if (ov <= 0) continue;
-    const g = (p[i].peso - p[i - 1].peso) * ov / tot; kg += g; dias += ov;
-    const lt = loteEm(s, t2); porLote[lt] = (porLote[lt] || 0) + g;
-    const pt = pastoDoLoteId(lt, t2); if (pt) porPasto[pt] = (porPasto[pt] || 0) + g;
+    const a = t1 > d0 ? t1 : d0, b = t2 < d1 ? t2 : d1, ov = diasEntre(a, b); if (ov <= 0) continue;
+    const dKg = p[i].peso - p[i - 1].peso; kg += dKg * ov / tot; dias += ov; if (!ate || b > ate) ate = b;
+    /* o ganho é repartido pelos dias em que o animal esteve em cada lote/pasto (não tudo no lote da pesagem final) */
+    const cortes = [a].concat(mud.filter(m => m > a && m < b).sort(), [b]);
+    for (let k = 1; k < cortes.length; k++) {
+      const sd = diasEntre(cortes[k - 1], cortes[k]); if (sd <= 0) continue;
+      const g = dKg * sd / tot, lt = loteEm(s, cortes[k - 1]); porLote[lt] = (porLote[lt] || 0) + g;
+      const pt = pastoDoLoteId(lt, cortes[k - 1]); if (pt) porPasto[pt] = (porPasto[pt] || 0) + g;
+    }
   }
-  return { kg, dias, porLote, porPasto };
+  return { kg, dias, ate, porLote, porPasto };
 }
+const semDados = r => r.ate ? ' · dados até ' + fmtD(r.ate) + ' (' + r.pesados + ' de ' + r.fim + ' animais)' : '';
+const avisoSemPeso = n => n > 0 ? ' · ⚠ ' + n + ' sem peso: UA/ha pode estar subestimada' : '';
 function areaPastagemF(fid) { const f = S.fazendas.find(x => x.id === fid); if (f && f.areaHa) return f.areaHa; return S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false).reduce((t, p) => t + (areaPasto(p) || 0), 0) || null; }
 function analise(fids, d0, d1, filtro) {
   const fil = typeof filtro === 'string' ? { lote: filtro } : (filtro || {}), escopo = fil.lote || fil.pasto;
-  const r = { ini: 0, fim: 0, entCad: 0, entNasc: 0, venda: 0, morte: 0, perda: 0, kgVenda: 0, kgPerda: 0, ganho: 0, gmdS: 0, gmdN: 0, area: 0, lote: {}, pasto: {} };
+  const r = { ini: 0, fim: 0, entCad: 0, entNasc: 0, venda: 0, morte: 0, perda: 0, kgVenda: 0, kgPerda: 0, ganho: 0, gmdS: 0, gmdN: 0, area: 0, pesados: 0, ate: null, lote: {}, pasto: {} };
   const dIni = addDias(d0, -1);
   const dentro = (s, d) => (!fil.lote || loteEm(s, d) === fil.lote) && (!fil.pasto || pastoEmS(s, d) === fil.pasto);
   fids.forEach(fid => {
@@ -2037,6 +2051,7 @@ function analise(fids, d0, d1, filtro) {
         const lFim = loteEm(s, d1), ol = r.lote[lFim] = r.lote[lFim] || { kg: 0, gS: 0, gN: 0 }; ol.gS += g.kg / g.dias; ol.gN++;
         const pFim = pastoEmS(s, d1); if (pFim) { const op = r.pasto[pFim] = r.pasto[pFim] || { kg: 0, gS: 0, gN: 0 }; op.gS += g.kg / g.dias; op.gN++; }
       }
+      if (g.dias > 0 && dentro(s, d1) && vivoEm(s, d1)) { r.pesados++; if (!r.ate || g.ate > r.ate) r.ate = g.ate; }
       if (!escopo) { r.ganho += g.kg; if (g.dias > 0) { r.gmdS += g.kg / g.dias; r.gmdN++; } }
     });
   });
@@ -2048,6 +2063,7 @@ function analise(fids, d0, d1, filtro) {
   r.gmd = r.gmdN ? r.gmdS / r.gmdN : null; r.arrobas = r.ganho / KG_ARROBA_VIVO;
   r.medio = (r.ini + r.fim) / 2; r.mort = r.medio ? (r.morte + r.perda) / r.medio * 100 : null;
   r.arHa = r.area ? r.arrobas / r.area : null;
+  r.dias = diasEntre(d0, d1) + 1; r.mortAno = r.mort != null && r.dias >= 30 ? r.mort * 365 / r.dias : null;
   return r;
 }
 function evolucao(fids, filtro) {
@@ -2138,9 +2154,9 @@ function ganhosHtml(r) {
     ${kpi('Rebanho', `${fmtN(r.ini)} → ${fmtN(r.fim)}`, 'navy', `saldo ${sinal(saldo)} cab.`)}
     ${kpi('Entradas', fmtN(r.entCad + r.entNasc), 'teal', `${r.entCad} compra/carga · ${r.entNasc} nascimento(s)`)}
     ${kpi('Saídas por venda', fmtN(r.venda), 'gold', r.kgVenda ? fmtN(r.kgVenda, 0) + ' kg vivos' : '')}
-    ${kpi('Perdas', fmtN(r.morte + r.perda), 'red', `${r.morte} morte(s) · ${r.perda} perda(s)${r.mort != null ? ' · ' + fmtN(r.mort, 1) + '% do rebanho' : ''}`)}
+    ${kpi('Perdas', fmtN(r.morte + r.perda), 'red', `${r.morte} morte(s) · ${r.perda} perda(s)${r.mort != null ? ' · ' + fmtN(r.mort, 1) + '% do rebanho' + (r.mortAno != null ? ' (≈ ' + fmtN(r.mortAno, 1) + '%/ano)' : '') : ''}`)}
     ${kpi('Ganho de peso', (r.ganho >= 0 ? '+' : '') + fmtN(r.ganho, 0) + ' kg', 'teal', r.gmd != null ? 'GMD médio ' + fmtN(r.gmd, 3) + ' kg/dia' : 'sem pesagens no período')}
-    ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' : 'informe a área para @/ha')}
+    ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' + semDados(r) : 'informe a área para @/ha' + semDados(r))}
   </div>`;
 }
 /* ---------- Painéis em árvore: todas → fazenda → pasto / lote / rebanho ---------- */
@@ -2274,8 +2290,8 @@ function pnTodasHtml(fids, d0, d1) {
   return `<div class="card"><h3>Visão geral <span class="sub">${S.fazendas.length} fazenda(s)</span></h3><div class="kpis">
       ${kpi('Cabeças', fmtN(cab), 'navy', fids.length + ' fazenda(s)')}
       ${kpi('Pastagem', area ? fmtN(area, 1) + ' ha' : '—', 'teal', 'soma das fazendas')}
-      ${kpi('Lotação geral', area && peso ? fmtN(peso / UA_KG / area, 2) + ' UA/ha' : '—', 'teal', 'peso vivo ÷ 450 kg')}
-      ${kpi('Arrobas no período (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha' : '')}
+      ${kpi('Lotação geral', area && peso ? fmtN(peso / UA_KG / area, 2) + ' UA/ha' : '—', 'teal', 'peso vivo ÷ 450 kg · só animais com peso')}
+      ${kpi('Arrobas no período (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', (r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha' : '') + semDados(r))}
       ${kpi('GMD médio', r.gmd != null ? fmtN(r.gmd, 3) + ' kg/dia' : '—', 'gold', fmtN(r.ganho, 0) + ' kg no período')}
       ${kpi('Perdas', fmtN(r.morte + r.perda), 'red', r.mort != null ? fmtN(r.mort, 1) + '% do rebanho médio' : '')}
     </div></div>
@@ -2310,8 +2326,9 @@ function pnFazendaHtml(f, d0, d1) {
     ${rl.map(x => { const o = r.lote[x.l.id] || { kg: 0, gS: 0, gN: 0 }; return `<tr class="click" tabindex="0" onclick="openLotePainel('${x.l.id}')" onkeydown="if(event.key==='Enter')openLotePainel('${x.l.id}')"><td><b>${esc(x.l.nome)}</b></td><td>${x.p ? esc(x.p.nome) : '<span class="chip warn">sem pasto</span>'}</td><td class="num">${x.qtd}</td><td class="num">${x.pesoMedio ? fmtN(x.pesoMedio, 1) : '—'}</td><td class="num">${o.gN ? fmtN(o.gS / o.gN, 3) : '—'}</td><td class="num">${fmtN(o.kg, 0)}</td><td class="num">${fmtN(o.kg / KG_ARROBA_VIVO, 1)}</td><td class="num">${x.carencia ? `<span class="chip warn">🔒 ${x.carencia}</span> ` : ''}${x.atraso ? `<span class="chip bad">⚠ ${x.atraso}</span>` : ''}${!x.carencia && !x.atraso ? '—' : ''}</td></tr>`; }).join('')}
     </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
     <p class="hint">@/ha do pasto = arrobas estimadas produzidas ali no período ÷ área do pasto. UA = peso vivo ÷ 450 kg (R05); ocupação = UA/ha ÷ lotação máxima (R06).</p></div>`;
-  const prox = lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab.proximaEm && l.cab.proximaEm >= hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
-  h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
+  const ultSan = {}; lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario').sort((a, b) => (a.data || '').localeCompare(b.data || '')).forEach(l => { ultSan[(l.loteId || '') + '|' + (l.cab.procedimento || '') + '|' + (l.cab.produto || '').toLowerCase()] = l; });
+  const prox = Object.values(ultSan).filter(l => l.cab.proximaEm).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
+  h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}${l.cab.proximaEm < hoje() ? ` <span class="chip bad">⚠ atrasada ${diasEntre(l.cab.proximaEm, hoje())} dias</span>` : ''}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
   return h;
 }
 /* Nível 3: o pasto (o lugar) */
@@ -2330,8 +2347,8 @@ function pnPastoHtml(id, d0, d1) {
       ${kpi(x.ocupado ? 'Dias de ocupação' : 'Dias de descanso', fmtN(x.ocupado ? x.diasOcup : x.diasDesc), x.aviso ? 'red' : metaOk(x.ocupado ? x.diasOcup : 0, x.ocupado ? p.diasOcupacao : 0), x.ocupado ? (p.diasOcupacao ? 'meta ' + p.diasOcupacao + ' dias' : 'sem meta de ocupação') : (p.diasDescanso ? 'meta ' + p.diasDescanso + ' dias' : 'sem meta de descanso'))}
       ${kpi('Animais hoje', fmtN(x.qtd), 'navy', x.lotes.length ? x.lotes.map(o => o.l.nome).join(', ') : 'nenhum lote', x.qtd && x.lotes[0] ? `goRebanho('ativos','${x.lotes[0].l.id}')` : null)}
       ${kpi('Área', x.ar ? fmtN(x.ar, 2) + ' ha' : '—', 'teal', p.geo && p.geo.areaHa ? 'calculada no mapa' : p.areaHa ? 'informada' : 'sem área')}
-      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : x.ocup > 85 ? 'orange' : 'teal', p.lotacaoMax ? 'máx. ' + fmtN(p.lotacaoMax, 2) + ' UA/ha' + (x.ocup != null ? ' · ' + x.ocup + '%' : '') : 'informe a lotação máxima')}
-      ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' : 'informe a área')}
+      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : x.ocup > 85 ? 'orange' : 'teal', (p.lotacaoMax ? 'máx. ' + fmtN(p.lotacaoMax, 2) + ' UA/ha' + (x.ocup != null ? ' · ' + x.ocup + '%' : '') : 'informe a lotação máxima') + avisoSemPeso(x.qtd - x.comPeso))}
+      ${kpi('Arrobas produzidas (est.)', fmtN(r.arrobas, 1) + ' @', 'gold', r.arHa != null ? fmtN(r.arHa, 2) + ' @/ha no período' + semDados(r) : 'informe a área' + semDados(r))}
       ${kpi('Ciclos no período', fmtN(noPeriodo.length), 'teal', fechados.length ? 'ocupação média de ' + fmtN(avg(fechados.map(c => diasEntre(c.de, c.ate))), 0) + ' dias' : 'ciclo em andamento')}
       ${kpi('Descanso médio', descansos.length ? fmtN(avg(descansos), 0) + ' dias' : '—', 'teal', p.diasDescanso ? 'meta ' + p.diasDescanso + ' dias' : 'entre uma saída e a entrada seguinte')}
       ${kpi('Ganho no pasto', (r.ganho >= 0 ? '+' : '') + fmtN(r.ganho, 0) + ' kg', 'teal', r.gmd != null ? 'GMD ' + fmtN(r.gmd, 3) + ' kg/dia' : 'sem pesagens no período')}
@@ -2356,7 +2373,7 @@ function pnLoteHtml(id, d0, d1) {
       ${kpi('Animais', fmtN(x.qtd), 'navy', `${x.machos} M · ${x.femeas} F`, `goRebanho('ativos','${id}')`)}
       ${kpi('Peso médio atual', x.pesoMedio ? fmtN(x.pesoMedio, 1) + ' kg' : '—', 'teal', x.comPeso + ' com peso')}
       ${kpi('GMD atual', x.gmd != null ? fmtN(x.gmd, 3) + ' kg/dia' : '—', 'gold', 'entre as duas últimas pesagens')}
-      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : 'teal', x.ocup != null ? x.ocup + '% da lotação máxima' : 'informe a lotação do pasto')}
+      ${kpi('Lotação', x.uaha != null ? fmtN(x.uaha, 2) + ' UA/ha' : '—', x.ocup > 100 ? 'red' : 'teal', (x.ocup != null ? x.ocup + '% da lotação máxima' : 'informe a lotação do pasto') + avisoSemPeso(x.qtd - x.comPeso))}
       ${kpi('Em carência', fmtN(x.carencia), 'orange', '', x.carencia ? `goRebanho('carencia','${id}')` : null)}
       ${kpi('Sem manejo +30 dias', fmtN(x.atraso), 'red', '', x.atraso ? `goRebanho('atraso','${id}')` : null)}
     </div>
@@ -2840,7 +2857,7 @@ function renderPastoInfo() {
       ${kpi('Animais', fmtN(r.qtd), 'navy', r.lotes.length ? r.lotes.map(x => x.l.nome).join(', ') : 'nenhum lote', r.qtd && r.lotes[0] ? `goRebanho('ativos','${r.lotes[0].l.id}')` : null)}
       ${kpi('Peso médio', r.pesoMedio ? fmtN(r.pesoMedio, 1) + ' kg' : '—', 'teal', r.comPeso + ' com peso')}
       ${kpi('Área', r.ar ? fmtN(r.ar, 2) + ' ha' : '—', 'teal', g.areaHa ? 'calculada no mapa' : r.p.areaHa ? 'informada' : 'sem área')}
-      ${kpi('Ocupação', r.ocup != null ? r.ocup + '%' : (r.uaha != null ? fmtN(r.uaha, 2) + ' UA/ha' : '—'), r.ocup > 100 ? 'red' : r.ocup > 85 ? 'orange' : 'teal', r.p.lotacaoMax ? 'máx. ' + fmtN(r.p.lotacaoMax, 2) + ' UA/ha' : 'informe a lotação máxima')}
+      ${kpi('Ocupação', r.ocup != null ? r.ocup + '%' : (r.uaha != null ? fmtN(r.uaha, 2) + ' UA/ha' : '—'), r.ocup > 100 ? 'red' : r.ocup > 85 ? 'orange' : 'teal', (r.p.lotacaoMax ? 'máx. ' + fmtN(r.p.lotacaoMax, 2) + ' UA/ha' : 'informe a lotação máxima') + avisoSemPeso(r.qtd - r.comPeso))}
       ${kpi(r.ocupado ? 'Dias de ocupação' : 'Dias de descanso', fmtN(r.ocupado ? r.diasOcup : r.diasDesc), r.aviso ? 'orange' : 'gold', r.ocupado ? (r.p.diasOcupacao ? 'meta ' + r.p.diasOcupacao + ' dias' : 'sem meta') : (r.p.diasDescanso ? 'meta ' + r.p.diasDescanso + ' dias' : 'sem meta'))}
     </div>
     <div class="actions">

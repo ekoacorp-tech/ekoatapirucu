@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [23] — 2026-11-23 — Números que orientam
+- Arrobas passam a mostrar até quando vão os dados ("dados até DD/MM, N de M animais"). Sem pesagem recente, o número de arrobas fica abaixo do real, e agora isso aparece na tela.
+- O ganho de peso de um animal que trocou de lote ou de pasto é repartido pelos dias em cada um, e não mais todo no último. Isso corrige o @/ha por pasto e o ganho por lote.
+- Perdas mostram também a mortalidade anualizada (≈ X%/ano) quando o período tem 30 dias ou mais.
+- Próximas aplicações sanitárias mostra, em destaque, as aplicações com a data vencida (atrasada há N dias). Só vale a última aplicação de cada produto e lote.
+- Pasto ou lote com animal sem peso avisa que a lotação (UA/ha) pode estar subestimada, e a lotação geral informa que só entram animais com peso.
+- Ao finalizar uma pesagem, o app confirma pesos que diferem mais de 30% do anterior e avisa se há outra lida igual do mesmo lote ainda aberta ou esperando conferência (pode ser a mesma lida lançada em dois aparelhos).
+
 ## [22] — 2026-11-23 — Dados que não mentem
 - Edição ao mesmo tempo não se perde mais: cada registro leva um carimbo por aparelho. Se dois aparelhos ou duas janelas mudam o mesmo registro, o app guarda a versão que não valeu em vez de apagar sem aviso. Duas janelas abertas do app se atualizam sozinhas.
 - Começar de novo a mesma lida no Modo Campo (mesmo manejo, lote e dia) continua a lida que já estava aberta, em vez de criar uma segunda. No escritório, o app pergunta antes de abrir outra lida sem lote do mesmo tipo.
