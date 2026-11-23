@@ -1,9 +1,17 @@
 {
-  "versao": 20,
-  "rotulo": "20 beta",
+  "versao": 21,
+  "rotulo": "21 beta",
   "data": "2026-11-23",
-  "titulo": "Característica do animal no Modo Campo",
+  "titulo": "Relatório em PDF",
   "notas": {
+    "21": {
+      "data": "2026-11-23",
+      "titulo": "Relatório em PDF",
+      "itens": [
+        "Novo botão Relatório PDF no painel (geral, fazenda, pasto, lote e rebanho) e na ficha do animal. Abre uma folha A4 com a marca Ekoa e os mesmos números do painel, com gráficos e tabelas.",
+        "Salvar PDF usa a impressão do navegador (Salvar como PDF) e funciona sem internet. O botão E-mail abre o app de e-mail do aparelho, já endereçado ao e-mail cadastrado e com um resumo; o PDF salvo é anexado por você."
+      ]
+    },
     "20": {
       "data": "2026-11-23",
       "titulo": "Característica do animal no Modo Campo",

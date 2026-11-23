@@ -2,6 +2,10 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [21] — 2026-11-23 — Relatório em PDF
+- Novo botão Relatório PDF no painel (geral, fazenda, pasto, lote e rebanho) e na ficha do animal. Abre uma folha A4 com a marca Ekoa e os mesmos números do painel, com gráficos e tabelas.
+- Salvar PDF usa a impressão do navegador (Salvar como PDF) e funciona sem internet. O botão E-mail abre o app de e-mail do aparelho, já endereçado ao e-mail cadastrado e com um resumo; o PDF salvo é anexado por você.
+
 ## [20] — 2026-11-23 — Característica do animal no Modo Campo
 - Na lista da lida, o botão Ver características dos animais mostra o brinco com o texto da característica (chifre, mancha, temperamento). A busca passa a achar o animal pelo brinco ou por parte da característica.
 - O lápis ao lado de cada animal permite anotar, alterar ou apagar a característica no curral; a tela do peso mostra a característica no cabeçalho e tem o botão Alterar. A edição vai para o escritório na sincronização.

@@ -221,6 +221,41 @@ td .btn.sm{min-height:34px}
 @media (min-width:901px){.only-m{display:none!important}}
 @media print{.sidebar,.mobile-header,.bottom-nav,#toast,.actions,.toolbar{display:none!important}.main{padding:0}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== Relatório PDF (v21) ===== */
+#relatorio{position:fixed;inset:0;z-index:9500;overflow:auto;background:#E9E2D6;padding:0 0 40px;
+  --card-bg:#fff;--title-ink:#13234A;--bg-surface:#fff;--grid-line:#E7DED2;color-scheme:light;
+  --text-primary:#3A2C24;--text-secondary:#6E5D52;--border-color:#DCCFBF;--row-hover:#F5EDE2;--row-zebra:#F7F1E8;
+  --ok-bg:#dcfce7;--ok-txt:#166534;--warn-bg:#fef3c7;--warn-txt:#92400e;--bad-bg:#fee2e2;--bad-txt:#991b1b;color:var(--text-primary)}
+#relatorio[hidden]{display:none}
+.rel-bar{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;padding:10px 14px;background:#23505F;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.rel-bar .btn{min-height:44px}.rel-bar .btn.primary{background:#C9922E;border-color:#C9922E;color:#13234A;font-weight:700}.rel-bar .grow{flex:1}
+.rel-dica{max-width:794px;margin:10px auto 0;padding:0 14px;font-size:.8rem;color:#6E5D52}
+.rel-folha{max-width:794px;margin:10px auto;background:#fff;padding:22px 20px;border-radius:6px;box-shadow:0 2px 14px rgba(35,80,95,.18);font-size:.92rem}
+.rel-cab{display:flex;align-items:center;gap:12px;border-bottom:3px solid #C9922E;padding-bottom:10px;margin-bottom:14px}
+.rel-cab b{display:block;font:800 1.05rem Montserrat,system-ui,sans-serif;color:#13234A;letter-spacing:.03em}
+.rel-cab span{font-size:.78rem;color:#C0714A;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.rel-t{margin:0;font-size:1.5rem;color:#13234A}.rel-s{margin:2px 0 14px;color:#6E5D52;font-size:.85rem}
+.rel-folha .card{box-shadow:none;border:1px solid #DCCFBF;margin:0 0 12px}
+.rel-folha .kpi,.rel-folha .ch-grid>div,.rel-folha h3,.rel-folha .dl{break-inside:avoid}
+.rel-folha .chart svg{width:100%;height:auto;max-height:190px}
+.rel-folha details>summary{font-weight:600;margin:8px 0 4px;list-style:none;color:#6E5D52;font-size:.8rem}
+.rel-ani{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}.rel-ani img{width:140px;height:140px;object-fit:cover;border-radius:10px;border:1px solid #DCCFBF}.rel-ani .kpis{flex:1;min-width:200px}
+.rel-rod{margin-top:14px;padding-top:8px;border-top:1px solid #DCCFBF;font-size:.7rem;color:#6E5D52}
+@media print{
+  @page{size:A4;margin:12mm}
+  body.rel-aberto>*:not(#relatorio){display:none!important}
+  body.rel-aberto{background:#fff!important}
+  #relatorio{position:static!important;overflow:visible!important;background:#fff!important;padding:0!important}
+  .rel-bar,.rel-dica{display:none!important}
+  .rel-folha{max-width:none;margin:0;padding:0;box-shadow:none;border-radius:0;font-size:10.5pt}
+  .rel-folha,.rel-folha *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rel-folha .tbl-wrap{overflow:visible}
+  .rel-folha thead{display:table-header-group}.rel-folha tr{break-inside:avoid}
+  .rel-folha .kpis{grid-template-columns:repeat(3,1fr)!important}
+  .rel-folha .ch-grid{grid-template-columns:1fr 1fr!important}.rel-folha h3{break-after:avoid}
+  .rel-folha details>summary{display:none}
+}
+
 /* ===== Identidade Ekoa Saber aplicada ao Tapiruçu (paleta Ekoa: petróleo, ouro, cobre, café, sálvia, areia) ===== */
 :root{--petrol:#23505F;--teal:#3B8A97;--sage:#8FB8A0;--gold:#C9922E;--copper:#C0714A;--coffee:#6B4A32;
   --ek-dur-micro:120ms;--ek-dur-base:200ms;--ek-dur-panel:280ms;--ek-ease-out:cubic-bezier(.2,.8,.2,1);--ek-ease-in:cubic-bezier(.4,0,1,1)}
@@ -872,7 +907,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 20;
+const APP_VERSION = 21;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1721,7 +1756,7 @@ function openAnimal(id) {
     <h4 style="margin:16px 0 8px;color:var(--title-ink)">Histórico</h4>
     ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
     <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
-    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${pst ? `<button class="btn" onclick="closeModal();selectPasto('${pst.id}',true);goView('mapa')">Ver no mapa</button>` : ''}<button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
+    `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${pst ? `<button class="btn" onclick="closeModal();selectPasto('${pst.id}',true);goView('mapa')">Ver no mapa</button>` : ''}<button class="btn" onclick="closeModal();relAbrir('animal','${a.id}')">📄 Relatório PDF</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
   if (!(s.ativo && miniMapa($('amMap'), s.lote))) { $('amMap').hidden = true; $('amMapHint').hidden = !s.ativo; }
 }
 function removeAnimal(id) {
@@ -1955,7 +1990,7 @@ const fmtEixo = v => Math.abs(v) >= 10000 ? fmtN(v / 1000, 0) + ' mil' : fmtN(v,
 function drawCharts() {
   Object.entries(CHARTS).forEach(([id, sp]) => {
     const el = $(id); if (!el) { delete CHARTS[id]; return; }
-    const W = el.clientWidth || 320, H = 190, L = 46, R = 14, T = 18, B = 26, pw = W - L - R, ph = H - T - B;
+    const W = el.closest('#relatorio') ? 400 : (el.clientWidth || 320), H = 190, L = 46, R = 14, T = 18, B = 26, pw = W - L - R, ph = H - T - B;
     const vals = sp.dados.map(d => d.v).filter(v => v != null);
     const vmin = sp.tipo === 'linha' && vals.length ? Math.min(...vals) : 0, vmaxRaw = vals.length ? Math.max(...vals) : 0;
     const temNeg = sp.tipo === 'colunas' && vals.some(v => v < 0);
@@ -2044,7 +2079,7 @@ function renderPainel() {
   const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
   const todas = pnNivel.tipo === 'todas', fids = todas ? S.fazendas.map(x => x.id) : [f.id];
   let h = `<div class="toolbar pn-bar">${pnEscopoSel()}${pnPeriodoSel()}<span class="muted">${fmtD(d0)} a ${fmtD(d1)}</span>
-    ${pnNivel.tipo === 'pasto' || pnNivel.tipo === 'lote' || pnNivel.tipo === 'rebanho' ? `<span class="grow"></span><button class="btn sm" onclick="irPainel('fazenda')">‹ Painel da fazenda</button>` : ''}</div>`;
+    <span class="grow"></span>${pnNivel.tipo === 'pasto' || pnNivel.tipo === 'lote' || pnNivel.tipo === 'rebanho' ? `<button class="btn sm" onclick="irPainel('fazenda')">‹ Painel da fazenda</button>` : ''}<button class="btn sm" onclick="relAbrir()" aria-label="Gerar relatório em PDF deste painel">📄 Relatório PDF</button></div>`;
   if (todas) h += pnTodasHtml(fids, d0, d1);
   else if (pnNivel.tipo === 'pasto') h += pnPastoHtml(pnNivel.id, d0, d1);
   else if (pnNivel.tipo === 'lote') h += pnLoteHtml(pnNivel.id, d0, d1);
@@ -2053,6 +2088,97 @@ function renderPainel() {
   h += `<div class="alert info"><span>Os indicadores definitivos de gestão serão fechados na <b>chave mestra</b> com o gestor. Este painel é o ponto de partida do piloto.</span></div>`;
   $('painel').innerHTML = h;
   requestAnimationFrame(drawCharts);
+}
+/* ---------- Relatório em PDF (v21): o painel, em folha A4, para salvar ou imprimir ---------- */
+let relCtx = null, relTituloAnt = '';
+const REL_TIPOS = { todas: 'Relatório geral', fazenda: 'Relatório da fazenda', pasto: 'Relatório do pasto', lote: 'Relatório do lote', rebanho: 'Relatório do rebanho', animal: 'Ficha do animal' };
+function relLimpa(html) {
+  const t = document.createElement('div'); t.innerHTML = html;
+  t.querySelectorAll('.actions,.pn-bar,.alert,button.btn,.btn,label.btn,input,select,textarea').forEach(e => e.remove());
+  t.querySelectorAll('details').forEach(d => { d.open = true; const s = d.querySelector('summary'); if (s) s.textContent = 'Em tabela'; });
+  t.querySelectorAll('[onclick],[onkeydown],[tabindex]').forEach(e => { e.removeAttribute('onclick'); e.removeAttribute('onkeydown'); e.removeAttribute('tabindex'); e.classList.remove('click'); });
+  t.querySelectorAll('button.kpi').forEach(b => { const d = document.createElement('div'); d.className = b.className; d.innerHTML = b.innerHTML.replace(/<span class="kpi-go"[^>]*>.*?<\/span>/, ''); b.replaceWith(d); });
+  t.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+  return t.innerHTML;
+}
+function relCorpoAnimal(id) {
+  const s = compute()[id]; if (!s) return '';
+  const a = s.a, fz = S.fazendas.find(x => x.id === a.fazendaId), lt = S.lotes.find(x => x.id === s.lote), pst = pastoDe(lt ? lt.pastoId : null);
+  const mae = a.maeId ? S.animais.find(x => x.id === a.maeId) : null, ft = fotoDe(id);
+  const pes = s.eventos.filter(e => e.tipo === 'pesagem').map(e => ({ rot: fmtD(e.data).slice(0, 5), v: parseFloat(String(e.txt).replace(/\./g, '').replace(',', '.')) })).filter(p => isFinite(p.v)).reverse().slice(-12);
+  const graf = pes.length >= 2 ? `<div class="card"><h3>Peso ao longo do tempo <span class="sub">kg</span></h3>${chartBox('anPeso', { titulo: 'Peso do animal em cada pesagem, em kg', tipo: 'linha', cor: COR_PESO, dados: pes, fmt: v => v == null ? 'sem pesagem' : fmtN(v, 1) + ' kg' })}</div>` : '';
+  return `<div class="card"><h3>${esc(a.brinco)} <span class="sub">${esc(SEXOS[a.sexo] || '')}${a.raca || a.categoria ? ' · ' + esc([a.raca, a.categoria].filter(Boolean).join(' · ')) : ''}</span></h3>
+    <p style="margin:0 0 10px">${sitChip(s)}</p>
+    <div class="rel-ani">${ft ? `<img src="${ft.d}" alt="Foto de ${esc(a.brinco)}">` : ''}
+    <div class="kpis">
+      ${kpi('Último peso', s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg' : '—', 'teal', s.ultimaPesagem ? 'em ' + fmtD(s.ultimaPesagem) : 'sem pesagem')}
+      ${kpi('GMD (últimas 2)', s.gmd != null ? fmtN(s.gmd, 3) + ' kg/dia' : '—', 'gold', s.gmdTotal != null ? 'período: ' + fmtN(s.gmdTotal, 3) + ' kg/dia' : 'precisa de 2 pesagens')}
+      ${kpi('Último manejo', s.ultimoManejo ? fmtD(s.ultimoManejo) : 'nenhum', s.atrasado ? 'red' : 'navy', s.ultimoManejo ? s.diasSemManejo + ' dias' : '')}
+      ${kpi('Lote', esc(loteNome(s.lote)), 'navy', pst ? 'pasto ' + pst.nome : '')}
+    </div></div></div>
+    <div class="card"><h3>Cadastro</h3><dl class="dl">
+      <dt>Fazenda</dt><dd>${esc(fz ? fz.nome : '—')}</dd>
+      <dt>Característica</dt><dd>${esc(a.caracteristica || '—')}</dd>
+      <dt>Nascimento</dt><dd>${fmtD(a.nascimento)}${mae ? ' · mãe ' + esc(mae.brinco) : ''}</dd>
+      <dt>Entrada na fazenda</dt><dd>${fmtD(a.entradaEm)}${a.origemEntrada === 'nascimento' ? ' (nascimento)' : ''}</dd>
+      <dt>Origem</dt><dd>${esc(a.origem ? a.origem.nome : '—')}</dd></dl></div>
+    ${graf}
+    <div class="card"><h3>Histórico <span class="sub">${s.eventos.length} evento(s)</span></h3>${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : e.tipo)}${e.txt ? ' · ' + esc(e.txt) : ''}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem eventos.</div>'}</div>`;
+}
+function relAbrir(tipo, id) {
+  const f = farm(); if (!f && tipo !== 'animal') return;
+  if (!tipo) { tipo = pnNivel.tipo; id = pnNivel.id; }
+  if (tipo === 'pasto' && !pastoDe(id)) tipo = 'fazenda';
+  if (tipo === 'lote' && !S.lotes.find(l => l.id === id)) tipo = 'fazenda';
+  const d1 = hoje(), d0 = painelDias ? addDias(d1, -painelDias + 1) : (S.animais.map(a => a.entradaEm).filter(Boolean).sort()[0] || d1);
+  for (const k in CHARTS) delete CHARTS[k];
+  let corpo = '', nome = '', sub = '';
+  if (tipo === 'animal') { const s = compute()[id]; if (!s) return; nome = s.a.brinco; const fz = S.fazendas.find(x => x.id === s.a.fazendaId); sub = fz ? fz.nome : ''; corpo = relCorpoAnimal(id); }
+  else if (tipo === 'todas') { nome = 'Todas as fazendas'; sub = S.fazendas.length + ' fazenda(s)'; corpo = pnTodasHtml(S.fazendas.map(x => x.id), d0, d1); }
+  else if (tipo === 'pasto') { nome = pastoNome(id); sub = f.nome; corpo = pnPastoHtml(id, d0, d1); }
+  else if (tipo === 'lote') { nome = loteNome(id); sub = f.nome; corpo = pnLoteHtml(id, d0, d1); }
+  else if (tipo === 'rebanho') { nome = f.nome; sub = 'Composição de hoje'; corpo = pnRebanhoHtml(f, d0, d1); }
+  else { tipo = 'fazenda'; nome = f.nome; sub = 'Visão da fazenda'; corpo = pnFazendaHtml(f, d0, d1); }
+  corpo = relLimpa(corpo);
+  const ids = Object.keys(CHARTS), novo = {};   // ids próprios: o painel e o relatório não disputam o mesmo gráfico
+  ids.forEach(k => { novo['rel_' + k] = CHARTS[k]; corpo = corpo.split(`id="${k}"`).join(`id="rel_${k}"`); delete CHARTS[k]; });
+  Object.assign(CHARTS, novo);
+  const per = tipo === 'animal' ? '' : `Período: ${fmtD(d0)} a ${fmtD(d1)}`, agora = new Date();
+  relCtx = { tipo, id, nome, sub, d0, d1, arq: 'Ekoa-Tapirucu_' + tipo + '_' + String(nome).normalize('NFD').replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '') + '_' + hoje() };
+  let el = $('relatorio'); if (!el) { el = document.createElement('div'); el.id = 'relatorio'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Relatório para PDF'); document.body.appendChild(el); }
+  el.innerHTML = `<div class="rel-bar"><button class="btn" onclick="relFechar()">‹ Voltar</button><span class="grow"></span>
+      <button class="btn" onclick="relEmail()">✉ E-mail</button><button class="btn primary" onclick="relImprimir()">⬇ Salvar PDF</button></div>
+    <p class="rel-dica">Em <b>Salvar PDF</b>, escolha <b>Salvar como PDF</b> no destino da impressão. Depois, compartilhe o arquivo pelo app de e-mail ou WhatsApp.</p>
+    <div class="rel-folha" id="relFolha">
+      <header class="rel-cab"><img src="assets/tapirucu-logo.png" alt="" width="46" height="46"><div><b>Ekoa Tapiruçu</b><span>${esc(REL_TIPOS[tipo])}</span></div></header>
+      <h1 class="rel-t">${esc(nome)}</h1><p class="rel-s">${esc(sub)}${per ? ' · ' + per : ''}</p>
+      ${corpo}
+      <footer class="rel-rod">Gerado em ${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} pelo Ekoa Tapiruçu v${APP_VERSION}, com os dados deste aparelho. Arrobas e GMD são estimativas.</footer>
+    </div>`;
+  document.body.classList.add('rel-aberto'); el.scrollTop = 0; el.hidden = false;
+  requestAnimationFrame(drawCharts);
+}
+function relFechar() {
+  const el = $('relatorio'); if (el) { el.hidden = true; el.innerHTML = ''; }
+  document.body.classList.remove('rel-aberto'); document.title = relTituloAnt || document.title; relCtx = null;
+  for (const k in CHARTS) delete CHARTS[k];
+  if (currentView === 'painel') renderPainel();
+}
+function relImprimir() { if (!relCtx) return; relTituloAnt = relTituloAnt || document.title; document.title = relCtx.arq; try { window.print(); } catch (e) { showToast('Não foi possível abrir a impressão neste navegador.'); } }
+window.addEventListener('afterprint', () => { if (relTituloAnt) document.title = relTituloAnt; });
+function relResumoTxt() {
+  const f = $('relFolha'); if (!f) return '';
+  const k = [...f.querySelectorAll('.kpi')].slice(0, 8).map(x => { const s = x.querySelector('small'), b = x.querySelector('b'); return s && b ? '• ' + s.textContent.trim() + ': ' + b.textContent.trim() : ''; }).filter(Boolean);
+  return REL_TIPOS[relCtx.tipo] + ' — ' + relCtx.nome + (relCtx.sub ? ' (' + relCtx.sub + ')' : '') + '\n' + (relCtx.tipo === 'animal' ? '' : 'Período: ' + fmtD(relCtx.d0) + ' a ' + fmtD(relCtx.d1) + '\n') + '\n' + k.join('\n') + '\n\nO relatório completo segue em PDF (anexe o arquivo salvo).\nEkoa Tapiruçu v' + APP_VERSION;
+}
+function relMailUrl() {
+  const c = apCfg(), para = c && c.mail ? c.mail : '';
+  return { para, url: 'mailto:' + encodeURIComponent(para).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(REL_TIPOS[relCtx.tipo] + ' — ' + relCtx.nome) + '&body=' + encodeURIComponent(relResumoTxt()) };
+}
+function relEmail() {
+  if (!relCtx) return; const m = relMailUrl();
+  showToast(m.para ? 'Abrindo o e-mail para ' + m.para + '. Anexe o PDF salvo.' : 'Abrindo o e-mail. Anexe o PDF salvo.');
+  location.href = m.url;
 }
 /* Nível 1: todas as fazendas */
 function pnTodasHtml(fids, d0, d1) {
