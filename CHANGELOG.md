@@ -2,6 +2,10 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [20] — 2026-11-23 — Característica do animal no Modo Campo
+- Na lista da lida, o botão Ver características dos animais mostra o brinco com o texto da característica (chifre, mancha, temperamento). A busca passa a achar o animal pelo brinco ou por parte da característica.
+- O lápis ao lado de cada animal permite anotar, alterar ou apagar a característica no curral; a tela do peso mostra a característica no cabeçalho e tem o botão Alterar. A edição vai para o escritório na sincronização.
+
 ## [19] — 2026-11-23 — Aviso de privacidade do e-mail
 - Novo aviso Como usamos o seu e-mail, no cadastro da senha e em Mais > Senha do aplicativo > e-mail. Explica a finalidade (boas-vindas e código de nova senha), que informar o e-mail é opcional, onde ele fica guardado, que a mensagem enviada fica na caixa de saída da conta de envio da Ekoa e como remover o e-mail ou pedir a exclusão.
 

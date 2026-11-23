@@ -1,9 +1,17 @@
 {
-  "versao": 19,
-  "rotulo": "19 beta",
+  "versao": 20,
+  "rotulo": "20 beta",
   "data": "2026-11-23",
-  "titulo": "Aviso de privacidade do e-mail",
+  "titulo": "Característica do animal no Modo Campo",
   "notas": {
+    "20": {
+      "data": "2026-11-23",
+      "titulo": "Característica do animal no Modo Campo",
+      "itens": [
+        "Na lista da lida, o botão Ver características dos animais mostra o brinco com o texto da característica (chifre, mancha, temperamento). A busca passa a achar o animal pelo brinco ou por parte da característica.",
+        "O lápis ao lado de cada animal permite anotar, alterar ou apagar a característica no curral; a tela do peso mostra a característica no cabeçalho e tem o botão Alterar. A edição vai para o escritório na sincronização."
+      ]
+    },
     "19": {
       "data": "2026-11-23",
       "titulo": "Aviso de privacidade do e-mail",
