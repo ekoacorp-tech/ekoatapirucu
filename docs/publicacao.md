@@ -15,7 +15,13 @@ O app é publicado pelo **GitHub Pages** a partir da branch **`gh-pages`**, past
 6. Os aparelhos que abrirem o app com internet já recebem a versão nova. Quem estiver com o app aberto vê a barra **"Nova versão disponível"** e atualiza com um toque, sem perder dados.
 7. Se a barra disser que a versão "ainda está chegando ao servidor", é o cache do GitHub Pages (até 10 minutos). Basta aguardar.
 
+## Serviço de e-mail
+
+O envio de e-mail não faz parte do app: roda à parte, em `servidor-email/`. Alterar `Codigo.gs` (Gmail) ou `worker.js` (Cloudflare) **não exige nova versão do app**, mas exige reimplantar o serviço (Apps Script: *Implantar → Gerenciar implantações → Nova versão*, a URL se mantém). Detalhes em [E-mail e recuperação da senha](email.md).
+
 ## Regras
+
+- A âncora `ancora/v13` (branch) e `ancora-v13` (tag) ficam apenas como registro histórico. Não são mais referência: a versão publicada em `gh-pages` é a de trabalho.
 
 - **Nunca** alterar o nome do banco (`ekoa_tapirucu`), o prefixo do cache (`ekoa-tapirucu-`) ou o campo `app` do arquivo de sincronização.
 - Mudança no formato do arquivo de sincronização: subir `SYNC_FORMAT` e manter a importação do formato anterior.

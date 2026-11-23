@@ -94,6 +94,10 @@ O cálculo do rebanho é feito por fazenda (`computeF`) e guarda o histórico de
 
 Não alterar: o banco `ekoa_tapirucu`, o prefixo de cache `ekoa-tapirucu-vN` e o campo `app: "ekoa-tapirucu"` do arquivo de sincronização. Alterá-los apagaria dados dos usuários ou quebraria a compatibilidade entre versões.
 
+## Senha de abertura e e-mail
+
+A senha de abertura é uma camada de demonstração: PBKDF2 (SHA-256, 100 mil voltas, sal próprio) guardado no aparelho, bloqueio após 5 erros e código de recuperação mostrado uma vez. **Não criptografa os dados** do IndexedDB. O e-mail opcional fica no `localStorage` do aparelho, junto de um identificador aleatório do aparelho. Código de nova senha e boas-vindas saem por um serviço externo ao app ([E-mail e recuperação da senha](email.md)); o app chama o serviço com `POST text/plain` e a rota no corpo, sem preflight de CORS.
+
 ## Segurança e LGPD
 
 - Arquivos importados são **dados não confiáveis**: cada campo é validado e limitado, IDs fora do padrão são descartados e todo texto é exibido escapado. Arquivo sem integridade, ou com integridade divergente, é recusado.

@@ -6,7 +6,7 @@
 
 **Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
 
-[![Versão](https://img.shields.io/badge/versão-13%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/versão-20%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
@@ -98,6 +98,19 @@ flowchart LR
 | **Troca de lote** | Lote de destino | Animal muda de lote |
 | **Baixa** | Morte, perda ou venda, com causa | Animal sai do inventário |
 | **Nascimento** | Vaca, brinco do bezerro, sexo, peso | Bezerro entra no rebanho, no lote da mãe |
+| **Mudar de pasto** | Lote, pasto de destino, data | Rotação registrada: dias de ocupação e de descanso por pasto |
+
+### Modo Campo
+
+Ligado por aparelho, deixa o app simples para quem trabalha no curral: **uma pergunta por tela**, botões grandes e teclado numérico próprio. Cobre todos os manejos acima, funciona com leitor de brinco por Bluetooth e protege a saída com PIN.
+
+- **Manejo a realizar:** o início mostra, por lote e pasto, os animais sem manejo há mais de 30 dias e as aplicações sanitárias agendadas (vencidas ou dos próximos 7 dias). Tocar no lote mostra os brincos pendentes e deixa escolher a lida, já com o lote preenchido. Repetir uma aplicação agendada traz produto e dose prontos.
+- **Característica do animal:** a lista da lida pode mostrar o texto de cada animal (chifre, mancha, temperamento), buscar por ele e editá-lo ali mesmo.
+- **Conferência no escritório:** a lida concluída no campo chega como "Do campo, para conferir" e só altera o rebanho quando o gestor finaliza.
+
+### Senha, biometria e e-mail
+
+O app pode pedir uma **senha ao abrir** (com digital ou rosto do aparelho e a opção "lembrar por 1 h a 7 dias"), pensada para demonstrações. Ela **não criptografa os dados**. No cadastro da senha o e-mail é opcional: recebe uma mensagem de boas-vindas e, se a senha for esquecida, um **código de 8 caracteres** que vale 15 minutos. O e-mail fica só no aparelho; o envio é feito pelo serviço descrito em [E-mail e recuperação da senha](docs/email.md), com aviso de privacidade dentro do app.
 
 Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, balança e leitor de brinco, integração com o ERP. O mapa da fazenda já está disponível; o manejo de rotação (dias de ocupação e de descanso por piquete) é a próxima etapa.
 
@@ -145,6 +158,7 @@ sw.js           Service Worker: cache offline e estratégia de atualização
 manifest.json   instalação como app (nome, ícones, cores)
 version.json    versão publicada e notas, lidas pelo aviso de atualização
 icons/          ícones do app
+servidor-email/ serviço de envio de e-mail (Gmail/Apps Script ou Cloudflare), com testes
 assets/         logo oficial, imagem de capa e telas do README
 docs/           arquitetura, sincronização, modelo de dados, homologação e publicação
 ```
@@ -162,7 +176,10 @@ docs/           arquitetura, sincronização, modelo de dados, homologação e p
 - [x] Ekoa Ajuda contextual e central de ajuda
 - [x] Lidas em cascata (fazenda → lote → animal) e lida em grupo
 - [x] Painel da fazenda: ganhos e perdas, evolução, comparativo e detalhe por piquete
-- [ ] Histórico de ocupação e descanso por piquete (rotação de pastejo)
+- [x] Rotação de pastejo: pasto e lote separados, dias de ocupação e descanso por pasto
+- [x] Modo Campo para o curral, com conferência no escritório
+- [x] Senha de abertura, biometria e recuperação por e-mail
+- [x] Manejo a realizar e característica do animal no Modo Campo
 - [ ] Indicadores definitivos da chave mestra (Fase 0)
 - [ ] Relatório em PDF por lote e por fazenda
 - [ ] Integração com o ERP pela API oficial, com fila e reenvio (Fase 2)
