@@ -1,9 +1,16 @@
 {
-  "versao": 18,
-  "rotulo": "18 beta",
+  "versao": 19,
+  "rotulo": "19 beta",
   "data": "2026-11-23",
-  "titulo": "Manejo a realizar no Modo Campo",
+  "titulo": "Aviso de privacidade do e-mail",
   "notas": {
+    "19": {
+      "data": "2026-11-23",
+      "titulo": "Aviso de privacidade do e-mail",
+      "itens": [
+        "Novo aviso Como usamos o seu e-mail, no cadastro da senha e em Mais > Senha do aplicativo > e-mail. Explica a finalidade (boas-vindas e código de nova senha), que informar o e-mail é opcional, onde ele fica guardado, que a mensagem enviada fica na caixa de saída da conta de envio da Ekoa e como remover o e-mail ou pedir a exclusão."
+      ]
+    },
     "18": {
       "data": "2026-11-23",
       "titulo": "Manejo a realizar no Modo Campo",
