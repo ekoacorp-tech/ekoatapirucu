@@ -907,7 +907,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -971,22 +971,88 @@ function deviceRef() { return syncMeta.device ? { id: syncMeta.device.id, nome: 
 function idb() { return new Promise((ok, fail) => { const r = indexedDB.open(DB_NAME, 1); r.onupgradeneeded = () => r.result.createObjectStore(STORE); r.onsuccess = () => ok(r.result); r.onerror = () => fail(r.error); }); }
 async function idbGet(k) { const db = await idb(); return new Promise((ok, fail) => { const q = db.transaction(STORE).objectStore(STORE).get(k); q.onsuccess = () => ok(q.result); q.onerror = () => fail(q.error); }); }
 async function idbSet(k, v) { const db = await idb(); return new Promise((ok, fail) => { const t = db.transaction(STORE, 'readwrite'); t.objectStore(STORE).put(v, k); t.oncomplete = ok; t.onerror = () => fail(t.error); }); }
-let saveChain = Promise.resolve();
+let saveChain = Promise.resolve(), dadosRev = 0, canalDados = null;
+/* v22: duas janelas ou dois toques em sequência não pisam um no outro. A gravação só vale se ninguém gravou
+   depois da última leitura (revisão checada na mesma transação). Se alguém gravou, o app mescla registro a
+   registro (carimbo por aparelho) e grava de novo; a versão que perde fica guardada em conflitosPerdidos. */
+function idbGravaDados(snap, rev) {
+  return idb().then(db => new Promise((ok, fail) => {
+    const t = db.transaction(STORE, 'readwrite'), st = t.objectStore(STORE); let res = { ok: true, rev };
+    const g = st.get('dadosRev');
+    g.onsuccess = () => {
+      const atual = g.result || 0;
+      if (atual > rev) { const d = st.get('dados'); d.onsuccess = () => { res = { ok: false, rev: atual, dados: d.result }; }; }
+      else { st.put(snap, 'dados'); st.put(atual + 1, 'dadosRev'); res = { ok: true, rev: atual + 1 }; }
+    };
+    t.oncomplete = () => ok(res); t.onerror = () => fail(t.error); t.onabort = () => fail(t.error);
+  }));
+}
 function save() {
   migraPastos();   // rede de segurança: todo lote tem pasto e histórico de ocupação
   calc = null;
-  const snap = JSON.parse(JSON.stringify(S));
-  saveChain = saveChain.then(() => idbSet('dados', snap)).then(() => setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })))
+  let mesclou = false;
+  saveChain = saveChain.then(async () => {
+    for (let i = 0; i < 4; i++) {
+      const r = await idbGravaDados(JSON.parse(JSON.stringify(S)), dadosRev);
+      if (r.ok) { dadosRev = r.rev; try { canalDados && canalDados.postMessage({ rev: dadosRev }); } catch (e) {} return; }
+      mesclaRemoto(r.dados); dadosRev = r.rev; calc = null; mesclou = true;
+    }
+    throw new Error('conflito de gravação');
+  }).then(() => { setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })); if (mesclou) { refreshSoft(); showToast('Outra janela do app tinha alterações. Juntei as duas, sem perder nada.'); } })
     .catch(() => { setSaved('Falha ao salvar'); alert('Não foi possível salvar neste aparelho. Verifique o espaço livre e não feche o app até conseguir exportar.'); });
   updateCounts();
   return saveChain;
+}
+function refreshSoft() { calc = null; updateCounts(); if (cpLigado() || document.querySelector('#modal.open') || document.body.classList.contains('rel-aberto')) return; refreshAll(); }
+function iniciaCanal() {
+  try {
+    canalDados = new BroadcastChannel('ekoa-tapirucu-dados');
+    canalDados.onmessage = async e => {
+      if (!e.data || !(e.data.rev > dadosRev)) return;
+      await saveChain; const rev = (await idbGet('dadosRev')) || 0; if (rev <= dadosRev) return;
+      const d = await idbGet('dados'); if (!d) return;
+      mesclaRemoto(d); dadosRev = rev; refreshSoft(); showToast('Dados atualizados por outra janela do app.');
+    };
+  } catch (e) { canalDados = null; }
+}
+const COLS_SYNC = ['fazendas', 'pastos', 'lotes', 'animais', 'lidas'];
+function mesclaRemoto(R) {
+  if (!R || typeof R !== 'object') return;
+  const perdidos = [], em = nowISO(), tomb = new Map(S.excluidos.map(t => [t.id, t]));
+  (R.excluidos || []).forEach(t => { if (t && t.id && !tomb.has(t.id)) { S.excluidos.push(t); tomb.set(t.id, t); } });
+  (R.lixeira || []).forEach(l => { if (l && l.item && !S.lixeira.some(x => x.item.id === l.item.id)) S.lixeira.push(l); });
+  COLS_SYNC.forEach(col => {
+    const mapa = new Map(S[col].map((x, i) => [x.id, i]));
+    (Array.isArray(R[col]) ? R[col] : []).forEach(r => {
+      if (!r || !r.id) return;
+      const t = tomb.get(r.id), i = mapa.get(r.id);
+      if (i == null) { if (t && stampOf(r) <= t.em) return; S[col].push(r); return; }
+      const l = S[col][i], tem = vvOf(r) && vvOf(l); let c = tem ? vvCmp(r.vv, l.vv) : null;
+      if (c === 'igual' && sigC(r) !== sigC(l)) c = 'conc';   // duas janelas do mesmo aparelho contam no mesmo carimbo
+      const rv = tem ? (c === 'a' || (c === 'conc' && stampOf(r) > stampOf(l))) : ((r.versao || 1) > (l.versao || 1) || ((r.versao || 1) === (l.versao || 1) && stampOf(r) > stampOf(l)));
+      if (c === 'conc' && sigC(r) !== sigC(l)) perdidos.push({ em, col, id: l.id, rotulo: rotulo(col, rv ? l : r), venceu: rv ? 'outra janela' : 'aqui', perdedor: JSON.parse(JSON.stringify(rv ? l : r)) });
+      const vvm = tem ? vvMax(r.vv, l.vv) : null;
+      if (rv) S[col][i] = r;
+      if (vvm) S[col][i].vv = vvm;
+    });
+  });
+  tomb.forEach((t, id) => COLS_SYNC.forEach(col => { const i = S[col].findIndex(x => x.id === id); if (i >= 0 && stampOf(S[col][i]) <= t.em) S[col].splice(i, 1); }));
+  S.fotos = S.fotos || {}; Object.entries(R.fotos || {}).forEach(([k, v]) => { if (v && v.d && (!S.fotos[k] || (v.em || '') > (S.fotos[k].em || ''))) S.fotos[k] = v; });
+  if (perdidos.length) idbGet('conflitosPerdidos').then(ant => idbSet('conflitosPerdidos', perdidos.concat(ant || []).slice(0, 200))).catch(() => {});
 }
 function saveSyncMeta() { return idbSet('syncMeta', JSON.parse(JSON.stringify(syncMeta))).catch(() => {}); }
 function setSaved(t) { $('dSaved').textContent = t; $('mSaved').textContent = t.startsWith('Salvo') ? '✓ salvo' : t; }
 
 /* ---------------- Metadados de registro (rastreabilidade) ---------------- */
-function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), exportadoEm: null }); }
-function touch(o) { o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); }
+/* v22: carimbo por aparelho (vv). Cada aparelho conta as suas próprias edições do registro. Comparando os
+   carimbos dá para saber se um registro descende do outro ou se foram editados ao mesmo tempo (conflito). */
+function vvId() { if (syncMeta.device) return syncMeta.device.id; if (!syncMeta.anonId) { syncMeta.anonId = 'an-' + uuid().slice(0, 8); saveSyncMeta(); } return syncMeta.anonId; }
+const vvOf = o => o && o.vv && typeof o.vv === 'object' ? o.vv : null;
+function vvLegado(o) { const d = o.editadoNo || o.origem; return { [d && d.id ? d.id : 'legado']: o.versao || 1 }; }
+function vvCmp(a, b) { let ab = false, ba = false; new Set(Object.keys(a).concat(Object.keys(b))).forEach(k => { const x = a[k] || 0, y = b[k] || 0; if (x > y) ab = true; if (y > x) ba = true; }); return ab && ba ? 'conc' : ab ? 'a' : ba ? 'b' : 'igual'; }
+function vvMax(a, b) { const r = {}; [a, b].forEach(v => v && Object.keys(v).forEach(k => { r[k] = Math.max(r[k] || 0, v[k]); })); return r; }
+function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), exportadoEm: null, vv: { [vvId()]: 1 } }); }
+function touch(o) { const id = vvId(), v = Object.assign({}, vvOf(o) || vvLegado(o)); v[id] = (v[id] || 0) + 1; o.vv = v; o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); }
 function isPend(o) { return !o.exportadoEm || o.exportadoEm < o.editadoEm; }
 
 /* ---------------- Fazenda ativa ---------------- */
@@ -3417,7 +3483,8 @@ const okIso = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOStrin
 const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && n <= max ? n : null; };
 const okDev = d => d && okId(d.id) ? { id: String(d.id), nome: str(d.nome, 40) } : null;
 const okInt = (v, max) => { const n = parseInt(v, 10); return isFinite(n) && n > 0 && n <= max ? n : null; };
-function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm) }; }
+const okVV = v => { if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined; const o = {}; Object.keys(v).slice(0, 30).forEach(k => { const n = parseInt(v[k], 10); if (/^[\w.-]{1,64}$/.test(k) && n > 0 && n < 1e7) o[k] = n; }); return Object.keys(o).length ? o : undefined; };
+function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm), vv: okVV(r.vv) }; }
 const SAN = {
   fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
   pastos: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
@@ -3435,7 +3502,9 @@ const SAN = {
     const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined) } : null).filter(Boolean);
     return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: r.status === 'conferir' ? 'conferir' : 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm), campo: r.campo === true ? true : undefined, enviadaEm: okIso(r.enviadaEm) || undefined }); }
 };
-const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; return JSON.stringify(c); };
+const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
+const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo'].forEach(k => delete c[k]); return JSON.stringify(c); };
+const rotulo = (col, r) => col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
 const stampOf = o => o.editadoEm || o.criadoEm || '';
 const tombOf = id => S.excluidos.find(t => t.id === id);
 async function onImportFile(ev) {
@@ -3482,6 +3551,14 @@ function planImport(pkg) {
       if (!loc) { p.novos.push(inc); return; }
       if (col === 'lidas' && loc.status === 'aberta') { // reaberta aqui: a edição local em andamento vence
         if (inc.versao > loc.versao) p.conflitosImp.push(inc); else p.locais.push(inc); return; }
+      if (vvOf(inc) && vvOf(loc)) {   // v22: carimbo por aparelho: descende, é descendente ou foi editado ao mesmo tempo
+        const c = vvCmp(inc.vv, loc.vv);
+        if (c === 'a') p.atualizados.push(inc);
+        else if (c === 'b') p.locais.push(inc);
+        else if (sigC(inc) === sigC(SAN[col](loc) || loc)) p.iguais.push(inc);   // mesmo conteúdo (ou mesma janela do mesmo aparelho com conteúdo diferente cai no conflito)
+        else if (stampOf(inc) > stampOf(loc)) p.conflitosImp.push(inc);
+        else p.conflitosLoc.push(inc);
+        return; }
       if (inc.versao > (loc.versao || 1)) p.atualizados.push(inc);
       else if (inc.versao < (loc.versao || 1)) p.locais.push(inc);
       else if (sig(inc) === sig(SAN[col](loc) || loc)) p.iguais.push(inc);   // compara o registro limpo dos dois lados
@@ -3532,7 +3609,7 @@ function renderImportPreview() {
   const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', pastos: 'Pastos', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas' };
   const rows = Object.entries(plan.cols).map(([c, p]) => `<tr><td><b>${NOM[c]}</b></td><td class="num">${p.novos.length + p.restaurados.length}</td><td class="num">${p.atualizados.length + p.conflitosImp.length}</td><td class="num">${p.iguais.length}</td><td class="num">${p.locais.length + p.conflitosLoc.length}</td></tr>`).join('');
   const conf = Object.values(plan.cols).reduce((t, p) => t + p.conflitosImp.length + p.conflitosLoc.length, 0);
-  const total = Object.values(plan.cols).reduce((t, p) => t + p.novos.length + p.restaurados.length + p.atualizados.length + p.conflitosImp.length, 0) + plan.excluirAqui.length;
+  const total = Object.values(plan.cols).reduce((t, p) => t + p.novos.length + p.restaurados.length + p.atualizados.length + p.conflitosImp.length + p.conflitosLoc.length, 0) + plan.excluirAqui.length;
   openModal('Prévia da importação', `
     <dl class="dl" style="margin-bottom:12px"><dt>Arquivo</dt><dd>${esc(arquivo)}</dd><dt>De</dt><dd>${esc(pkg.dispositivo ? pkg.dispositivo.nome : 'Aparelho sem nome')}</dd><dt>Exportado em</dt><dd>${fmtDT(pkg.exportadoEm)} <small class="muted">(horário deste aparelho)</small></dd><dt>Integridade</dt><dd><span class="chip ok">✓ verificada</span></dd></dl>
     ${avisos.map(a => `<div class="alert warn"><span>${esc(a)}</span></div>`).join('')}
@@ -3557,10 +3634,11 @@ async function applyImport() {
   }
   const res = { novos: 0, atualizados: 0 };
   Object.entries(plan.cols).forEach(([col, p]) => {
-    const rep = inc => { const k = S[col].findIndex(x => x.id === inc.id); if (k >= 0) S[col][k] = inc; res.atualizados++; };
+    const rep = inc => { const k = S[col].findIndex(x => x.id === inc.id); if (k >= 0) { if (vvOf(inc) && vvOf(S[col][k])) inc.vv = vvMax(inc.vv, S[col][k].vv); S[col][k] = inc; } res.atualizados++; };
     p.novos.forEach(x => { S[col].push(x); res.novos++; });
     p.restaurados.forEach(x => { S.excluidos = S.excluidos.filter(t => t.id !== x.id); S.lixeira = S.lixeira.filter(l => l.item.id !== x.id); S[col].push(x); res.novos++; });
     p.atualizados.forEach(rep); p.conflitosImp.forEach(rep);
+    p.conflitosLoc.concat(p.iguais).forEach(inc => { const l = S[col].find(x => x.id === inc.id); if (l && vvOf(l) && vvOf(inc)) l.vv = vvMax(l.vv, inc.vv); });   // o que ficou aqui já 'viu' o que veio
   });
   S.fotos = S.fotos || {}; Object.entries(plan.fotos || {}).forEach(([k, v]) => { S.fotos[k] = v; });
   plan.excluirAqui.forEach(x => moveToTrash(x.tipo, x.item, x.t.em, x.t.no));
@@ -4693,6 +4771,7 @@ async function init() {
   try {
     const d = await idbGet('dados'); if (d && typeof d === 'object') S = Object.assign(S, d);
     const m = await idbGet('syncMeta'); if (m && typeof m === 'object') syncMeta = Object.assign(syncMeta, m);
+    dadosRev = (await idbGet('dadosRev')) || 0; iniciaCanal();
   } catch (e) { alert('Este navegador bloqueou o armazenamento local (modo anônimo?). Os dados não serão guardados.'); }
   try {
   migraPastos();
