@@ -13,7 +13,8 @@
         "Perdas mostram também a mortalidade anualizada (≈ X%/ano) quando o período tem 30 dias ou mais.",
         "Próximas aplicações sanitárias mostra, em destaque, as aplicações com a data vencida (atrasada há N dias). Só vale a última aplicação de cada produto e lote.",
         "Pasto ou lote com animal sem peso avisa que a lotação (UA/ha) pode estar subestimada, e a lotação geral informa que só entram animais com peso.",
-        "Ao finalizar uma pesagem, o app confirma pesos que diferem mais de 30% do anterior e avisa se há outra lida igual do mesmo lote ainda aberta ou esperando conferência (pode ser a mesma lida lançada em dois aparelhos)."
+        "Ao finalizar uma pesagem, o app confirma pesos que diferem mais de 30% do anterior e avisa se há outra lida igual do mesmo lote ainda aberta ou esperando conferência (pode ser a mesma lida lançada em dois aparelhos).",
+        "Fazenda, pastos e lotes agora tem uma aba para cada cadastro, com contador. O botão de novo cadastro fica dentro de cada aba, e a ordem é guiada: Novo pasto só aparece com fazenda e Novo lote só com pasto, com a explicação do que falta. Cada aba avisa pendências (fazenda ou pasto sem área, lote sem pasto) e o novo lote exige escolher o pasto."
       ]
     },
     "22": {

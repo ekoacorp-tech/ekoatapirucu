@@ -393,6 +393,7 @@ tbody tr:last-child td{border-bottom:0}
 .map-card{padding:14px}
 .map-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .map-tools .grow{flex:1}
+.cad-tabs{display:flex;width:100%;margin-bottom:12px}.cad-tabs button{flex:1;min-height:44px}.cad-cab{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.cad-cab p{margin:0;flex:1 1 260px}.cad-cab .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .seg{display:inline-flex;border:1px solid var(--border-color);border-radius:12px;overflow:hidden;background:var(--bg-surface)}
 .seg button{min-height:40px;padding:6px 14px;border:0;background:none;cursor:pointer;font:inherit;font-weight:600;font-size:.84rem;color:var(--text-primary)}
 .seg button.on{background:var(--brand-navy);color:#fff}
@@ -853,8 +854,7 @@ th{font-size:.75rem}
   <!-- CADASTROS -->
   <section class="view" id="v-cadastros">
     <div class="topbar">
-      <div><h2>Fazenda, pastos e lotes</h2><p>O pasto é o lugar (área, contorno e metas de manejo). O lote é o grupo de animais que ocupa um pasto.</p></div>
-      <div class="actions"><button class="btn" onclick="openFarm()">Nova fazenda</button><button class="btn" onclick="openPasto()">Novo pasto</button><button class="btn primary" onclick="openLote()">Novo lote</button></div>
+      <div><h2>Fazenda, pastos e lotes</h2><p>Três cadastros ligados em cadeia: a fazenda tem pastos e o lote (grupo de animais) ocupa um pasto.</p></div>
     </div>
     <div id="cadBody"></div>
   </section>
@@ -3099,8 +3099,8 @@ const AJUDA = {
     d: [['Os números do período estão zerados.', 'Precisa haver pesagens finalizadas dentro do período escolhido.'], ['O ganho do pasto está menor que o do lote.', 'O ganho é atribuído ao pasto onde o animal estava na data da pesagem. Se o lote rodou entre pastos, o ganho se divide entre eles.']],
     b: ['H30', 'H36'] },
   cadastros: { t: 'Fazenda, pastos e lotes', g: 'Cadastros',
-    s: 'A árvore do cadastro: fazenda → pasto (o lugar) → lote (o grupo de animais).',
-    p: ['Nova fazenda: nome, município, área de pastagem, recibo do CAR e localização da sede.', 'Novo pasto: o lugar. Nome, área, lotação máxima (UA/ha), forrageira e metas de ocupação, descanso e altura.', 'Novo lote: o grupo de animais. Nome e o pasto que ele ocupa hoje.', 'Mover de pasto: registra a saída de um pasto e a entrada no outro, com data.'],
+    s: 'A árvore do cadastro: fazenda → pasto (o lugar) → lote (o grupo de animais). Cada um tem a sua aba.',
+    p: ['Use as abas Fazendas, Pastos e Lotes. Cadastre nessa ordem: o botão Novo pasto só aparece com fazenda, e Novo lote só com pasto. Cada aba avisa o que está faltando (pasto sem área, lote sem pasto).', 'Nova fazenda: nome, município, área de pastagem, recibo do CAR e localização da sede.', 'Novo pasto: o lugar. Nome, área, lotação máxima (UA/ha), forrageira e metas de ocupação, descanso e altura.', 'Novo lote: o grupo de animais. Nome e o pasto que ele ocupa hoje.', 'Mover de pasto: registra a saída de um pasto e a entrada no outro, com data.'],
     r: ['Pasto é lugar; lote é grupo. O mesmo lote muda de pasto sem deixar de ser o mesmo lote.', 'Nome de pasto e de lote únicos por fazenda.', 'Pasto ocupado não pode ser inativado nem excluído: mova o lote antes.', 'Sem lotação máxima, a ocupação (%) não é calculada.'],
     d: [['Onde foi parar a área do lote?', 'A área, o contorno e a lotação são do pasto. Na atualização, cada lote antigo virou um pasto com esses dados mais o lote que o ocupa; nada se perdeu.'], ['A área digitada e a do mapa são diferentes.', 'Com contorno, vale a área do mapa.']],
     b: ['H02', 'H19', 'H20', 'H34'] },
@@ -3167,23 +3167,39 @@ function poeAjuda() {
 /* =========================================================================
    CADASTROS: fazenda e lotes
    ========================================================================= */
+let cadTab = 'fazendas';
+function setCadTab(t) { cadTab = t; renderCadastros(); }
 function renderCadastros() {
-  const f = farm();
-  let h = avisoExclFazenda() + `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
+  const f = farm(); let hP = '', hL = '';
+  let hF = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
     const rp = pastosResumo(), rl = lotesResumo(), rec = piquetesRecomendados(f.id);
-    h += `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
+    hP = `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
       ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th>Forrageira</th><th>Metas (dias)</th><th>Ocupação atual</th><th>Contorno</th><th></th></tr></thead><tbody>
       ${rp.map(r => `<tr class="click" tabindex="0" onclick="openPastoPainel('${r.p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${r.p.id}')"><td><b>${esc(r.p.nome)}</b>${r.p.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.ar ? fmtN(r.ar, 1) + (r.p.geo && r.p.geo.areaHa ? ' <small class="muted">mapa</small>' : '') : '—'}</td><td class="num">${r.p.lotacaoMax ? fmtN(r.p.lotacaoMax, 2) : '—'}</td><td>${esc(r.p.forrageira || '—')}</td><td>${r.p.diasOcupacao || r.p.diasDescanso ? `${r.p.diasOcupacao || '—'} dias de ocupação / ${r.p.diasDescanso || '—'} de descanso` : '—'}</td><td>${sitPastoChip(r)}${r.lotes.length ? '<br><small class="muted">' + r.lotes.map(x => esc(x.l.nome) + ' · ' + x.qtd + ' cab.').join(', ') + '</small>' : ''}</td><td>${geoChip(r.p.geo)}</td><td><button class="btn sm" onclick="event.stopPropagation();openPasto('${r.p.id}')">Editar</button></td></tr>`).join('')}
       </tbody></table></div>` : '<div class="empty">Nenhum pasto. <button class="btn primary" onclick="openPasto()">Cadastrar pasto</button></div>'}
       ${rec ? `<p class="hint">Pelas metas informadas, o pastejo rotacionado pediria cerca de <b>${rec.n} pastos</b> (descanso ÷ ocupação + 1, referência Embrapa). Hoje a fazenda tem ${rec.total}.</p>` : '<p class="hint">Informe forrageira e metas de ocupação e descanso para o app acompanhar a rotação e indicar quando o pasto está pronto para receber um lote.</p>'}</div>`;
-    h += `<div class="card"><h3>Lotes de ${esc(f.nome)} <span class="sub">o grupo de animais e o pasto que ele ocupa</span></h3>
+    hL = `<div class="card"><h3>Lotes de ${esc(f.nome)} <span class="sub">o grupo de animais e o pasto que ele ocupa</span></h3>
       ${rl.length ? `<div class="tbl-wrap"><table><thead><tr><th>Lote</th><th>Pasto atual</th><th class="num">Dias no pasto</th><th class="num">Animais</th><th class="num">Peso médio</th><th class="num">UA/ha</th><th></th></tr></thead><tbody>
       ${rl.map(r => { const o = ocupAberta(r.l), dd = o ? diasEntre(o.de, hoje()) : null, cl = r.p ? pastoCiclo(r.p) : null; return `<tr><td><b>${esc(r.l.nome)}</b></td><td>${r.p ? `<button class="btn sm" onclick="openPastoPainel('${r.p.id}')">${esc(r.p.nome)}</button>` : '<span class="chip warn">sem pasto</span>'}</td><td class="num">${dd != null ? dd + (cl && cl.aviso ? ' <span class="chip warn">meta</span>' : '') : '—'}</td><td class="num">${r.qtd}</td><td class="num">${r.pesoMedio ? fmtN(r.pesoMedio, 1) : '—'}</td><td class="num">${r.uaha != null ? fmtN(r.uaha, 2) : '—'}</td><td><button class="btn sm" onclick="moverLote('${r.l.id}')">Mover de pasto</button> <button class="btn sm" onclick="openLote('${r.l.id}')">Editar</button></td></tr>`; }).join('')}
       </tbody></table></div>` : '<div class="empty">Nenhum lote. Crie o primeiro.</div>'}
       <p class="hint">Mover o lote de pasto registra a saída de um e a entrada no outro. É esse histórico que vira dias de ocupação, descanso e ciclos no painel do pasto.</p></div>`;
   }
-  $('cadBody').innerHTML = h;
+  if (!f) cadTab = 'fazendas';
+  const pa = f ? pastosF().filter(x => x.ativo !== false) : [], lo = f ? lotesF().filter(x => x.ativo !== false) : [];
+  const semArea = pa.filter(x => !areaPasto(x)).length, semPasto = lo.filter(x => !x.pastoId).length;
+  const tab = (k, nome, n) => `<button type="button" role="tab" aria-selected="${cadTab === k}" class="${cadTab === k ? 'on' : ''}" onclick="setCadTab('${k}')">${nome} <b>${n}</b></button>`;
+  const avisos = { fazendas: f && !f.areaHa && !areaPastagemF(f.id) ? ['Esta fazenda ainda não tem área de pastagem: o UA/ha da fazenda não é calculado. Informe a área em Editar.'] : [],
+    pastos: semArea ? [`${semArea} pasto(s) sem área: a lotação (UA/ha) e o @/ha deles não são calculados. Informe a área ou desenhe o contorno no mapa.`] : [],
+    lotes: semPasto ? [`${semPasto} lote(s) sem pasto: o painel do pasto e a rotação não enxergam esses animais. Escolha o pasto do lote.`] : [] };
+  const nova = cadTab === 'fazendas' ? `<button class="btn primary" onclick="openFarm()">Nova fazenda</button>`
+    : cadTab === 'pastos' ? (f ? `<button class="btn primary" onclick="openPasto()">Novo pasto</button>` : `<span class="hint">Cadastre uma fazenda primeiro.</span> <button class="btn" onclick="setCadTab('fazendas')">Ir para Fazendas</button>`)
+    : (pa.length ? `<button class="btn primary" onclick="openLote()">Novo lote</button>` : `<span class="hint">${f ? 'Cadastre um pasto primeiro: o lote (grupo de animais) ocupa um pasto.' : 'Cadastre uma fazenda primeiro.'}</span> <button class="btn" onclick="setCadTab('${f ? 'pastos' : 'fazendas'}')">${f ? 'Ir para Pastos' : 'Ir para Fazendas'}</button>`);
+  const expl = { fazendas: 'A fazenda é a propriedade: nome, área de pastagem e localização.', pastos: 'O pasto é o lugar: área, contorno e metas de manejo. Cadastre depois da fazenda.', lotes: 'O lote é o grupo de animais que ocupa um pasto. Cadastre depois do pasto. O peão lança o manejo em cima do lote.' };
+  $('cadBody').innerHTML = avisoExclFazenda() + `<div class="seg cad-tabs" role="tablist" aria-label="Cadastros">${tab('fazendas', 'Fazendas', S.fazendas.length)}${tab('pastos', 'Pastos', pa.length)}${tab('lotes', 'Lotes (grupos de animais)', lo.length)}</div>
+    <div class="cad-cab"><p class="muted">${expl[cadTab]}</p><div class="actions">${nova}</div></div>
+    ${avisos[cadTab].map(t => `<div class="alert info" role="status"><span>${t}</span></div>`).join('')}
+    ${cadTab === 'fazendas' ? hF : cadTab === 'pastos' ? hP : hL}`;
 }
 function openFarm(id) {
   if (!syncMeta.device) { openDeviceModal(() => openFarm(id)); return; }
@@ -3279,6 +3295,7 @@ function saveLote(id) {
   if (!nome) { fieldErr('loNome', 'Informe o nome.'); return; }
   if (lotesF().some(l => l.id !== id && l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('loNome', 'Já existe lote com este nome.'); return; }
   const pid = $('loPasto') ? $('loPasto').value : null;
+  if (!id && !pid && pastosF().length) { fieldErr('loPasto', 'Escolha o pasto onde o lote está.'); return; }
   let x = id ? S.lotes.find(l => l.id === id) : null;
   if (x) {
     const ativo = $('loAtivo') ? $('loAtivo').value === '1' : true;

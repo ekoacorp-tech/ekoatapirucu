@@ -9,6 +9,7 @@ Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`v
 - Próximas aplicações sanitárias mostra, em destaque, as aplicações com a data vencida (atrasada há N dias). Só vale a última aplicação de cada produto e lote.
 - Pasto ou lote com animal sem peso avisa que a lotação (UA/ha) pode estar subestimada, e a lotação geral informa que só entram animais com peso.
 - Ao finalizar uma pesagem, o app confirma pesos que diferem mais de 30% do anterior e avisa se há outra lida igual do mesmo lote ainda aberta ou esperando conferência (pode ser a mesma lida lançada em dois aparelhos).
+- Fazenda, pastos e lotes agora tem uma aba para cada cadastro, com contador. O botão de novo cadastro fica dentro de cada aba, e a ordem é guiada: Novo pasto só aparece com fazenda e Novo lote só com pasto, com a explicação do que falta. Cada aba avisa pendências (fazenda ou pasto sem área, lote sem pasto) e o novo lote exige escolher o pasto.
 
 ## [22] — 2026-11-23 — Dados que não mentem
 - Edição ao mesmo tempo não se perde mais: cada registro leva um carimbo por aparelho. Se dois aparelhos ou duas janelas mudam o mesmo registro, o app guarda a versão que não valeu em vez de apagar sem aviso. Duas janelas abertas do app se atualizam sozinhas.
