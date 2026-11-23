@@ -1,9 +1,18 @@
 {
-  "versao": 27,
-  "rotulo": "27 beta",
+  "versao": 28,
+  "rotulo": "28 beta",
   "data": "2026-11-23",
-  "titulo": "Painel em escada",
+  "titulo": "Base de confiança",
   "notas": {
+    "28": {
+      "data": "2026-11-23",
+      "titulo": "Base de confiança",
+      "itens": [
+        "Importar animais de planilha (CSV): em Adicionar animais, botão Importar de planilha. Aceita ; , ou tabulação, acentos do Excel, datas dd/mm/aaaa. Só brinco e sexo são obrigatórios; o lote vem da planilha ou de um lote padrão. Mostra quantos estão prontos e quais linhas têm problema (brinco repetido ou já cadastrado, lote inexistente, peso absurdo, data impossível ou no futuro) antes de importar. Há modelo para baixar.",
+        "Proteção dos dados: Sincronizar mostra se o navegador protege o armazenamento deste aparelho, o espaço usado e a idade da última cópia, com botão Pedir proteção e orientação para o iPhone.",
+        "Versões diferentes: importar arquivo gerado por versão mais nova do app agora avisa e deixa recusar, para não perder campos novos."
+      ]
+    },
     "27": {
       "data": "2026-11-23",
       "titulo": "Painel em escada",

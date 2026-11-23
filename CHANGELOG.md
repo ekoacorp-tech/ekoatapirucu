@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [28] — 2026-11-23 — Base de confiança
+- Importar animais de planilha (CSV): em Adicionar animais, botão Importar de planilha. Aceita ; , ou tabulação, acentos do Excel, datas dd/mm/aaaa. Só brinco e sexo são obrigatórios; o lote vem da planilha ou de um lote padrão. Mostra quantos estão prontos e quais linhas têm problema (brinco repetido ou já cadastrado, lote inexistente, peso absurdo, data impossível ou no futuro) antes de importar. Há modelo para baixar.
+- Proteção dos dados: Sincronizar mostra se o navegador protege o armazenamento deste aparelho, o espaço usado e a idade da última cópia, com botão Pedir proteção e orientação para o iPhone.
+- Versões diferentes: importar arquivo gerado por versão mais nova do app agora avisa e deixa recusar, para não perder campos novos.
+
 ## [27] — 2026-11-23 — Painel em escada
 - Painel em escada: quatro abas no topo — Fazenda, Lotes, Pastos e Rebanho. O filtro de fazenda (uma ou Todas) vale para todas as abas e se mantém ao navegar.
 - Atenção agora: no topo de cada aba, o que pede ação na ordem de importância (aplicação atrasada, animal que perdeu peso, lote que parou de ganhar ou sem pesar, pasto que passou da meta). Um toque leva à lista ou ao detalhe certo, mesmo em outra fazenda.
