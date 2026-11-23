@@ -2,6 +2,9 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [25] — 2026-11-23 — Lidas à vista, em qualquer fazenda
+- Lidas em outras fazendas: o aviso do Início passa a contar só a fazenda em uso, e uma linha separada diz quais outras fazendas têm lida em aberto ou para conferir, com o botão Ir para lá (troca a fazenda e abre a lista). Na tela Lidas, quando o filtro vem vazio, o app diz onde estão as lidas. Corrige o Ver que abria uma lista vazia.
+
 ## [24] — 2026-11-23 — Cadastro guiado, painel de ocupação e controle do gestor
 - Novo painel visual de ocupação: um quadro por pasto, com a situação (ocupado, em descanso, pronto para entrar, nunca ocupado), os lotes que estão lá, a barra de dias contra a meta e o aviso de pasto que passou da meta. Aparece na aba Pastos e no painel da fazenda, com atalho para o mapa.
 - Cadastro guiado de primeiro uso (passo a passo): fazenda, primeiro pasto e primeiro lote, em três telas, com o resto opcional. Aparece na tela inicial e em Fazendas quando não há nada cadastrado, e termina oferecendo cadastrar os animais.

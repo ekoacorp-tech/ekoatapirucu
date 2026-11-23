@@ -1,9 +1,16 @@
 {
-  "versao": 24,
-  "rotulo": "24 beta",
+  "versao": 25,
+  "rotulo": "25 beta",
   "data": "2026-11-23",
-  "titulo": "Cadastro guiado, painel de ocupação e controle do gestor",
+  "titulo": "Lidas à vista, em qualquer fazenda",
   "notas": {
+    "25": {
+      "data": "2026-11-23",
+      "titulo": "Lidas à vista, em qualquer fazenda",
+      "itens": [
+        "Lidas em outras fazendas: o aviso do Início passa a contar só a fazenda em uso, e uma linha separada diz quais outras fazendas têm lida em aberto ou para conferir, com o botão Ir para lá (troca a fazenda e abre a lista). Na tela Lidas, quando o filtro vem vazio, o app diz onde estão as lidas. Corrige o Ver que abria uma lista vazia."
+      ]
+    },
     "24": {
       "data": "2026-11-23",
       "titulo": "Cadastro guiado, painel de ocupação e controle do gestor",

@@ -926,7 +926,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1361,13 +1361,14 @@ function renderHome() {
     $('homeTodas').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
   }
   $('hFarm').innerHTML = `Fazenda em uso: <b>${esc(f.nome)}</b>`;
-  const ab = S.lidas.filter(l => l.status === 'aberta'), pd = pendentesCount();
+  const ab = lidasF().filter(l => l.status === 'aberta'), pd = pendentesCount();
   let h = '';
   if (!pastosAtivosF().length) h += `<div class="alert warn"><span>${esc(f.nome)}: cadastre ao menos um pasto, o lugar onde os lotes ficam.</span><button class="btn sm" onclick="openPasto()">Novo pasto</button></div>`;
   else if (!animaisF().length) h += `<div class="alert warn"><span>${esc(f.nome)}: nenhum animal cadastrado. Faça a carga inicial do rebanho.</span><button class="btn sm" onclick="goView('rebanho');openAddAnimals()">Adicionar animais</button></div>`;
-  const cf = S.lidas.filter(l => l.status === 'conferir');
+  const cf = lidasF().filter(l => l.status === 'conferir');
   if (cf.length) h += `<div class="alert conf"><span><b>${cf.length} lida(s) vindas do Modo Campo</b> aguardam conferência. Elas só valem no rebanho depois que você conferir e finalizar.</span><button class="btn sm" onclick="$('lfStatus').value='conferir';goView('lidas')">Conferir</button></div>`;
   if (ab.length) h += `<div class="alert warn"><span>${ab.length} lida(s) em aberto. Elas só valem depois de finalizadas.</span><button class="btn sm" onclick="$('lfStatus').value='aberta';goView('lidas')">Ver</button></div>`;
+  h += lidasOutrasHtml();
   if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
   al.innerHTML = h;
   /* ---- consolidado de todas as fazendas, e a escolha de cada uma ---- */
@@ -1450,13 +1451,24 @@ function lidaItem(l) {
     <div class="li-main"><b>${esc(TIPOS[l.tipo].nome)} · ${fmtD(l.data)}${l.loteId ? ' · ' + esc(loteNome(l.loteId)) : ''}</b>${S.fazendas.length > 1 && l.fazendaId !== S.fazendaAtiva ? `<span class="chip gray" style="margin-left:6px">${esc((S.fazendas.find(x => x.id === l.fazendaId) || {}).nome || '')}</span>` : ''}<span>${esc(lidaResumo(l))}${l.versao > 1 ? ' · v' + l.versao : ''}</span></div>
     ${lidaStatusChip(l)}</div>`;
 }
+/* Lidas esperando em OUTRAS fazendas: o aviso do Início e a lista de Lidas só mostram a fazenda em uso, então isto diz onde elas estão */
+function lidasOutras(status) {
+  const m = {};
+  S.lidas.filter(l => l.fazendaId !== S.fazendaAtiva && (status ? l.status === status : (l.status === 'aberta' || l.status === 'conferir'))).forEach(l => { (m[l.fazendaId] = m[l.fazendaId] || { aberta: 0, conferir: 0 })[l.status === 'conferir' ? 'conferir' : 'aberta']++; });
+  return Object.entries(m).map(([fid, c]) => ({ f: S.fazendas.find(x => x.id === fid), c })).filter(o => o.f);
+}
+const lidasTxt = c => [c.conferir ? c.conferir + ' para conferir' : '', c.aberta ? c.aberta + ' em aberto' : ''].filter(Boolean).join(' e ');
+function irLidasDe(fid, st) { S.fazendaAtiva = fid; calc = null; save(); renderFarmSel(); updateCounts(); $('lfStatus').value = st; $('lfTipo').value = ''; goView('lidas'); }
+function lidasOutrasHtml() {
+  return lidasOutras().map(o => `<div class="alert info"><span><b>${esc(o.f.nome)}</b> tem lida(s) esperando: ${lidasTxt(o.c)}.</span><button class="btn sm" onclick="irLidasDe('${o.f.id}','${o.c.conferir ? 'conferir' : 'aberta'}')">Ir para lá</button></div>`).join('');
+}
 function renderLidas() {
   const tsel = $('lfTipo'); if (tsel.options.length < 2) tsel.innerHTML += Object.entries(TIPOS).map(([k, v]) => `<option value="${k}">${v.nome}</option>`).join('');
   const fs = $('lfStatus').value, ft = tsel.value;
   let ls = lidasF().filter(l => (!ft || l.tipo === ft) && (!fs || (fs === 'pend' ? (l.status === 'finalizada' && isPend(l)) : l.status === fs)));
   const ord = x => x.status === 'conferir' ? 0 : x.status === 'aberta' ? 1 : 2;
   ls.sort((a, b) => ord(a) - ord(b) || b.data.localeCompare(a.data) || (b.editadoEm || '').localeCompare(a.editadoEm || ''));
-  $('lidasList').innerHTML = ls.length ? `<div class="lida-list">${ls.map(lidaItem).join('')}</div>` : '<div class="card empty"><svg><use href="#i-lida"/></svg>Nenhuma lida com esse filtro.</div>';
+  $('lidasList').innerHTML = ls.length ? `<div class="lida-list">${ls.map(lidaItem).join('')}</div>` : `<div class="card empty"><svg><use href="#i-lida"/></svg>Nenhuma lida com esse filtro em ${esc(farm() ? farm().nome : 'esta fazenda')}.${lidasOutras(fs && fs !== 'pend' ? fs : '').map(o => `<div style="margin-top:10px"><b>${esc(o.f.nome)}</b> tem: ${lidasTxt(o.c)}. <button class="btn sm" onclick="irLidasDe('${o.f.id}','${o.c.conferir && fs !== 'aberta' ? 'conferir' : 'aberta'}')">Ir para lá</button></div>`).join('')}</div>`;
 }
 function newLida() {
   if (!farm()) { openFarm(); return; }
