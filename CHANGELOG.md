@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [18] — 2026-11-23 — Manejo a realizar no Modo Campo
+- Novo card Manejo a realizar no início do Modo Campo: mostra, por lote e pasto, os animais sem manejo há mais de 30 dias e as aplicações sanitárias agendadas (vencidas ou dos próximos 7 dias).
+- Ao tocar no lote, aparecem o pasto, os brincos pendentes com os dias sem manejo e os botões para escolher a lida (pesar, vacina e remédio, trocar de lote ou mudar de pasto). O lote já vai preenchido.
+- Tocar numa aplicação agendada repete o produto e a dose; o app pergunta só a carência e a próxima data.
+- Na lista de animais da lida, os que estavam pendentes aparecem destacados com os dias sem manejo.
+
 ## [17] — 2026-11-23 — E-mail ativado
 - O envio de e-mail passa a funcionar: o cadastro envia a mensagem de boas-vindas e o Esqueci a senha envia o código de 8 caracteres para o e-mail cadastrado.
 - O envio sai por uma conta Gmail da Ekoa, com limite diário e limite por e-mail para evitar abuso. Se o envio não estiver disponível, o app segue com o código anotado.

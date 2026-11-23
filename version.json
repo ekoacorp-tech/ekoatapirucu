@@ -1,9 +1,19 @@
 {
-  "versao": 17,
-  "rotulo": "17 beta",
+  "versao": 18,
+  "rotulo": "18 beta",
   "data": "2026-11-23",
-  "titulo": "E-mail ativado: boas-vindas e código para recuperar a senha",
+  "titulo": "Manejo a realizar no Modo Campo",
   "notas": {
+    "18": {
+      "data": "2026-11-23",
+      "titulo": "Manejo a realizar no Modo Campo",
+      "itens": [
+        "Novo card Manejo a realizar no início do Modo Campo: mostra, por lote e pasto, os animais sem manejo há mais de 30 dias e as aplicações sanitárias agendadas (vencidas ou dos próximos 7 dias).",
+        "Ao tocar no lote, aparecem o pasto, os brincos pendentes com os dias sem manejo e os botões para escolher a lida (pesar, vacina e remédio, trocar de lote ou mudar de pasto). O lote já vai preenchido.",
+        "Tocar numa aplicação agendada repete o produto e a dose; o app pergunta só a carência e a próxima data.",
+        "Na lista de animais da lida, os que estavam pendentes aparecem destacados com os dias sem manejo."
+      ]
+    },
     "17": {
       "data": "2026-11-23",
       "titulo": "E-mail ativado: boas-vindas e código para recuperar a senha",
