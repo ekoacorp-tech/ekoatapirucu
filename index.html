@@ -552,6 +552,12 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 .cp-ani i{font-style:normal;font-size:.68rem;font-weight:700;color:var(--brand-orange)}
 .cp-ani.ok{background:var(--ok-bg);border-color:#16a34a;color:var(--ok-txt)}
 .cp-ani.car{border-color:var(--brand-orange)}
+.cp-ani.pend{border-color:#c2410c}
+.cp-ani i.pd{color:#9a3412}
+.cp-btn.pend{border-left:8px solid #c2410c}
+.cp-pends{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.cp-pa{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;border:2px solid #c2410c;border-radius:12px;background:var(--card-bg);padding:4px;overflow-wrap:anywhere;word-break:break-word;text-align:center;font-size:1rem}
+.cp-pa i{font-style:normal;font-size:.72rem;font-weight:700;color:#9a3412}
 .cp-todos{flex-shrink:0;min-height:50px}
 .cp-ok{color:var(--ok-txt);font-weight:800;font-size:1.1rem;grid-column:1/-1;padding:8px}
 .cp-tec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
@@ -3655,7 +3661,7 @@ function renderCampo() {
   const T = {
     inicio: cpInicio, fazenda: cpFazenda, passo: cpPasso, lancar: cpLancar, fora: cpFora, peso: cpPeso, confPeso: cpConfPeso,
     causa: cpCausa, confBaixa: cpConfBaixa, sexo: cpSexo, pesoBez: cpPeso, lancados: cpLancados, concluir: cpConcluir, pronto: cpPronto,
-    data: cpDataTela, pastoLote: cpPastoLote, pastoDest: cpPastoDest, pastoConf: cpPastoConf, pastoOk: cpPastoOk, sair: cpSair, esqueci: cpEsqueci
+    data: cpDataTela, pend: cpPend, pastoLote: cpPastoLote, pastoDest: cpPastoDest, pastoConf: cpPastoConf, pastoOk: cpPastoOk, sair: cpSair, esqueci: cpEsqueci
   };
   box.innerHTML = (T[CP.tela] || cpInicio)();
   box.dataset.tela = CP.tela;
@@ -3672,6 +3678,7 @@ function cpInicio() {
   return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
     + `<div class="cp-body">
       ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
+      ${cpPendCard()}
       <p class="cp-sec">O que vai fazer agora?</p>
       <div class="cp-grade">${Object.entries(CP_ACOES).map(([k, a]) => cpBtn(a.t, a.d, `cpComeca('${k}')`, '', a.i)).join('')}</div>
       <div class="cp-envio">
@@ -3682,6 +3689,68 @@ function cpInicio() {
 function cpFazenda() {
   return cpHead('Qual fazenda?', 'Os lançamentos vão para a fazenda escolhida', "cpIr('inicio')")
     + `<div class="cp-body"><div class="cp-opc">${S.fazendas.map(f => cpBtn(esc(f.nome), `${cpContaFaz(f.id)} animais`, `cpEscolheFazenda('${f.id}')`, f.id === S.fazendaAtiva ? 'on' : '', 'i-cad')).join('')}</div></div>`;
+}
+
+/* ---------- Manejo a realizar: o que está pendente, onde está e como começar ---------- */
+const CP_JANELA_AGENDA = 7;   // aplicações agendadas entram no card a partir de 7 dias antes
+function cpPendencias() {
+  const hj = hoje(), lim = addDias(hj, CP_JANELA_AGENDA), g = {};
+  const grupo = id => g[id || ''] || (g[id || ''] = { lid: id || '', atrasados: [], agendas: [] });
+  Object.values(compute()).filter(s => s.ativo && s.atrasado).forEach(s => grupo(s.lote).atrasados.push(s));
+  /* só vale a última aplicação de cada produto no lote: se já foi repetida depois, a antiga não está pendente */
+  const ult = {};
+  lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario').forEach(l => {
+    const k = `${l.loteId || ''}|${(l.cab.procedimento || '')}|${(l.cab.produto || '').toLowerCase()}`;
+    if (!ult[k] || (l.data || '') > (ult[k].data || '')) ult[k] = l;
+  });
+  Object.values(ult).filter(l => l.cab.proximaEm && l.cab.proximaEm <= lim).forEach(l => grupo(l.loteId).agendas.push(l));
+  return Object.values(g).filter(x => x.atrasados.length || x.agendas.length).filter(x => !x.lid || (S.lotes.find(l => l.id === x.lid) || {}).ativo !== false).map(x => {
+    x.atrasados.sort((a, b) => (b.diasSemManejo || 0) - (a.diasSemManejo || 0));
+    x.agendas.sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm));
+    x.vencida = x.agendas.some(l => l.cab.proximaEm < hoje());
+    return x;
+  }).sort((a, b) => (b.vencida - a.vencida) || (b.atrasados.length - a.atrasados.length));
+}
+const cpPendLocal = lid => { const l = S.lotes.find(x => x.id === lid); return l ? (l.pastoId ? `${esc(l.nome)} · ${esc(pastoNome(l.pastoId))}` : `${esc(l.nome)} · sem pasto`) : 'Sem lote'; };
+const cpAgendaTxt = l => { const d = l.cab.proximaEm, hj = hoje(), nome = esc([PROCEDIMENTOS[l.cab.procedimento] || '', l.cab.produto || ''].filter(Boolean).join(' ')); return `${nome} ${d < hj ? 'atrasada (' + fmtD(d) + ')' : d === hj ? 'é hoje' : 'em ' + fmtD(d)}`; };
+function cpPendCard() {
+  const p = cpPendencias();
+  if (!p.length) return `<p class="cp-sec">Manejo a realizar</p><p class="cp-ok" style="grid-column:auto">✓ Nada pendente</p>`;
+  const tot = p.reduce((t, x) => t + x.atrasados.length, 0), mostra = p.slice(0, 5);
+  return `<p class="cp-sec">Manejo a realizar</p><div class="cp-opc">${mostra.map(x => {
+    const partes = [];
+    if (x.atrasados.length) partes.push(`${x.atrasados.length} sem manejo há +${DIAS_ATRASO} dias`);
+    x.agendas.slice(0, 2).forEach(l => partes.push(cpAgendaTxt(l)));
+    return cpBtn(cpPendLocal(x.lid), partes.join(' · '), `cpIr('pend',{pendLote:'${x.lid}'})`, 'pend', 'i-rebanho');
+  }).join('')}${p.length > mostra.length ? `<p class="cp-txt">+${p.length - mostra.length} lote(s) com pendência. Resolva os de cima para vê-los.</p>` : ''}</div>`;
+}
+function cpPend() {
+  const x = cpPendencias().find(o => o.lid === (CP.pendLote || ''));
+  if (!x) return cpHead('Manejo a realizar', '', "cpIr('inicio')") + `<div class="cp-body"><p class="cp-ok">✓ Este lote está em dia.</p>${cpBtn('Voltar ao início', '', "cpIr('inicio')", 'leve')}</div>`;
+  const lt = S.lotes.find(l => l.id === x.lid), max = 24;
+  const acoes = ['pesagem', 'sanitario', 'troca', 'pasto'].filter(k => x.lid || k === 'sanitario' || k === 'pesagem');
+  return cpHead(lt ? lt.nome : 'Sem lote', lt && lt.pastoId ? 'Pasto: ' + esc(pastoNome(lt.pastoId)) : '', "cpIr('inicio')") + `<div class="cp-body">
+    ${x.agendas.length ? `<p class="cp-sec">Aplicação agendada</p><div class="cp-opc">${x.agendas.map(l => cpBtn(cpAgendaTxt(l), `Último uso ${fmtD(l.data)}${l.cab.dose ? ' · dose ' + esc(l.cab.dose) : ''}. Toque para aplicar de novo.`, `cpComecaAgenda('${l.id}')`, 'pend', 'i-san')).join('')}</div>` : ''}
+    ${x.atrasados.length ? `<p class="cp-sec">${x.atrasados.length} animal(is) sem manejo há +${DIAS_ATRASO} dias</p><div class="cp-pends">${x.atrasados.slice(0, max).map(s => `<span class="cp-pa"><b>${esc(s.a.brinco)}</b><i>${s.diasSemManejo} dias</i></span>`).join('')}</div>${x.atrasados.length > max ? `<p class="cp-txt">+${x.atrasados.length - max} animais. Na lida eles aparecem marcados.</p>` : ''}` : ''}
+    <p class="cp-sec">Que lida vai fazer neste lote?</p>
+    <div class="cp-grade">${acoes.map(k => cpBtn(CP_ACOES[k].t, CP_ACOES[k].d, `cpComecaLote('${k}','${x.lid}')`, '', CP_ACOES[k].i)).join('')}</div></div>`;
+}
+/* abre a lida já no lote escolhido, pulando a pergunta do lote */
+function cpComecaLote(tipo, lid) {
+  if (!syncMeta.device) { openDeviceModal(() => cpComecaLote(tipo, lid)); return; }
+  if (tipo === 'pasto') { cpIr('pastoDest', { mvLote: lid }); return; }
+  const cab = {};
+  if (tipo === 'pesagem') cab.motivo = 'rotina';
+  if (tipo === 'sanitario') cab.procedimento = 'vacina';
+  cpIr('passo', { nova: { tipo, loteId: lid || '', cab, dias: {} }, i: 0 });
+  cpAvanca();
+}
+/* repete a aplicação agendada: produto e dose já preenchidos, pergunta só a carência e a próxima data */
+function cpComecaAgenda(id) {
+  const o = S.lidas.find(l => l.id === id); if (!o) return;
+  if (!syncMeta.device) { openDeviceModal(() => cpComecaAgenda(id)); return; }
+  const cab = { procedimento: o.cab.procedimento || 'vacina', produto: o.cab.produto || '', dose: o.cab.dose || '' };
+  cpIr('passo', { nova: { tipo: 'sanitario', loteId: o.loteId || '', cab, dias: {} }, i: CP_PASSOS.sanitario.indexOf('carencia') });
 }
 const cpContaFaz = fid => Object.values(computeF(fid)).filter(s => s.ativo).length;
 function cpEscolheFazenda(id) { S.fazendaAtiva = id; calc = null; save(); renderFarmSel(); cpIr('inicio'); }
@@ -3788,7 +3857,7 @@ function cpListaHtml() {
   if (q) base = base.filter(s => s.a.brinco.toLowerCase().includes(q));
   if (!base.length) return q ? `<p class="cp-txt">Nenhum animal ${l.loteId ? 'deste lote ' : ''}com "${esc(CP.filtro)}". Toque em <b>OK</b> para procurar em toda a fazenda.</p>` : `<p class="cp-ok">✓ Todos os animais do lote foram lançados.</p>`;
   const max = 80, mostra = base.slice(0, max);
-  return mostra.map(s => `<button type="button" class="cp-ani${String(s.a.brinco).length > 9 ? ' lg' : ''}${feitos.has(s.a.id) ? ' ok' : ''}${s.emCarencia ? ' car' : ''}" onclick="cpEscolhe('${s.a.id}')" aria-pressed="${feitos.has(s.a.id)}">${feitos.has(s.a.id) ? '✓ ' : ''}${esc(s.a.brinco)}${s.emCarencia ? '<i>carência</i>' : ''}</button>`).join('')
+  return mostra.map(s => `<button type="button" class="cp-ani${String(s.a.brinco).length > 9 ? ' lg' : ''}${feitos.has(s.a.id) ? ' ok' : ''}${s.emCarencia ? ' car' : ''}${s.atrasado && !feitos.has(s.a.id) ? ' pend' : ''}" onclick="cpEscolhe('${s.a.id}')" aria-pressed="${feitos.has(s.a.id)}">${feitos.has(s.a.id) ? '✓ ' : ''}${esc(s.a.brinco)}${s.emCarencia ? '<i>carência</i>' : (s.atrasado && !feitos.has(s.a.id) ? `<i class="pd">${s.diasSemManejo} dias</i>` : '')}</button>`).join('')
     + (base.length > max ? `<p class="cp-txt" style="grid-column:1/-1">+${base.length - max} animais. Digite mais números para achar.</p>` : '');
 }
 function cpVisorHtml() {
