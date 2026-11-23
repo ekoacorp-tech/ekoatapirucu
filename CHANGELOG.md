@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [27] — 2026-11-23 — Painel em escada
+- Painel em escada: quatro abas no topo — Fazenda, Lotes, Pastos e Rebanho. O filtro de fazenda (uma ou Todas) vale para todas as abas e se mantém ao navegar.
+- Atenção agora: no topo de cada aba, o que pede ação na ordem de importância (aplicação atrasada, animal que perdeu peso, lote que parou de ganhar ou sem pesar, pasto que passou da meta). Um toque leva à lista ou ao detalhe certo, mesmo em outra fazenda.
+- Aba Lotes: todos os lotes numa lista com peso médio, GMD com seta comparando a pesagem anterior, dias no pasto e situação (Em dia, Pesagem vencida, Ganho caiu, Parou de ganhar). No detalhe do lote: uniformidade do peso e última pesagem com a cobertura.
+- Aba Pastos: situação de cada pasto, lotação contra o máximo, dias contra a meta e @/ha por pasto, com a ordem por quem pede ação.
+- Aba Rebanho em Todas as fazendas, com novos números: Perderam peso e Pesagem vencida. Na Fazenda: Capacidade ociosa em UA.
+- Botão ? em cada número: o que é, como é calculado e o que fazer com ele, sem sair do app. O painel agora diz a data da última pesagem e avisa que mostra produção, não lucro.
+- Topo do Painel mais enxuto no celular: planilhas CSV recolhidas e filtros lado a lado.
+
 ## [26] — 2026-11-23 — Carga para o campo e cópia de segurança
 - Carga para o campo: novo cartão em Sincronizar, com os 4 passos (o escritório cadastra, gera a carga, o campo recebe e depois envia de volta). O arquivo é o mesmo da sincronização, com o nome Tapirucu_Carga_…, e leva os cadastros e o histórico finalizado. Não leva o Modo Campo nem o PIN.
 - Aparelho do campo sem dados: a tela agora explica os 3 passos para receber a carga.
