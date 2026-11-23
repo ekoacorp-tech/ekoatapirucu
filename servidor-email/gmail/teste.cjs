@@ -32,7 +32,7 @@ post({ rota: 'redefinir', email: EM, did: ID }); ck('novo pedido libera novo uso
 post({ rota: 'redefinir', email: EM, did: ID }); let u; for (let i = 0; i < 6; i++) u = post({ rota: 'validar', email: EM, did: ID, codigo: 'ZZZZZZZ' + i }); r = post({ rota: 'validar', email: EM, did: ID, codigo: cod() });
 ck('após 5 erros até o certo é barrado', u.motivo === 'limite' && r.motivo === 'limite', JSON.stringify([u, r]));
 mem.cache.clear(); mem.props.set('DIA', sandbox.Utilities.formatDate(new Date()) + ':80'); r = post({ rota: 'redefinir', email: 'outra@empresa.com', did: ID }); ck('teto diário de 80 e-mails', r.ok === false && r.motivo === 'limite', JSON.stringify(r));
-const real = Date.now; const base = real(); mem.props.delete('DIA'); mem.cache.clear(); Date.now = () => base; sandbox.Date = class extends Date { constructor(...a) { super(...(a.length ? a : [Date.now()])); } static now() { return Date.now(); } };
+const real = Date.now; const base = Math.floor(real() / 900000) * 900000 + 60000; mem.props.delete('DIA'); mem.cache.clear(); Date.now = () => base; sandbox.Date = class extends Date { constructor(...a) { super(...(a.length ? a : [Date.now()])); } static now() { return Date.now(); } };
 post({ rota: 'redefinir', email: EM, did: ID }); const c0 = cod(); Date.now = () => base + 16 * 60e3; ck('código vale na janela seguinte', post({ rota: 'validar', email: EM, did: ID, codigo: c0 }).ok === true);
 mem.cache.clear(); Date.now = () => base + 31 * 60e3; ck('código vence após 30 min', post({ rota: 'validar', email: EM, did: ID, codigo: c0 }).ok === false); Date.now = real;
 ck('rota desconhecida recusada', post({ rota: 'x', email: EM, did: ID }).ok === false);

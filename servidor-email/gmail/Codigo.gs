@@ -46,24 +46,61 @@ function contaDia() {
   var n = (v[0] === hoje ? parseInt(v[1], 10) || 0 : 0) + 1; p.setProperty('DIA', hoje + ':' + n); return n;
 }
 
-function moldura(titulo, corpo) {
-  return '<div style="background:#EEF1F4;padding:24px 12px;font-family:Segoe UI,Arial,sans-serif;color:#1F2A3C"><div style="max-width:560px;margin:0 auto;background:#fff;border-radius:6px">' +
-    '<div style="padding:18px 28px;border-bottom:1px solid #DDE3EA"><b style="color:#112347;font-size:18px">EKOA</b> <span style="color:#23757F">Tapiruçu</span></div>' +
-    '<div style="padding:28px"><h1 style="margin:0 0 14px;font-size:22px;color:#112347">' + titulo + '</h1>' + corpo + '</div>' +
-    '<div style="padding:16px 28px;border-top:1px solid #DDE3EA;font-size:12px;color:#5B6B80">Ekoa Gestão e Processo · mensagem automática, não responda este e-mail.</div></div></div>';
+var LOGO = 'https://ekoacorp-tech.github.io/ekoatapirucu/assets/tapirucu-logo.png';
+var APP_URL = 'https://ekoacorp-tech.github.io/ekoatapirucu/';
+
+/* Moldura em tabelas e estilos inline (único formato que Gmail/Outlook respeitam). Cores explícitas
+   em todas as células para o modo escuro não deixar texto ilegível. */
+function moldura(preheader, titulo, corpo) {
+  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"></head>' +
+    '<body style="margin:0;padding:0;background:#EEF1F4;">' +
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EEF1F4;font-size:1px;line-height:1px;">' + esc(preheader) + '&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#EEF1F4" style="background:#EEF1F4;"><tr><td align="center" style="padding:24px 12px;">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">' +
+    '<tr><td bgcolor="#112347" style="background:#112347;background-image:linear-gradient(#112347,#112347);border-radius:10px 10px 0 0;padding:26px 28px 22px;" align="left">' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>' +
+      '<td style="padding-right:14px;" valign="middle"><img src="' + LOGO + '" width="56" alt="Ekoa Tapiruçu" style="display:block;border:0;height:auto;"></td>' +
+      '<td valign="middle"><div style="font-size:20px;line-height:22px;font-weight:700;color:#FFFFFF !important;letter-spacing:.5px;">EKOA <span style="color:#7CC4CC;">Tapiruçu</span></div>' +
+      '<div style="font-size:12px;line-height:18px;color:#B9C6DA;">Gestão do Rebanho</div></td></tr></table></td></tr>' +
+    '<tr><td height="4" bgcolor="#C2753E" style="background:#C2753E;background-image:linear-gradient(#C2753E,#C2753E);font-size:0;line-height:0;">&nbsp;</td></tr>' +
+    '<tr><td bgcolor="#FFFFFF" style="background:#FFFFFF;padding:32px 28px 28px;color:#1F2A3C;font-size:15px;line-height:24px;">' +
+      '<h1 style="margin:0 0 16px;font-size:24px;line-height:30px;color:#112347;font-weight:700;">' + titulo + '</h1>' + corpo + '</td></tr>' +
+    '<tr><td bgcolor="#F7F9FB" style="background:#F7F9FB;border-top:1px solid #DDE3EA;border-radius:0 0 10px 10px;padding:18px 28px;font-size:12px;line-height:18px;color:#5B6B80;">' +
+      '<b style="color:#112347;">Ekoa Gestão e Processo</b><br>Mensagem automática, por favor não responda este e-mail.</td></tr>' +
+    '</table></td></tr></table></body></html>';
+}
+function botao(url, texto) {
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 6px;"><tr>' +
+    '<td align="center" bgcolor="#23757F" style="background:#23757F;background-image:linear-gradient(#23757F,#23757F);border-radius:8px;padding:14px 30px;">' +
+    '<a href="' + esc(url) + '" style="font-size:16px;line-height:20px;font-weight:700;color:#FFFFFF !important;text-decoration:none;display:block;"><font color="#FFFFFF">' + texto + '</font></a></td></tr></table>';
+}
+function ponto(titulo, texto) {
+  return '<tr><td valign="top" width="28" style="padding:6px 0;"><div style="width:20px;height:20px;line-height:20px;border-radius:10px;background:#E9F3F4;color:#23757F;font-weight:700;font-size:12px;text-align:center;">&#10003;</div></td>' +
+    '<td style="padding:6px 0;font-size:14px;line-height:21px;color:#1F2A3C;"><b style="color:#112347;">' + titulo + '</b><br>' + texto + '</td></tr>';
 }
 function msgBoasVindas(url) {
-  var link = url && /^https:\/\//.test(url) ? '<p><a href="' + esc(url) + '" style="color:#23757F">Abrir o Ekoa Tapiruçu</a></p>' : '';
-  return { assunto: 'Bem-vindo ao Ekoa Tapiruçu', html: moldura('Bem-vindo ao Ekoa Tapiruçu', '<p>Seu aparelho está protegido por senha e este e-mail ficou cadastrado para recuperá-la.</p>' +
-    '<p style="margin:18px 0 6px"><b>Guarde estes pontos</b></p><ul style="padding-left:18px;line-height:1.6"><li>A senha e os dados ficam <b>somente no seu aparelho</b>. Nós nunca recebemos sua senha.</li><li>Se esquecer a senha, toque em <b>Esqueci a senha</b> e peça um código para este e-mail.</li><li>Você também tem o código de recuperação mostrado no cadastro. Guarde-o em lugar seguro.</li></ul>' + link +
-    '<p style="color:#5B6B80;font-size:13px">Não foi você? Basta ignorar esta mensagem.</p>'),
-    texto: 'Bem-vindo ao Ekoa Tapiruçu. Seu e-mail ficou cadastrado para recuperar a senha. A senha e os dados ficam só no seu aparelho. Se esquecer a senha, toque em Esqueci a senha e peça um código para este e-mail.' };
+  var destino = url && /^https:\/\//.test(url) ? url : APP_URL;
+  var corpo = '<p style="margin:0 0 14px;">Seu aparelho está protegido por senha e este e-mail ficou cadastrado para recuperá-la, se um dia você precisar.</p>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 4px;">' +
+    ponto('Seus dados ficam com você', 'A senha e as informações do rebanho ficam somente no seu aparelho. Nós nunca recebemos sua senha.') +
+    ponto('Esqueceu a senha?', 'Toque em <b>Esqueci a senha</b> e peça um código para este e-mail.') +
+    ponto('Guarde o código de recuperação', 'Aquele mostrado uma única vez no cadastro continua valendo. Anote em lugar seguro.') + '</table>' +
+    botao(destino, 'Abrir o Ekoa Tapiruçu') +
+    '<p style="margin:18px 0 0;font-size:13px;line-height:20px;color:#5B6B80;">Não foi você? Basta ignorar esta mensagem: nada muda sem a sua ação no aparelho.</p>';
+  return { assunto: 'Bem-vindo ao Ekoa Tapiruçu', html: moldura('Seu e-mail ficou cadastrado para recuperar a senha.', 'Bem-vindo ao Ekoa Tapiruçu', corpo),
+    texto: 'Bem-vindo ao Ekoa Tapiruçu. Seu e-mail ficou cadastrado para recuperar a senha. A senha e os dados ficam só no seu aparelho. Se esquecer a senha, toque em Esqueci a senha e peça um código para este e-mail. Abrir: ' + destino };
 }
 function msgCodigo(c) {
-  var f = c.slice(0, 4) + '-' + c.slice(4);
-  return { assunto: 'Seu código para criar uma nova senha', html: moldura('Código para nova senha', '<p>Digite este código no Ekoa Tapiruçu para criar uma nova senha. Ele vale por 15 minutos.</p>' +
-    '<p style="font-size:30px;letter-spacing:4px;font-weight:700;color:#112347;background:#E9F3F4;padding:14px 18px;border-radius:4px;display:inline-block;margin:8px 0">' + f + '</p>' +
-    '<p style="color:#5B6B80;font-size:13px">Se você não pediu, ignore este e-mail: nada muda sem este código.</p>'), texto: 'Seu código para criar uma nova senha no Ekoa Tapiruçu: ' + f + '. Vale por 15 minutos. Se você não pediu, ignore.' };
+  var f = c.slice(0, 4) + '&nbsp;&ndash;&nbsp;' + c.slice(4);
+  var corpo = '<p style="margin:0 0 6px;">Digite este código no Ekoa Tapiruçu para criar uma nova senha.</p>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;"><tr><td align="center" bgcolor="#E9F3F4" style="background:#E9F3F4;border:1px solid #BFDDE0;border-radius:10px;padding:22px 12px;">' +
+    '<div style="font-size:12px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase;color:#23757F;font-weight:700;">Seu código</div>' +
+    '<div style="font-family:Consolas,Menlo,monospace;font-size:36px;line-height:46px;letter-spacing:5px;font-weight:700;color:#112347;">' + f + '</div>' +
+    '<div style="font-size:13px;line-height:20px;color:#5B6B80;">Vale por <b>15 minutos</b> e só pode ser usado uma vez.</div></td></tr></table>' +
+    '<p style="margin:0;font-size:14px;line-height:22px;">Volte ao app e informe o código na tela <b>Esqueci a senha</b>.</p>' + botao(APP_URL, 'Abrir o Ekoa Tapiruçu') +
+    '<p style="margin:18px 0 0;font-size:13px;line-height:20px;color:#5B6B80;">Você não pediu? Ignore este e-mail: sem o código, nada muda.</p>';
+  return { assunto: 'Seu código para criar uma nova senha', html: moldura('Código para criar uma nova senha. Vale por 15 minutos.', 'Código para nova senha', corpo),
+    texto: 'Seu código para criar uma nova senha no Ekoa Tapiruçu: ' + c.slice(0, 4) + '-' + c.slice(4) + '. Vale por 15 minutos e só pode ser usado uma vez. Se você não pediu, ignore.' };
 }
 function envia(para, m) {
   try { MailApp.sendEmail({ to: para, subject: m.assunto, htmlBody: m.html, body: m.texto, name: 'Ekoa Tapiruçu' }); return true; } catch (e) { return false; }
