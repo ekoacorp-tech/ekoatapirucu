@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [24] — 2026-11-23 — Cadastro guiado e painel de ocupação
+- Novo painel visual de ocupação: um quadro por pasto, com a situação (ocupado, em descanso, pronto para entrar, nunca ocupado), os lotes que estão lá, a barra de dias contra a meta e o aviso de pasto que passou da meta. Aparece na aba Pastos e no painel da fazenda, com atalho para o mapa.
+- Cadastro guiado de primeiro uso (passo a passo): fazenda, primeiro pasto e primeiro lote, em três telas, com o resto opcional. Aparece na tela inicial e em Fazendas quando não há nada cadastrado, e termina oferecendo cadastrar os animais.
+- Pasto: o botão Excluir virou Excluir ou arquivar, com o resumo do que o pasto tem (ciclos de ocupação, lotes, período). Arquivar tira o pasto das listas e mantém o histórico; se o pasto está ocupado, o app diz qual lote precisa sair antes.
+
 ## [23] — 2026-11-23 — Números que orientam
 - Arrobas passam a mostrar até quando vão os dados ("dados até DD/MM, N de M animais"). Sem pesagem recente, o número de arrobas fica abaixo do real, e agora isso aparece na tela.
 - O ganho de peso de um animal que trocou de lote ou de pasto é repartido pelos dias em cada um, e não mais todo no último. Isso corrige o @/ha por pasto e o ganho por lote.

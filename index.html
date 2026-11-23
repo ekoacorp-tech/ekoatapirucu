@@ -393,6 +393,17 @@ tbody tr:last-child td{border-bottom:0}
 .map-card{padding:14px}
 .map-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .map-tools .grow{flex:1}
+.pv-top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.pv-legs{display:flex;gap:6px;flex-wrap:wrap}
+.pv-leg{font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.pv{border-radius:14px;padding:12px;border:1px solid var(--border-color);border-left-width:6px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:44px;background:var(--bg-surface)}
+.pv b{font-size:1rem;overflow-wrap:anywhere}.pv-s{font-weight:700;font-size:.9rem}.pv-l,.pv-o,.pv-a{font-size:.82rem;opacity:.85;overflow-wrap:anywhere}.pv-a{color:var(--bad-txt);font-weight:700;opacity:1}
+.pv-bar{position:relative;height:8px;border-radius:6px;background:rgba(0,0,0,.1);margin:4px 0 14px}.pv-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:currentColor;opacity:.75}.pv-bar small{position:absolute;top:10px;left:0;font-size:.74rem;white-space:nowrap}
+.pv-ocupado{border-left-color:#2563eb}.pv-ocupado.pv-leg,.pv-leg.pv-ocupado{background:#dbeafe;color:#1e3a8a}
+.pv-descanso{border-left-color:#94a3b8}.pv-leg.pv-descanso{background:#e2e8f0;color:#334155}
+.pv-pronto{border-left-color:#16a34a}.pv-leg.pv-pronto{background:var(--ok-bg);color:var(--ok-txt)}
+.pv-livre{border-left-color:#cbd5e1;border-left-style:dashed}.pv-leg.pv-livre{background:#f1f5f9;color:#475569}
+.pv-aviso{border-left-color:#dc2626}
 .cad-tabs{display:flex;width:100%;margin-bottom:12px}.cad-tabs button{flex:1;min-height:44px}.cad-cab{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.cad-cab p{margin:0;flex:1 1 260px}.cad-cab .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .seg{display:inline-flex;border:1px solid var(--border-color);border-radius:12px;overflow:hidden;background:var(--bg-surface)}
 .seg button{min-height:40px;padding:6px 14px;border:0;background:none;cursor:pointer;font:inherit;font-weight:600;font-size:.84rem;color:var(--text-primary)}
@@ -910,7 +921,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 23;
+const APP_VERSION = 24;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1339,7 +1350,7 @@ function renderHome() {
   if (!f) {
     $('hFarm').innerHTML = 'Comece cadastrando a fazenda. Depois os pastos (o lugar), os lotes (o grupo) e os animais.';
     al.innerHTML = `<div class="alert info"><span>Nenhuma fazenda cadastrada neste aparelho. Se outro aparelho já tem os dados, importe o arquivo de sincronização.</span></div>
-      <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
+      <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="abreAssistente()">Cadastro guiado (passo a passo)</button><button class="btn" onclick="openFarm()">Cadastrar só a fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
     $('homeTodas').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
   }
   $('hFarm').innerHTML = `Fazenda em uso neste aparelho: <b>${esc(f.nome)}</b><span class="hide-m"> · os lançamentos ficam salvos aqui, mesmo sem internet</span>`;
@@ -1975,6 +1986,31 @@ function pastosResumo(hj) {
   });
 }
 function sitPastoChip(r) { const d = SIT_PASTO[r.situacao]; const ex = r.situacao === 'ocupado' && r.diasOcup != null ? ` há ${r.diasOcup} d` : r.situacao === 'descanso' || r.situacao === 'pronto' ? ` há ${r.diasDesc} d` : ''; return `<span class="chip ${r.aviso ? 'warn' : d.c}">${d.t}${ex}</span>`; }
+/* Painel visual: um quadro por pasto, pela situação (ocupado, descanso, pronto, nunca ocupado) e pela meta de dias */
+function ocupVisualHtml(rp) {
+  const act = rp.filter(r => r.p.ativo !== false);
+  if (!act.length) return '';
+  const ord = { ocupado: 0, pronto: 1, descanso: 2, livre: 3 }, cont = { ocupado: 0, pronto: 0, descanso: 0, livre: 0 };
+  act.forEach(r => cont[r.situacao]++);
+  const tile = r => {
+    const p = r.p; let barra = '', msg = SIT_PASTO[r.situacao].t;
+    if (r.situacao === 'ocupado') { const m = p.diasOcupacao; msg = `Ocupado há ${r.diasOcup} d`; if (m) barra = `<i style="width:${Math.min(100, Math.round(r.diasOcup / m * 100))}%"></i><small>${r.diasOcup} de ${m} dias de ocupação</small>`; }
+    else if (r.situacao === 'descanso') { const m = p.diasDescanso; msg = `Descansando há ${r.diasDesc} d`; if (m) barra = `<i style="width:${Math.min(100, Math.round(r.diasDesc / m * 100))}%"></i><small>${r.diasDesc} de ${m} dias de descanso</small>`; }
+    else if (r.situacao === 'pronto') msg = `Pronto para entrar (descansou ${r.diasDesc} d)`;
+    else msg = 'Nunca ocupado';
+    const lt = r.lotes.slice(0, 2).map(x => esc(x.l.nome)).join(' + ');
+    return `<div class="pv pv-${r.situacao}${r.aviso ? ' pv-aviso' : ''}" role="button" tabindex="0" onclick="openPastoPainel('${p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${p.id}')">
+      <b>${esc(p.nome)}</b><span class="pv-s">${r.aviso ? '⚠ ' : ''}${msg}</span>
+      ${lt ? `<span class="pv-l">${lt} · ${r.qtd} animal(is)</span>` : ''}
+      ${barra ? `<div class="pv-bar">${barra}</div>` : ''}
+      ${r.aviso ? `<span class="pv-a">${esc(r.aviso)}</span>` : ''}
+      ${r.ocup != null ? `<span class="pv-o">${fmtN(r.uaha, 2)} UA/ha · ${r.ocup}% da lotação</span>` : ''}</div>`;
+  };
+  const leg = [['ocupado', 'ocupados'], ['pronto', 'prontos para entrar'], ['descanso', 'em descanso'], ['livre', 'nunca ocupados']].filter(([k]) => cont[k]).map(([k, t]) => `<span class="pv-leg pv-${k}">${cont[k]} ${t}</span>`).join('');
+  const comContorno = act.filter(r => r.p.geo && r.p.geo.poligono).length;
+  return `<div class="pv-top"><div class="pv-legs">${leg}</div><button class="btn sm" onclick="mapaTodas=false;goView('mapa')">Ver no mapa (${comContorno} de ${act.length} com contorno)</button></div>
+    <div class="pv-grid">${act.slice().sort((a, b) => ord[a.situacao] - ord[b.situacao] || a.p.nome.localeCompare(b.p.nome)).map(tile).join('')}</div>`;
+}
 function piquetesRecomendados(fid) {
   const ps = S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false && p.diasDescanso > 0 && p.diasOcupacao > 0);
   if (!ps.length) return null;
@@ -2316,6 +2352,7 @@ function pnFazendaHtml(f, d0, d1) {
       ${kpi('Sem manejo +30 dias', fmtN(at.filter(s => s.atrasado).length), 'red', 'R19', "goRebanho('atraso')")}
     </div></div>
     <div class="card"><h3>Evolução <span class="sub">últimos 12 meses</span></h3>${evolHtml(ev, 'evF')}</div>`;
+  if (rp.length) h += `<div class="card"><h3>Ocupação dos pastos <span class="sub">situação de cada pasto agora · toque para abrir</span></h3>${ocupVisualHtml(rp)}</div>`;
   h += `<div class="card"><h3>Pastos <span class="sub">o lugar · rotação e produtividade · toque para o painel do pasto</span></h3>
     ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th>Situação</th><th class="num">Animais</th><th class="num">Área (ha)</th><th class="num">UA/ha</th><th class="num">Ocupação</th><th class="num">@ (est.)</th><th class="num">@/ha</th><th class="num">Ciclos</th></tr></thead><tbody>
     ${rp.map(x => { const o = r.pasto[x.p.id] || { kg: 0 }, arr = o.kg / KG_ARROBA_VIVO; return `<tr class="click" tabindex="0" onclick="openPastoPainel('${x.p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${x.p.id}')"><td><b>${esc(x.p.nome)}</b>${x.p.forrageira ? '<br><small class="muted">' + esc(x.p.forrageira) + '</small>' : ''}</td><td>${sitPastoChip(x)}</td><td class="num">${x.qtd}</td><td class="num">${x.ar ? fmtN(x.ar, 1) : '—'}</td><td class="num">${x.uaha != null ? fmtN(x.uaha, 2) : '—'}</td><td class="num">${x.ocup != null ? `<span class="chip ${x.ocup > 100 ? 'bad' : x.ocup > 85 ? 'warn' : 'ok'}">${x.ocup}%</span>` : '—'}</td><td class="num">${fmtN(arr, 1)}</td><td class="num">${x.ar ? fmtN(arr / x.ar, 2) : '—'}</td><td class="num">${x.ciclos.length}</td></tr>`; }).join('')}
@@ -3174,7 +3211,7 @@ function renderCadastros() {
   let hF = `<div class="card"><h3>Fazendas</h3>${S.fazendas.length ? `<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th class="num">Pastagem (ha)</th><th>Localização</th><th>Situação</th><th></th></tr></thead><tbody>${S.fazendas.map(x => `<tr><td><b>${esc(x.nome)}</b>${x.municipio ? '<br><small class="muted">' + esc(x.municipio) + '</small>' : ''}${x.car ? '<br><small class="muted">CAR ' + esc(x.car) + '</small>' : ''}</td><td class="num">${x.areaHa ? fmtN(x.areaHa, 1) : '—'}</td><td>${geoChip(x.geo)}</td><td>${x.id === S.fazendaAtiva ? '<span class="chip ok">Ativa neste aparelho</span>' : `<button class="btn sm" onclick="setFarm('${x.id}')">Usar esta</button>`}</td><td><button class="btn sm" onclick="openFarm('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nenhuma fazenda. <button class="btn primary" onclick="openFarm()">Cadastrar fazenda</button></div>'}</div>`;
   if (f) {
     const rp = pastosResumo(), rl = lotesResumo(), rec = piquetesRecomendados(f.id);
-    hP = `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
+    hP = (rp.length ? `<div class="card"><h3>Ocupação agora <span class="sub">toque num pasto para abrir</span></h3>${ocupVisualHtml(rp)}</div>` : '') + `<div class="card"><h3>Pastos de ${esc(f.nome)} <span class="sub">o lugar: área, contorno e metas de manejo</span></h3>
       ${rp.length ? `<div class="tbl-wrap"><table><thead><tr><th>Pasto</th><th class="num">Área (ha)</th><th class="num">Lotação máx. (UA/ha)</th><th>Forrageira</th><th>Metas (dias)</th><th>Ocupação atual</th><th>Contorno</th><th></th></tr></thead><tbody>
       ${rp.map(r => `<tr class="click" tabindex="0" onclick="openPastoPainel('${r.p.id}')" onkeydown="if(event.key==='Enter')openPastoPainel('${r.p.id}')"><td><b>${esc(r.p.nome)}</b>${r.p.ativo === false ? ' <span class="chip gray">inativo</span>' : ''}</td><td class="num">${r.ar ? fmtN(r.ar, 1) + (r.p.geo && r.p.geo.areaHa ? ' <small class="muted">mapa</small>' : '') : '—'}</td><td class="num">${r.p.lotacaoMax ? fmtN(r.p.lotacaoMax, 2) : '—'}</td><td>${esc(r.p.forrageira || '—')}</td><td>${r.p.diasOcupacao || r.p.diasDescanso ? `${r.p.diasOcupacao || '—'} dias de ocupação / ${r.p.diasDescanso || '—'} de descanso` : '—'}</td><td>${sitPastoChip(r)}${r.lotes.length ? '<br><small class="muted">' + r.lotes.map(x => esc(x.l.nome) + ' · ' + x.qtd + ' cab.').join(', ') + '</small>' : ''}</td><td>${geoChip(r.p.geo)}</td><td><button class="btn sm" onclick="event.stopPropagation();openPasto('${r.p.id}')">Editar</button></td></tr>`).join('')}
       </tbody></table></div>` : '<div class="empty">Nenhum pasto. <button class="btn primary" onclick="openPasto()">Cadastrar pasto</button></div>'}
@@ -3192,7 +3229,7 @@ function renderCadastros() {
   const avisos = { fazendas: f && !f.areaHa && !areaPastagemF(f.id) ? ['Esta fazenda ainda não tem área de pastagem: o UA/ha da fazenda não é calculado. Informe a área em Editar.'] : [],
     pastos: semArea ? [`${semArea} pasto(s) sem área: a lotação (UA/ha) e o @/ha deles não são calculados. Informe a área ou desenhe o contorno no mapa.`] : [],
     lotes: semPasto ? [`${semPasto} lote(s) sem pasto: o painel do pasto e a rotação não enxergam esses animais. Escolha o pasto do lote.`] : [] };
-  const nova = cadTab === 'fazendas' ? `<button class="btn primary" onclick="openFarm()">Nova fazenda</button>`
+  const nova = cadTab === 'fazendas' ? (!S.fazendas.length ? `<button class="btn primary" onclick="abreAssistente()">Cadastro guiado (passo a passo)</button> ` : '') + `<button class="btn ${S.fazendas.length ? 'primary' : ''}" onclick="openFarm()">Nova fazenda</button>`
     : cadTab === 'pastos' ? (f ? `<button class="btn primary" onclick="openPasto()">Novo pasto</button>` : `<span class="hint">Cadastre uma fazenda primeiro.</span> <button class="btn" onclick="setCadTab('fazendas')">Ir para Fazendas</button>`)
     : (pa.length ? `<button class="btn primary" onclick="openLote()">Novo lote</button>` : `<span class="hint">${f ? 'Cadastre um pasto primeiro: o lote (grupo de animais) ocupa um pasto.' : 'Cadastre uma fazenda primeiro.'}</span> <button class="btn" onclick="setCadTab('${f ? 'pastos' : 'fazendas'}')">${f ? 'Ir para Pastos' : 'Ir para Fazendas'}</button>`);
   const expl = { fazendas: 'A fazenda é a propriedade: nome, área de pastagem e localização.', pastos: 'O pasto é o lugar: área, contorno e metas de manejo. Cadastre depois da fazenda.', lotes: 'O lote é o grupo de animais que ocupa um pasto. Cadastre depois do pasto. O peão lança o manejo em cima do lote.' };
@@ -3358,7 +3395,53 @@ function openPasto(id) {
     ${x ? fld('paAtivo', 'Situação', `<select id="paAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
     ${geoField('paGeo', x && x.geo ? x.geo.ponto : null, 'Ponto de referência do pasto')}
     </div><p class="hint">As metas vêm das recomendações da Embrapa para pastejo rotacionado e devem ser ajustadas à sua realidade: solo, adubação, chuva e categoria do gado mudam o ponto certo.</p>`,
-    `<button class="btn" onclick="closeModal()">Cancelar</button>${x ? `<button class="btn danger" onclick="removePasto('${x.id}')">Excluir</button>` : ''}<button class="btn primary" onclick="savePasto('${id || ''}')">Salvar</button>`);
+    `<button class="btn" onclick="closeModal()">Cancelar</button>${x ? `<button class="btn danger" onclick="impactoPasto('${x.id}')">Excluir ou arquivar…</button>` : ''}<button class="btn primary" onclick="savePasto('${id || ''}')">Salvar</button>`);
+}
+/* Assistente: fazenda → primeiro pasto → primeiro lote, um passo por tela. Pula o que já existe. */
+let WZ = null;
+function abreAssistente() {
+  if (!syncMeta.device) { openDeviceModal(abreAssistente); return; }
+  const f = farm();
+  WZ = { passo: !f ? 1 : !pastosAtivosF().length ? 2 : 3, faz: { nome: '', mun: '', area: '' }, pa: { nome: '', area: '', lot: '' }, lo: { nome: '' } };
+  wzTela();
+}
+function wzTela() {
+  const n = WZ.passo, tot = 3, cab = `<p class="hint">Passo ${n} de ${tot}. Só o essencial: o resto você completa depois.</p>`;
+  const nav = (ok, rot) => `<button class="btn" onclick="closeModal()">Cancelar</button>${n > 1 && n <= 3 && WZ.volta ? `<button class="btn" onclick="WZ.passo--;wzTela()">Voltar</button>` : ''}<button class="btn primary" onclick="${ok}">${rot}</button>`;
+  if (n === 1) openModal('Cadastro guiado: sua fazenda', cab + `<div class="grid">${fld('wzNome', 'Nome da fazenda', `<input id="wzNome" maxlength="80" value="${esc(WZ.faz.nome)}" placeholder="Ex.: Fazenda Tapiruçu">`, true)}${fld('wzMun', 'Município / UF', `<input id="wzMun" maxlength="80" value="${esc(WZ.faz.mun)}">`)}${fld('wzArea', 'Área de pastagem (ha)', `<input id="wzArea" inputmode="decimal" value="${esc(WZ.faz.area)}">`, false, 'Pode deixar em branco e informar depois.')}</div>`, nav('wzProx()', 'Continuar'));
+  else if (n === 2) openModal('Cadastro guiado: o primeiro pasto', cab + `<p>O <b>pasto é o lugar</b> onde o gado fica. Se a fazenda tem vários, cadastre um agora e os outros depois.</p><div class="grid">${fld('wzPNome', 'Nome do pasto', `<input id="wzPNome" maxlength="60" value="${esc(WZ.pa.nome)}" placeholder="Ex.: Retiro 1">`, true)}${fld('wzPArea', 'Área do pasto (ha)', `<input id="wzPArea" inputmode="decimal" value="${esc(WZ.pa.area)}">`, false, 'Sem a área, a lotação (UA/ha) não é calculada.')}${fld('wzPLot', 'Lotação máxima (UA/ha)', `<input id="wzPLot" inputmode="decimal" value="${esc(WZ.pa.lot)}">`, false, 'Opcional.')}</div>`, nav('wzProx()', 'Continuar'));
+  else if (n === 3) openModal('Cadastro guiado: o primeiro lote', cab + `<p>O <b>lote é o grupo de animais</b> (ex.: "Engorda", "Recria", "Vacas"). Ele ocupa o pasto <b>${esc(wzPastoNome())}</b>.</p><div class="grid">${fld('wzLNome', 'Nome do lote (grupo de animais)', `<input id="wzLNome" maxlength="60" value="${esc(WZ.lo.nome)}" placeholder="Ex.: Engorda A">`, true)}</div>`, nav('wzProx()', 'Concluir'));
+}
+const wzPastoNome = () => (WZ.pa.nome || (pastosAtivosF()[0] || {}).nome || 'já cadastrado');
+function wzProx() {
+  const n = WZ.passo;
+  if (n === 1) {
+    const nome = str($('wzNome').value, 80), aR = $('wzArea').value.trim(), area = aR ? parseNum(aR) : null; fieldErr('wzNome', ''); fieldErr('wzArea', '');
+    if (!nome) { fieldErr('wzNome', 'Informe o nome.'); return; }
+    if (S.fazendas.some(f => f.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('wzNome', 'Já existe fazenda com este nome.'); return; }
+    if (aR && !(area > 0)) { fieldErr('wzArea', 'Área inválida.'); return; }
+    WZ.faz = { nome, mun: str($('wzMun').value, 80), area: aR }; WZ.passo = 2; WZ.volta = true; wzTela(); return;
+  }
+  if (n === 2) {
+    const nome = str($('wzPNome').value, 60), aR = $('wzPArea').value.trim(), lR = $('wzPLot').value.trim(), area = aR ? parseNum(aR) : null, lot = lR ? parseNum(lR) : null; ['wzPNome', 'wzPArea', 'wzPLot'].forEach(i => fieldErr(i, ''));
+    if (!nome) { fieldErr('wzPNome', 'Informe o nome.'); return; }
+    if (aR && !(area > 0)) { fieldErr('wzPArea', 'Área inválida.'); return; }
+    if (lR && !(lot > 0)) { fieldErr('wzPLot', 'Valor inválido.'); return; }
+    if (farm() && pastosF().some(p => p.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('wzPNome', 'Já existe pasto com este nome.'); return; }
+    WZ.pa = { nome, area: aR, lot: lR }; WZ.passo = 3; WZ.volta = true; wzTela(); return;
+  }
+  const nome = str($('wzLNome').value, 60); fieldErr('wzLNome', '');
+  if (!nome) { fieldErr('wzLNome', 'Informe o nome.'); return; }
+  if (farm() && lotesF().some(l => l.nome.toLowerCase() === nome.toLowerCase())) { fieldErr('wzLNome', 'Já existe lote com este nome.'); return; }
+  let fz = farm();
+  if (!fz) { fz = stampNew({ nome: WZ.faz.nome, municipio: WZ.faz.mun, areaHa: WZ.faz.area ? parseNum(WZ.faz.area) : null, car: '', geo: null }); S.fazendas.push(fz); S.fazendaAtiva = fz.id; }
+  let pa = WZ.pa.nome ? null : pastosAtivosF()[0];
+  if (!pa) { pa = stampNew({ fazendaId: fz.id, ativo: true, nome: WZ.pa.nome, areaHa: WZ.pa.area ? parseNum(WZ.pa.area) : null, lotacaoMax: WZ.pa.lot ? parseNum(WZ.pa.lot) : null, forrageira: '', diasOcupacao: null, diasDescanso: null, alturaEntrada: null, alturaSaida: null, geo: null }); S.pastos.push(pa); }
+  const lo = stampNew({ fazendaId: fz.id, nome, pastoId: pa.id, ocupacoes: [{ p: pa.id, de: hoje(), ate: null }], ativo: true }); S.lotes.push(lo);
+  WZ = null; save();
+  openModal('Cadastro pronto', `<div class="alert ok"><span>Fazenda <b>${esc(fz.nome)}</b>, pasto <b>${esc(pa.nome)}</b> e lote <b>${esc(nome)}</b> cadastrados.</span></div><p>O próximo passo é colocar os animais no lote. Pode ser por lista de brincos ou por faixa (100-120).</p>`,
+    `<button class="btn" onclick="closeModal();refreshAll();goView('home')">Agora não</button><button class="btn primary" onclick="closeModal();refreshAll();openAddAnimals()">Cadastrar animais</button>`);
+  refreshAll();
 }
 function sugereMetas() {
   const k = $('paForr').value, d = FORRAGEIRAS[k]; if (!d) return;
@@ -3387,6 +3470,26 @@ function savePasto(id) {
     Object.assign(x, dados, { ativo }); touch(x);
   } else S.pastos.push(stampNew(Object.assign({ fazendaId: S.fazendaAtiva, ativo: true }, dados)));
   save(); closeModal(); refreshAll(); showToast('Pasto salvo.');
+}
+/* Antes de excluir: mostra o que o pasto tem (lotes, ciclos, histórico) e oferece arquivar, que mantém tudo */
+function impactoPasto(id) {
+  const x = pastoDe(id); if (!x) return;
+  const ocupando = lotesDoPasto(id);
+  if (ocupando.length) {
+    openModal('Este pasto está ocupado', `<p>${ocupando.map(l => '<b>' + esc(l.nome) + '</b>').join(', ')} ${ocupando.length > 1 ? 'estão' : 'está'} neste pasto agora (${ocupando.reduce((t, l) => t + Object.values(compute()).filter(s => s.ativo && s.lote === l.id).length, 0)} animais).</p><p class="hint">Mova o lote para outro pasto antes de arquivar ou excluir. Em Lotes, abra o lote e escolha o novo pasto.</p>`, '<button class="btn primary" onclick="closeModal()">Entendi</button>');
+    return;
+  }
+  const oc = []; S.lotes.forEach(l => (l.ocupacoes || []).forEach(o => { if (o.p === id) oc.push({ l, o }); }));
+  const lotes = [...new Set(oc.map(c => c.l.nome))], ult = oc.map(c => c.o.ate || c.o.de).sort().pop(), pri = oc.map(c => c.o.de).sort()[0];
+  const hist = oc.length ? `<p>Este pasto tem <b>${oc.length} ciclo(s) de ocupação</b>${pri ? ' entre ' + fmtD(pri) + ' e ' + fmtD(ult) : ''}, com os lotes: ${lotes.map(esc).join(', ')}. Esse histórico alimenta dias de descanso, ciclos e @/ha.</p>` : '<p>Este pasto nunca foi ocupado: não há histórico a perder.</p>';
+  openModal('Arquivar ou excluir ' + esc(x.nome) + '?', `${hist}
+    <div class="alert ok"><span><b>Arquivar (recomendado):</b> o pasto sai das listas e do painel, mas o histórico dele é mantido e dá para reativar quando quiser.</span></div>
+    <div class="alert warn"><span><b>Excluir:</b> o pasto vai para a lixeira (dá para desfazer lá) e o histórico de ocupação deixa de aparecer.</span></div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn danger" onclick="closeModal();removePasto('${x.id}')">Excluir</button><button class="btn primary" onclick="arquivaPasto('${x.id}')">Arquivar</button>`);
+}
+function arquivaPasto(id) {
+  const x = pastoDe(id); if (!x || lotesDoPasto(id).length) return;
+  x.ativo = false; touch(x); save(); closeModal(); refreshAll(); showToast('Pasto arquivado. Para voltar, abra Pastos e mude a situação para Ativo.');
 }
 function removePasto(id) {
   const x = pastoDe(id); if (!x) return;
