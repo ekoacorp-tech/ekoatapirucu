@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [22] — 2026-11-23 — Dados que não mentem
+- Edição ao mesmo tempo não se perde mais: cada registro leva um carimbo por aparelho. Se dois aparelhos ou duas janelas mudam o mesmo registro, o app guarda a versão que não valeu em vez de apagar sem aviso. Duas janelas abertas do app se atualizam sozinhas.
+- Começar de novo a mesma lida no Modo Campo (mesmo manejo, lote e dia) continua a lida que já estava aberta, em vez de criar uma segunda. No escritório, o app pergunta antes de abrir outra lida sem lote do mesmo tipo.
+- Lida aberta com data de outro dia mostra um aviso para trocar a data.
+- Se o aparelho não conseguir gravar (espaço cheio), aparece uma faixa vermelha fixa no topo, que só some quando voltar a gravar. Com mais de 80% do espaço usado, aparece um aviso amarelo para exportar o arquivo.
+- Quem está usando: ao começar a lançar, o app pergunta o seu nome (uma vez por dia). O nome fica registrado em cada registro novo ou alterado, aparece em Lançada no Modo Campo e no CSV de eventos (coluna Lancado por). Serve para saber quem fez; não é senha.
+
 ## [21] — 2026-11-23 — Relatório em PDF
 - Novo botão Relatório PDF no painel (geral, fazenda, pasto, lote e rebanho) e na ficha do animal. Abre uma folha A4 com a marca Ekoa e os mesmos números do painel, com gráficos e tabelas.
 - Salvar PDF usa a impressão do navegador (Salvar como PDF) e funciona sem internet. O botão E-mail abre o app de e-mail do aparelho, já endereçado ao e-mail cadastrado e com um resumo; o PDF salvo é anexado por você.

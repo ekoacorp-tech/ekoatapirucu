@@ -1,9 +1,20 @@
 {
-  "versao": 21,
-  "rotulo": "21 beta",
+  "versao": 22,
+  "rotulo": "22 beta",
   "data": "2026-11-23",
-  "titulo": "Relatório em PDF",
+  "titulo": "Dados que não mentem",
   "notas": {
+    "22": {
+      "data": "2026-11-23",
+      "titulo": "Dados que não mentem",
+      "itens": [
+        "Edição ao mesmo tempo não se perde mais: cada registro leva um carimbo por aparelho. Se dois aparelhos ou duas janelas mudam o mesmo registro, o app guarda a versão que não valeu em vez de apagar sem aviso. Duas janelas abertas do app se atualizam sozinhas.",
+        "Começar de novo a mesma lida no Modo Campo (mesmo manejo, lote e dia) continua a lida que já estava aberta, em vez de criar uma segunda. No escritório, o app pergunta antes de abrir outra lida sem lote do mesmo tipo.",
+        "Lida aberta com data de outro dia mostra um aviso para trocar a data.",
+        "Se o aparelho não conseguir gravar (espaço cheio), aparece uma faixa vermelha fixa no topo, que só some quando voltar a gravar. Com mais de 80% do espaço usado, aparece um aviso amarelo para exportar o arquivo.",
+        "Quem está usando: ao começar a lançar, o app pergunta o seu nome (uma vez por dia). O nome fica registrado em cada registro novo ou alterado, aparece em Lançada no Modo Campo e no CSV de eventos (coluna Lancado por). Serve para saber quem fez; não é senha."
+      ]
+    },
     "21": {
       "data": "2026-11-23",
       "titulo": "Relatório em PDF",

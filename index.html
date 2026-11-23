@@ -617,6 +617,9 @@ body.campo-on #updateBar.on{position:fixed;left:0;right:0;top:0;z-index:2600}
 .cp-ult button{margin-left:auto;min-height:44px;border-radius:10px;border:1px solid currentColor;background:none;color:inherit;font-weight:700;padding:0 12px;cursor:pointer}
 .cp-ult.flash{animation:cpFlash var(--ek-dur-panel,280ms) var(--ek-ease-out,ease)}
 @keyframes cpFlash{from{opacity:.3;transform:translateY(-4px)}to{opacity:1;transform:none}}
+#bannerArm{position:fixed;left:0;right:0;top:0;z-index:9999;border:0;padding:12px 16px;font:700 .95rem/1.3 inherit;text-align:left;cursor:pointer;min-height:44px}
+#bannerArm.erro{background:#b3261e;color:#fff}
+#bannerArm.aviso{background:#f5d98b;color:#4a3500}
 .cp-aviso{padding:12px 14px;border-radius:12px;background:var(--bad-bg);color:var(--bad-txt);font-weight:700;font-size:1.02rem;flex-shrink:0}
 .cp-info{padding:12px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn-txt);font-size:1rem}
 .cp-resumo{background:var(--card-bg);border:2px solid var(--border-color);border-radius:16px;padding:16px}.cp-resumo b{display:block;font-size:1.3rem}.cp-resumo span{color:var(--text-secondary)}
@@ -998,10 +1001,22 @@ function save() {
       mesclaRemoto(r.dados); dadosRev = r.rev; calc = null; mesclou = true;
     }
     throw new Error('conflito de gravação');
-  }).then(() => { setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })); if (mesclou) { refreshSoft(); showToast('Outra janela do app tinha alterações. Juntei as duas, sem perder nada.'); } })
-    .catch(() => { setSaved('Falha ao salvar'); alert('Não foi possível salvar neste aparelho. Verifique o espaço livre e não feche o app até conseguir exportar.'); });
+  }).then(() => { bannerArm(''); checaEspaco(); setSaved('Salvo neste aparelho ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })); if (mesclou) { refreshSoft(); showToast('Outra janela do app tinha alterações. Juntei as duas, sem perder nada.'); } })
+    .catch(() => { setSaved('Falha ao salvar'); bannerArm('NÃO SALVOU neste aparelho. O espaço pode estar cheio. Não feche o app: toque aqui e exporte o arquivo agora.', true); });
   updateCounts();
   return saveChain;
+}
+/* aviso fixo (não some sozinho) quando a gravação falha ou o espaço está acabando */
+function bannerArm(msg, erro) {
+  let b = document.getElementById('bannerArm');
+  if (!msg) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('button'); b.id = 'bannerArm'; b.type = 'button'; b.setAttribute('role', 'alert'); document.body.appendChild(b); }
+  b.className = erro ? 'erro' : 'aviso'; b.textContent = msg; b.onclick = () => { try { goView('sync'); } catch (e) {} };
+}
+let _espacoT = 0;
+function checaEspaco() {
+  if (Date.now() - _espacoT < 60000 || !navigator.storage || !navigator.storage.estimate) return; _espacoT = Date.now();
+  navigator.storage.estimate().then(e => { if (e && e.quota && e.usage / e.quota > 0.8) bannerArm('Espaço do aparelho quase cheio (' + Math.round(100 * e.usage / e.quota) + '%). Exporte o arquivo e libere espaço.', false); }).catch(() => {});
 }
 function refreshSoft() { calc = null; updateCounts(); if (cpLigado() || document.querySelector('#modal.open') || document.body.classList.contains('rel-aberto')) return; refreshAll(); }
 function iniciaCanal() {
@@ -1051,8 +1066,9 @@ const vvOf = o => o && o.vv && typeof o.vv === 'object' ? o.vv : null;
 function vvLegado(o) { const d = o.editadoNo || o.origem; return { [d && d.id ? d.id : 'legado']: o.versao || 1 }; }
 function vvCmp(a, b) { let ab = false, ba = false; new Set(Object.keys(a).concat(Object.keys(b))).forEach(k => { const x = a[k] || 0, y = b[k] || 0; if (x > y) ab = true; if (y > x) ba = true; }); return ab && ba ? 'conc' : ab ? 'a' : ba ? 'b' : 'igual'; }
 function vvMax(a, b) { const r = {}; [a, b].forEach(v => v && Object.keys(v).forEach(k => { r[k] = Math.max(r[k] || 0, v[k]); })); return r; }
-function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), exportadoEm: null, vv: { [vvId()]: 1 } }); }
-function touch(o) { const id = vvId(), v = Object.assign({}, vvOf(o) || vvLegado(o)); v[id] = (v[id] || 0) + 1; o.vv = v; o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); }
+const opRef = () => (syncMeta.operador && syncMeta.operador.nome) || '';
+function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), criadoPor: opRef(), editadoPor: opRef(), exportadoEm: null, vv: { [vvId()]: 1 } }); }
+function touch(o) { const id = vvId(), v = Object.assign({}, vvOf(o) || vvLegado(o)); v[id] = (v[id] || 0) + 1; o.vv = v; o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); o.editadoPor = opRef(); }
 function isPend(o) { return !o.exportadoEm || o.exportadoEm < o.editadoEm; }
 
 /* ---------------- Fazenda ativa ---------------- */
@@ -1426,11 +1442,14 @@ function renderLidas() {
 function newLida() {
   if (!farm()) { openFarm(); return; }
   if (!syncMeta.device) { openDeviceModal(newLida); return; } // rastreabilidade: quem coletou
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(newLida); return; }
   if (!lotesF().length) { alert('Cadastre ao menos um lote antes de lançar uma lida.'); openLote(); return; }
   openModal('Nova lida: qual manejo?', `<div class="types">${Object.entries(TIPOS).map(([k, v]) => `<button class="type-btn" onclick="createLida('${k}')"><svg><use href="#${v.icon}"/></svg>${v.nome}<small>${v.desc}</small></button>`).join('')}</div>
     <p class="hint">Dica: o lote escolhido na lida é o lote do manejo. Animais de outro lote podem entrar; ao finalizar, o app pergunta se deve trocá-los de lote (R04).</p>`, '<button class="btn" onclick="closeModal()">Cancelar</button>');
 }
 function createLida(tipo) {
+  const dup = lidasF().find(x => x.status === 'aberta' && x.tipo === tipo && x.data === hoje() && !x.loteId);
+  if (dup && confirm(`Já existe uma lida de ${TIPOS[tipo].nome} aberta hoje, ainda sem lote. Abrir essa em vez de criar outra?`)) { closeModal(); openLida(dup.id); return; }
   const l = stampNew({ fazendaId: S.fazendaAtiva, tipo, data: hoje(), loteId: '', status: 'aberta', cab: {}, registros: [], obs: '', finalizadaEm: null });
   if (tipo === 'pesagem') l.cab.motivo = 'rotina';
   if (tipo === 'sanitario') l.cab.procedimento = 'vacina';
@@ -1502,7 +1521,7 @@ function renderLidaEditor() {
         ${ro ? `<button class="btn" onclick="reopenLida()">Reabrir para corrigir</button>` : `<button class="btn primary" onclick="finalizeLida()" ${regs.length ? '' : 'disabled'}>Finalizar lida</button>`}
         <button class="btn danger" onclick="deleteLida()"><svg><use href="#i-trash"/></svg>Excluir</button>
       </div></div>
-    ${l.status === 'conferir' ? `<div class="alert conf"><span><b>Lançada no Modo Campo</b>${l.origem && l.origem.nome ? ' por ' + esc(l.origem.nome) : ''}${l.enviadaEm ? ' em ' + fmtDT(l.enviadaEm) : ''}. Confira o lote, os dados do manejo e cada animal; corrija se preciso e finalize para valer no rebanho.</span></div>` : ''}
+    ${l.status === 'conferir' ? `<div class="alert conf"><span><b>Lançada no Modo Campo</b>${l.criadoPor ? ' por ' + esc(l.criadoPor) : ''}${l.origem && l.origem.nome ? ' (' + esc(l.origem.nome) + ')' : ''}${l.enviadaEm ? ' em ' + fmtDT(l.enviadaEm) : ''}. Confira o lote, os dados do manejo e cada animal; corrija se preciso e finalize para valer no rebanho.</span></div>` : ''}
     ${ro ? '<div class="alert ok"><span>Lida finalizada: já está refletida no rebanho. Para corrigir, reabra; ela volta a valer quando for finalizada de novo (nova versão).</span></div>' : l.status === 'conferir' ? '' : '<div class="alert info"><span>A lida é salva a cada registro. Enquanto estiver em aberto, não altera o rebanho e não entra na exportação.</span></div>'}
     ${(() => {
       const dados = `<div class="card"><h3>Dados do manejo</h3><div class="grid">${head}</div></div>`;
@@ -3381,10 +3400,10 @@ function exportEventosCSV() {
     rows.push([farm().nome, fmtD(l.data), TIPOS[l.tipo].nome, loteNome(l.loteId).replace('—', ''), r.brinco, csvNum(r.peso, 1),
       l.tipo === 'sanitario' ? PROCEDIMENTOS[c.procedimento] : l.tipo === 'baixa' ? MOTIVOS_BAIXA[c.motivo] : l.tipo === 'pesagem' ? MOTIVOS_PESAGEM[c.motivo] : '',
       c.produto || '', c.dose || '', c.carenciaAte ? fmtD(c.carenciaAte) : '', l.tipo === 'troca' ? loteNome(c.loteDestinoId) : (r.mover ? loteNome(l.loteId) : ''),
-      l.tipo === 'nascimento' ? r.bezerroBrinco : '', l.tipo === 'nascimento' ? SEXOS[r.sexo] : '', r.obs || l.obs || '', l.origem ? l.origem.nome : '', fmtDT(l.finalizadaEm), l.id, r.id, l.versao]);
+      l.tipo === 'nascimento' ? r.bezerroBrinco : '', l.tipo === 'nascimento' ? SEXOS[r.sexo] : '', r.obs || l.obs || '', l.origem ? l.origem.nome : '', l.criadoPor || '', fmtDT(l.finalizadaEm), l.id, r.id, l.versao]);
   }));
   downloadCSV(`Tapirucu_${slug(farm().nome)}_Eventos_${stampFile()}.csv`,
-    ['Fazenda', 'Data', 'Manejo', 'Lote do manejo', 'Brinco', 'Peso (kg)', 'Motivo / procedimento', 'Produto', 'Dose', 'Carencia ate', 'Lote destino', 'Bezerro', 'Sexo bezerro', 'Observacao', 'Dispositivo', 'Finalizada em', 'ID lida', 'ID registro', 'Versao lida'], rows);
+    ['Fazenda', 'Data', 'Manejo', 'Lote do manejo', 'Brinco', 'Peso (kg)', 'Motivo / procedimento', 'Produto', 'Dose', 'Carencia ate', 'Lote destino', 'Bezerro', 'Sexo bezerro', 'Observacao', 'Dispositivo', 'Lancado por', 'Finalizada em', 'ID lida', 'ID registro', 'Versao lida'], rows);
 }
 function exportLotesCSV() {
   downloadCSV(`Tapirucu_${slug(farm().nome)}_Lotes_${stampFile()}.csv`,
@@ -3416,6 +3435,20 @@ async function sha256(txt) {
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 const payloadOf = pkg => JSON.stringify({ dados: pkg.dados, excluidos: pkg.excluidos, fotos: pkg.fotos });
+/* quem está usando o aparelho hoje: autoria, não segurança (sem senha). Pergunta no máximo 1x por dia. */
+function comOperador(next) {
+  const o = syncMeta.operador;
+  if (o && o.nome && o.dia === hoje()) { next(); return; }
+  openModal('Quem está usando hoje?', `${fld('opNome', 'Seu nome', `<input id="opNome" maxlength="40" value="${esc(o && o.nome || '')}" placeholder="Ex.: João" autocomplete="off">`)}
+    <p class="hint">O nome fica registrado em tudo que você lançar neste aparelho. Serve para saber quem fez, não é senha.</p>`,
+    '<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="opOk">Continuar</button>');
+  $('opOk').onclick = () => {
+    const n = str($('opNome').value, 40); if (!n) { fieldErr('opNome', 'Informe seu nome.'); return; }
+    syncMeta.operador = { nome: n, dia: hoje() }; saveSyncMeta(); closeModal(); renderSync();
+    if (typeof next === 'function') next();
+  };
+}
+function trocaOperador() { if (syncMeta.operador) syncMeta.operador.dia = ''; comOperador(() => { if (cpLigado()) renderCampo(); }); }
 function openDeviceModal(next) {
   const sugestao = window.matchMedia('(pointer:coarse)').matches ? 'Celular de ' : 'Computador do escritório';
   openModal('Nome deste aparelho', `${fld('devNome', 'Como identificar este aparelho?', `<input id="devNome" maxlength="40" value="${esc(syncMeta.device ? syncMeta.device.nome : sugestao)}" placeholder="Ex.: Celular do João, Computador do escritório">`, true, 'Nome do <b>aparelho</b>, não da fazenda. Ele vai em cada registro e em cada arquivo exportado, para saber quem coletou e em qual aparelho. Use um nome diferente em cada celular e computador.')}`,
@@ -3484,7 +3517,7 @@ const okNum = (v, max) => { const n = Number(v); return isFinite(n) && n > 0 && 
 const okDev = d => d && okId(d.id) ? { id: String(d.id), nome: str(d.nome, 40) } : null;
 const okInt = (v, max) => { const n = parseInt(v, 10); return isFinite(n) && n > 0 && n <= max ? n : null; };
 const okVV = v => { if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined; const o = {}; Object.keys(v).slice(0, 30).forEach(k => { const n = parseInt(v[k], 10); if (/^[\w.-]{1,64}$/.test(k) && n > 0 && n < 1e7) o[k] = n; }); return Object.keys(o).length ? o : undefined; };
-function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), exportadoEm: okIso(r.exportadoEm), vv: okVV(r.vv) }; }
+function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), criadoPor: str(r.criadoPor, 40), editadoPor: str(r.editadoPor, 40), exportadoEm: okIso(r.exportadoEm), vv: okVV(r.vv) }; }
 const SAN = {
   fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
   pastos: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
@@ -3503,7 +3536,7 @@ const SAN = {
     return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: r.status === 'conferir' ? 'conferir' : 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm), campo: r.campo === true ? true : undefined, enviadaEm: okIso(r.enviadaEm) || undefined }); }
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
-const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo'].forEach(k => delete c[k]); return JSON.stringify(c); };
+const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo', 'editadoPor'].forEach(k => delete c[k]); return JSON.stringify(c); };
 const rotulo = (col, r) => col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
 const stampOf = o => o.editadoEm || o.criadoEm || '';
 const tombOf = id => S.excluidos.find(t => t.id === id);
@@ -3665,6 +3698,7 @@ function renderSync() {
   $('syncBody').innerHTML = `
     <div class="card"><h3>Este aparelho</h3>
       <p>${syncMeta.device ? `<b>${esc(syncMeta.device.nome)}</b> <span class="muted">· ID ${esc(syncMeta.device.id.slice(0, 8))}</span>` : '<span class="muted">Sem nome definido.</span>'} <button class="btn sm" onclick="openDeviceModal()">${syncMeta.device ? 'Renomear' : 'Definir nome'}</button></p>
+      <p style="margin-top:8px">Quem está usando: ${opRef() ? `<b>${esc(opRef())}</b>` : '<span class="muted">ninguém informado</span>'} <button class="btn sm" onclick="trocaOperador()">${opRef() ? 'Trocar' : 'Informar'}</button></p>
       <p style="margin-top:8px"><button class="btn teal sm" onclick="ativarCampo()"><svg><use href="#i-campo"/></svg>Ligar Modo Campo neste aparelho</button></p>
       <p class="hint">Cada celular e computador tem o seu próprio nome e ID. Para levar dados de um para o outro: <b>exporte no aparelho de origem</b> e <b>importe no de destino</b>.</p></div>
     <div class="card"><h3>Exportar (enviar)</h3>
@@ -3897,6 +3931,7 @@ function cpInicio() {
   const conf = lidasF().filter(l => l.status === 'conferir').length, pd = pendentesCount();
   return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
     + `<div class="cp-body">
+      ${opRef() ? `<p class="cp-txt" style="margin:0">Lançando como <b>${esc(opRef())}</b> · <button type="button" class="cp-link" onclick="trocaOperador()">Trocar</button></p>` : ''}
       ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
       ${cpPendCard()}
       <p class="cp-sec">O que vai fazer agora?</p>
@@ -3958,6 +3993,7 @@ function cpPend() {
 /* abre a lida já no lote escolhido, pulando a pergunta do lote */
 function cpComecaLote(tipo, lid) {
   if (!syncMeta.device) { openDeviceModal(() => cpComecaLote(tipo, lid)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => cpComecaLote(tipo, lid)); return; }
   if (tipo === 'pasto') { cpIr('pastoDest', { mvLote: lid }); return; }
   const cab = {};
   if (tipo === 'pesagem') cab.motivo = 'rotina';
@@ -3969,6 +4005,7 @@ function cpComecaLote(tipo, lid) {
 function cpComecaAgenda(id) {
   const o = S.lidas.find(l => l.id === id); if (!o) return;
   if (!syncMeta.device) { openDeviceModal(() => cpComecaAgenda(id)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => cpComecaAgenda(id)); return; }
   const cab = { procedimento: o.cab.procedimento || 'vacina', produto: o.cab.produto || '', dose: o.cab.dose || '' };
   cpIr('passo', { nova: { tipo: 'sanitario', loteId: o.loteId || '', cab, dias: {} }, i: CP_PASSOS.sanitario.indexOf('carencia') });
 }
@@ -3978,6 +4015,7 @@ function cpEscolheFazenda(id) { S.fazendaAtiva = id; calc = null; save(); render
 /* ---------- começar uma lida: uma pergunta por tela ---------- */
 function cpComeca(tipo) {
   if (!syncMeta.device) { openDeviceModal(() => cpComeca(tipo)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => cpComeca(tipo)); return; }
   if (!lotesF().some(l => l.ativo !== false)) { CP.aviso = 'Esta fazenda não tem lote cadastrado. Peça ao escritório.'; renderCampo(); return; }
   if (tipo === 'pasto') { cpIr('pastoLote'); return; }
   const cab = {};
@@ -3987,9 +4025,17 @@ function cpComeca(tipo) {
   cpIr('passo', { nova: { tipo, loteId: '', cab, dias: {} }, i: 0 });
 }
 function cpVoltaPasso() { if (CP.i > 0) cpIr('passo', { i: CP.i - 1 }); else cpIr('inicio'); }
+/* lida aberta de hoje, mesmo tipo e lote (e mesmo produto/motivo): evita duas lidas paralelas do mesmo manejo */
+function lidaAbertaIgual(tipo, loteId, cab) {
+  return lidasF().find(l => l.status === 'aberta' && l.tipo === tipo && (l.loteId || '') === (loteId || '') && l.data === hoje()
+    && (tipo !== 'sanitario' || ((l.cab.produto || '').toLowerCase() === ((cab || {}).produto || '').toLowerCase() && l.cab.procedimento === (cab || {}).procedimento))
+    && (tipo !== 'pesagem' && tipo !== 'baixa' || l.cab.motivo === (cab || {}).motivo)) || null;
+}
 function cpAvanca() {
   const n = CP.nova, ps = CP_PASSOS[n.tipo];
   if (CP.i < ps.length - 1) { cpIr('passo', { i: CP.i + 1 }); return; }
+  const dup = lidaAbertaIgual(n.tipo, n.loteId, n.cab);
+  if (dup) { cpIr('lancar', { lidaId: dup.id, filtro: '', ultimo: null, texto: false, foraOk: null, nova: null, nota: 'Você já tinha uma lida aberta igual a esta (' + dup.registros.length + ' lançado(s)). Continuando nela.' }); return; }
   const l = stampNew({ fazendaId: S.fazendaAtiva, tipo: n.tipo, data: hoje(), loteId: n.loteId, status: 'aberta', cab: n.cab, registros: [], obs: '', finalizadaEm: null, campo: true });
   l.campoDias = n.dias; cpDatasRel(l);
   S.lidas.push(l); save(); updateCounts();
@@ -4120,6 +4166,7 @@ function cpLancar() {
     + `<div class="cp-body lancar">
       ${faixa ? `<div class="cp-faixa">${faixa}</div>` : ''}
       ${CP.ultimo ? `<div class="cp-ult" role="status"><span>✓ ${CP.ultimo.txt}</span><button type="button" onclick="cpDesfaz('${CP.ultimo.rid}')">Desfazer</button></div>` : ''}
+      ${l.data < hoje() ? `<div class="cp-info" role="status">Esta lida é de <b>${fmtD(l.data)}</b>. Se está lançando hoje, toque na data lá em cima para trocar.</div>` : ''}
       ${cpAviso()}${CP.nota ? `<div class="cp-info" role="status">${esc(CP.nota)}</div>` : ''}
       <div class="cp-visor" id="cpVisor">${cpVisorHtml()}</div>
       ${multi && restam ? `<button type="button" class="cp-btn leve cp-todos" onclick="cpTodos()">${restam === 1 ? 'Marcar o que falta' : 'Marcar todos (faltam ' + restam + ')'}</button>` : ''}
