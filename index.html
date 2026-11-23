@@ -948,7 +948,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 27;
+const APP_VERSION = 28;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -2025,8 +2025,98 @@ function openAddAnimals() {
     </div>
     ${fld('nBr', 'Brincos', `<textarea id="nBr" placeholder="Um por linha, ou separados por vírgula.\nFaixas: 1001-1020 ou NL050-NL080"></textarea>`, true, 'Brinco aceita letras e números e diferencia maiúsculas de minúsculas (R02). Padronize na equipe.')}
     ${datalists()}<div id="nPrev" class="hint"></div>`,
-    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAnimals()">Cadastrar</button>`, true);
+    `<button class="btn" onclick="openImportPlanilha()">Importar de planilha</button><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAnimals()">Cadastrar</button>`, true);
   $('nBr').addEventListener('input', () => { const { out, bad } = parseBrincos($('nBr').value); $('nPrev').textContent = out.length ? `${out.length} brinco(s): ${out.slice(0, 8).join(', ')}${out.length > 8 ? '…' : ''}${bad.length ? ' · ignorados: ' + bad.join(', ') : ''}` : ''; });
+}
+/* ---------- v28: importar animais de uma planilha (CSV) ---------- */
+let PLN = null;
+const normCab = h => String(h || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const PL_COLS = { brinco: ['brinco', 'numero', 'identificacao', 'animal', 'id'], sexo: ['sexo'], categoria: ['categoria'], raca: ['raca'], lote: ['lote'], peso: ['peso', 'pesokg', 'pesoentrada', 'pesoinicial'], nasc: ['nascimento', 'datanascimento', 'nasc'], ent: ['entrada', 'dataentrada', 'entradaem'] };
+function parseCSV(txt) {
+  txt = String(txt || '').replace(/^﻿/, '');
+  const l1 = txt.split(/\r?\n/)[0] || '', cnt = c => (l1.match(new RegExp(c === '\t' ? '\t' : '\\' + c, 'g')) || []).length;
+  const d = cnt(';') >= cnt(',') && cnt(';') >= cnt('\t') ? ';' : cnt('\t') > cnt(',') ? '\t' : ',';
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (q) { if (c === '"') { if (txt[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === d) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && txt[i + 1] === '\n') i++; row.push(cur); cur = ''; if (row.some(x => x.trim() !== '')) rows.push(row); row = []; }
+    else cur += c;
+  }
+  row.push(cur); if (row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+function parseDataBR(v) {
+  v = String(v || '').trim(); if (!v) return '';
+  let m = v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/); if (m) v = `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  return validDate(v) ? v : null;
+}
+function planoPlanilha(rows, loteDefault) {
+  const out = { linhas: [], faltaCol: null };
+  if (rows.length < 2) { out.faltaCol = 'O arquivo precisa ter o cabeçalho e ao menos uma linha.'; return out; }
+  const idx = {}; rows[0].forEach((h, i) => { const n = normCab(h); for (const k in PL_COLS) if (idx[k] == null && PL_COLS[k].includes(n)) idx[k] = i; });
+  if (idx.brinco == null || idx.sexo == null) { out.faltaCol = 'Faltam as colunas obrigatórias: ' + [idx.brinco == null ? 'brinco' : '', idx.sexo == null ? 'sexo' : ''].filter(Boolean).join(' e ') + '.'; return out; }
+  const lotes = lotesF().filter(l => l.ativo !== false), vistos = new Set(), g = (r, k) => idx[k] == null ? '' : String(r[idx[k]] == null ? '' : r[idx[k]]).trim();
+  rows.slice(1, 2001).forEach((r, i) => {
+    const n = i + 2, L = { n, brinco: normBrinco(g(r, 'brinco')), erro: null };
+    const sx = normCab(g(r, 'sexo')); L.sexo = /^m/.test(sx) ? 'M' : /^f/.test(sx) ? 'F' : null;
+    L.categoria = str(g(r, 'categoria'), 40); L.raca = str(g(r, 'raca'), 40);
+    const ln = g(r, 'lote'); L.loteId = ln ? (lotes.find(l => normCab(l.nome) === normCab(ln)) || {}).id || null : loteDefault || null;
+    const pr = g(r, 'peso'); L.peso = pr ? parseNum(pr) : null;
+    L.nasc = parseDataBR(g(r, 'nasc')); L.ent = parseDataBR(g(r, 'ent')) ; if (L.ent === '') L.ent = hoje();
+    if (!L.brinco) L.erro = 'brinco vazio';
+    else if (vistos.has(L.brinco)) L.erro = 'brinco repetido na planilha';
+    else if (brincoEmUso(L.brinco)) L.erro = 'brinco já cadastrado';
+    else if (!L.sexo) L.erro = 'sexo deve ser M ou F';
+    else if (ln && !L.loteId) L.erro = 'lote "' + ln + '" não existe';
+    else if (!L.loteId) L.erro = 'sem lote (escolha o lote padrão)';
+    else if (pr && !(L.peso > 0 && L.peso <= 1500)) L.erro = 'peso inválido';
+    else if (L.nasc === null) L.erro = 'nascimento inválido (use dd/mm/aaaa)';
+    else if (L.ent === null || L.ent > hoje()) L.erro = 'entrada inválida ou no futuro';
+    else if (L.nasc && L.nasc > L.ent) L.erro = 'entrada antes do nascimento';
+    if (L.brinco) vistos.add(L.brinco);
+    out.linhas.push(L);
+  });
+  return out;
+}
+function baixarModeloPlanilha() {
+  const csv = '﻿brinco;sexo;categoria;raca;lote;peso_kg;nascimento;entrada\r\n1001;M;Boi magro;Nelore;Engorda A;312,5;15/03/2025;10/11/2026\r\n1002;F;Novilha;Nelore;;280;;\r\n';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'Tapirucu_Modelo_Animais.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+function openImportPlanilha() {
+  if (!syncMeta.device) { openDeviceModal(openImportPlanilha); return; }
+  if (!lotesF().length) { alert('Cadastre um lote primeiro.'); openLote(); return; }
+  PLN = null;
+  openModal('Importar animais de planilha', `<p>Use um arquivo <b>CSV</b> (no Excel: Salvar como CSV). Colunas: brinco, sexo, categoria, raça, lote, peso, nascimento e entrada. Só <b>brinco</b> e <b>sexo</b> são obrigatórios. Os animais entram na fazenda <b>${esc(farm().nome)}</b>.</p>
+    <p><button class="btn sm" onclick="baixarModeloPlanilha()">Baixar modelo</button></p>
+    <div class="grid">${fld('plLote', 'Lote para as linhas sem lote', `<select id="plLote" onchange="plRecalcula()">${loteOpts('', 'Nenhum')}</select>`)}</div>
+    <p><input type="file" id="plFile" accept=".csv,text/csv,text/plain" onchange="lePlanilhaArq(event)" aria-label="Arquivo CSV"></p><div id="plPrev"></div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="plOk" onclick="confirmaPlanilha()" disabled>Importar</button>`, true);
+}
+async function lePlanilhaArq(ev) {
+  const f = ev.target.files && ev.target.files[0]; if (!f) return;
+  const buf = await f.arrayBuffer(); let txt;
+  try { txt = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { txt = new TextDecoder('windows-1252').decode(buf); }
+  PLN = { rows: parseCSV(txt) }; plRecalcula();
+}
+function plRecalcula() {
+  if (!PLN) return;
+  const pl = planoPlanilha(PLN.rows, $('plLote').value); PLN.plano = pl;
+  if (pl.faltaCol) { $('plPrev').innerHTML = `<div class="alert bad"><span>${esc(pl.faltaCol)}</span></div>`; $('plOk').disabled = true; return; }
+  const ok = pl.linhas.filter(l => !l.erro), mau = pl.linhas.filter(l => l.erro);
+  $('plPrev').innerHTML = `<div class="alert ${mau.length ? 'warn' : 'info'}"><span><b>${ok.length}</b> animal(is) prontos para importar${mau.length ? ` · <b>${mau.length}</b> linha(s) com problema (não serão importadas)` : ''}.</span></div>
+    ${mau.length ? `<div class="tbl-wrap"><table><thead><tr><th>Linha</th><th>Brinco</th><th>Problema</th></tr></thead><tbody>${mau.slice(0, 12).map(l => `<tr><td>${l.n}</td><td>${esc(l.brinco || '—')}</td><td>${esc(l.erro)}</td></tr>`).join('')}</tbody></table></div>${mau.length > 12 ? `<p class="hint">Mais ${mau.length - 12} linha(s) com problema. Corrija a planilha e envie de novo.</p>` : ''}` : ''}`;
+  $('plOk').disabled = !ok.length; $('plOk').textContent = ok.length ? `Importar ${ok.length} animal(is)` : 'Importar';
+}
+function confirmaPlanilha() {
+  if (!PLN || !PLN.plano) return;
+  const ok = PLN.plano.linhas.filter(l => !l.erro); if (!ok.length) return;
+  ok.forEach(l => S.animais.push(stampNew({ brinco: l.brinco, fazendaId: S.fazendaAtiva, sexo: l.sexo, loteId: l.loteId, entradaEm: l.ent, nascimento: l.nasc || null, raca: l.raca, categoria: l.categoria, pesoEntrada: l.peso ? Math.round(l.peso * 10) / 10 : null, origemEntrada: 'cadastro' })));
+  const n = ok.length, ign = PLN.plano.linhas.length - n; PLN = null; calc = null;
+  save(); closeModal(); if (currentView === 'rebanho') renderRebanho(); updateCounts();
+  showToast(`${n} animal(is) importado(s) da planilha${ign ? ` (${ign} linha(s) ignorada(s))` : ''}.`);
 }
 function saveAnimals() {
   const lote = $('nLote').value, ent = $('nEnt').value, nas = $('nNasc').value, pRaw = $('nPeso').value.trim();
@@ -3947,6 +4037,7 @@ async function onImportFile(ev) {
   let pkg; try { pkg = JSON.parse(text); } catch (e) { alert('O arquivo não é um JSON válido ou está corrompido.'); return; }
   if (!pkg || pkg.app !== APP_ID) { alert(pkg && pkg.app === 'sankhya-sapiens' ? 'Este arquivo é do Ekoa Saber, não do Tapiruçu.' : 'Este arquivo não é de sincronização do Ekoa Tapiruçu.'); return; }
   if (pkg.formato > SYNC_FORMAT) { alert('Este arquivo foi gerado por uma versão mais nova do app. Atualize o app neste aparelho e tente de novo.'); return; }
+  if ((parseInt(pkg.versaoApp, 10) || 0) > APP_VERSION && !confirm(`Este arquivo vem de uma versão mais nova do app (v${pkg.versaoApp}); este aparelho está na v${APP_VERSION}. Atualize o app para não perder campos novos. Importar mesmo assim?`)) return;
   if (!pkg.dados || typeof pkg.dados !== 'object') { alert('Arquivo sem dados.'); return; }
   if (pkg.integridade) { const h = await sha256(payloadOf(pkg)); if (h && h !== pkg.integridade) { alert('A verificação de integridade falhou: o arquivo foi alterado ou está corrompido. Peça uma nova exportação.'); return; } }
   else { alert('Arquivo sem verificação de integridade. Por segurança, ele não será importado.'); return; }
@@ -4090,6 +4181,19 @@ async function undoImport() {
   if (syncMeta.imports[0]) { syncMeta.imports[0].desfeita = true; saveSyncMeta(); }
   refreshAll(); showToast('Importação desfeita.');
 }
+async function protecaoAtualiza(pedir) {
+  const el = $('protDados'); if (!el) return;
+  let per = null, uso = '';
+  try {
+    if (pedir && navigator.storage && navigator.storage.persist) await navigator.storage.persist();
+    if (navigator.storage && navigator.storage.persisted) per = await navigator.storage.persisted();
+    if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e && e.usage != null) uso = ' Uso: ' + (e.usage / 1048576).toFixed(1).replace('.', ',') + ' MB.'; }
+  } catch (e) {}
+  const dias = diasDesdeExport(), cop = dias == null ? 'Nunca foi exportada uma cópia.' : dias === 0 ? 'Cópia exportada hoje.' : 'Última cópia há ' + dias + ' dia(s).';
+  el.innerHTML = per === true ? `<span class="chip ok">Armazenamento protegido</span> O navegador não apaga os dados sozinho.${esc(uso)} ${esc(cop)}`
+    : per === false ? `<span class="chip warn">Sem proteção do navegador</span> O navegador pode apagar os dados se faltar espaço ou se o app ficar muito tempo sem uso, mais comum no iPhone. Instale o app na tela inicial e exporte cópias.${esc(uso)} ${esc(cop)} <button class="btn sm" onclick="protecaoAtualiza(true)">Pedir proteção</button>`
+    : `<span class="chip gray">Não foi possível verificar</span> Este navegador não informa. Mantenha cópias em dia.${esc(uso)} ${esc(cop)}`;
+}
 function renderSync() {
   const pd = pendentesCount(), ab = S.lidas.filter(l => l.status === 'aberta').length;
   const exp = syncMeta.exports || [], imp = syncMeta.imports || [];
@@ -4099,6 +4203,8 @@ function renderSync() {
       <p style="margin-top:8px">Quem está usando: ${opRef() ? `<b>${esc(opRef())}</b>` : '<span class="muted">ninguém informado</span>'} <button class="btn sm" onclick="trocaOperador()">${opRef() ? 'Trocar' : 'Informar'}</button></p>
       <p style="margin-top:8px"><button class="btn teal sm" onclick="ativarCampo()"><svg><use href="#i-campo"/></svg>Ligar Modo Campo neste aparelho</button></p>
       <p class="hint">Cada celular e computador tem o seu próprio nome e ID. Para levar dados de um para o outro: <b>exporte no aparelho de origem</b> e <b>importe no de destino</b>.</p></div>
+    <div class="card" id="protCard"><h3>Proteção dos dados <span class="sub">neste aparelho</span></h3><div id="protDados" class="muted">Verificando…</div>
+      <p class="hint">Os dados ficam só neste aparelho. A cópia (Exportar) é a sua garantia: desinstalar o app ou limpar o navegador apaga tudo.</p></div>
     <div class="card"><h3>Carga para o campo <span class="sub">celulares e tablets novos</span></h3>
       <p>O escritório faz os cadastros (fazenda, pastos, lotes e animais) e leva tudo para os aparelhos do campo. A equipe do curral só lança a operação.</p>
       <ol class="aj-ul" style="margin:8px 0 10px 18px"><li>Aqui no escritório, toque em <b>Gerar carga para o campo</b>.</li><li>Mande o arquivo para cada celular ou tablet (WhatsApp, e-mail ou cabo).</li><li>No aparelho do campo, dê um nome a ele (ex.: Celular do João), ligue o Modo Campo e toque em <b>Receber do escritório</b>.</li><li>No fim do dia, o campo toca em <b>Enviar para o escritório</b>. Aqui você importa e confere as lidas.</li></ol>
@@ -4123,6 +4229,7 @@ function renderSync() {
     <div class="card"><h3><svg width="18" height="18"><use href="#i-trash"/></svg>Lixeira <span class="sub">${S.lixeira.length} item(ns)</span></h3>
       ${S.lixeira.length ? `<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Excluído em</th><th></th></tr></thead><tbody>${S.lixeira.slice(0, 100).map(x => `<tr><td>${esc(trashLabel(x))}</td><td>${fmtDT(x.em)}</td><td><button class="btn sm" onclick="restoreFromTrash('${x.item.id}')">Restaurar</button></td></tr>`).join('')}</tbody></table></div>
       <div class="actions" style="margin-top:10px"><button class="btn danger sm" onclick="emptyTrash()">Esvaziar lixeira</button></div>` : '<p class="muted">Vazia.</p>'}</div>`;
+  protecaoAtualiza();
 }
 function trashLabel(x) {
   const i = x.item;
