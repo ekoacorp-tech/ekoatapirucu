@@ -249,11 +249,20 @@ td .btn.sm{min-height:34px}
   .rel-bar,.rel-dica{display:none!important}
   .rel-folha{max-width:none;margin:0;padding:0;box-shadow:none;border-radius:0;font-size:10.5pt}
   .rel-folha,.rel-folha *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rel-folha .tbl-wrap{overflow:visible}
+  .rel-folha .tbl-wrap{overflow:visible;margin:0!important;width:100%}
   .rel-folha thead{display:table-header-group}.rel-folha tr{break-inside:avoid}
   .rel-folha .kpis{grid-template-columns:repeat(3,1fr)!important}
   .rel-folha .ch-grid{grid-template-columns:1fr 1fr!important}.rel-folha h3{break-after:avoid}
   .rel-folha details>summary{display:none}
+  .rel-folha table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  .rel-folha th{background:#EFE6D8!important;color:#13234A;text-align:left;font-size:8.5pt;text-transform:uppercase;letter-spacing:.04em}
+  .rel-folha th.num,.rel-folha td.num{text-align:right}
+  .rel-folha td,.rel-folha th{padding:4px 6px;border-bottom:1px solid #DCCFBF;vertical-align:top}
+  .rel-folha tbody tr:nth-child(even) td{background:#FAF6EE!important}
+  .rel-folha td:first-child{white-space:nowrap}
+  .rel-folha .card{break-inside:auto;padding:10px 12px}.rel-folha .card>h3{margin-top:0}
+  .rel-folha .alert{break-inside:avoid}.rel-rod{break-before:avoid}
+  @page{@bottom-right{content:"Página " counter(page) " de " counter(pages);font-size:8pt;color:#6E5D52}@bottom-left{content:"Ekoa Tapiruçu";font-size:8pt;color:#6E5D52}}
 }
 
 /* ===== Identidade Ekoa Saber aplicada ao Tapiruçu (paleta Ekoa: petróleo, ouro, cobre, café, sálvia, areia) ===== */
@@ -790,12 +799,8 @@ th{font-size:.75rem}
   <!-- INÍCIO -->
   <section class="view" id="v-home" aria-label="Início">
     <div class="home-hero">
-      <img class="home-mark" src="assets/tapirucu-logo.png" alt="">
       <div>
-        <h1 class="home-title">Ekoa Tapiruçu</h1>
-        <p class="home-title-sub">Gestão do Rebanho</p>
-        <p class="home-sub">Ekoa Tech <b class="beta">BETA</b></p>
-        <p class="home-lema">Do curral ao indicador, mesmo sem sinal.</p>
+        <h1 class="home-title">Início</h1>
         <p class="home-farm" id="hFarm"></p>
       </div>
     </div>
@@ -1077,6 +1082,8 @@ const vvOf = o => o && o.vv && typeof o.vv === 'object' ? o.vv : null;
 function vvLegado(o) { const d = o.editadoNo || o.origem; return { [d && d.id ? d.id : 'legado']: o.versao || 1 }; }
 function vvCmp(a, b) { let ab = false, ba = false; new Set(Object.keys(a).concat(Object.keys(b))).forEach(k => { const x = a[k] || 0, y = b[k] || 0; if (x > y) ab = true; if (y > x) ba = true; }); return ab && ba ? 'conc' : ab ? 'a' : ba ? 'b' : 'igual'; }
 function vvMax(a, b) { const r = {}; [a, b].forEach(v => v && Object.keys(v).forEach(k => { r[k] = Math.max(r[k] || 0, v[k]); })); return r; }
+/* quem lançou (nome informado) e em qual aparelho, para o histórico do animal e o PDF */
+const lidaPor = id => { const l = S.lidas.find(x => x.id === id); if (!l) return '—'; const n = l.criadoPor || '', d = (l.origem && l.origem.nome) || ''; return n || d ? esc(n || d) + (n && d ? `<br><small class="muted">${esc(d)}</small>` : '') : '—'; };
 const opRef = () => (syncMeta.operador && syncMeta.operador.nome) || '';
 function stampNew(o) { const n = nowISO(); return Object.assign(o, { id: o.id || uuid(), versao: 1, criadoEm: n, editadoEm: n, origem: deviceRef(), editadoNo: deviceRef(), criadoPor: opRef(), editadoPor: opRef(), exportadoEm: null, vv: { [vvId()]: 1 } }); }
 function touch(o) { const id = vvId(), v = Object.assign({}, vvOf(o) || vvLegado(o)); v[id] = (v[id] || 0) + 1; o.vv = v; o.versao = (o.versao || 1) + 1; o.editadoEm = nowISO(); o.editadoNo = deviceRef(); o.editadoPor = opRef(); }
@@ -1348,12 +1355,12 @@ function showToastAction(msg, label, fn) { const t = $('toast'); t.innerHTML = `
 function renderHome() {
   const f = farm(), al = $('homeAlerts');
   if (!f) {
-    $('hFarm').innerHTML = 'Comece cadastrando a fazenda. Depois os pastos (o lugar), os lotes (o grupo) e os animais.';
+    $('hFarm').innerHTML = 'Comece cadastrando a fazenda, os pastos e os lotes.';
     al.innerHTML = `<div class="alert info"><span>Nenhuma fazenda cadastrada neste aparelho. Se outro aparelho já tem os dados, importe o arquivo de sincronização.</span></div>
       <div class="actions" style="margin-bottom:14px"><button class="btn primary" onclick="abreAssistente()">Cadastro guiado (passo a passo)</button><button class="btn" onclick="openFarm()">Cadastrar só a fazenda</button><button class="btn" onclick="goView('sync')">Importar arquivo</button></div>`;
     $('homeTodas').innerHTML = ''; $('homeLidas').innerHTML = '<div class="empty">Nenhuma lida ainda.</div>'; return;
   }
-  $('hFarm').innerHTML = `Fazenda em uso neste aparelho: <b>${esc(f.nome)}</b><span class="hide-m"> · os lançamentos ficam salvos aqui, mesmo sem internet</span>`;
+  $('hFarm').innerHTML = `Fazenda em uso: <b>${esc(f.nome)}</b>`;
   const ab = S.lidas.filter(l => l.status === 'aberta'), pd = pendentesCount();
   let h = '';
   if (!pastosAtivosF().length) h += `<div class="alert warn"><span>${esc(f.nome)}: cadastre ao menos um pasto, o lugar onde os lotes ficam.</span><button class="btn sm" onclick="openPasto()">Novo pasto</button></div>`;
@@ -1385,6 +1392,7 @@ function renderHome() {
       ${kpi('Arrobas em 90 dias (est.)', fmtN(rGeral.arrobas, 1) + ' @', 'gold', rGeral.gmd != null ? 'GMD médio ' + fmtN(rGeral.gmd, 3) + ' kg/dia' + semDados(rGeral) : 'sem pesagens no período', uma ? "irPainel('fazenda')" : "irPainel('todas')")}
       ${kpi('Em carência', fmtN(tot.carencia), 'orange', tot.carencia && !uma ? ondeTxt(linhas.filter(o => o.carencia)) : 'não podem sair', tot.carencia ? "verOndeEstao('carencia')" : null)}
       ${kpi('Sem manejo +30 dias', fmtN(tot.atraso), 'red', tot.atraso && !uma ? ondeTxt(linhas.filter(o => o.atraso)) : 'pesagem ou sanitário', tot.atraso ? "verOndeEstao('atraso')" : null)}
+      ${(() => { const at = aplicacoesAtrasadas(fids), x = at[0]; return kpi('Aplicações atrasadas', fmtN(at.length), at.length ? 'red' : 'teal', x ? (x.cab.produto || PROCEDIMENTOS[x.cab.procedimento] || 'Aplicação') + ' · ' + loteNome(x.loteId) + ' · há ' + diasEntre(x.cab.proximaEm, hoje()) + ' dias' : 'vacinas e remédios em dia', at.length ? (uma ? "irPainel('fazenda')" : "irPainel('todas')") : null); })()}
     </div>
     <h4 class="aj-h" style="margin-top:4px">Escolha a fazenda</h4>
     <div class="farm-cards" style="margin-bottom:0">
@@ -1856,7 +1864,7 @@ function openAnimal(id) {
       <dt>Último manejo</dt><dd>${s.ultimoManejo ? fmtD(s.ultimoManejo) + ' (' + s.diasSemManejo + ' dias)' : 'nenhum'}</dd>
     </dl>
     <h4 style="margin:16px 0 8px;color:var(--title-ink)">Histórico</h4>
-    ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
+    ${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Lançado por</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : 'Parto')}: ${esc(e.txt)}</td><td>${lidaPor(e.lidaId)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Sem eventos finalizados.</p>'}
     <p class="hint">Origem: ${esc(a.origem ? a.origem.nome : '—')} · v${a.versao} · ID ${esc(a.id)}</p>`,
     `${usado ? '' : `<button class="btn danger" onclick="removeAnimal('${a.id}')">Remover (cadastro errado)</button>`}<button class="btn" onclick="openEditAnimal('${a.id}')">Editar cadastro</button>${pst ? `<button class="btn" onclick="closeModal();selectPasto('${pst.id}',true);goView('mapa')">Ver no mapa</button>` : ''}<button class="btn" onclick="closeModal();relAbrir('animal','${a.id}')">📄 Relatório PDF</button><button class="btn primary" onclick="closeModal()">Fechar</button>`, true);
   if (!(s.ativo && miniMapa($('amMap'), s.lote))) { $('amMap').hidden = true; $('amMapHint').hidden = !s.ativo; }
@@ -2011,6 +2019,14 @@ function ocupVisualHtml(rp) {
   return `<div class="pv-top"><div class="pv-legs">${leg}</div><button class="btn sm" onclick="mapaTodas=false;goView('mapa')">Ver no mapa (${comContorno} de ${act.length} com contorno)</button></div>
     <div class="pv-grid">${act.slice().sort((a, b) => ord[a.situacao] - ord[b.situacao] || a.p.nome.localeCompare(b.p.nome)).map(tile).join('')}</div>`;
 }
+/* última aplicação de cada produto por lote: é ela que vale para saber se a próxima está vencida */
+function ultimasSanitarias(fids) {
+  const u = {};
+  S.lidas.filter(l => fids.includes(l.fazendaId) && l.status === 'finalizada' && l.tipo === 'sanitario').sort((a, b) => (a.data || '').localeCompare(b.data || ''))
+    .forEach(l => { u[l.fazendaId + '|' + (l.loteId || '') + '|' + (l.cab.procedimento || '') + '|' + (l.cab.produto || '').toLowerCase()] = l; });
+  return Object.values(u).filter(l => l.cab.proximaEm);
+}
+const aplicacoesAtrasadas = fids => ultimasSanitarias(fids).filter(l => l.cab.proximaEm < hoje()).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm));
 function piquetesRecomendados(fid) {
   const ps = S.pastos.filter(p => p.fazendaId === fid && p.ativo !== false && p.diasDescanso > 0 && p.diasOcupacao > 0);
   if (!ps.length) return null;
@@ -2260,7 +2276,7 @@ function relCorpoAnimal(id) {
       <dt>Entrada na fazenda</dt><dd>${fmtD(a.entradaEm)}${a.origemEntrada === 'nascimento' ? ' (nascimento)' : ''}</dd>
       <dt>Origem</dt><dd>${esc(a.origem ? a.origem.nome : '—')}</dd></dl></div>
     ${graf}
-    <div class="card"><h3>Histórico <span class="sub">${s.eventos.length} evento(s)</span></h3>${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : e.tipo)}${e.txt ? ' · ' + esc(e.txt) : ''}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem eventos.</div>'}</div>`;
+    <div class="card"><h3>Histórico <span class="sub">${s.eventos.length} evento(s)</span></h3>${s.eventos.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Lançado por</th></tr></thead><tbody>${s.eventos.map(e => `<tr><td>${fmtD(e.data)}</td><td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].nome : e.tipo)}${e.txt ? ' · ' + esc(e.txt) : ''}</td><td>${lidaPor(e.lidaId)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem eventos.</div>'}</div>`;
 }
 function relAbrir(tipo, id) {
   const f = farm(); if (!f && tipo !== 'animal') return;
@@ -2290,7 +2306,7 @@ function relAbrir(tipo, id) {
       <header class="rel-cab"><img src="assets/tapirucu-logo.png" alt="" width="46" height="46"><div><b>Ekoa Tapiruçu</b><span>${esc(REL_TIPOS[tipo])}</span></div></header>
       <h1 class="rel-t">${esc(nome)}</h1><p class="rel-s">${esc(sub)}${per ? ' · ' + per : ''}</p>
       ${corpo}
-      <footer class="rel-rod">Gerado em ${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} pelo Ekoa Tapiruçu v${APP_VERSION}, com os dados deste aparelho. Arrobas e GMD são estimativas.</footer>
+      <footer class="rel-rod">Gerado em ${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} ${opRef() ? 'por ' + esc(opRef()) + ' ' : ''}no aparelho ${esc(syncMeta.device ? syncMeta.device.nome : '')}, pelo Ekoa Tapiruçu v${APP_VERSION}, com os dados deste aparelho. Arrobas e GMD são estimativas.</footer>
     </div>`;
   document.body.classList.add('rel-aberto'); el.scrollTop = 0; el.hidden = false;
   requestAnimationFrame(drawCharts);
@@ -2363,8 +2379,7 @@ function pnFazendaHtml(f, d0, d1) {
     ${rl.map(x => { const o = r.lote[x.l.id] || { kg: 0, gS: 0, gN: 0 }; return `<tr class="click" tabindex="0" onclick="openLotePainel('${x.l.id}')" onkeydown="if(event.key==='Enter')openLotePainel('${x.l.id}')"><td><b>${esc(x.l.nome)}</b></td><td>${x.p ? esc(x.p.nome) : '<span class="chip warn">sem pasto</span>'}</td><td class="num">${x.qtd}</td><td class="num">${x.pesoMedio ? fmtN(x.pesoMedio, 1) : '—'}</td><td class="num">${o.gN ? fmtN(o.gS / o.gN, 3) : '—'}</td><td class="num">${fmtN(o.kg, 0)}</td><td class="num">${fmtN(o.kg / KG_ARROBA_VIVO, 1)}</td><td class="num">${x.carencia ? `<span class="chip warn">🔒 ${x.carencia}</span> ` : ''}${x.atraso ? `<span class="chip bad">⚠ ${x.atraso}</span>` : ''}${!x.carencia && !x.atraso ? '—' : ''}</td></tr>`; }).join('')}
     </tbody></table></div>` : '<div class="empty">Nenhum lote.</div>'}
     <p class="hint">@/ha do pasto = arrobas estimadas produzidas ali no período ÷ área do pasto. UA = peso vivo ÷ 450 kg (R05); ocupação = UA/ha ÷ lotação máxima (R06).</p></div>`;
-  const ultSan = {}; lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario').sort((a, b) => (a.data || '').localeCompare(b.data || '')).forEach(l => { ultSan[(l.loteId || '') + '|' + (l.cab.procedimento || '') + '|' + (l.cab.produto || '').toLowerCase()] = l; });
-  const prox = Object.values(ultSan).filter(l => l.cab.proximaEm).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
+  const prox = ultimasSanitarias([S.fazendaAtiva]).sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm)).slice(0, 8);
   h += `<div class="card"><h3>Próximas aplicações sanitárias</h3>${prox.length ? `<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Procedimento</th><th>Lote</th><th class="num">Animais</th></tr></thead><tbody>${prox.map(l => `<tr><td>${fmtD(l.cab.proximaEm)}${l.cab.proximaEm < hoje() ? ` <span class="chip bad">⚠ atrasada ${diasEntre(l.cab.proximaEm, hoje())} dias</span>` : ''}</td><td>${esc(PROCEDIMENTOS[l.cab.procedimento] || '')} ${esc(l.cab.produto || '')}</td><td>${esc(loteNome(l.loteId))}</td><td class="num">${l.registros.length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma aplicação agendada.</p>'}</div>`;
   return h;
 }
@@ -3573,8 +3588,10 @@ async function sha256(txt) {
 }
 const payloadOf = pkg => JSON.stringify({ dados: pkg.dados, excluidos: pkg.excluidos, fotos: pkg.fotos });
 /* quem está usando o aparelho hoje: autoria, não segurança (sem senha). Pergunta no máximo 1x por dia. */
+const operadorTravado = () => cpLigado() && !!cpPinHash();
 function comOperador(next) {
   const o = syncMeta.operador;
+  if (operadorTravado()) { if (o && o.nome) { o.dia = hoje(); saveSyncMeta(); next(); return; } pedeOperadorPin(next); return; }   // com PIN, o nome fica até o gestor trocar
   if (o && o.nome && o.dia === hoje()) { next(); return; }
   openModal('Quem está usando hoje?', `${fld('opNome', 'Seu nome', `<input id="opNome" maxlength="40" value="${esc(o && o.nome || '')}" placeholder="Ex.: João" autocomplete="off">`)}
     <p class="hint">O nome fica registrado em tudo que você lançar neste aparelho. Serve para saber quem fez, não é senha.</p>`,
@@ -3585,7 +3602,27 @@ function comOperador(next) {
     if (typeof next === 'function') next();
   };
 }
-function trocaOperador() { if (syncMeta.operador) syncMeta.operador.dia = ''; comOperador(() => { if (cpLigado()) renderCampo(); }); }
+/* Modo Campo com PIN: só o gestor define ou troca quem usa o aparelho (nome + PIN), na hora de entregar o telefone */
+function pedeOperadorPin(next) {
+  const o = syncMeta.operador;
+  openModal('Quem vai usar este aparelho?', `<p class="hint">${o && o.nome ? 'Hoje está em nome de <b>' + esc(o.nome) + '</b>. ' : 'Ainda não há ninguém informado. '}Só o gestor define ou troca o nome: informe o nome de quem vai lançar e digite o PIN do Modo Campo.</p>
+    <div class="grid">${fld('opNome', 'Nome de quem vai usar', `<input id="opNome" maxlength="40" value="${esc(o && o.nome || '')}" placeholder="Ex.: João" autocomplete="off">`, true)}
+    ${fld('opPin', 'PIN do Modo Campo (gestor)', `<input id="opPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4 números">`, true)}</div>`,
+    '<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="opOk">Confirmar</button>');
+  $('opOk').onclick = async () => {
+    const n = str($('opNome').value, 40), pin = $('opPin').value.trim(); fieldErr('opNome', ''); fieldErr('opPin', '');
+    if (!n) { fieldErr('opNome', 'Informe o nome.'); return; }
+    if (!/^\d{4}$/.test(pin)) { fieldErr('opPin', 'Digite os 4 números do PIN.'); return; }
+    const r = await cpPinConfere(pin); if (!r.ok) { fieldErr('opPin', r.msg); return; }
+    syncMeta.operador = { nome: n, dia: hoje() }; saveSyncMeta(); closeModal(); renderSync(); if (cpLigado()) renderCampo();
+    if (typeof next === 'function') next();
+  };
+}
+function trocaOperador() {
+  if (operadorTravado()) { pedeOperadorPin(); return; }
+  if (syncMeta.operador) syncMeta.operador.dia = '';
+  comOperador(() => { if (cpLigado()) renderCampo(); });
+}
 function openDeviceModal(next) {
   const sugestao = window.matchMedia('(pointer:coarse)').matches ? 'Celular de ' : 'Computador do escritório';
   openModal('Nome deste aparelho', `${fld('devNome', 'Como identificar este aparelho?', `<input id="devNome" maxlength="40" value="${esc(syncMeta.device ? syncMeta.device.nome : sugestao)}" placeholder="Ex.: Celular do João, Computador do escritório">`, true, 'Nome do <b>aparelho</b>, não da fazenda. Ele vai em cada registro e em cada arquivo exportado, para saber quem coletou e em qual aparelho. Use um nome diferente em cada celular e computador.')}`,
@@ -3627,7 +3664,7 @@ async function exportSync() {
   let via = 'download';
   try {
     if (celular && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: name }); via = 'compartilhamento'; }
+      try { await navigator.share({ files: [file], title: name, text: 'Ekoa Tapiruçu · ' + (farm() ? farm().nome + ' · ' : '') + 'arquivo de ' + syncMeta.device.nome + (opRef() ? ' (' + opRef() + ')' : '') }); via = 'compartilhamento'; }
       catch (e) { if (e && e.name === 'AbortError') throw e; baixar(); }
     } else baixar();
   } catch (e) {
@@ -3841,8 +3878,8 @@ function renderSync() {
     <div class="card"><h3>Exportar (enviar)</h3>
       ${pd ? `<div class="alert info"><span>${pd} registro(s) novos ou alterados ainda não exportados.</span></div>` : '<div class="alert ok"><span>✓ Tudo o que foi finalizado já foi exportado.</span></div>'}
       ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}${S.lidas.some(l => l.status === 'conferir') ? `<div class="alert conf"><span>${S.lidas.filter(l => l.status === 'conferir').length} lida(s) do Modo Campo aguardando conferência viajam no arquivo, mas não alteram o rebanho até serem finalizadas.</span></div>` : ''}
-      <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>Exportar dados</button>
-      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} Envie por WhatsApp, e-mail ou Drive para quem consolida. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
+      <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>${window.matchMedia('(pointer:coarse)').matches ? 'Enviar (WhatsApp, e-mail…)' : 'Exportar dados'}</button>
+      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} No celular, o app abre a lista de aplicativos com o arquivo já anexado: toque em WhatsApp e escolha o contato. No computador, o arquivo vai para Downloads e você anexa onde quiser. O app não consegue abrir o WhatsApp sozinho com anexo; é limite do navegador. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
     <div class="card"><h3>Importar (receber)</h3>
       <div class="actions"><button class="btn teal" onclick="$('importFile').click()"><svg><use href="#i-down"/></svg>Importar arquivo</button><button class="btn" onclick="undoImport()">Desfazer última importação</button></div>
       <p class="hint">Mostra uma prévia antes de aplicar. A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.</p></div>
@@ -4066,7 +4103,7 @@ function cpInicio() {
   if (!f) return cpHead('Modo Campo') + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">Peça ao escritório o arquivo do app e abra aqui.</p>${receber}${sair}</div>`;
   const abertas = lidasF().filter(l => l.status === 'aberta' && l.campo);
   const conf = lidasF().filter(l => l.status === 'conferir').length, pd = pendentesCount();
-  return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpIr('fazenda')">Trocar<br>fazenda</button>` : '')
+  return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpPedePin('fazenda')">Trocar<br>fazenda</button>` : '')
     + `<div class="cp-body">
       ${opRef() ? `<p class="cp-txt" style="margin:0">Lançando como <b>${esc(opRef())}</b> · <button type="button" class="cp-link" onclick="trocaOperador()">Trocar</button></p>` : ''}
       ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
@@ -4078,6 +4115,8 @@ function cpInicio() {
         ${receber}
       </div>${sair}</div>`;
 }
+/* ações que o peão não faz sozinho: pedem o PIN do gestor (sair do Modo Campo, trocar de fazenda) */
+function cpPedePin(fim) { if (!cpPinHash()) { cpIr(fim === 'fazenda' ? 'fazenda' : 'sair'); return; } cpIr('sair', { pin: '', pinFim: fim }); }
 function cpFazenda() {
   return cpHead('Qual fazenda?', 'Os lançamentos vão para a fazenda escolhida', "cpIr('inicio')")
     + `<div class="cp-body"><div class="cp-opc">${S.fazendas.map(f => cpBtn(esc(f.nome), `${cpContaFaz(f.id)} animais`, `cpEscolheFazenda('${f.id}')`, f.id === S.fazendaAtiva ? 'on' : '', 'i-cad')).join('')}</div></div>`;
@@ -4526,7 +4565,7 @@ function cpPronto() {
   const l = cpLida(), n = l ? l.registros.length : 0;
   return cpHead('Pronto', '', null) + `<div class="cp-body cp-centro"><div class="cp-check" aria-hidden="true">✓</div>
     <p class="cp-q">Lida concluída: ${n} animal(is).</p><p class="cp-txt">Agora mande para o escritório. O gestor confere e finaliza.</p>
-    <div class="cp-opc">${cpBtn('Enviar para o escritório', 'WhatsApp, e-mail ou Drive', 'exportSync()', 'gold', 'i-up')}${cpBtn('Voltar ao início', 'Enviar depois', "cpIr('inicio')", 'leve')}</div></div>`;
+    <div class="cp-opc">${cpBtn('Enviar para o escritório', 'Abre o WhatsApp, e-mail ou Drive com o arquivo anexado', 'exportSync()', 'gold', 'i-up')}${cpBtn('Voltar ao início', 'Enviar depois', "cpIr('inicio')", 'leve')}</div></div>`;
 }
 
 /* ---------- mudar o lote de pasto (rotação) ---------- */
@@ -4569,14 +4608,21 @@ function cpPastoOk() {
 function cpSair() {
   if (!cpPinHash()) return cpHead('Sair do Modo Campo', '', "cpIr('inicio')") + `<div class="cp-body"><p class="cp-q">Voltar ao app completo?</p><div class="cp-opc">${cpBtn('Sim, sair', '', 'saiCampo()', 'pri')}${cpBtn('Ficar no Modo Campo', '', "cpIr('inicio')", 'leve')}</div></div>`;
   const p = CP.pin || '';
-  return cpHead('PIN do gestor', 'Para voltar ao app completo', "cpIr('inicio')")
+  return cpHead('PIN do gestor', CP.pinFim === 'fazenda' ? 'Para trocar de fazenda' : 'Para voltar ao app completo', "cpIr('inicio',{pinFim:''})")
     + `<div class="cp-body lancar"><div class="cp-pin" aria-label="${p.length} de 4 números">${[0, 1, 2, 3].map(i => `<span class="${i < p.length ? 'on' : ''}"></span>`).join('')}</div>${cpAviso()}
-      <div class="cp-espaco"></div>${cpTeclado('pin')}<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('esqueci')">Esqueci o PIN</button></div></div>`;
+      <div class="cp-espaco"></div>${cpTeclado('pin')}${CP.pinFim ? '' : `<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('esqueci')">Esqueci o PIN</button></div>`}</div>`;
+}
+async function cpPinConfere(pin) {   // usado pelo PIN de sair, de trocar de fazenda e de trocar o operador
+  const w = cpTrava(); if (w) return { ok: false, msg: `Muitas tentativas. Aguarde ${cpTravaTxt(w)}.` };
+  const h = await sha256('tapirucu-campo:' + pin);
+  if ((h || pin) === cpPinHash()) { cpLimpaTent(); return { ok: true }; }
+  const t = cpFalhou(), w2 = cpTrava();
+  return { ok: false, msg: w2 ? `PIN errado. Bloqueado por ${cpTravaTxt(w2)}.` : `PIN errado. Restam ${5 - t.n} tentativa(s) antes do bloqueio.` };
 }
 async function cpConfereSair() {
   const w = cpTrava(); if (w) { CP.pin = ''; cpErro(`Muitas tentativas. Aguarde ${cpTravaTxt(w)}.`); return; }
   const h = await sha256('tapirucu-campo:' + CP.pin), ok = (h || CP.pin) === cpPinHash();
-  if (ok) { cpLimpaTent(); saiCampo(); return; }
+  if (ok) { cpLimpaTent(); if (CP.pinFim === 'fazenda') cpIr('fazenda', { pin: '', pinFim: '' }); else saiCampo(); return; }
   CP.pin = ''; const t = cpFalhou(), w2 = cpTrava();
   cpErro(w2 ? `PIN errado. Bloqueado por ${cpTravaTxt(w2)}.` : `PIN errado. Restam ${5 - t.n} tentativa(s) antes do bloqueio.`);
 }
@@ -4899,7 +4945,7 @@ function apTelaMail(box, libera) {
 async function openSenhaApp() {
   const c = apCfg(), bio = c ? await bioDisponivel() : false;
   if (!c) { openModal('Senha do aplicativo', '<p>Este aparelho está <b>sem senha</b>. Qualquer pessoa que abrir o app vê os dados.</p>', `<button class="btn" onclick="closeModal()">Fechar</button><button class="btn primary" onclick="apLigarDeNovo()">Criar senha</button>`); return; }
-  const op = [[0, 'Sempre pedir ao abrir'], [1, '1 hora'], [8, '8 horas'], [24, '24 horas'], [168, '7 dias']].map(o => `<option value="${o[0]}"${(c.lembra || 0) === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('');
+  const op = [[0, 'Sempre pedir ao abrir'], [1, '1 hora'], [8, '8 horas'], [24, '24 horas'], [168, '7 dias'], [876000, 'Nunca (só ao tocar em Bloquear agora)']].map(o => `<option value="${o[0]}"${(c.lembra || 0) === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('');
   openModal('Senha do aplicativo', `<p>A senha está <b>ativa</b> neste aparelho desde ${fmtDT(c.em)}. O Modo Campo não pede.</p>
     <div class="grid">${fld('apLembra', 'Não pedir a senha de novo por', `<select id="apLembra" onchange="apSetLembra(this.value)">${op}</select>`, false, 'Quanto maior o prazo, mais rápido o acesso e menor a proteção se alguém pegar o aparelho já aberto. Bloquear agora zera o prazo.')}</div>
     ${bio ? (c.bio ? `<p><span class="chip ok">Digital ou rosto ativo</span> <button class="btn sm" type="button" onclick="apDesativarBio()">Desativar digital ou rosto</button></p>` : `<p><button class="btn sm" type="button" onclick="apAtivarBio()">Ativar digital ou rosto</button> <small class="muted">usa o desbloqueio do próprio aparelho</small></p>`) : '<p class="hint">Digital ou rosto não está disponível neste aparelho ou navegador.</p>'}
@@ -4908,7 +4954,7 @@ async function openSenhaApp() {
     <p class="hint">É uma proteção para demonstrações: impede que alguém abra o app por curiosidade, mas não criptografa os dados guardados no aparelho. A senha em si não é guardada; o navegador pode oferecer salvá-la no gerenciador de senhas dele.</p>`,
     `<button class="btn" onclick="closeModal()">Fechar</button><button class="btn primary" onclick="apBloquearAgora()">Bloquear agora</button>`);
 }
-function apSetLembra(h) { const c = apCfg(); if (!c) return; c.lembra = parseInt(h, 10) || 0; apSalva(c); apDefineAte(c); showToast(c.lembra ? 'Senha só será pedida de novo depois de ' + (c.lembra >= 24 ? c.lembra / 24 + ' dia(s)' : c.lembra + ' hora(s)') + '.' : 'A senha será pedida sempre que o app abrir.'); }
+function apSetLembra(h) { const c = apCfg(); if (!c) return; c.lembra = parseInt(h, 10) || 0; apSalva(c); apDefineAte(c); showToast(c.lembra >= 876000 ? 'Neste aparelho a senha não será mais pedida. Para voltar a proteger, escolha outro prazo ou toque em Bloquear agora.' : c.lembra ? 'Senha só será pedida de novo depois de ' + (c.lembra >= 24 ? c.lembra / 24 + ' dia(s)' : c.lembra + ' hora(s)') + '.' : 'A senha será pedida sempre que o app abrir.'); }
 async function apAtivarBio() { const id = await bioCadastrar(); if (!id) { alert('Não foi possível ativar a digital ou o rosto agora.'); return; } const c = apCfg(); c.bio = id; apSalva(c); showToast('Digital ou rosto ativado.'); openSenhaApp(); }
 function apDesativarBio() { const c = apCfg(); delete c.bio; apSalva(c); showToast('Digital ou rosto desativado.'); openSenhaApp(); }
 function apBloquearAgora() { try { sessionStorage.removeItem(AP_SES); localStorage.removeItem(AP_ATE); } catch (e) {} location.reload(); }

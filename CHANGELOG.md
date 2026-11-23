@@ -2,10 +2,16 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
-## [24] — 2026-11-23 — Cadastro guiado e painel de ocupação
+## [24] — 2026-11-23 — Cadastro guiado, painel de ocupação e controle do gestor
 - Novo painel visual de ocupação: um quadro por pasto, com a situação (ocupado, em descanso, pronto para entrar, nunca ocupado), os lotes que estão lá, a barra de dias contra a meta e o aviso de pasto que passou da meta. Aparece na aba Pastos e no painel da fazenda, com atalho para o mapa.
 - Cadastro guiado de primeiro uso (passo a passo): fazenda, primeiro pasto e primeiro lote, em três telas, com o resto opcional. Aparece na tela inicial e em Fazendas quando não há nada cadastrado, e termina oferecendo cadastrar os animais.
 - Pasto: o botão Excluir virou Excluir ou arquivar, com o resumo do que o pasto tem (ciclos de ocupação, lotes, período). Arquivar tira o pasto das listas e mantém o histórico; se o pasto está ocupado, o app diz qual lote precisa sair antes.
+- Modo Campo: trocar de fazenda agora pede o PIN do gestor. Aparelho sem PIN (versão antiga) continua abrindo direto.
+- Quem está usando: com Modo Campo e PIN, o nome só muda com o PIN do gestor, e fica o mesmo nos dias seguintes até o gestor trocar. Sem PIN, o app continua perguntando uma vez por dia. Serve para controlar a entrega do aparelho; não é segurança contra quem sabe mexer.
+- Exportar: no celular, o compartilhamento já leva o arquivo anexado e uma mensagem com fazenda, aparelho e operador. Um site não consegue abrir o WhatsApp direto com o anexo; o app abre a lista de compartilhamento e você escolhe o WhatsApp. No computador o arquivo é baixado, como antes.
+- Histórico do animal (tela e PDF): nova coluna Lançado por, com o nome de quem fez a lida e o aparelho. O rodapé do PDF diz quem gerou e em qual aparelho. Tabelas do PDF com cabeçalho, linhas alternadas e Página X de Y.
+- Início: saíram a logo e os textos de marca; fica o título e a fazenda em uso. Novo indicador Aplicações atrasadas (vacinas e remédios com a data vencida).
+- Senha do app: nova opção Nunca pedir (só ao tocar em Bloquear agora). Reduz a proteção do aparelho; a senha não criptografa os dados.
 
 ## [23] — 2026-11-23 — Números que orientam
 - Arrobas passam a mostrar até quando vão os dados ("dados até DD/MM, N de M animais"). Sem pesagem recente, o número de arrobas fica abaixo do real, e agora isso aparece na tela.
