@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [26] — 2026-11-23 — Carga para o campo e cópia de segurança
+- Carga para o campo: novo cartão em Sincronizar, com os 4 passos (o escritório cadastra, gera a carga, o campo recebe e depois envia de volta). O arquivo é o mesmo da sincronização, com o nome Tapirucu_Carga_…, e leva os cadastros e o histórico finalizado. Não leva o Modo Campo nem o PIN.
+- Aparelho do campo sem dados: a tela agora explica os 3 passos para receber a carga.
+- Aviso de perda de dados: quando há registros só neste aparelho e a última exportação foi há 3 dias ou mais (ou nunca), o Início mostra Faça uma cópia, com o botão Exportar agora, e o Modo Campo lembra de enviar ao escritório. O app não consegue ser avisado na hora de desinstalar; o aviso é a proteção possível.
+
 ## [25] — 2026-11-23 — Lidas à vista, em qualquer fazenda
 - Lidas em outras fazendas: o aviso do Início passa a contar só a fazenda em uso, e uma linha separada diz quais outras fazendas têm lida em aberto ou para conferir, com o botão Ir para lá (troca a fazenda e abre a lista). Na tela Lidas, quando o filtro vem vazio, o app diz onde estão as lidas. Corrige o Ver que abria uma lista vazia.
 

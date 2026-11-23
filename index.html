@@ -926,7 +926,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1319,6 +1319,14 @@ function renderFarmSel() {
   sel.innerHTML = S.fazendas.length ? S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('') : '<option>Nenhuma fazenda</option>';
   $('mFarm').textContent = farm() ? farm().nome : 'Cadastre a fazenda';
 }
+/* Desinstalar o app ou limpar o navegador apaga tudo e o app não é avisado antes. O que dá para fazer é lembrar de exportar. */
+function diasDesdeExport() { const e = (syncMeta.exports || [])[0]; return e && e.em ? Math.floor((Date.now() - new Date(e.em).getTime()) / 86400000) : null; }
+function backupAviso() {
+  if (!S.animais.length && !S.lidas.length) return '';
+  const d = diasDesdeExport(), pd = pendentesCount();
+  if (!pd || (d !== null && d < 3)) return '';
+  return { d, pd, txt: `${pd} registro(s) só existem neste aparelho. Último arquivo exportado: ${d === null ? 'nunca' : d === 0 ? 'hoje' : 'há ' + d + ' dia(s)'}. Se o app for desinstalado ou o navegador limpo, esses dados se perdem.` };
+}
 function pendentesCount() {
   return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status !== 'aberta' && isPend(l)).length;
 }
@@ -1368,6 +1376,7 @@ function renderHome() {
   const cf = lidasF().filter(l => l.status === 'conferir');
   if (cf.length) h += `<div class="alert conf"><span><b>${cf.length} lida(s) vindas do Modo Campo</b> aguardam conferência. Elas só valem no rebanho depois que você conferir e finalizar.</span><button class="btn sm" onclick="$('lfStatus').value='conferir';goView('lidas')">Conferir</button></div>`;
   if (ab.length) h += `<div class="alert warn"><span>${ab.length} lida(s) em aberto. Elas só valem depois de finalizadas.</span><button class="btn sm" onclick="$('lfStatus').value='aberta';goView('lidas')">Ver</button></div>`;
+  { const bk = backupAviso(); if (bk) h += `<div class="alert bad"><span><b>Faça uma cópia.</b> ${bk.txt}</span><button class="btn sm" onclick="exportSync()">Exportar agora</button></div>`; }
   h += lidasOutrasHtml();
   if (pd) h += `<div class="alert info"><span>${pd} registro(s) ainda não exportado(s) deste aparelho.</span><button class="btn sm" onclick="goView('sync')">Exportar</button></div>`;
   al.innerHTML = h;
@@ -3646,8 +3655,9 @@ function openDeviceModal(next) {
     if (typeof next === 'function') next();
   };
 }
-async function exportSync() {
-  if (!syncMeta.device) { openDeviceModal(exportSync); return; }
+async function exportSync(opts) {
+  const carga = !!(opts && opts.carga === true);   /* carga para o campo: o mesmo arquivo da sincronização, só com outro nome e outra explicação */
+  if (!syncMeta.device) { openDeviceModal(() => exportSync(opts)); return; }
   if (!S.fazendas.length) { alert('Ainda não há dados para exportar.'); return; }
   const abertas = S.lidas.filter(l => l.status === 'aberta');
   if (abertas.length && !confirm(`${abertas.length} lida(s) ainda em lançamento NÃO entram na exportação (viajam as finalizadas e as concluídas no Modo Campo). Exportar mesmo assim?`)) return;
@@ -3667,7 +3677,7 @@ async function exportSync() {
   const prev = JSON.parse(JSON.stringify({ f: S.fazendas, pa: S.pastos, lo: S.lotes, a: S.animais, li: S.lidas }));
   [...S.fazendas, ...S.pastos, ...S.lotes, ...S.animais, ...lidas].forEach(mark);
   pkg.integridade = await sha256(payloadOf(pkg));
-  const name = `Tapirucu_${slug(syncMeta.device.nome)}_${stampFile()}.json`;
+  const name = `Tapirucu_${carga ? 'Carga_' : ''}${slug(syncMeta.device.nome)}_${stampFile()}.json`;
   const file = new File([JSON.stringify(pkg)], name, { type: 'application/json' });
   /* Computador: baixa o arquivo. Celular: tenta o compartilhamento (WhatsApp, e-mail, Drive) e, se o
      sistema recusar por qualquer motivo que não seja o usuário cancelar, baixa o arquivo (plano B). */
@@ -3887,11 +3897,16 @@ function renderSync() {
       <p style="margin-top:8px">Quem está usando: ${opRef() ? `<b>${esc(opRef())}</b>` : '<span class="muted">ninguém informado</span>'} <button class="btn sm" onclick="trocaOperador()">${opRef() ? 'Trocar' : 'Informar'}</button></p>
       <p style="margin-top:8px"><button class="btn teal sm" onclick="ativarCampo()"><svg><use href="#i-campo"/></svg>Ligar Modo Campo neste aparelho</button></p>
       <p class="hint">Cada celular e computador tem o seu próprio nome e ID. Para levar dados de um para o outro: <b>exporte no aparelho de origem</b> e <b>importe no de destino</b>.</p></div>
+    <div class="card"><h3>Carga para o campo <span class="sub">celulares e tablets novos</span></h3>
+      <p>O escritório faz os cadastros (fazenda, pastos, lotes e animais) e leva tudo para os aparelhos do campo. A equipe do curral só lança a operação.</p>
+      <ol class="aj-ul" style="margin:8px 0 10px 18px"><li>Aqui no escritório, toque em <b>Gerar carga para o campo</b>.</li><li>Mande o arquivo para cada celular ou tablet (WhatsApp, e-mail ou cabo).</li><li>No aparelho do campo, dê um nome a ele (ex.: Celular do João), ligue o Modo Campo e toque em <b>Receber do escritório</b>.</li><li>No fim do dia, o campo toca em <b>Enviar para o escritório</b>. Aqui você importa e confere as lidas.</li></ol>
+      <button class="btn primary" onclick="exportSync({carga:true})"><svg><use href="#i-up"/></svg>Gerar carga para o campo</button>
+      <p class="hint">Leva os cadastros e o histórico finalizado. Não leva o Modo Campo nem o PIN: esses se configuram em cada aparelho. Lida em aberto não viaja. O arquivo é o mesmo da sincronização, só com o nome <b>Tapirucu_Carga_…</b>.</p></div>
     <div class="card"><h3>Exportar (enviar)</h3>
       ${pd ? `<div class="alert info"><span>${pd} registro(s) novos ou alterados ainda não exportados.</span></div>` : '<div class="alert ok"><span>✓ Tudo o que foi finalizado já foi exportado.</span></div>'}
       ${ab ? `<div class="alert warn"><span>${ab} lida(s) em aberto ficam fora da exportação até serem finalizadas.</span></div>` : ''}${S.lidas.some(l => l.status === 'conferir') ? `<div class="alert conf"><span>${S.lidas.filter(l => l.status === 'conferir').length} lida(s) do Modo Campo aguardando conferência viajam no arquivo, mas não alteram o rebanho até serem finalizadas.</span></div>` : ''}
       <button class="btn primary" onclick="exportSync()"><svg><use href="#i-up"/></svg>${window.matchMedia('(pointer:coarse)').matches ? 'Enviar (WhatsApp, e-mail…)' : 'Exportar dados'}</button>
-      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} No celular, o app abre a lista de aplicativos com o arquivo já anexado: toque em WhatsApp e escolha o contato. No computador, o arquivo vai para Downloads e você anexa onde quiser. O app não consegue abrir o WhatsApp sozinho com anexo; é limite do navegador. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
+      <p class="hint">Gera o arquivo <b>Tapirucu_&lt;aparelho&gt;_&lt;data&gt;.json</b> com verificação de integridade. <b>Desinstalar o app ou limpar o navegador apaga todos os dados do aparelho</b>: exporte antes.${tamanhoFotos() ? ` Inclui ${Object.keys(S.fotos).length} foto(s), cerca de ${fmtN(tamanhoFotos() / 1400, 0)} KB.` : ''} No celular, o app abre a lista de aplicativos com o arquivo já anexado: toque em WhatsApp e escolha o contato. No computador, o arquivo vai para Downloads e você anexa onde quiser. O app não consegue abrir o WhatsApp sozinho com anexo; é limite do navegador. O arquivo leva dados do rebanho: compartilhe só por canais confiáveis.</p></div>
     <div class="card"><h3>Importar (receber)</h3>
       <div class="actions"><button class="btn teal" onclick="$('importFile').click()"><svg><use href="#i-down"/></svg>Importar arquivo</button><button class="btn" onclick="undoImport()">Desfazer última importação</button></div>
       <p class="hint">Mostra uma prévia antes de aplicar. A versão mais nova de cada registro prevalece; nada é apagado sem passar pela lixeira.</p></div>
@@ -4112,13 +4127,14 @@ function cpInicio() {
   const f = farm();
   const sair = `<div class="cp-rodape"><button type="button" class="cp-link" onclick="cpIr('sair',{pin:''})">Sair do Modo Campo</button></div>`;
   const receber = cpBtn('Receber do escritório', 'Abrir o arquivo que o escritório mandou', "$('importFile').click()", 'leve', 'i-down');
-  if (!f) return cpHead('Modo Campo') + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">Peça ao escritório o arquivo do app e abra aqui.</p>${receber}${sair}</div>`;
+  if (!f) return cpHead('Modo Campo') + `<div class="cp-body"><p class="cp-q">Este aparelho ainda não tem os dados da fazenda.</p><p class="cp-txt">1. Peça ao escritório a <b>carga para o campo</b> (um arquivo).<br>2. Guarde o arquivo neste aparelho.<br>3. Toque em <b>Receber do escritório</b> e escolha o arquivo.</p>${receber}${sair}</div>`;
   const abertas = lidasF().filter(l => l.status === 'aberta' && l.campo);
   const conf = lidasF().filter(l => l.status === 'conferir').length, pd = pendentesCount();
   return cpHead(f.nome, 'Modo Campo', null, S.fazendas.length > 1 ? `<button type="button" class="cp-head-btn" onclick="cpPedePin('fazenda')">Trocar<br>fazenda</button>` : '')
     + `<div class="cp-body">
       ${opRef() ? `<p class="cp-txt" style="margin:0">Lançando como <b>${esc(opRef())}</b> · <button type="button" class="cp-link" onclick="trocaOperador()">Trocar</button></p>` : ''}
       ${abertas.length ? `<p class="cp-sec">Continuar o que começou</p><div class="cp-opc">${abertas.map(l => cpBtn(`${CP_ACOES[l.tipo].t} · ${l.registros.length} animal(is)`, `${l.loteId ? esc(loteNome(l.loteId)) + ' · ' : ''}${cpData(l)}`, `cpAbre('${l.id}')`, 'cont', CP_ACOES[l.tipo].i)).join('')}</div>` : ''}
+      ${(() => { const bk = backupAviso(); return bk ? `<p class="cp-txt" style="margin:0;color:var(--bad-ink,#b3261e)"><b>Envie para o escritório.</b> ${bk.txt}</p>` : ''; })()}
       ${cpPendCard()}
       <p class="cp-sec">O que vai fazer agora?</p>
       <div class="cp-grade">${Object.entries(CP_ACOES).map(([k, a]) => cpBtn(a.t, a.d, `cpComeca('${k}')`, '', a.i)).join('')}</div>

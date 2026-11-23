@@ -1,9 +1,18 @@
 {
-  "versao": 25,
-  "rotulo": "25 beta",
+  "versao": 26,
+  "rotulo": "26 beta",
   "data": "2026-11-23",
-  "titulo": "Lidas à vista, em qualquer fazenda",
+  "titulo": "Carga para o campo e cópia de segurança",
   "notas": {
+    "26": {
+      "data": "2026-11-23",
+      "titulo": "Carga para o campo e cópia de segurança",
+      "itens": [
+        "Carga para o campo: novo cartão em Sincronizar, com os 4 passos (o escritório cadastra, gera a carga, o campo recebe e depois envia de volta). O arquivo é o mesmo da sincronização, com o nome Tapirucu_Carga_…, e leva os cadastros e o histórico finalizado. Não leva o Modo Campo nem o PIN.",
+        "Aparelho do campo sem dados: a tela agora explica os 3 passos para receber a carga.",
+        "Aviso de perda de dados: quando há registros só neste aparelho e a última exportação foi há 3 dias ou mais (ou nunca), o Início mostra Faça uma cópia, com o botão Exportar agora, e o Modo Campo lembra de enviar ao escritório. O app não consegue ser avisado na hora de desinstalar; o aviso é a proteção possível."
+      ]
+    },
     "25": {
       "data": "2026-11-23",
       "titulo": "Lidas à vista, em qualquer fazenda",
