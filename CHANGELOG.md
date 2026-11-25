@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [29] — 2026-11-25 — Morte com prova
+- Morte e perda exigem foto do animal: no app completo e no Modo Campo, a baixa só é lançada com a foto (câmera do aparelho). A foto viaja na sincronização junto com a lida.
+- Validação do gestor: baixa lançada no Modo Campo chega marcada A validar. Na conferência o gestor vê a foto e a causa, e valida ou recusa (com motivo registrado). Recusada, a baixa sai da lida e o animal continua no rebanho. A lida de morte ou perda só finaliza com todas as fotos e validações.
+- Baixa lançada pelo gestor no app completo já entra validada (ele mesmo está lançando).
+- Atenção agora mostra quantas baixas por morte ou perda esperam foto ou validação. Venda não exige foto nem validação.
+
 ## [28] — 2026-11-23 — Base de confiança
 - Importar animais de planilha (CSV): em Adicionar animais, botão Importar de planilha. Aceita ; , ou tabulação, acentos do Excel, datas dd/mm/aaaa. Só brinco e sexo são obrigatórios; o lote vem da planilha ou de um lote padrão. Mostra quantos estão prontos e quais linhas têm problema (brinco repetido ou já cadastrado, lote inexistente, peso absurdo, data impossível ou no futuro) antes de importar. Há modelo para baixar.
 - Proteção dos dados: Sincronizar mostra se o navegador protege o armazenamento deste aparelho, o espaço usado e a idade da última cópia, com botão Pedir proteção e orientação para o iPhone.
