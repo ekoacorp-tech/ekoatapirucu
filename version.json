@@ -1,9 +1,21 @@
 {
-  "versao": 30,
-  "rotulo": "30 beta",
+  "versao": 31,
+  "rotulo": "31 beta",
   "data": "2026-11-25",
-  "titulo": "Vacinas e medicamentos",
+  "titulo": "Peso de venda e Ordem de Lida",
   "notas": {
+    "31": {
+      "data": "2026-11-25",
+      "titulo": "Peso de venda e Ordem de Lida",
+      "itens": [
+        "Peso esperado para a venda, por animal: informe no cadastro (Editar cadastro) ou, ao adicionar animais, o mesmo valor para todos. Fica visível na ficha do animal.",
+        "Previsão da data de atingimento: o app usa o ganho médio das pesagens dos últimos 120 dias. Só calcula com 2 ou mais pesagens que cubram 21+ dias e com ganho positivo; sem isso mostra \"sem base\" e o motivo, sem inventar data. Mostra a confiança (alta ou média) e deixa claro que é estimativa.",
+        "Conferência por pesagem: quando a data prevista chega a 21 dias e o animal está sem pesar há 7+ dias, Atenção agora avisa e abre uma lida de pesagem (motivo Pré-venda) no lote, mostrando o peso esperado de cada animal e o desvio. Ao finalizar, o esperado fica gravado no registro e a previsão é recalculada com o peso real.",
+        "Peso de venda e o esperado viajam na sincronização. Ainda não aparece no Modo Campo nem na importação de planilha (CSV).",
+        "Ordem de Lida (menu e Mais): o app sugere o que fazer (perda de peso, sem manejo há mais de 30 dias, pesagem vencida, peso de venda próximo, carência terminando, aplicação atrasada, campanha com animais faltando) e você cria a ordem com um toque, ou cria uma manual com lote, manejo, prazo e operador opcional. Nada vira ordem sem você, e cada animal entra em uma sugestão só.",
+        "A ordem vai na carga para o campo e aparece em Manejo a realizar. O campo começa a lida já no lote certo, conclui, e a ordem fica Feita; a lida volta para você conferir. Se duas lidas forem feitas para a mesma ordem, o app avisa antes de finalizar a segunda. A fazenda é o endereço; o operador é só indicação. Funciona por arquivo, sem servidor."
+      ]
+    },
     "30": {
       "data": "2026-11-25",
       "titulo": "Vacinas e medicamentos",
