@@ -75,7 +75,7 @@ button,input,select,textarea{font-size:16px;color:inherit}
 .main{flex:1;padding:22px 28px 40px;min-width:0}
 .view{display:none;max-width:1100px;margin:0 auto}
 body[data-view="home"] #v-home,body[data-view="lidas"] #v-lidas,body[data-view="lida"] #v-lida,body[data-view="rebanho"] #v-rebanho,
-body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa{display:block}
+body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa,body[data-view="insumos"] #v-insumos{display:block}
 .topbar{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .topbar h2{font-size:1.15rem;color:var(--brand-navy)}
 .topbar p{font-size:.84rem;color:var(--text-secondary);margin-top:2px}
@@ -799,6 +799,7 @@ th{font-size:.75rem}
       <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span class="s-lbl">Lidas</span><span class="count" id="cAbertas" hidden></span></button>
       <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span class="s-lbl">Rebanho</span></button>
       <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span class="s-lbl">Mapa da fazenda</span></button>
+      <button data-nav="insumos" onclick="goView('insumos')"><svg><use href="#i-san"/></svg><span class="s-lbl">Insumos</span></button>
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Painel</span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
@@ -899,6 +900,12 @@ th{font-size:.75rem}
   </section>
 
   <!-- MAPA DA FAZENDA -->
+  <section class="view" id="v-insumos">
+    <div class="topbar"><div><h2>Insumos</h2><p>Vacinas e remédios: estoque, validade, custo e campanhas obrigatórias</p></div>
+      <div class="actions"><button class="btn" onclick="openCampanha()">Nova campanha</button><button class="btn primary" onclick="openEntrada()">Nova entrada</button></div></div>
+    <div id="insumosBody"></div>
+  </section>
+
   <section class="view" id="v-mapa">
     <div class="topbar"><div><h2>Mapa da fazenda</h2><p>Fazendas, pastos e onde está o rebanho. Toque num pasto para ver quem está nele.</p></div></div>
     <div id="mapaBody"></div>
@@ -909,6 +916,7 @@ th{font-size:.75rem}
     <div class="topbar"><div><h2>Mais</h2><p id="maisFarm"></p></div></div>
     <div class="menu-list">
       <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
+      <button onclick="goView('insumos')"><svg><use href="#i-san"/></svg><div>Insumos<small>Estoque de vacinas e remédios, custo e campanhas</small></div></button>
       <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, pastos e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
@@ -949,7 +957,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 29;
+const APP_VERSION = 30;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -971,7 +979,7 @@ const PROCEDIMENTOS = { vacina: 'Vacina', vermifugo: 'Vermífugo', medicamento: 
 const MOTIVOS_PESAGEM = { rotina: 'Rotina', entrada: 'Entrada', desmame: 'Desmame', venda: 'Pré-venda', outro: 'Outro' };
 
 /* ---------------- Estado ---------------- */
-let S = { fazendas: [], pastos: [], lotes: [], animais: [], lidas: [], fotos: {}, lixeira: [], excluidos: [], fazendaAtiva: null };
+let S = { fazendas: [], pastos: [], lotes: [], animais: [], lidas: [], sanidade: [], fotos: {}, lixeira: [], excluidos: [], fazendaAtiva: null };
 let syncMeta = { device: null, exports: [], imports: [], importedIds: [], lastFrom: {}, lastSeenVersion: 0 };
 let calc = null;           // estado derivado (recalculado a cada mudança)
 let editLidaId = null;     // lida aberta no editor
@@ -1069,7 +1077,7 @@ function iniciaCanal() {
     };
   } catch (e) { canalDados = null; }
 }
-const COLS_SYNC = ['fazendas', 'pastos', 'lotes', 'animais', 'lidas'];
+const COLS_SYNC = ['fazendas', 'pastos', 'lotes', 'animais', 'lidas', 'sanidade'];
 function mesclaRemoto(R) {
   if (!R || typeof R !== 'object') return;
   const perdidos = [], em = nowISO(), tomb = new Map(S.excluidos.map(t => [t.id, t]));
@@ -1199,6 +1207,237 @@ async function escolheFoto(id, input) {
     await save(); openAnimal(id); renderRebanho(); showToast('Foto salva (' + fmtN(d.length / 1400, 0) + ' KB).');
   } catch (e) { alert('Não foi possível usar esta imagem. Tente outra foto.'); }
 }
+/* ===== v30 — insumos: estoque com validade, custo e campanhas obrigatórias ===== */
+const brl = n => n == null || !isFinite(n) ? '—' : 'R$ ' + fmtN(n, 2);
+const sanF = k => S.sanidade.filter(x => x.fazendaId === S.fazendaAtiva && x.kind === k && x.ativo !== false);
+const entradasF = () => sanF('entrada'), campanhasF = () => sanF('campanha');
+const insumoDe = id => S.sanidade.find(x => x.id === id && x.kind === 'entrada') || null;
+const campanhaDe = id => S.sanidade.find(x => x.id === id && x.kind === 'campanha') || null;
+const dosesAn = c => (c && Number(c.dosesAn) > 0) ? Number(c.dosesAn) : 1;
+const r2 = n => Math.round(n * 100) / 100;
+function consumoInsumo(id) { let n = 0; S.lidas.forEach(l => { if (l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab && l.cab.insumoId === id) n += l.registros.length * dosesAn(l.cab); }); return r2(n); }
+const saldoInsumo = e => r2((e.doses || 0) - consumoInsumo(e.id));
+/* reserva: lida enviada do campo e ainda não finalizada segura as doses; sai sozinha se for finalizada (vira consumo), excluída ou voltar a aberta */
+function reservaInsumo(id, exceto) { let n = 0; S.lidas.forEach(l => { if (l.status === 'conferir' && l.tipo === 'sanitario' && l.cab && l.cab.insumoId === id && l.id !== exceto) n += l.registros.length * dosesAn(l.cab); }); return r2(n); }
+const saldoLivre = (e, exceto) => r2(saldoInsumo(e) - reservaInsumo(e.id, exceto));
+function insumoSit(e, ref) {
+  const d = ref || hoje(), s = saldoInsumo(e);
+  if (e.validade && e.validade < d) return { k: 'vencido', t: 'Vencido', c: 'bad' };
+  if (s <= 0) return { k: 'zerado', t: 'Sem saldo', c: 'gray' };
+  if (e.validade && e.validade <= addDias(d, 30)) return { k: 'vence', t: 'Vence em ' + diasEntre(d, e.validade) + ' dia(s)', c: 'warn' };
+  return { k: 'ok', t: 'Em dia', c: 'ok' };
+}
+const custoDose = e => e && e.custo > 0 && e.doses > 0 ? e.custo / e.doses : null;
+function custoLida(l) { const e = l.cab && l.cab.insumoId ? insumoDe(l.cab.insumoId) : null, cd = e ? custoDose(e) : ((l.cab && l.cab.custoDose) || null); return cd == null ? null : cd * l.registros.length * dosesAn(l.cab); }
+/* o que pode ser usado numa aplicação: dentro da validade na data do manejo e com saldo; o que vence primeiro vem primeiro */
+function insumosDisp(tipo, data) { const d = data || hoje(); return entradasF().filter(e => (!tipo || e.tipo === tipo) && (!e.validade || e.validade >= d) && saldoLivre(e) > 0).sort((a, b) => (a.validade || '9999').localeCompare(b.validade || '9999')); }
+function custoSanitarioF() {
+  const lotes = {}, sem = {}; let total = 0, semCusto = 0, comCusto = 0;
+  lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario').forEach(l => {
+    const c = custoLida(l);
+    if (c == null) { semCusto += l.registros.length; const k = l.cab.produto || 'Sem produto'; sem[k] = (sem[k] || 0) + l.registros.length; return; }
+    total += c; comCusto += l.registros.length; const k = l.loteId || ''; lotes[k] = (lotes[k] || 0) + c;
+  });
+  const tot = comCusto + semCusto;
+  return { total, lotes, semCusto, comCusto, semProdutos: Object.entries(sem).sort((a, b) => b[1] - a[1]), cobertura: tot ? comCusto / tot : null };
+}
+/* campanha: quem deveria ter recebido e ainda não recebeu (só conta lida finalizada ligada à campanha) */
+function campanhaStatus(c) {
+  const cats = c.categorias || [];
+  const alvo = Object.values(computeF(c.fazendaId)).filter(s => s.ativo && (!cats.length || cats.includes(s.a.categoria || '')));
+  const feitos = new Set();
+  S.lidas.forEach(l => { if (l.fazendaId === c.fazendaId && l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab && l.cab.campanhaId === c.id) l.registros.forEach(r => feitos.add(r.animalId)); });
+  const falta = alvo.filter(s => !feitos.has(s.a.id));
+  return { alvo: alvo.length, feitos: alvo.length - falta.length, falta, atraso: c.ate < hoje(), dias: diasEntre(hoje(), c.ate) };
+}
+function sanItens(fids) {
+  const it = [], todas = fids.length > 1;
+  fids.forEach(fid => {
+    const f = S.fazendas.find(x => x.id === fid), nm = todas && f ? ' (' + f.nome + ')' : '', go = `irInsumos('${fid}')`;
+    S.sanidade.filter(x => x.fazendaId === fid && x.ativo !== false).forEach(x => {
+      if (x.kind === 'campanha') {
+        const s = campanhaStatus(x); if (!s.falta.length) return;
+        if (s.atraso) it.push({ k: 'reb', c: 'red', t: `Campanha ${x.nome}${nm}: faltam ${s.falta.length} animal(is), o prazo venceu em ${fmtD(x.ate)}`, go });
+        else if (s.dias <= 7) it.push({ k: 'reb', c: 'orange', t: `Campanha ${x.nome}${nm}: faltam ${s.falta.length} animal(is) até ${fmtD(x.ate)}`, go });
+      } else {
+        const sit = insumoSit(x), sd = saldoInsumo(x);
+        if (sit.k === 'vencido' && sd > 0) it.push({ k: 'reb', c: 'red', t: `${x.produto}${nm}: lote vencido com ${fmtN(sd, 0)} dose(s) no estoque`, go });
+        else if (sit.k === 'vence') it.push({ k: 'reb', c: 'orange', t: `${x.produto}${nm}: ${sit.t.toLowerCase()} (${fmtN(sd, 0)} dose(s))`, go });
+      }
+    });
+  });
+  return it;
+}
+function irInsumos(fid) { if (fid && fid !== S.fazendaAtiva) { S.fazendaAtiva = fid; calc = null; renderFarmSel(); } goView('insumos'); }
+
+/* ---- tela Insumos ---- */
+function renderInsumos() {
+  const box = $('insumosBody'); if (!box) return;
+  if (!farm()) { box.innerHTML = '<div class="empty">Cadastre uma fazenda primeiro.</div>'; return; }
+  const ent = entradasF().slice().sort((a, b) => (a.validade || '9999').localeCompare(b.validade || '9999'));
+  const camps = campanhasF().slice().sort((a, b) => a.ate.localeCompare(b.ate));
+  const cst = custoSanitarioF(), ativos = Object.values(compute()).filter(s => s.ativo).length;
+  const campH = camps.map(c => {
+    const s = campanhaStatus(c), pct = s.alvo ? Math.round(s.feitos / s.alvo * 100) : 0, ok = !s.falta.length;
+    const chip = ok ? '<span class="chip ok">Concluída</span>' : s.atraso ? '<span class="chip bad">Prazo vencido</span>' : s.dias <= 7 ? `<span class="chip warn">Faltam ${s.dias} dia(s)</span>` : `<span class="chip info">Até ${fmtD(c.ate)}</span>`;
+    return `<div class="card"><h3>${esc(c.nome)} ${chip}</h3>
+      <p class="muted">${esc(PROCEDIMENTOS[c.tipo] || '')}${c.produto ? ' · ' + esc(c.produto) : ''} · ${(c.categorias || []).length ? esc(c.categorias.join(', ')) : 'todo o rebanho'} · prazo ${fmtD(c.ate)}</p>
+      <div class="eleg-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
+      <p><b>${s.feitos} de ${s.alvo}</b> animais aplicados${ok ? '' : ` · <b>faltam ${s.falta.length}</b>: ${esc(s.falta.slice(0, 12).map(x => x.a.brinco).join(', '))}${s.falta.length > 12 ? '…' : ''}`}</p>
+      <div class="actions">${ok ? '' : `<button class="btn teal" onclick="iniciaLidaCampanha('${c.id}')">Fazer lida da campanha</button>`}<button class="btn sm" onclick="openCampanha('${c.id}')">Editar</button><button class="btn sm" onclick="arquivaSan('${c.id}')">Arquivar</button></div></div>`;
+  }).join('');
+  const linhas = ent.map(e => {
+    const sit = insumoSit(e), sd = saldoInsumo(e), cd = custoDose(e);
+    return `<tr><td><b>${esc(e.produto)}</b>${e.custo > 0 ? '' : ' <span class="chip warn">sem custo</span>'}<br><small class="muted">${esc(PROCEDIMENTOS[e.tipo] || '')}${e.fabricante ? ' · ' + esc(e.fabricante) : ''}${e.loteFab ? ' · lote ' + esc(e.loteFab) : ''}</small></td>
+      <td>${fmtD(e.validade)}<br><span class="chip ${sit.c}">${esc(sit.t)}</span></td><td class="num">${fmtN(e.doses, 0)}</td><td class="num"><b>${fmtN(sd, 0)}</b>${reservaInsumo(e.id) > 0 ? `<br><small class="muted">${fmtN(reservaInsumo(e.id), 0)} reservada(s) para conferir</small>` : ''}</td><td class="num hide-m">${cd == null ? '—' : brl(cd)}</td>
+      <td><button class="btn sm" onclick="openEntrada('${e.id}')">Editar</button></td></tr>`;
+  }).join('');
+  const loteCst = Object.entries(cst.lotes).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<tr><td>${id ? esc(loteNome(id)) : 'Sem lote'}</td><td class="num">${brl(v)}</td></tr>`).join('');
+  box.innerHTML = `
+    ${sanItens([S.fazendaAtiva]).length ? `<div class="alert warn"><span><b>Atenção:</b> ${esc(sanItens([S.fazendaAtiva]).map(i => i.t).join(' · '))}</span></div>` : ''}
+    <div class="card"><h3>Campanhas obrigatórias <span class="sub">${camps.length}</span></h3>
+      <p class="hint">Uma campanha diz o que precisa ser aplicado, em quem e até quando. O app conta quem já recebeu e avisa em Atenção agora quando o prazo aperta.</p>
+      ${camps.length ? '' : '<div class="empty">Nenhuma campanha. Crie uma para a vacina que não pode faltar (aftosa, brucelose…).</div>'}</div>
+    ${campH}
+    <div class="card"><h3>Estoque de vacinas e remédios <span class="sub">${ent.length} entrada(s)</span></h3>
+      ${ent.length ? `<div class="tbl-wrap"><table><thead><tr><th>Produto</th><th>Validade</th><th class="num">Entrada (doses)</th><th class="num">Saldo</th><th class="num hide-m">Custo/dose</th><th></th></tr></thead><tbody>${linhas}</tbody></table></div>` : '<div class="empty">Nenhuma entrada. Registre a compra para o app controlar validade, saldo e custo.</div>'}</div>
+    <div class="card"><h3>Custo sanitário ${cst.cobertura == null ? '' : cst.cobertura >= 0.9 ? '<span class="chip ok">Cobertura alta</span>' : cst.cobertura >= 0.6 ? '<span class="chip warn">Cobertura parcial</span>' : '<span class="chip bad">Cobertura baixa</span>'}</h3>
+      ${cst.total > 0 ? `<p><b>${brl(cst.total)}</b> em aplicações finalizadas${ativos ? ` · <b>${brl(cst.total / ativos)}</b> por animal ativo${cst.cobertura < 1 ? ' (estimativa: parte das aplicações está fora do custo)' : ''}` : ''}.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Custo</th></tr></thead><tbody>${loteCst}</tbody></table></div>` : '<p class="muted">Ainda sem custo calculado. Ele aparece quando uma lida usa um produto do estoque com o valor da compra informado, ou quando se informa o custo por dose na lida.</p>'}
+      ${cst.semCusto ? `<p class="hint"><b>Cobertura do custo: ${Math.round((cst.cobertura || 0) * 100)}%</b> das aplicações (${cst.comCusto} de ${cst.comCusto + cst.semCusto}). Fora do custo: ${esc(cst.semProdutos.slice(0, 5).map(([n, q]) => n + ' (' + q + ')').join(', '))}. Para entrar, informe o custo da compra na entrada ou o custo por dose na lida.</p>` : ''}</div>`;
+}
+function openEntrada(id) {
+  const x = id ? insumoDe(id) : null, prods = [...new Set(entradasF().map(e => e.produto))];
+  openModal(x ? 'Editar entrada' : 'Nova entrada de insumo', `<div class="grid">
+    ${fld('iTipo', 'Tipo', `<select id="iTipo">${opts(PROCEDIMENTOS, x ? x.tipo : 'vacina')}</select>`, true)}
+    ${fld('iPr', 'Produto', `<input id="iPr" maxlength="80" list="iPrList" autocomplete="off" value="${esc(x ? x.produto : '')}" placeholder="Ex.: Aftosa, Ivermectina"><datalist id="iPrList">${prods.map(p => `<option value="${esc(p)}">`).join('')}</datalist>`, true)}
+    ${fld('iFab', 'Fabricante', `<input id="iFab" maxlength="60" value="${esc(x ? x.fabricante : '')}">`)}
+    ${fld('iLoteFab', 'Lote de fabricação', `<input id="iLoteFab" maxlength="40" value="${esc(x ? x.loteFab : '')}">`, false, 'Está na caixa ou no frasco. Serve para rastrear.')}
+    ${fld('iVal', 'Validade', `<input type="date" id="iVal" value="${esc(x ? x.validade || '' : '')}">`, true)}
+    ${fld('iQtd', 'Quantidade (doses)', `<input id="iQtd" inputmode="decimal" autocomplete="off" value="${x ? esc(String(x.doses).replace('.', ',')) : ''}">`, true, '1 dose = 1 aplicação em 1 animal. Frasco de 50 ml com dose de 2 ml = 25 doses.')}
+    ${fld('iCusto', 'Custo total da compra (R$)', `<input id="iCusto" inputmode="decimal" autocomplete="off" value="${x && x.custo ? esc(String(x.custo).replace('.', ',')) : ''}">`, false, 'Opcional. Com ele o app calcula o custo por animal.')}
+    ${fld('iData', 'Data da compra', `<input type="date" id="iData" max="${hoje()}" value="${esc(x ? x.compraEm || '' : hoje())}">`)}</div>
+    ${x ? `<p class="hint">Já foram usadas ${fmtN(consumoInsumo(x.id), 0)} dose(s) desta entrada.</p>` : ''}`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button>${x ? `<button class="btn" onclick="arquivaSan('${x.id}')">Arquivar</button>` : ''}<button class="btn primary" onclick="saveEntrada('${x ? x.id : ''}')">Salvar</button>`);
+  setTimeout(() => { const e = $('iPr'); if (e && !x) e.focus(); }, 80);
+}
+function saveEntrada(id) {
+  const x = id ? insumoDe(id) : null;
+  ['iPr', 'iVal', 'iQtd', 'iCusto', 'iData'].forEach(k => fieldErr(k, ''));
+  const produto = str($('iPr').value, 80), val = $('iVal').value, q = parseNum($('iQtd').value), cs = $('iCusto').value.trim() ? parseNum($('iCusto').value) : null, dt = $('iData').value;
+  let ok = true;
+  if (!produto) { fieldErr('iPr', 'Informe o produto.'); ok = false; }
+  if (!validDate(val)) { fieldErr('iVal', 'Informe a validade (está na caixa ou no frasco).'); ok = false; }
+  if (!(q > 0) || q > 1e7) { fieldErr('iQtd', 'Informe a quantidade em doses (maior que zero).'); ok = false; }
+  else if (x && q < consumoInsumo(x.id)) { fieldErr('iQtd', `Já foram usadas ${fmtN(consumoInsumo(x.id), 0)} dose(s). A quantidade não pode ser menor.`); ok = false; }
+  if (cs != null && (!(cs >= 0) || cs > 1e9)) { fieldErr('iCusto', 'Valor inválido.'); ok = false; }
+  if (dt && (!validDate(dt) || dt > hoje())) { fieldErr('iData', 'Data de compra inválida ou no futuro.'); ok = false; }
+  if (!ok) return;
+  const d = { tipo: $('iTipo').value, produto, fabricante: str($('iFab').value, 60), loteFab: str($('iLoteFab').value, 40), validade: val, doses: Math.round(q * 100) / 100, custo: cs > 0 ? cs : null, compraEm: dt || null };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'entrada', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'insumos') renderInsumos(); updateCounts(); showToast(x ? 'Entrada atualizada.' : `Entrada registrada: ${fmtN(d.doses, 0)} dose(s) de ${produto}.`);
+}
+function arquivaSan(id) {
+  const x = S.sanidade.find(y => y.id === id); if (!x) return;
+  if (!confirm(x.kind === 'campanha' ? `Arquivar a campanha ${x.nome}? Ela sai da lista e dos avisos. Lidas já feitas continuam valendo.` : `Arquivar ${x.produto}? Ele sai da lista e não aparece mais para novas aplicações. O histórico e o custo das aplicações já feitas continuam.`)) return;
+  x.ativo = false; touch(x); save(); closeModal(); if (currentView === 'insumos') renderInsumos(); updateCounts(); showToast('Arquivado.');
+}
+function openCampanha(id) {
+  const x = id ? campanhaDe(id) : null, cats = [...new Set(animaisF().map(a => a.categoria || '').filter(Boolean))].sort(), prods = [...new Set(entradasF().map(e => e.produto))];
+  openModal(x ? 'Editar campanha' : 'Nova campanha obrigatória', `<div class="grid">
+    ${fld('cNome', 'Nome da campanha', `<input id="cNome" maxlength="60" autocomplete="off" value="${esc(x ? x.nome : '')}" placeholder="Ex.: Aftosa maio 2027">`, true)}
+    ${fld('cTipo', 'O que aplicar', `<select id="cTipo">${opts(PROCEDIMENTOS, x ? x.tipo : 'vacina')}</select>`, true)}
+    ${fld('cProd', 'Produto', `<input id="cProd" maxlength="80" list="cProdList" autocomplete="off" value="${esc(x ? x.produto : '')}" placeholder="Ex.: Aftosa"><datalist id="cProdList">${prods.map(p => `<option value="${esc(p)}">`).join('')}</datalist>`, false, 'Opcional. Se informado, a lida da campanha já vem com ele.')}
+    ${fld('cDe', 'Início', `<input type="date" id="cDe" value="${esc(x ? x.de || hoje() : hoje())}">`)}
+    ${fld('cAte', 'Prazo final', `<input type="date" id="cAte" value="${esc(x ? x.ate : '')}">`, true)}</div>
+    <p class="hint" style="margin-top:8px"><b>Quem entra:</b> marque as categorias, ou deixe tudo desmarcado para o rebanho todo.</p>
+    <div class="grid">${cats.length ? cats.map((c, i) => `<label class="chk"><input type="checkbox" class="cCat" value="${esc(c)}"${x && (x.categorias || []).includes(c) ? ' checked' : ''}> ${esc(c)}</label>`).join('') : '<span class="muted">Os animais ainda não têm categoria: a campanha vale para todos.</span>'}</div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveCampanha('${x ? x.id : ''}')">Salvar</button>`);
+}
+function saveCampanha(id) {
+  const x = id ? campanhaDe(id) : null; ['cNome', 'cAte', 'cDe'].forEach(k => fieldErr(k, ''));
+  const nome = str($('cNome').value, 60), de = $('cDe').value || hoje(), ate = $('cAte').value; let ok = true;
+  if (!nome) { fieldErr('cNome', 'Dê um nome à campanha.'); ok = false; }
+  if (!validDate(ate)) { fieldErr('cAte', 'Informe o prazo final.'); ok = false; }
+  else if (validDate(de) && ate < de) { fieldErr('cAte', 'O prazo não pode ser antes do início.'); ok = false; }
+  if (!ok) return;
+  const d = { nome, tipo: $('cTipo').value, produto: str($('cProd').value, 80), categorias: [...document.querySelectorAll('.cCat:checked')].map(e => e.value), de: validDate(de) ? de : hoje(), ate };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'campanha', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'insumos') renderInsumos(); updateCounts(); showToast(x ? 'Campanha atualizada.' : 'Campanha criada.');
+}
+function iniciaLidaCampanha(cid) {
+  const c = campanhaDe(cid); if (!c) return;
+  if (!syncMeta.device) { openDeviceModal(() => iniciaLidaCampanha(cid)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => iniciaLidaCampanha(cid)); return; }
+  const cab = { procedimento: c.tipo, produto: c.produto || '', campanhaId: c.id };
+  const e = c.produto ? insumosDisp(c.tipo, hoje()).find(y => y.produto.toLowerCase() === c.produto.toLowerCase()) : null;
+  if (e) cab.insumoId = e.id;
+  const l = stampNew({ fazendaId: S.fazendaAtiva, tipo: 'sanitario', data: hoje(), loteId: '', status: 'aberta', cab, registros: [], obs: '', finalizadaEm: null });
+  S.lidas.push(l); save(); openLida(l.id);
+}
+/* ---- na lida sanitária ---- */
+function sanCabHtml(l, dis) {
+  const c = l.cab || {}, ins = c.insumoId ? insumoDe(c.insumoId) : null, ents = entradasF();
+  let h = '';
+  if (ents.length || ins) {
+    const disp = insumosDisp(null, l.data), lista = ins && !disp.includes(ins) ? disp.concat([ins]) : disp;
+    h += fld('lIns', 'Produto do estoque', `<select id="lIns"${dis} onchange="escolheInsumo(this.value)"><option value="">Outro produto (fora do estoque)</option>${lista.map(e => `<option value="${e.id}"${c.insumoId === e.id ? ' selected' : ''}>${esc(e.produto)} · val. ${fmtD(e.validade)} · livre ${fmtN(saldoLivre(e, l.id), 0)}</option>`).join('')}</select>`, false, 'Escolher do estoque baixa as doses e calcula o custo. Vencido ou sem saldo não aparece.');
+  }
+  return h;
+}
+function sanCabHtml2(l, dis) {
+  const c = l.cab || {}, ins = c.insumoId ? insumoDe(c.insumoId) : null; let h = '';
+  if (ins) h += fld('lDa', 'Doses por animal', `<input id="lDa" inputmode="decimal" value="${esc(String(dosesAn(c)).replace('.', ','))}"${dis} onchange="setDosesAn(this.value)">`, false, 'Normalmente 1.');
+  if (campanhasF().length || c.campanhaId) h += fld('lCamp', 'Campanha', `<select id="lCamp"${dis} onchange="setCampanha(this.value)"><option value="">Nenhuma</option>${campanhasF().concat(c.campanhaId && !campanhasF().some(x => x.id === c.campanhaId) && campanhaDe(c.campanhaId) ? [campanhaDe(c.campanhaId)] : []).map(x => `<option value="${x.id}"${c.campanhaId === x.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}</select>`, false, 'Ligue à campanha para ela contar quem já recebeu.');
+  if (ins) {
+    const need = r2((l.registros || []).length * dosesAn(c)), res = reservaInsumo(ins.id, l.id), sd = r2(saldoInsumo(ins) - res), custo = custoLida(l), venc = ins.validade && ins.validade < l.data;
+    h += `<div class="field" style="grid-column:1/-1"><div class="alert ${venc || need > sd ? 'bad' : 'info'}"><span>${venc ? `<b>Produto vencido em ${fmtD(ins.validade)}.</b> ` : ''}Esta lida usa <b>${fmtN(need, 0)}</b> de <b>${fmtN(sd, 0)}</b> dose(s) livres${res > 0 ? ` (${fmtN(res, 0)} reservada(s) por lidas esperando conferência)` : ''}${need > sd ? ' (<b>falta saldo</b>)' : ''}${custo != null ? ` · custo ${brl(custo)}${(l.registros || []).length ? ` (${brl(custo / l.registros.length)} por animal)` : ''}` : ' · <b>sem custo</b>: a entrada não tem o valor da compra'}.</span></div></div>`;
+  } else {
+    h += fld('lCd', 'Custo por dose (R$)', `<input id="lCd" inputmode="decimal" value="${c.custoDose ? esc(String(c.custoDose).replace('.', ',')) : ''}"${dis} onchange="setCustoDoseManual(this.value)">`, false, 'Opcional. Para produto fora do estoque entrar no custo.');
+  }
+  return h;
+}
+function escolheInsumo(id) {
+  const l = curLida(); if (!l || l.status === 'finalizada') return;
+  if (!id) { delete l.cab.insumoId; delete l.cab.dosesAn; }
+  else { const e = insumoDe(id); if (!e) return; l.cab.insumoId = id; l.cab.produto = e.produto; l.cab.procedimento = e.tipo; }
+  l.editadoEm = nowISO(); save(); renderLidaEditor();
+}
+function setCustoDoseManual(v) {
+  const l = curLida(); if (!l || l.status === 'finalizada') return; const n = v.trim() ? parseNum(v) : null;
+  if (n != null && (!(n > 0) || n > 1e6)) { alert('Informe o custo por dose em reais (ex.: 8,50).'); renderLidaEditor(); return; }
+  if (n == null) delete l.cab.custoDose; else l.cab.custoDose = Math.round(n * 100) / 100;
+  l.editadoEm = nowISO(); save(); renderLidaEditor();
+}
+function setDosesAn(v) {
+  const l = curLida(); if (!l || l.status === 'finalizada') return; const n = parseNum(v);
+  if (!(n > 0) || n > 100) { alert('Informe as doses por animal (ex.: 1).'); renderLidaEditor(); return; }
+  if (n === 1) delete l.cab.dosesAn; else l.cab.dosesAn = Math.round(n * 100) / 100;
+  l.editadoEm = nowISO(); save(); renderLidaEditor();
+}
+function setCampanha(id) {
+  const l = curLida(); if (!l || l.status === 'finalizada') return;
+  if (!id) delete l.cab.campanhaId; else { const c = campanhaDe(id); if (!c) return; l.cab.campanhaId = id; if (!l.cab.produto && c.produto) l.cab.produto = c.produto; if (c.tipo) l.cab.procedimento = c.tipo; }
+  l.editadoEm = nowISO(); save(); renderLidaEditor();
+}
+function addFaltantesCampanha() {
+  const l = curLida(); if (!l || l.status === 'finalizada' || !l.loteId) return; const c = campanhaDe(l.cab.campanhaId); if (!c) return;
+  const falta = new Set(campanhaStatus(c).falta.map(s => s.a.id)); let n = 0;
+  Object.values(compute()).filter(s => s.ativo && s.lote === l.loteId && falta.has(s.a.id) && !l.registros.some(r => r.animalId === s.a.id)).forEach(s => { l.registros.push({ id: uuid(), animalId: s.a.id, brinco: s.a.brinco }); n++; });
+  l.editadoEm = nowISO(); save(); renderLidaEditor(); showToast(n ? `${n} animal(is) da campanha adicionado(s).` : 'Ninguém deste lote falta na campanha.');
+}
+/* ---- Modo Campo ---- */
+function cpSetInsumo(id) { const e = insumoDe(id), n = CP.nova; if (!e) return; n.cab.produto = e.produto; n.cab.insumoId = e.id; cpAvanca(); }
+function cpComecaCampanha(cid, lid) {
+  const c = campanhaDe(cid); if (!c) return;
+  if (!syncMeta.device) { openDeviceModal(() => cpComecaCampanha(cid, lid)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => cpComecaCampanha(cid, lid)); return; }
+  const cab = { procedimento: c.tipo, produto: c.produto || '', campanhaId: c.id };
+  const e = c.produto ? insumosDisp(c.tipo, hoje()).find(y => y.produto.toLowerCase() === c.produto.toLowerCase()) : null;
+  if (e) cab.insumoId = e.id;
+  cpIr('passo', { nova: { tipo: 'sanitario', loteId: lid || '', cab, dias: {} }, i: c.produto ? CP_PASSOS.sanitario.indexOf('dose') : CP_PASSOS.sanitario.indexOf('produto') });
+}
+
 /* v29 — morte/perda: foto obrigatória + validação do gestor */
 const baixaExigeFoto = l => !!(l && l.tipo === 'baixa' && l.cab && (l.cab.motivo === 'morte' || l.cab.motivo === 'perda'));
 const fotoBx = r => (r && r.fotoId ? fotoDe(r.fotoId) : null);
@@ -1264,6 +1503,7 @@ const tamanhoFotos = () => Object.values(S.fotos || {}).reduce((t, f) => t + (f 
 function migraPastos() {
   if (!S.fotos || typeof S.fotos !== 'object') S.fotos = {};
   if (!Array.isArray(S.pastos)) S.pastos = [];
+  if (!Array.isArray(S.sanidade)) S.sanidade = [];
   S.lotes.forEach(l => migraLote(l, S.pastos));
 }
 
@@ -1383,6 +1623,7 @@ function goView(v, semHistorico) {
   if (v === 'sync') renderSync();
   if (v === 'cadastros') renderCadastros();
   if (v === 'mapa') renderMapa();
+  if (v === 'insumos') renderInsumos();
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
   renderNavBar();
   poeAjuda();
@@ -1403,7 +1644,7 @@ function backupAviso() {
   return { d, pd, txt: `${pd} registro(s) só existem neste aparelho. Último arquivo exportado: ${d === null ? 'nunca' : d === 0 ? 'hoje' : 'há ' + d + ' dia(s)'}. Se o app for desinstalado ou o navegador limpo, esses dados se perdem.` };
 }
 function pendentesCount() {
-  return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status !== 'aberta' && isPend(l)).length;
+  return S.fazendas.filter(isPend).length + S.pastos.filter(isPend).length + S.lotes.filter(isPend).length + S.sanidade.filter(isPend).length + S.animais.filter(isPend).length + S.lidas.filter(l => l.status !== 'aberta' && isPend(l)).length;
 }
 function updateCounts() {
   const ab = lidasF().filter(l => l.status === 'aberta' || l.status === 'conferir').length, pd = pendentesCount();
@@ -1632,10 +1873,12 @@ function renderLidaEditor() {
     + fld('lLote', l.tipo === 'troca' ? 'Lote de origem' : 'Lote', `<select id="lLote"${dis} onchange="setCab('loteId',this.value)">${loteOpts(l.loteId, 'Definir pelo primeiro brinco')}</select>`, precisaLote && l.tipo !== 'troca', ro ? '' : 'Escolha o lote, ou leia o primeiro brinco: o lote dele vira o lote da lida e os demais animais entram na fila.');
   if (l.tipo === 'pesagem') head += fld('lMot', 'Motivo', `<select id="lMot"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_PESAGEM, c.motivo)}</select>`);
   if (l.tipo === 'sanitario') head += fld('lProc', 'Procedimento', `<select id="lProc"${dis} onchange="setCab('cab.procedimento',this.value)">${opts(PROCEDIMENTOS, c.procedimento)}</select>`, true)
-    + fld('lProd', 'Produto', `<input id="lProd" value="${esc(c.produto || '')}" maxlength="80"${dis} onchange="setCab('cab.produto',this.value)" placeholder="Ex.: Aftosa, Ivermectina">`, true)
+    + sanCabHtml(l, dis)
+    + fld('lProd', 'Produto', `<input id="lProd" value="${esc(c.produto || '')}" maxlength="80"${dis}${c.insumoId ? ' readonly' : ''} onchange="setCab('cab.produto',this.value)" placeholder="Ex.: Aftosa, Ivermectina">`, true)
     + fld('lDose', 'Dose', `<input id="lDose" value="${esc(c.dose || '')}" maxlength="40"${dis} onchange="setCab('cab.dose',this.value)" placeholder="Ex.: 5 ml">`)
     + fld('lCar', 'Carência até', `<input type="date" id="lCar" value="${esc(c.carenciaAte || '')}"${dis} onchange="setCab('cab.carenciaAte',this.value)">`, false, 'Animais ficam em quarentena até esta data (R14).')
-    + fld('lProx', 'Próxima aplicação', `<input type="date" id="lProx" value="${esc(c.proximaEm || '')}"${dis} onchange="setCab('cab.proximaEm',this.value)">`);
+    + fld('lProx', 'Próxima aplicação', `<input type="date" id="lProx" value="${esc(c.proximaEm || '')}"${dis} onchange="setCab('cab.proximaEm',this.value)">`)
+    + sanCabHtml2(l, dis);
   if (l.tipo === 'troca') head += fld('lDest', 'Lote de destino', `<select id="lDest"${dis} onchange="setCab('cab.loteDestinoId',this.value)">${loteOpts(c.loteDestinoId, 'Selecione')}</select>`, true);
   if (l.tipo === 'baixa') head += fld('lMotB', 'Motivo da baixa', `<select id="lMotB"${dis} onchange="setCab('cab.motivo',this.value)">${opts(MOTIVOS_BAIXA, c.motivo)}</select>`, true, 'A baixa tira o animal do inventário. Para cadastro errado, use Remover no animal (R03).');
   head += `<div class="field" style="grid-column:1/-1"><label for="lObs">Observação</label><textarea id="lObs" maxlength="500"${dis} onchange="setCab('obs',this.value)">${esc(l.obs || '')}</textarea></div>`;
@@ -1827,7 +2070,8 @@ function elegiveisHtml(l) {
   const multi = l.tipo === 'sanitario' || l.tipo === 'troca' || l.tipo === 'baixa';
   return `<div class="eleg">
     <div class="eleg-head"><b>Animais de ${esc(loteNome(l.loteId))}</b><span class="muted">${feitos} de ${noLote} lançados${l.tipo === 'nascimento' ? ' (fêmeas)' : ''}</span>
-      ${multi && el.length && l.tipo !== 'baixa' ? `<button class="btn sm" onclick="addTodosLote()">Adicionar todos (${el.length})</button>` : ''}</div>
+      ${multi && el.length && l.tipo !== 'baixa' ? `<button class="btn sm" onclick="addTodosLote()">Adicionar todos (${el.length})</button>` : ''}
+      ${l.tipo === 'sanitario' && l.cab.campanhaId && campanhaDe(l.cab.campanhaId) ? `<button class="btn sm teal" onclick="addFaltantesCampanha()">Só quem falta na campanha</button>` : ''}</div>
     <div class="eleg-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
     ${el.length ? `${el.length > 12 ? `<input class="eleg-busca" type="search" placeholder="Filtrar brinco" oninput="filtraEleg(this.value)" aria-label="Filtrar animais do lote">` : ''}
     <div class="eleg-chips" id="elegChips">${el.map(s => `<button type="button" class="eleg-chip${s.emCarencia ? ' car' : ''}" data-b="${esc(s.a.brinco.toLowerCase())}" onclick="escolherEleg('${s.a.id}')" title="${s.ultimoPeso ? 'último peso ' + fmtN(s.ultimoPeso, 1) + ' kg' : ''}">${esc(s.a.brinco)}${s.emCarencia ? ' 🔒' : ''}</button>`).join('')}</div>
@@ -1859,6 +2103,14 @@ function finalizeLida() {
   if (l.data > hoje()) errs.push('A data do manejo não pode ser futura.');
   if ((l.tipo === 'pesagem' || l.tipo === 'sanitario') && !l.loteId) errs.push('Escolha o lote do manejo.');
   if (l.tipo === 'sanitario' && !c.produto) errs.push('Informe o produto aplicado.');
+  if (l.tipo === 'sanitario' && c.insumoId) {
+    const e = insumoDe(c.insumoId), need = r2(l.registros.length * dosesAn(c));
+    if (!e) errs.push('O produto do estoque desta lida não existe mais. Escolha outro ou use "Outro produto".');
+    else {
+      if (e.validade && e.validade < l.data) errs.push(`${e.produto} estava vencido em ${fmtD(e.validade)}, antes da data do manejo. Não é possível registrar a aplicação com este produto.`);
+      const res = reservaInsumo(e.id, l.id), sd = r2(saldoInsumo(e) - res); if (need > sd) errs.push(`Falta saldo de ${e.produto}: a lida usa ${fmtN(need, 0)} dose(s) e há ${fmtN(sd, 0)} livre(s)${res > 0 ? ` (${fmtN(res, 0)} reservada(s) por lidas esperando conferência)` : ''}. Registre a entrada ou reduza os animais.`);
+    }
+  }
   if (l.tipo === 'sanitario' && c.carenciaAte && c.carenciaAte < l.data) errs.push('A carência termina antes da data do manejo.');
   if (l.tipo === 'troca' && !c.loteDestinoId) errs.push('Escolha o lote de destino.');
   if (!l.registros.length) errs.push('Nenhum animal lançado.');
@@ -1925,7 +2177,7 @@ function deleteLida() {
 /* =========================================================================
    LIXEIRA e registro de exclusão (viaja na sincronização)
    ========================================================================= */
-const COL = { lida: 'lidas', animal: 'animais', lote: 'lotes', pasto: 'pastos', fazenda: 'fazendas' };
+const COL = { lida: 'lidas', animal: 'animais', lote: 'lotes', pasto: 'pastos', fazenda: 'fazendas', san: 'sanidade' };
 function moveToTrash(tipo, item, em, no) {
   S[COL[tipo]] = S[COL[tipo]].filter(x => x.id !== item.id);
   S.lixeira = S.lixeira.filter(x => x.item.id !== item.id);
@@ -2517,6 +2769,7 @@ function todosPastos(fids, d0, d1) {
 function pnItens(fids) {
   const it = [], todas = fids.length > 1;
   const nAtraso = aplicacoesAtrasadas(fids).length;
+  sanItens(fids).forEach(x => it.push(x));
   const nVal = emFazendas(fids, f => lidasF().filter(x => x.status !== 'finalizada' && baixaExigeFoto(x)).flatMap(x => x.registros.filter(r => !(r.val && r.val.st === 'ok') || !fotoBx(r)))).length;
   if (nVal) it.push({ k: 'reb', c: 'red', t: `${nVal} baixa(s) por morte/perda esperando foto ou validação do gestor`, go: "goView('lidas')" });
   if (nAtraso) it.push({ k: 'reb', c: 'red', t: `${nAtraso} aplicação(ões) sanitária(s) atrasada(s)`, go: todas ? "irPainel('todas')" : "irPainel('fazenda')" });
@@ -3551,6 +3804,11 @@ const AJUDA = {
     d: [['A barra de atualização não some.', 'Feche o app por completo e abra de novo com internet.']],
     b: ['H01', 'H17'] }
 };
+AJUDA.insumos = { t: 'Insumos', g: 'Gestão',
+  s: 'Controle de vacinas e remédios: o que entrou, a validade, o saldo, o custo e as campanhas obrigatórias.',
+  p: ['Em Nova entrada, registre a compra: produto, validade, quantidade em doses e o custo total (opcional).', 'Na lida sanitária, escolha o Produto do estoque: o app baixa as doses e calcula o custo.', 'Para algo que não pode faltar, crie uma Campanha com produto, categorias e prazo.', 'Em Fazer lida da campanha, o app abre a lida pronta; use Só quem falta na campanha.'],
+  r: ['Produto vencido ou sem saldo não pode ser usado: o app não deixa finalizar a lida.', 'O estoque só baixa quando a lida é finalizada pelo gestor, mas lida do campo esperando conferência já reserva as doses.', 'O custo só entra para produto do estoque com o valor da compra informado (ou custo por dose digitado na lida). O resto fica fora do custo e a tela mostra a cobertura.', 'Campanha conta só quem recebeu em lida finalizada ligada a ela.'],
+  d: [['Como contar as doses?', '1 dose = 1 aplicação em 1 animal. Um frasco de 50 ml com dose de 2 ml tem 25 doses.'], ['Apliquei fora do app, e agora?', 'Registre a lida com o produto do estoque na data do manejo. Se o produto já estava vencido nessa data, o app recusa.']] };
 const AJUDA_GRUPOS = ['Visão geral', 'Campo', 'Cadastros', 'Mapa', 'Gestão', 'Dados'];
 function ajudaKey() {
   if (currentView === 'lida') { const l = curLida(); return l ? 'lida-' + l.tipo : 'lidas'; }
@@ -3685,7 +3943,7 @@ async function excluirFazenda(id) {
   try { await idbSet('backupPreFazenda', { em: nowISO(), nome: x.nome, dados: JSON.parse(JSON.stringify(S)) }); }
   catch (e) { if (!confirm('Não foi possível guardar a cópia de segurança. Excluir mesmo assim?')) { if (bt) { bt.disabled = false; bt.textContent = 'Excluir fazenda'; } return; } }
   const ids = new Set(S.animais.filter(a => a.fazendaId === id).map(a => a.id));
-  S.pastos = S.pastos.filter(p => p.fazendaId !== id); S.lotes = S.lotes.filter(l => l.fazendaId !== id);
+  S.pastos = S.pastos.filter(p => p.fazendaId !== id); S.lotes = S.lotes.filter(l => l.fazendaId !== id); S.sanidade = S.sanidade.filter(x => x.fazendaId !== id);
   S.animais = S.animais.filter(a => a.fazendaId !== id); S.lidas = S.lidas.filter(l => l.fazendaId !== id);
   S.lixeira = S.lixeira.filter(t => !t.item || (t.item.fazendaId !== id && t.item.id !== id));
   if (S.fotos) ids.forEach(i => { delete S.fotos[i]; });
@@ -4020,8 +4278,8 @@ async function exportSync(opts) {
   const lidas = S.lidas.filter(l => l.status === 'finalizada' || l.status === 'conferir');
   const pkg = {
     app: APP_ID, formato: SYNC_FORMAT, versaoApp: APP_VERSION, exportadoEm: agora, exportadoEmLocal: fmtDT(agora) + ' (' + offsetTxt(agora) + ')', fusoHorario: FUSO, exportId: uuid(), dispositivo: deviceRef(),
-    resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
-    dados: { fazendas: S.fazendas, pastos: S.pastos, lotes: S.lotes, animais: S.animais, lidas },
+    resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, sanidade: S.sanidade.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
+    dados: { fazendas: S.fazendas, pastos: S.pastos, lotes: S.lotes, animais: S.animais, lidas, sanidade: S.sanidade },
     fotos: S.fotos && Object.keys(S.fotos).length ? S.fotos : undefined,
     excluidos: S.excluidos
   };
@@ -4029,8 +4287,8 @@ async function exportSync(opts) {
   if (pkg.fotos && estimado > 24e6 && confirm(`O arquivo ficaria com cerca de ${fmtN(estimado / 1048576, 0)} MB, perto do limite de 30 MB para importar.\n\nOK = exportar SEM as fotos (elas continuam neste aparelho)\nCancelar = exportar com as fotos`)) pkg.fotos = undefined;
   // marca exportado antes de gerar a integridade, para o arquivo refletir o estado final
   const mark = o => { if (isPend(o)) o.exportadoEm = agora; };
-  const prev = JSON.parse(JSON.stringify({ f: S.fazendas, pa: S.pastos, lo: S.lotes, a: S.animais, li: S.lidas }));
-  [...S.fazendas, ...S.pastos, ...S.lotes, ...S.animais, ...lidas].forEach(mark);
+  const prev = JSON.parse(JSON.stringify({ f: S.fazendas, pa: S.pastos, lo: S.lotes, a: S.animais, li: S.lidas, sa: S.sanidade }));
+  [...S.fazendas, ...S.pastos, ...S.lotes, ...S.animais, ...lidas, ...S.sanidade].forEach(mark);
   pkg.integridade = await sha256(payloadOf(pkg));
   const name = `Tapirucu_${carga ? 'Carga_' : ''}${slug(syncMeta.device.nome)}_${stampFile()}.json`;
   const file = new File([JSON.stringify(pkg)], name, { type: 'application/json' });
@@ -4045,7 +4303,7 @@ async function exportSync(opts) {
       catch (e) { if (e && e.name === 'AbortError') throw e; baixar(); }
     } else baixar();
   } catch (e) {
-    S.fazendas = prev.f; S.pastos = prev.pa; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; calc = null; // nada saiu: nada marcado
+    S.fazendas = prev.f; S.pastos = prev.pa; S.lotes = prev.lo; S.animais = prev.a; S.lidas = prev.li; S.sanidade = prev.sa; calc = null; // nada saiu: nada marcado
     if (e && e.name === 'AbortError') return;
     alert('Não foi possível exportar agora. Seus dados continuam salvos neste aparelho.'); return;
   }
@@ -4070,6 +4328,11 @@ const okInt = (v, max) => { const n = parseInt(v, 10); return isFinite(n) && n >
 const okVV = v => { if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined; const o = {}; Object.keys(v).slice(0, 30).forEach(k => { const n = parseInt(v[k], 10); if (/^[\w.-]{1,64}$/.test(k) && n > 0 && n < 1e7) o[k] = n; }); return Object.keys(o).length ? o : undefined; };
 function baseMeta(r) { if (!r || !okId(r.id)) return null; const v = parseInt(r.versao, 10); return { id: String(r.id), versao: v > 0 && v < 100000 ? v : 1, criadoEm: okIso(r.criadoEm) || nowISO(), editadoEm: okIso(r.editadoEm) || okIso(r.criadoEm) || nowISO(), origem: okDev(r.origem), editadoNo: okDev(r.editadoNo), criadoPor: str(r.criadoPor, 40), editadoPor: str(r.editadoPor, 40), exportadoEm: okIso(r.exportadoEm), vv: okVV(r.vv) }; }
 const SAN = {
+  sanidade: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId)) return null;
+    if (r.kind === 'campanha') { if (!str(r.nome) || !okDate(r.ate)) return null;
+      return Object.assign(m, { kind: 'campanha', fazendaId: String(r.fazendaId), nome: str(r.nome, 60), tipo: PROCEDIMENTOS[r.tipo] ? r.tipo : 'vacina', produto: str(r.produto, 80), categorias: (Array.isArray(r.categorias) ? r.categorias : []).slice(0, 30).map(x => str(x, 40)).filter(Boolean), de: okDate(r.de), ate: okDate(r.ate), ativo: r.ativo !== false }); }
+    if (!str(r.produto)) return null;
+    return Object.assign(m, { kind: 'entrada', fazendaId: String(r.fazendaId), tipo: PROCEDIMENTOS[r.tipo] ? r.tipo : 'vacina', produto: str(r.produto, 80), fabricante: str(r.fabricante, 60), loteFab: str(r.loteFab, 40), validade: okDate(r.validade), doses: okNum(r.doses, 1e7), custo: okNum(r.custo, 1e9) || null, compraEm: okDate(r.compraEm), ativo: r.ativo !== false }); },
   fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
   pastos: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
     return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), areaHa: okNum(r.areaHa, 1e6), lotacaoMax: okNum(r.lotacaoMax, 100), forrageira: str(r.forrageira, 40),
@@ -4082,7 +4345,7 @@ const SAN = {
     return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
     const c = r.cab || {};
-    const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null };
+    const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null, insumoId: okId(c.insumoId) ? String(c.insumoId) : undefined, campanhaId: okId(c.campanhaId) ? String(c.campanhaId) : undefined, dosesAn: okNum(c.dosesAn, 100) || undefined, custoDose: okNum(c.custoDose, 1e6) || undefined };
     const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined),
       fotoId: okId(x.fotoId) ? String(x.fotoId) : undefined, origem: x.origem === 'campo' ? 'campo' : undefined,
       val: x.val && x.val.st === 'ok' && okIso(x.val.em) ? { st: 'ok', auto: x.val.auto === true ? true : undefined, por: str(x.val.por, 40), em: okIso(x.val.em) } : undefined } : null).filter(Boolean);
@@ -4091,7 +4354,7 @@ const SAN = {
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
 const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo', 'editadoPor'].forEach(k => delete c[k]); return JSON.stringify(c); };
-const rotulo = (col, r) => col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+const rotulo = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
 const stampOf = o => o.editadoEm || o.criadoEm || '';
 const tombOf = id => S.excluidos.find(t => t.id === id);
 async function onImportFile(ev) {
@@ -4128,7 +4391,7 @@ function migraPkg(pkg) {
 function planImport(pkg) {
   migraPkg(pkg);
   const plan = { cols: {}, tombs: [], excluirAqui: [], mantidosEditados: [], invalidos: 0 };
-  ['fazendas', 'pastos', 'lotes', 'animais', 'lidas'].forEach(col => {
+  ['fazendas', 'pastos', 'lotes', 'animais', 'lidas', 'sanidade'].forEach(col => {
     const p = { novos: [], atualizados: [], iguais: [], locais: [], conflitosImp: [], conflitosLoc: [], restaurados: [], excluidosAqui: [] }, seen = new Set();
     (Array.isArray(pkg.dados[col]) ? pkg.dados[col] : []).forEach(raw => {
       const inc = SAN[col](raw);
@@ -4185,7 +4448,7 @@ function planImport(pkg) {
     aplic.filter(a => bloq.has(a.id)).forEach(a => plan.brincosDup.push(a.brinco));
     CHV.forEach(k => { pa[k] = pa[k].filter(x => !bloq.has(x.id)); });
   }
-  const rot = (col, r) => col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+  const rot = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
   plan.conflitos = [];
   Object.entries(plan.cols).forEach(([col, p]) => {
     p.conflitosImp.forEach(x => plan.conflitos.push({ col, id: x.id, rotulo: rot(col, S[col].find(y => y.id === x.id) || x), vence: 'arquivo', rec: S[col].find(y => y.id === x.id) || null }));
@@ -4194,7 +4457,7 @@ function planImport(pkg) {
   return plan;
 }
 function renderImportPreview() {
-  const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', pastos: 'Pastos', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas' };
+  const { pkg, plan, arquivo, avisos } = pendingImport, NOM = { fazendas: 'Fazendas', pastos: 'Pastos', lotes: 'Lotes', animais: 'Animais', lidas: 'Lidas finalizadas', sanidade: 'Insumos e campanhas' };
   const rows = Object.entries(plan.cols).map(([c, p]) => `<tr><td><b>${NOM[c]}</b></td><td class="num">${p.novos.length + p.restaurados.length}</td><td class="num">${p.atualizados.length + p.conflitosImp.length}</td><td class="num">${p.iguais.length}</td><td class="num">${p.locais.length + p.conflitosLoc.length}</td></tr>`).join('');
   const conf = Object.values(plan.cols).reduce((t, p) => t + p.conflitosImp.length + p.conflitosLoc.length, 0);
   const total = Object.values(plan.cols).reduce((t, p) => t + p.novos.length + p.restaurados.length + p.atualizados.length + p.conflitosImp.length + p.conflitosLoc.length, 0) + plan.excluirAqui.length;
@@ -4243,7 +4506,7 @@ async function undoImport() {
   let b = null; try { b = await idbGet('backupPreImport'); } catch (e) {}
   if (!b || !b.dados) { alert('Não há importação para desfazer.'); return; }
   if (!confirm(`Desfazer a importação de ${fmtDT(b.em)}${b.de ? ' (vinda de ' + b.de + ')' : ''}?\n\nOs dados voltam a ser exatamente como estavam antes dela. O que foi lançado aqui depois disso também volta ao estado anterior.`)) return;
-  S = b.dados; await save(); try { await idbSet('backupPreImport', null); } catch (e) {}
+  S = b.dados; if (!Array.isArray(S.sanidade)) S.sanidade = []; await save(); try { await idbSet('backupPreImport', null); } catch (e) {}
   if (syncMeta.imports[0]) { syncMeta.imports[0].desfeita = true; saveSyncMeta(); }
   refreshAll(); showToast('Importação desfeita.');
 }
@@ -4302,6 +4565,7 @@ function trashLabel(x) {
   if (x.tipo === 'lida') return `Lida ${TIPOS[i.tipo] ? TIPOS[i.tipo].nome : ''} de ${fmtD(i.data)} (${(i.registros || []).length} reg.)`;
   if (x.tipo === 'animal') return `Animal ${i.brinco}`;
   if (x.tipo === 'lote') return `Lote ${i.nome}`;
+  if (x.tipo === 'san') return i.kind === 'campanha' ? `Campanha ${i.nome}` : `Insumo ${i.produto}`;
   return `Fazenda ${i.nome}`;
 }
 
@@ -4529,7 +4793,7 @@ function cpFazenda() {
 const CP_JANELA_AGENDA = 7;   // aplicações agendadas entram no card a partir de 7 dias antes
 function cpPendencias() {
   const hj = hoje(), lim = addDias(hj, CP_JANELA_AGENDA), g = {};
-  const grupo = id => g[id || ''] || (g[id || ''] = { lid: id || '', atrasados: [], agendas: [] });
+  const grupo = id => g[id || ''] || (g[id || ''] = { lid: id || '', atrasados: [], agendas: [], camps: [] });
   Object.values(compute()).filter(s => s.ativo && s.atrasado).forEach(s => grupo(s.lote).atrasados.push(s));
   /* só vale a última aplicação de cada produto no lote: se já foi repetida depois, a antiga não está pendente */
   const ult = {};
@@ -4538,10 +4802,11 @@ function cpPendencias() {
     if (!ult[k] || (l.data || '') > (ult[k].data || '')) ult[k] = l;
   });
   Object.values(ult).filter(l => l.cab.proximaEm && l.cab.proximaEm <= lim).forEach(l => grupo(l.loteId).agendas.push(l));
-  return Object.values(g).filter(x => x.atrasados.length || x.agendas.length).filter(x => !x.lid || (S.lotes.find(l => l.id === x.lid) || {}).ativo !== false).map(x => {
+  campanhasF().forEach(c => { const st = campanhaStatus(c); if (!st.falta.length) return; const por = {}; st.falta.forEach(x => (por[x.lote || ''] = por[x.lote || ''] || []).push(x)); Object.entries(por).forEach(([lid, arr]) => grupo(lid).camps.push({ c, falta: arr, atraso: st.atraso })); });
+  return Object.values(g).filter(x => x.atrasados.length || x.agendas.length || x.camps.length).filter(x => !x.lid || (S.lotes.find(l => l.id === x.lid) || {}).ativo !== false).map(x => {
     x.atrasados.sort((a, b) => (b.diasSemManejo || 0) - (a.diasSemManejo || 0));
     x.agendas.sort((a, b) => a.cab.proximaEm.localeCompare(b.cab.proximaEm));
-    x.vencida = x.agendas.some(l => l.cab.proximaEm < hoje());
+    x.vencida = x.agendas.some(l => l.cab.proximaEm < hoje()) || x.camps.some(k => k.atraso);
     return x;
   }).sort((a, b) => (b.vencida - a.vencida) || (b.atrasados.length - a.atrasados.length));
 }
@@ -4555,6 +4820,7 @@ function cpPendCard() {
     const partes = [];
     if (x.atrasados.length) partes.push(`${x.atrasados.length} sem manejo há +${DIAS_ATRASO} dias`);
     x.agendas.slice(0, 2).forEach(l => partes.push(cpAgendaTxt(l)));
+    x.camps.slice(0, 2).forEach(k => partes.push(`campanha ${esc(k.c.nome)}: faltam ${k.falta.length}`));
     return cpBtn(cpPendLocal(x.lid), partes.join(' · '), `cpIr('pend',{pendLote:'${x.lid}'})`, 'pend', 'i-rebanho');
   }).join('')}${p.length > mostra.length ? `<p class="cp-txt">+${p.length - mostra.length} lote(s) com pendência. Resolva os de cima para vê-los.</p>` : ''}</div>`;
 }
@@ -4565,6 +4831,7 @@ function cpPend() {
   const acoes = ['pesagem', 'sanitario', 'troca', 'pasto'].filter(k => x.lid || k === 'sanitario' || k === 'pesagem');
   return cpHead(lt ? lt.nome : 'Sem lote', lt && lt.pastoId ? 'Pasto: ' + esc(pastoNome(lt.pastoId)) : '', "cpIr('inicio')") + `<div class="cp-body">
     ${x.agendas.length ? `<p class="cp-sec">Aplicação agendada</p><div class="cp-opc">${x.agendas.map(l => cpBtn(cpAgendaTxt(l), `Último uso ${fmtD(l.data)}${l.cab.dose ? ' · dose ' + esc(l.cab.dose) : ''}. Toque para aplicar de novo.`, `cpComecaAgenda('${l.id}')`, 'pend', 'i-san')).join('')}</div>` : ''}
+    ${x.camps.length ? `<p class="cp-sec">Campanha obrigatória</p><div class="cp-opc">${x.camps.map(k => cpBtn(esc(k.c.nome), `${k.falta.length} animal(is) faltam · ${k.atraso ? 'prazo venceu em ' : 'até '}${fmtD(k.c.ate)}`, `cpComecaCampanha('${k.c.id}','${x.lid}')`, 'pend', 'i-san')).join('')}</div>` : ''}
     ${x.atrasados.length ? `<p class="cp-sec">${x.atrasados.length} animal(is) sem manejo há +${DIAS_ATRASO} dias</p><div class="cp-pends">${x.atrasados.slice(0, max).map(s => `<span class="cp-pa"><b>${esc(s.a.brinco)}</b><i>${s.diasSemManejo} dias</i></span>`).join('')}</div>${x.atrasados.length > max ? `<p class="cp-txt">+${x.atrasados.length - max} animais. Na lida eles aparecem marcados.</p>` : ''}` : ''}
     <p class="cp-sec">Que lida vai fazer neste lote?</p>
     <div class="cp-grade">${acoes.map(k => cpBtn(CP_ACOES[k].t, CP_ACOES[k].d, `cpComecaLote('${k}','${x.lid}')`, '', CP_ACOES[k].i)).join('')}</div></div>`;
@@ -4623,6 +4890,7 @@ function cpAvanca() {
 function cpSetN(campo, val, seguir) {
   const n = CP.nova;
   if (campo === 'loteId') n.loteId = val; else n.cab[campo] = val;
+  if (campo === 'produto') delete n.cab.insumoId;
   if (seguir) cpAvanca(); else renderCampo();
 }
 function cpSetDias(qual, d) { CP.nova.dias[qual] = d; cpAvanca(); }
@@ -4654,7 +4922,8 @@ function cpPasso() {
   if (passo === 'proc') return head('O que vai aplicar?') + `<div class="cp-opc">${Object.entries(PROCEDIMENTOS).map(([k, v]) => cpBtn(v, '', `cpSetN('procedimento','${k}',true)`, n.cab.procedimento === k ? 'on' : '', 'i-san')).join('')}</div>` + fim;
   if (passo === 'produto') {
     const rec = cpRecentes('produto', l => l.cab.procedimento === n.cab.procedimento);
-    return head('Qual produto?') + `${rec.length ? `<p class="cp-sec">Usados antes nesta fazenda</p><div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'último uso ' + fmtD(r.l.data), `cpSetN('produto','${cpJs(cpEsc(r.v))}',true)`, n.cab.produto === r.v ? 'on' : '')).join('')}</div><p class="cp-sec">Ou escreva</p>` : ''}
+    const est = insumosDisp(n.cab.procedimento, hoje());
+    return head('Qual produto?') + `${est.length ? `<p class="cp-sec">Do estoque</p><div class="cp-opc">${est.map(e => cpBtn(esc(e.produto), `vence ${fmtD(e.validade)} · livre ${fmtN(saldoLivre(e), 0)} dose(s)`, `cpSetInsumo('${e.id}')`, n.cab.insumoId === e.id ? 'on' : '', 'i-san')).join('')}</div>` : ''}${rec.length ? `<p class="cp-sec">Usados antes nesta fazenda</p><div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'último uso ' + fmtD(r.l.data), `cpSetN('produto','${cpJs(cpEsc(r.v))}',true)`, n.cab.produto === r.v ? 'on' : '')).join('')}</div><p class="cp-sec">Ou escreva</p>` : ''}
       <input id="cpProd" class="cp-input" maxlength="80" placeholder="Ex.: Aftosa, Ivermectina" value="${esc(n.cab.produto || '')}" ${rec.length ? '' : 'data-foco'} onkeydown="if(event.key==='Enter')cpProdOk()">
       ${cpBtn('Continuar', '', 'cpProdOk()', 'pri')}` + fim;
   }
