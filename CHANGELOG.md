@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [31] — 2026-11-25 — Peso de venda e conferência
+- Peso esperado para a venda, por animal: informe no cadastro (Editar cadastro) ou, ao adicionar animais, o mesmo valor para todos. Fica visível na ficha do animal.
+- Previsão da data de atingimento: o app usa o ganho médio das pesagens dos últimos 120 dias. Só calcula com 2 ou mais pesagens que cubram 21+ dias e com ganho positivo; sem isso mostra "sem base" e o motivo, sem inventar data. Mostra a confiança (alta ou média) e deixa claro que é estimativa.
+- Conferência por pesagem: quando a data prevista chega a 21 dias e o animal está sem pesar há 7+ dias, Atenção agora avisa e abre uma lida de pesagem (motivo Pré-venda) no lote, mostrando o peso esperado de cada animal e o desvio. Ao finalizar, o esperado fica gravado no registro e a previsão é recalculada com o peso real.
+- Peso de venda e o esperado viajam na sincronização. Ainda não aparece no Modo Campo nem na importação de planilha (CSV).
+
 ## [30] — 2026-11-25 — Vacinas e medicamentos
 - Nova tela Insumos (menu e Mais): registre a compra de vacinas e remédios com produto, fabricante, lote de fabricação, validade, quantidade em doses e custo total. O app mostra o saldo, avisa quando vence em até 30 dias e marca o vencido.
 - Na lida sanitária, escolha o Produto do estoque: o app baixa as doses quando o gestor finaliza e calcula o custo da aplicação (por animal e por lote). Produto vencido na data do manejo ou sem saldo não deixa finalizar a lida. Lida enviada do campo e ainda não finalizada reserva as doses: duas lidas não disputam o mesmo saldo até a conferência, e a reserva se desfaz sozinha se a lida for excluída ou reaberta. No Modo Campo, o passo do produto lista o estoque disponível, o que vence primeiro em cima.

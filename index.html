@@ -957,7 +957,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 30;
+const APP_VERSION = 31;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1513,6 +1513,25 @@ function migraPastos() {
    integração: a lida é o evento, o Sankhya é quem oficializa.
    ========================================================================= */
 const compute = () => computeF(S.fazendaAtiva);
+/* Previsão do peso de venda (por animal). É estimativa: usa o ganho médio das pesagens dos últimos 120 dias
+   (do primeiro ao último ponto da janela) e só calcula com 2+ pesagens que cubram 21+ dias. Sem base, diz "sem base". */
+const PREV_JANELA = 120, PREV_MIN_DIAS = 21, CONF_ANTECEDENCIA = 21, CONF_REPESAGEM = 7;
+function previsaoVenda(st, hj) {
+  const alvo = st.a.pesoVenda; if (!(alvo > 0) || !st.ativo) return null;
+  const p = st.pesos, n = p.length; if (!n) return { estado: 'sem_base', motivo: 'sem pesagem' };
+  const ult = p[n - 1];
+  if (ult.peso >= alvo) return { estado: 'atingido', alvo, ultimoPeso: ult.peso, em: ult.data };
+  const ini = addDias(ult.data, -PREV_JANELA), w = p.filter(x => x.data >= ini), a = w[0], d = diasEntre(a.data, ult.data);
+  if (w.length < 2 || d < PREV_MIN_DIAS) return { estado: 'sem_base', motivo: 'precisa de 2 pesagens com 21+ dias entre elas', alvo };
+  const gmd = (ult.peso - a.peso) / d; if (!(gmd > 0)) return { estado: 'sem_base', motivo: 'sem ganho de peso no período', alvo, gmd };
+  const dias = Math.ceil((alvo - ult.peso) / gmd), data = addDias(ult.data, dias), diasUlt = diasEntre(ult.data, hj);
+  const conf = w.length >= 3 && d >= 60 && diasUlt <= 45 ? 'alta' : 'media';
+  return { estado: 'previsto', alvo, gmd, dias, data, restam: diasEntre(hj, data), diasUlt, conf, n: w.length, base: d };
+}
+/* esperado em uma data: último peso + ganho previsto; serve para comparar com a pesagem de conferência */
+function pesoEsperado(st, data) { const pv = st && st.prev; if (!pv || pv.estado !== 'previsto' || !st.ultimaPesagem) return null; return Math.round((st.ultimoPeso + pv.gmd * diasEntre(st.ultimaPesagem, data)) * 10) / 10; }
+/* animais que merecem pesagem de conferência: data prevista dentro da janela e sem pesar há pelo menos uma semana */
+function paraConferirPeso(fid) { return Object.values(computeF(fid)).filter(s => s.ativo && s.prev && s.prev.estado === 'previsto' && s.prev.restam <= CONF_ANTECEDENCIA && s.prev.diasUlt >= CONF_REPESAGEM); }
 function computeF(fid) {
   if (calc && calc[fid]) return calc[fid];
   const map = Object.create(null);   // sem protótipo: um id como "constructor" não pode colidir
@@ -1555,6 +1574,7 @@ function computeF(fid) {
     if (n >= 2) { let j = n - 2; while (j > 0 && diasEntre(p[j].data, p[n - 1].data) <= 0) j--; const d = diasEntre(p[j].data, p[n - 1].data); if (d > 0) st.gmd = (p[n - 1].peso - p[j].peso) / d; }   // repesagem no mesmo dia não zera o GMD
     st.gmdTotal = (n >= 2 && diasEntre(p[0].data, p[n - 1].data) > 0) ? (p[n - 1].peso - p[0].peso) / diasEntre(p[0].data, p[n - 1].data) : null;
     st.ativo = !st.baixa;
+    st.prev = previsaoVenda(st, hj);
     st.emCarencia = !!(st.ativo && st.carenciaAte && st.carenciaAte >= hj);
     const base = st.ultimoManejo || st.a.entradaEm;
     st.diasSemManejo = base ? diasEntre(base, hj) : null;
@@ -1908,14 +1928,14 @@ function renderLidaEditor() {
   const rows = regs.map((r, i) => {
     const s = st[r.animalId], br = r.brinco || (s ? s.a.brinco : '?');
     let extra = '';
-    if (l.tipo === 'pesagem') extra = `<td class="num"><b>${fmtN(r.peso, 1)}</b></td><td class="num hide-m">${s && s.ultimoPeso && !ro ? fmtN(r.peso - s.ultimoPeso, 1) : '—'}</td>`;
+    if (l.tipo === 'pesagem') { const esp = ro ? r.esp : (s ? pesoEsperado(s, l.data) : null); extra = `<td class="num"><b>${fmtN(r.peso, 1)}</b></td><td class="num hide-m">${s && s.ultimoPeso && !ro ? fmtN(r.peso - s.ultimoPeso, 1) : '—'}</td><td class="num hide-m">${esp && r.peso ? fmtN(esp, 1) + `<br><small class="${r.peso >= esp ? 'tr-up' : 'tr-dn'}">${r.peso >= esp ? '+' : ''}${fmtN(r.peso - esp, 1)} kg</small>` : '—'}</td>`; }
     if (l.tipo === 'nascimento') extra = `<td>${esc(r.bezerroBrinco)}</td><td>${esc(SEXOS[r.sexo] || '')}</td><td class="num">${r.peso ? fmtN(r.peso, 1) : '—'}</td>`;
     if (l.tipo === 'baixa') extra = `<td>${esc(r.obs || '')}</td>` + (baixaExigeFoto(l) ? `<td>${baixaCelula(l, r, ro)}</td>` : '');
     const outro = !ro && s && l.loteId && s.lote !== l.loteId && l.tipo !== 'troca' && l.tipo !== 'nascimento' ? ` <span class="chip warn">lote ${esc(loteNome(s.lote))}</span>` : '';
     return `<tr><td>${regs.length - i}</td><td><b>${esc(br)}</b>${outro}</td>${extra}<td>${ro ? '' : `<button class="btn sm danger" onclick="rmRegistro('${r.id}')" aria-label="Remover ${esc(br)}">Remover</button>`}</td></tr>`;
   }).reverse().join('');
   let ths = '<th>#</th><th>' + (l.tipo === 'nascimento' ? 'Vaca' : 'Brinco') + '</th>';
-  if (l.tipo === 'pesagem') ths += '<th class="num">Peso (kg)</th><th class="num hide-m">Ganho desde a última</th>';
+  if (l.tipo === 'pesagem') ths += '<th class="num">Peso (kg)</th><th class="num hide-m">Ganho desde a última</th><th class="num hide-m">Esperado</th>';
   if (l.tipo === 'nascimento') ths += '<th>Bezerro</th><th>Sexo</th><th class="num">Peso</th>';
   if (l.tipo === 'baixa') ths += '<th>Causa</th>' + (baixaExigeFoto(l) ? '<th>Foto e validação</th>' : '');
   ths += '<th></th>';
@@ -2152,6 +2172,7 @@ function finalizeLida() {
       S.animais.push(stampNew({ id: r.id, fazendaId: l.fazendaId, brinco: r.bezerroBrinco, sexo: r.sexo, loteId: lt, nascimento: l.data, entradaEm: l.data, raca: mae ? mae.raca : '', categoria: 'Bezerro', pesoEntrada: r.peso || null, maeId: r.animalId, origemEntrada: 'nascimento', lidaOrigemId: l.id }));
     });
   }
+  if (l.tipo === 'pesagem') l.registros.forEach(r => { const e = st[r.animalId] ? pesoEsperado(st[r.animalId], l.data) : null; if (e && r.peso && r.esp == null) r.esp = e; });
   l.status = 'finalizada'; l.finalizadaEm = nowISO(); touch(l);
   save(); renderLidaEditor(); showToast(`Lida finalizada: ${l.registros.length} registro(s). Exporte quando puder.`);
 }
@@ -2235,6 +2256,12 @@ function sitChip(s) {
   if (s.atrasado) return `<span class="chip bad">⚠ ${s.diasSemManejo} dias sem manejo</span>`;
   return '<span class="chip ok">✓ Ativo</span>';
 }
+function prevTxt(s) {
+  const v = s.prev; if (!v) return '—';
+  if (v.estado === 'atingido') return `<b>atingido</b> (${fmtN(v.ultimoPeso, 1)} kg em ${fmtD(v.em)})`;
+  if (v.estado === 'sem_base') return `previsão sem base: ${esc(v.motivo)}`;
+  return `previsto para <b>${fmtD(v.data)}</b> (${v.restam >= 0 ? 'em ' + v.restam + ' dias' : 'há ' + (-v.restam) + ' dias'}) · ganho ${fmtN(v.gmd, 2)} kg/dia · confiança ${v.conf === 'alta' ? 'alta' : 'média'} <span class="muted">(estimativa)</span>`;
+}
 function openAnimal(id) {
   const s = compute()[id]; if (!s) return; const a = s.a;
   const usado = S.lidas.some(l => l.status === 'finalizada' && l.registros.some(r => r.animalId === id));
@@ -2266,6 +2293,7 @@ function openAnimal(id) {
       <dt>Último peso</dt><dd>${s.ultimoPeso ? fmtN(s.ultimoPeso, 1) + ' kg em ' + fmtD(s.ultimaPesagem) : '—'}</dd>
       <dt>GMD (últimas 2)</dt><dd>${s.gmd != null ? fmtN(s.gmd, 3) + ' kg/dia' : 'precisa de 2 pesagens'}</dd>
       <dt>GMD (período)</dt><dd>${s.gmdTotal != null ? fmtN(s.gmdTotal, 3) + ' kg/dia' : '—'}</dd>
+      <dt>Peso de venda</dt><dd>${a.pesoVenda ? fmtN(a.pesoVenda, 0) + ' kg · ' + prevTxt(s) : '<span class="muted">não informado (Editar cadastro)</span>'}</dd>
       <dt>Último manejo</dt><dd>${s.ultimoManejo ? fmtD(s.ultimoManejo) + ' (' + s.diasSemManejo + ' dias)' : 'nenhum'}</dd>
     </dl>
     <h4 style="margin:16px 0 8px;color:var(--title-ink)">Histórico</h4>
@@ -2290,18 +2318,22 @@ function openEditAnimal(id) {
     ${fld('aCarac', 'Característica (opcional)', `<input id="aCarac" value="${esc(a.caracteristica || '')}" maxlength="120" placeholder="Ex.: chifre torto à esquerda, mancha branca na anca">`, false, 'Ajuda a confirmar o animal no curral, junto com a foto.')}
     ${fld('aNasc', 'Nascimento', `<input type="date" id="aNasc" value="${esc(a.nascimento || '')}" max="${hoje()}">`)}
     ${fld('aEnt', 'Entrada na fazenda', `<input type="date" id="aEnt" value="${esc(a.entradaEm || '')}" max="${hoje()}">`, true)}
+    ${fld('aPV', 'Peso esperado para a venda (kg)', `<input id="aPV" inputmode="decimal" value="${a.pesoVenda ? esc(String(a.pesoVenda).replace('.', ',')) : ''}" placeholder="Ex.: 540 (18 @ vivo)">`, false, 'Opcional. Com ele o app prevê a data de atingimento e sugere a pesagem de conferência.')}
     </div>${datalists()}<p class="hint">O lote muda só por lida de Troca de lote, para manter o histórico rastreável.</p>`,
     `<button class="btn" onclick="openAnimal('${id}')">Cancelar</button><button class="btn primary" onclick="saveEditAnimal('${id}')">Salvar</button>`);
 }
 function saveEditAnimal(id) {
   const a = S.animais.find(x => x.id === id); if (!a) return;
   const br = normBrinco($('aBr').value), ent = $('aEnt').value, nas = $('aNasc').value;
-  fieldErr('aBr', ''); fieldErr('aEnt', '');
+  fieldErr('aBr', ''); fieldErr('aEnt', ''); fieldErr('aPV', '');
+  const pvRaw = $('aPV').value.trim(), pv = pvRaw ? parseNum(pvRaw) : null;
+  if (pvRaw && !(pv > 0 && pv <= 1500)) { fieldErr('aPV', 'Peso inválido (até 1.500 kg).'); return; }
   if (!br) { fieldErr('aBr', 'Informe o brinco.'); return; }
   if (animaisF().some(x => x.id !== id && x.brinco === br)) { fieldErr('aBr', 'Já existe animal com este brinco.'); return; }
   if (!validDate(ent)) { fieldErr('aEnt', 'Informe a data de entrada.'); return; }
   if (nas && nas > ent) { fieldErr('aEnt', 'A entrada não pode ser antes do nascimento.'); return; }
-  Object.assign(a, { brinco: br, sexo: $('aSexo').value === 'F' ? 'F' : 'M', raca: str($('aRaca').value, 40), categoria: str($('aCat').value, 40), caracteristica: str($('aCarac').value, 120), nascimento: nas || null, entradaEm: ent });
+  Object.assign(a, { brinco: br, sexo: $('aSexo').value === 'F' ? 'F' : 'M', raca: str($('aRaca').value, 40), categoria: str($('aCat').value, 40), caracteristica: str($('aCarac').value, 120), nascimento: nas || null, entradaEm: ent, pesoVenda: pv ? Math.round(pv * 10) / 10 : undefined });
+  if (!pv) delete a.pesoVenda;
   S.lidas.forEach(l => l.registros.forEach(r => { if (r.animalId === id) r.brinco = br; }));
   touch(a); save(); openAnimal(id); renderRebanho(); showToast('Cadastro atualizado.');
 }
@@ -2335,6 +2367,7 @@ function openAddAnimals() {
     ${fld('nCat', 'Categoria', `<input id="nCat" maxlength="40" list="dlCat">`)}
     ${fld('nNasc', 'Nascimento', `<input type="date" id="nNasc" max="${hoje()}">`)}
     ${fld('nPeso', 'Peso de entrada (kg)', `<input id="nPeso" inputmode="decimal" placeholder="Opcional, igual para todos">`)}
+    ${fld('nPV', 'Peso esperado para a venda (kg)', `<input id="nPV" inputmode="decimal" placeholder="Opcional, igual para todos">`, false, 'Pode ser ajustado por animal depois, no cadastro.')}
     </div>
     ${fld('nBr', 'Brincos', `<textarea id="nBr" placeholder="Um por linha, ou separados por vírgula.\nFaixas: 1001-1020 ou NL050-NL080"></textarea>`, true, 'Brinco aceita letras e números e diferencia maiúsculas de minúsculas (R02). Padronize na equipe.')}
     ${datalists()}<div id="nPrev" class="hint"></div>`,
@@ -2433,7 +2466,9 @@ function confirmaPlanilha() {
 }
 function saveAnimals() {
   const lote = $('nLote').value, ent = $('nEnt').value, nas = $('nNasc').value, pRaw = $('nPeso').value.trim();
-  ['nLote', 'nEnt', 'nBr', 'nPeso'].forEach(i => fieldErr(i, ''));
+  ['nLote', 'nEnt', 'nBr', 'nPeso', 'nPV'].forEach(i => fieldErr(i, ''));
+  const pvR = $('nPV').value.trim(), pvv = pvR ? parseNum(pvR) : null;
+  if (pvR && !(pvv > 0 && pvv <= 1500)) { fieldErr('nPV', 'Peso inválido.'); return; }
   let ok = true;
   if (!lote) { fieldErr('nLote', 'Escolha o lote.'); ok = false; }
   if (!validDate(ent)) { fieldErr('nEnt', 'Informe a data de entrada.'); ok = false; }
@@ -2448,6 +2483,7 @@ function saveAnimals() {
   if (dupLista.length || existe.length) { fieldErr('nBr', [dupLista.length ? 'Repetidos na lista: ' + [...new Set(dupLista)].join(', ') : '', existe.length ? 'Já cadastrados: ' + existe.slice(0, 15).join(', ') + (existe.length > 15 ? '…' : '') : ''].filter(Boolean).join(' · ')); return; }
   if (bad.length && !confirm('Itens ignorados: ' + bad.join(', ') + '. Continuar com os demais?')) return;
   const base = { fazendaId: S.fazendaAtiva, sexo: $('nSexo').value === 'F' ? 'F' : 'M', loteId: lote, entradaEm: ent, nascimento: nas || null, raca: str($('nRaca').value, 40), categoria: str($('nCat').value, 40), pesoEntrada: peso ? Math.round(peso * 10) / 10 : null, origemEntrada: 'cadastro' };
+  if (pvv) base.pesoVenda = Math.round(pvv * 10) / 10;
   out.forEach(b => S.animais.push(stampNew(Object.assign({ brinco: b }, base))));
   save(); closeModal(); renderRebanho(); showToast(`${out.length} animal(is) cadastrado(s) no lote ${loteNome(lote)}.`);
 }
@@ -2766,12 +2802,25 @@ function todosPastos(fids, d0, d1) {
   return emFazendas(fids, f => pastosResumo().filter(r => r.p.ativo !== false).map(r => ({ f, r, a: analise([f.id], d0, d1, { pasto: r.p.id }) })));
 }
 /* "Atenção agora": o que pede ação, na ordem de importância, com um toque até a lista certa */
+function confPesoModal(fid) {
+  if (fid !== S.fazendaAtiva) { S.fazendaAtiva = fid; calc = null; renderFarmSel(); }
+  const por = {}; paraConferirPeso(fid).forEach(s => { (por[s.lote] = por[s.lote] || []).push(s); });
+  const ls = Object.entries(por);
+  openModal('Conferir peso de venda', ls.length ? `<p class="hint">Animais com data prevista em até ${CONF_ANTECEDENCIA} dias e sem pesar há ${CONF_REPESAGEM}+ dias. A lida abre já no motivo Pré-venda e mostra o peso esperado de cada animal.</p>` + ls.map(([lid, a]) => `<div class="card" style="margin:8px 0"><b>${esc(loteNome(lid))}</b> · ${a.length} animal(is)<br><small class="muted">${esc(a.slice(0, 8).map(s => s.a.brinco + ' (' + fmtD(s.prev.data) + ')').join(', '))}${a.length > 8 ? '…' : ''}</small><div class="actions" style="margin-top:8px"><button class="btn primary sm" onclick="iniciaLidaConferencia('${lid}')">Abrir lida de pesagem</button></div></div>`).join('') : '<p>Nenhum animal pedindo conferência agora.</p>', '<button class="btn" onclick="closeModal()">Fechar</button>');
+}
+function iniciaLidaConferencia(lid) {
+  if (!syncMeta.device) { openDeviceModal(() => iniciaLidaConferencia(lid)); return; }
+  if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => iniciaLidaConferencia(lid)); return; }
+  const l = stampNew({ fazendaId: S.fazendaAtiva, tipo: 'pesagem', data: hoje(), loteId: lid, status: 'aberta', cab: { motivo: 'venda' }, registros: [], obs: '', finalizadaEm: null });
+  S.lidas.push(l); save(); closeModal(); openLida(l.id);
+}
 function pnItens(fids) {
   const it = [], todas = fids.length > 1;
   const nAtraso = aplicacoesAtrasadas(fids).length;
   sanItens(fids).forEach(x => it.push(x));
   const nVal = emFazendas(fids, f => lidasF().filter(x => x.status !== 'finalizada' && baixaExigeFoto(x)).flatMap(x => x.registros.filter(r => !(r.val && r.val.st === 'ok') || !fotoBx(r)))).length;
   if (nVal) it.push({ k: 'reb', c: 'red', t: `${nVal} baixa(s) por morte/perda esperando foto ou validação do gestor`, go: "goView('lidas')" });
+  fids.forEach(fid => { const n = paraConferirPeso(fid).length; if (n) it.push({ k: 'reb', c: 'orange', t: `${n} animal(is) perto do peso de venda${todas ? ' (' + (S.fazendas.find(f => f.id === fid) || {}).nome + ')' : ''}: conferir com pesagem`, go: `confPesoModal('${fid}')` }); });
   if (nAtraso) it.push({ k: 'reb', c: 'red', t: `${nAtraso} aplicação(ões) sanitária(s) atrasada(s)`, go: todas ? "irPainel('todas')" : "irPainel('fazenda')" });
   todosLotes(fids).forEach(o => {
     if (o.i.sinal === 'parou') it.push({ k: 'lote', c: 'red', t: `Lote ${o.x.l.nome}${todas ? ' (' + o.f.nome + ')' : ''}: parou de ganhar peso`, go: `irPainel('lote','${o.x.l.id}')` });
@@ -3752,8 +3801,8 @@ const AJUDA = {
   rebanho: { t: 'Rebanho', g: 'Cadastros',
     s: 'Todos os animais da fazenda ativa, com lote atual, peso, GMD e situação.',
     p: ['Busque por brinco, raça ou categoria; filtre por lote e situação.', 'Toque no cabeçalho para ordenar.', 'Toque no animal para abrir a ficha: localização, minimapa e histórico.', 'Adicionar animais: carga inicial por lista ou faixa (NL001-NL050).', 'Inventário CSV leva tudo para o Excel.'],
-    r: ['Brinco único por fazenda.', 'O lote só muda por lida de Troca de lote.', 'Remover é só para cadastro errado e sem lidas; saída é Baixa.'],
-    d: [['Posso guardar a foto do animal?', 'Sim. Abra a ficha do animal e toque em Adicionar foto: ela é reduzida no aparelho, viaja na sincronização e aparece na lista. A característica (chifre, mancha, temperamento) é um campo livre ao lado.'], ['Como cadastro 200 animais de uma vez?', 'Adicionar animais → Brincos: digite a faixa, por exemplo NL001-NL200.']],
+    r: ['Brinco único por fazenda.', 'O lote só muda por lida de Troca de lote.', 'Remover é só para cadastro errado e sem lidas; saída é Baixa.', 'Peso esperado para a venda é opcional, por animal. A data prevista é estimativa (ganho das pesagens dos últimos 120 dias) e só aparece com 2+ pesagens que cubram 21+ dias.'],
+    d: [['Como o app sugere a pesagem de conferência?', 'Quando a data prevista chega a 21 dias e o animal está sem pesar há 7+ dias, Atenção agora avisa e abre a lida de pesagem (Pré-venda) já mostrando o peso esperado.'], ['Posso guardar a foto do animal?', 'Sim. Abra a ficha do animal e toque em Adicionar foto: ela é reduzida no aparelho, viaja na sincronização e aparece na lista. A característica (chifre, mancha, temperamento) é um campo livre ao lado.'], ['Como cadastro 200 animais de uma vez?', 'Adicionar animais → Brincos: digite a faixa, por exemplo NL001-NL200.']],
     b: ['H03', 'H28'] },
   mapa: { t: 'Mapa da fazenda', g: 'Mapa',
     s: 'Fazendas, perímetro, piquetes coloridos pela ocupação e onde está o rebanho.',
@@ -4342,11 +4391,11 @@ const SAN = {
     const oc = (Array.isArray(r.ocupacoes) ? r.ocupacoes : []).slice(0, 500).map(o => o && okId(o.p) && okDate(o.de) ? { p: String(o.p), de: okDate(o.de), ate: okDate(o.ate) } : null).filter(Boolean).sort((a, b) => a.de.localeCompare(b.de));
     return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pastoId: okId(r.pastoId) ? String(r.pastoId) : null, ocupacoes: oc, ativo: r.ativo !== false }); },
   animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
-    return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
+    return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), pesoVenda: okNum(r.pesoVenda, 1500) || undefined, maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
     const c = r.cab || {};
     const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null, insumoId: okId(c.insumoId) ? String(c.insumoId) : undefined, campanhaId: okId(c.campanhaId) ? String(c.campanhaId) : undefined, dosesAn: okNum(c.dosesAn, 100) || undefined, custoDose: okNum(c.custoDose, 1e6) || undefined };
-    const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined),
+    const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), esp: okNum(x.esp, 1500) || undefined, mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined),
       fotoId: okId(x.fotoId) ? String(x.fotoId) : undefined, origem: x.origem === 'campo' ? 'campo' : undefined,
       val: x.val && x.val.st === 'ok' && okIso(x.val.em) ? { st: 'ok', auto: x.val.auto === true ? true : undefined, por: str(x.val.por, 40), em: okIso(x.val.em) } : undefined } : null).filter(Boolean);
     const recus = (Array.isArray(r.recusados) ? r.recusados : []).slice(0, 500).map(x => x && okIso(x.em) ? { brinco: normBrinco(x.brinco).slice(0, 30), animalId: okId(x.animalId) ? String(x.animalId) : undefined, motivo: str(x.motivo, 120), obs: str(x.obs, 80), fotoId: okId(x.fotoId) ? String(x.fotoId) : null, por: str(x.por, 40), em: okIso(x.em) } : null).filter(Boolean);
