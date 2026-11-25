@@ -566,6 +566,7 @@ tr.sel td{background:rgba(59,138,151,.12)!important}
 .am-foto img{width:132px;height:132px;object-fit:cover;border-radius:14px;border:1px solid var(--border-color);cursor:zoom-in;background:var(--row-zebra)}
 .am-foto-vazia{width:132px;height:132px;border-radius:14px;border:1px dashed var(--border-color);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.8rem;flex-shrink:0}
 .am-foto label.btn{display:inline-flex;cursor:pointer}
+.bx-foto{width:44px;height:44px;border-radius:8px;object-fit:cover;vertical-align:middle;border:1px solid var(--border-color);cursor:pointer}.bx-foto-g{display:block;max-width:100%;max-height:60vh;margin:0 auto 10px;border-radius:12px}.cp-fotobx{display:block;width:100%;max-height:34vh;object-fit:cover;border-radius:14px;margin:8px 0}
 .rb-foto{width:26px;height:26px;border-radius:7px;object-fit:cover;vertical-align:middle;margin-right:7px;border:1px solid var(--border-color)}
 .menu-btn{width:100%;display:flex;align-items:center;gap:8px;justify-content:center;min-height:36px;margin-bottom:10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e6eef0;font:inherit;font-size:.8rem;cursor:pointer}
 .menu-btn:hover{background:rgba(255,255,255,.14)}
@@ -948,7 +949,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 28;
+const APP_VERSION = 29;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1197,6 +1198,56 @@ async function escolheFoto(id, input) {
     S.fotos[id] = { d, em: nowISO(), por: deviceRef() };
     await save(); openAnimal(id); renderRebanho(); showToast('Foto salva (' + fmtN(d.length / 1400, 0) + ' KB).');
   } catch (e) { alert('Não foi possível usar esta imagem. Tente outra foto.'); }
+}
+/* v29 — morte/perda: foto obrigatória + validação do gestor */
+const baixaExigeFoto = l => !!(l && l.tipo === 'baixa' && l.cab && (l.cab.motivo === 'morte' || l.cab.motivo === 'perda'));
+const fotoBx = r => (r && r.fotoId ? fotoDe(r.fotoId) : null);
+let fotoBaixaPend = null;
+async function lerFotoBaixa(input) {
+  const file = input.files && input.files[0]; input.value = '';
+  if (!file) return null;
+  if (file.size > 25e6) { alert('Imagem muito grande (máx. 25 MB).'); return null; }
+  try { return await comprimeImagem(file); } catch (e) { alert('Não foi possível usar esta imagem. Tente outra foto.'); return null; }
+}
+async function escolheFotoBaixa(input) {
+  const d = await lerFotoBaixa(input); if (!d) return;
+  fotoBaixaPend = d;
+  const el = $('fotoBxPrev'); if (el) el.innerHTML = `<img class="bx-foto" src="${d}" alt="Foto do animal">`;
+  fieldErr('eBrinco', '');
+}
+async function fotoBaixaDoRegistro(rid, input) {
+  const l = curLida(); const r = l && l.registros.find(x => x.id === rid); if (!r) return;
+  const d = await lerFotoBaixa(input); if (!d) return;
+  S.fotos = S.fotos || {}; r.fotoId = 'baixa-' + r.id;
+  S.fotos[r.fotoId] = { d, em: nowISO(), por: deviceRef() };
+  l.editadoEm = nowISO(); save(); renderLidaEditor(); showToast('Foto salva.');
+}
+function verFotoBaixa(rid) {
+  const l = curLida(); const r = l && l.registros.find(x => x.id === rid), f = fotoBx(r); if (!f) return;
+  openModal(`Foto · ${esc(r.brinco)}`, `<img class="bx-foto-g" src="${f.d}" alt="Foto de ${esc(r.brinco)}"><p class="hint">Tirada em ${fmtDT(f.em)}${f.por && f.por.nome ? ' no aparelho ' + esc(f.por.nome) : ''}. Causa informada: ${esc(r.obs || 'não informada')}.</p>`, `<button class="btn" onclick="closeModal()">Fechar</button>`);
+}
+function validaBaixa(rid) {
+  const l = curLida(); const r = l && l.registros.find(x => x.id === rid); if (!r || l.status === 'finalizada') return;
+  if (!fotoBx(r)) { showToast('Sem foto não há como validar.'); return; }
+  r.val = { st: 'ok', por: opRef() || 'gestor', em: nowISO() };
+  touch(l); save(); renderLidaEditor(); showToast(`${r.brinco}: baixa validada.`);
+}
+function recusaBaixa(rid) {
+  const l = curLida(); const r = l && l.registros.find(x => x.id === rid); if (!r || l.status === 'finalizada') return;
+  const m = prompt(`Recusar a baixa de ${r.brinco}? O animal continua no rebanho.\n\nMotivo da recusa:`, '');
+  if (m === null) return;
+  const mot = str(m, 120); if (!mot) { alert('Informe o motivo da recusa para ficar registrado.'); return; }
+  l.registros = l.registros.filter(x => x.id !== rid);
+  l.recusados = (l.recusados || []).concat([{ brinco: r.brinco, animalId: r.animalId, motivo: mot, obs: r.obs || '', fotoId: r.fotoId || null, por: opRef() || 'gestor', em: nowISO() }]);
+  touch(l); save(); renderLidaEditor(); showToast(`${r.brinco}: baixa recusada. O animal segue ativo.`);
+}
+function baixaCelula(l, r, ro) {
+  const f = fotoBx(r), v = r.val, ok = v && v.st === 'ok';
+  let h = f ? `<img class="bx-foto" src="${f.d}" alt="Foto de ${esc(r.brinco)}" onclick="verFotoBaixa('${r.id}')">` : `<span class="chip bad">Sem foto</span>`;
+  h += ok ? ` <span class="chip ok">${v.auto ? 'Lançada pelo gestor' : 'Validada por ' + esc(v.por || 'gestor')}</span>` : ` <span class="chip warn">A validar</span>`;
+  if (!ro && !f) h += ` <label class="btn sm">Adicionar foto<input type="file" accept="image/*" capture="environment" hidden onchange="fotoBaixaDoRegistro('${r.id}',this)"></label>`;
+  if (!ro && f && !ok) h += ` <button class="btn sm teal" onclick="validaBaixa('${r.id}')">Validar</button> <button class="btn sm danger" onclick="recusaBaixa('${r.id}')">Recusar</button>`;
+  return h;
 }
 function removeFoto(id) {
   if (!fotoDe(id) || !confirm('Remover a foto deste animal?')) return;
@@ -1567,7 +1618,7 @@ function createLida(tipo) {
   if (tipo === 'baixa') l.cab.motivo = 'morte';
   S.lidas.push(l); save(); closeModal(); openLida(l.id);
 }
-function openLida(id) { editLidaId = id; preSelOk = null; const l = S.lidas.find(x => x.id === id); if (l && l.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = l.fazendaId; calc = null; renderFarmSel(); } goView('lida'); }
+function openLida(id) { editLidaId = id; preSelOk = null; fotoBaixaPend = null; const l = S.lidas.find(x => x.id === id); if (l && l.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = l.fazendaId; calc = null; renderFarmSel(); } goView('lida'); }
 const curLida = () => S.lidas.find(l => l.id === editLidaId);
 
 function renderLidaEditor() {
@@ -1604,6 +1655,7 @@ function renderLidaEditor() {
         ${fld('eBrinco', 'Brinco', `<input id="eBrinco" autocomplete="off" autocapitalize="characters" enterkeyhint="${l.tipo === 'pesagem' ? 'next' : 'done'}">`, true)}
         ${l.tipo === 'pesagem' ? fld('ePeso', 'Peso (kg)', `<input id="ePeso" inputmode="decimal" autocomplete="off" enterkeyhint="done">`, true) : ''}
         ${l.tipo === 'baixa' ? fld('eObs', 'Causa / obs.', `<input id="eObs" maxlength="80" autocomplete="off">`) : ''}
+        ${baixaExigeFoto(l) ? `<div class="field"><label>Foto do animal <span class="req">*</span></label><label class="btn">Tirar / escolher foto<input type="file" accept="image/*" capture="environment" hidden onchange="escolheFotoBaixa(this)"></label><span id="fotoBxPrev">${fotoBaixaPend ? `<img class="bx-foto" src="${fotoBaixaPend}" alt="Foto do animal">` : ''}</span></div>` : ''}
         <button class="btn teal" onclick="addRegistro()">Adicionar</button>
         </div>`;
     }
@@ -1615,14 +1667,14 @@ function renderLidaEditor() {
     let extra = '';
     if (l.tipo === 'pesagem') extra = `<td class="num"><b>${fmtN(r.peso, 1)}</b></td><td class="num hide-m">${s && s.ultimoPeso && !ro ? fmtN(r.peso - s.ultimoPeso, 1) : '—'}</td>`;
     if (l.tipo === 'nascimento') extra = `<td>${esc(r.bezerroBrinco)}</td><td>${esc(SEXOS[r.sexo] || '')}</td><td class="num">${r.peso ? fmtN(r.peso, 1) : '—'}</td>`;
-    if (l.tipo === 'baixa') extra = `<td>${esc(r.obs || '')}</td>`;
+    if (l.tipo === 'baixa') extra = `<td>${esc(r.obs || '')}</td>` + (baixaExigeFoto(l) ? `<td>${baixaCelula(l, r, ro)}</td>` : '');
     const outro = !ro && s && l.loteId && s.lote !== l.loteId && l.tipo !== 'troca' && l.tipo !== 'nascimento' ? ` <span class="chip warn">lote ${esc(loteNome(s.lote))}</span>` : '';
     return `<tr><td>${regs.length - i}</td><td><b>${esc(br)}</b>${outro}</td>${extra}<td>${ro ? '' : `<button class="btn sm danger" onclick="rmRegistro('${r.id}')" aria-label="Remover ${esc(br)}">Remover</button>`}</td></tr>`;
   }).reverse().join('');
   let ths = '<th>#</th><th>' + (l.tipo === 'nascimento' ? 'Vaca' : 'Brinco') + '</th>';
   if (l.tipo === 'pesagem') ths += '<th class="num">Peso (kg)</th><th class="num hide-m">Ganho desde a última</th>';
   if (l.tipo === 'nascimento') ths += '<th>Bezerro</th><th>Sexo</th><th class="num">Peso</th>';
-  if (l.tipo === 'baixa') ths += '<th>Causa</th>';
+  if (l.tipo === 'baixa') ths += '<th>Causa</th>' + (baixaExigeFoto(l) ? '<th>Foto e validação</th>' : '');
   ths += '<th></th>';
 
   box.innerHTML = `<div class="topbar">
@@ -1720,6 +1772,11 @@ function addRegistro() {
     reg.peso = Math.round(p * 10) / 10;
   }
   if (l.tipo === 'baixa') reg.obs = str($('eObs').value, 80);
+  if (baixaExigeFoto(l)) {
+    if (!fotoBaixaPend) { fieldErr('eBrinco', 'Tire a foto do animal. Sem foto a baixa não é lançada.'); return; }
+    S.fotos = S.fotos || {}; reg.fotoId = 'baixa-' + reg.id; S.fotos[reg.fotoId] = { d: fotoBaixaPend, em: nowISO(), por: deviceRef() };
+    reg.val = { st: 'ok', auto: true, por: opRef() || 'gestor', em: nowISO() }; fotoBaixaPend = null; // lançada no app completo = o gestor está lançando
+  }
   if (l.tipo === 'baixa' && s.emCarencia && l.cab.motivo === 'venda' && !confirm(`O animal ${a.brinco} está em carência até ${fmtD(s.carenciaAte)}. Lançar venda mesmo assim?`)) return;
   const definiu = definirLotePeloPrimeiro(l, s);
   l.registros.push(reg); l.editadoEm = nowISO(); preSelOk = null; save(); keepEntryFocus = true; renderLidaEditor();
@@ -1830,6 +1887,10 @@ function finalizeLida() {
   if (l.tipo === 'nascimento') {
     const rep2 = l.registros.filter(r => S.lidas.some(x => x.id !== l.id && x.tipo === 'nascimento' && x.status === 'finalizada' && x.fazendaId === l.fazendaId && x.data === l.data && (x.registros || []).some(y => y.animalId === r.animalId)));
     if (rep2.length && !confirm(`A vaca ${[...new Set(rep2.map(r => r.brinco))].join(', ')} já tem parto registrado nesta mesma data em outra lida. Pode ser parto duplicado (ou gêmeos).\n\nFinalizar mesmo assim?`)) return;
+  }
+  if (baixaExigeFoto(l)) {
+    const semF = l.registros.filter(r => !fotoBx(r)), semV = l.registros.filter(r => fotoBx(r) && !(r.val && r.val.st === 'ok'));
+    if (semF.length || semV.length) { alert((semF.length ? `Sem foto: ${semF.map(r => r.brinco).join(', ')}.\n` : '') + (semV.length ? `A validar: ${semV.map(r => r.brinco).join(', ')}.\n` : '') + '\nMorte e perda só valem com foto e validação do gestor. Valide ou recuse cada animal.'); return; }
   }
   if (l.tipo === 'baixa' && !confirm(`Confirmar a baixa de ${l.registros.length} animal(is) por ${MOTIVOS_BAIXA[c.motivo]}? Eles saem do inventário.`)) return;
   if (l.tipo === 'nascimento') {
@@ -2456,6 +2517,8 @@ function todosPastos(fids, d0, d1) {
 function pnItens(fids) {
   const it = [], todas = fids.length > 1;
   const nAtraso = aplicacoesAtrasadas(fids).length;
+  const nVal = emFazendas(fids, f => lidasF().filter(x => x.status !== 'finalizada' && baixaExigeFoto(x)).flatMap(x => x.registros.filter(r => !(r.val && r.val.st === 'ok') || !fotoBx(r)))).length;
+  if (nVal) it.push({ k: 'reb', c: 'red', t: `${nVal} baixa(s) por morte/perda esperando foto ou validação do gestor`, go: "goView('lidas')" });
   if (nAtraso) it.push({ k: 'reb', c: 'red', t: `${nAtraso} aplicação(ões) sanitária(s) atrasada(s)`, go: todas ? "irPainel('todas')" : "irPainel('fazenda')" });
   todosLotes(fids).forEach(o => {
     if (o.i.sinal === 'parou') it.push({ k: 'lote', c: 'red', t: `Lote ${o.x.l.nome}${todas ? ' (' + o.f.nome + ')' : ''}: parou de ganhar peso`, go: `irPainel('lote','${o.x.l.id}')` });
@@ -4020,8 +4083,11 @@ const SAN = {
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
     const c = r.cab || {};
     const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null };
-    const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined) } : null).filter(Boolean);
-    return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: r.status === 'conferir' ? 'conferir' : 'finalizada', cab, registros: regs, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm), campo: r.campo === true ? true : undefined, enviadaEm: okIso(r.enviadaEm) || undefined }); }
+    const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined),
+      fotoId: okId(x.fotoId) ? String(x.fotoId) : undefined, origem: x.origem === 'campo' ? 'campo' : undefined,
+      val: x.val && x.val.st === 'ok' && okIso(x.val.em) ? { st: 'ok', auto: x.val.auto === true ? true : undefined, por: str(x.val.por, 40), em: okIso(x.val.em) } : undefined } : null).filter(Boolean);
+    const recus = (Array.isArray(r.recusados) ? r.recusados : []).slice(0, 500).map(x => x && okIso(x.em) ? { brinco: normBrinco(x.brinco).slice(0, 30), animalId: okId(x.animalId) ? String(x.animalId) : undefined, motivo: str(x.motivo, 120), obs: str(x.obs, 80), fotoId: okId(x.fotoId) ? String(x.fotoId) : null, por: str(x.por, 40), em: okIso(x.em) } : null).filter(Boolean);
+    return Object.assign(m, { fazendaId: String(r.fazendaId), tipo: r.tipo, data: r.data, loteId: okId(r.loteId) ? String(r.loteId) : '', status: r.status === 'conferir' ? 'conferir' : 'finalizada', cab, registros: regs, recusados: recus.length ? recus : undefined, obs: str(r.obs, 500), finalizadaEm: okIso(r.finalizadaEm), campo: r.campo === true ? true : undefined, enviadaEm: okIso(r.enviadaEm) || undefined }); }
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
 const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo', 'editadoPor'].forEach(k => delete c[k]); return JSON.stringify(c); };
@@ -4744,7 +4810,7 @@ function cpEscolhe(id, digitado) {
   CP.sel = id; CP.buf = ''; CP.aviso = '';
   if (cpMulti(l)) { cpGrava(l, { id: uuid(), animalId: id, brinco: s.a.brinco }, `${esc(s.a.brinco)} lançado`); return; }
   if (l.tipo === 'pesagem') { cpIr('peso'); return; }
-  if (l.tipo === 'baixa') { cpIr('causa', { obs: '' }); return; }
+  if (l.tipo === 'baixa') { cpIr('causa', { obs: '', fotoBx: null }); return; }
   if (l.tipo === 'nascimento') { cpIr('sexo', { sexo: '', bez: '' }); return; }
 }
 function cpGrava(l, reg, txt) {
@@ -4805,14 +4871,21 @@ function cpCausa() {
 }
 function cpConfBaixa() {
   const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return cpLancar();
-  const venda = l.cab.motivo === 'venda';
+  const venda = l.cab.motivo === 'venda', exige = baixaExigeFoto(l);
+  const foto = exige ? `<p class="cp-sec">Foto do animal (obrigatória)</p>${CP.fotoBx ? `<img class="cp-fotobx" src="${CP.fotoBx}" alt="Foto do animal">` : ''}
+      <label class="cp-btn leve" style="display:block;text-align:center;cursor:pointer">${CP.fotoBx ? 'Trocar foto' : 'Tirar foto'}<input type="file" accept="image/*" capture="environment" hidden onchange="cpFotoBaixa(this)"></label>` : '';
   return cpHead('Confirmar', esc(s.a.brinco), "cpIr('causa')")
     + `<div class="cp-body"><p class="cp-q">Dar baixa no <b>${esc(s.a.brinco)}</b> por ${esc(MOTIVOS_BAIXA[l.cab.motivo]).toLowerCase()}${CP.obs ? ' (' + esc(CP.obs).toLowerCase() + ')' : ''}?</p>
       ${venda && s.emCarencia ? `<div class="cp-aviso">Atenção: este animal está em carência até ${fmtD(s.carenciaAte)}. Não pode ser vendido para abate antes disso.</div>` : ''}
-      <p class="cp-txt">O escritório confere antes de tirar o animal do rebanho.</p>
-      <div class="cp-opc">${cpBtn('Cancelar', '', "cpIr('lancar',{filtro:''})", 'leve')}${cpBtn('Confirmar baixa', '', 'cpSalvaBaixa()', 'pri')}</div></div>`;
+      ${foto}
+      <p class="cp-txt">O gestor confere${exige ? ' a foto e valida' : ''} antes de tirar o animal do rebanho.</p>${cpAviso()}
+      <div class="cp-opc">${cpBtn('Cancelar', '', "cpIr('lancar',{filtro:'',fotoBx:null})", 'leve')}${cpBtn('Confirmar baixa', '', 'cpSalvaBaixa()', 'pri')}</div></div>`;
 }
-function cpSalvaBaixa() { const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return; cpGrava(l, { id: uuid(), animalId: s.a.id, brinco: s.a.brinco, obs: str(CP.obs, 80) }, `${esc(s.a.brinco)} · ${esc(MOTIVOS_BAIXA[l.cab.motivo])}${CP.obs ? ' · ' + esc(CP.obs) : ''}`); }
+async function cpFotoBaixa(input) { const d = await lerFotoBaixa(input); if (!d) return; CP.fotoBx = d; CP.aviso = ''; renderCampo(); }
+function cpSalvaBaixa() { const l = cpLida(), s = compute()[CP.sel]; if (!l || !s) return;
+  const reg = { id: uuid(), animalId: s.a.id, brinco: s.a.brinco, obs: str(CP.obs, 80) };
+  if (baixaExigeFoto(l)) { if (!CP.fotoBx) { cpErro('Tire a foto do animal para confirmar a baixa.'); return; } S.fotos = S.fotos || {}; reg.fotoId = 'baixa-' + reg.id; reg.origem = 'campo'; S.fotos[reg.fotoId] = { d: CP.fotoBx, em: nowISO(), por: deviceRef() }; CP.fotoBx = null; }
+  cpGrava(l, reg, `${esc(s.a.brinco)} · ${esc(MOTIVOS_BAIXA[l.cab.motivo])}${CP.obs ? ' · ' + esc(CP.obs) : ''}`); }
 
 /* ---------- nascimento ---------- */
 function cpSexo() {
@@ -4845,7 +4918,7 @@ function cpLancados() {
     let d = '';
     if (l.tipo === 'pesagem') d = fmtN(r.peso, 1) + ' kg';
     if (l.tipo === 'nascimento') d = `bezerro ${esc(r.bezerroBrinco)} · ${esc(SEXOS[r.sexo] || '')}${r.peso ? ' · ' + fmtN(r.peso, 1) + ' kg' : ''}`;
-    if (l.tipo === 'baixa') d = esc(r.obs || 'sem observação');
+    if (l.tipo === 'baixa') d = esc(r.obs || 'sem observação') + (baixaExigeFoto(l) ? (r.fotoId ? ' · com foto' : ' · SEM FOTO') : '');
     return `<div class="cp-linha"><b>${esc(r.brinco)}</b><span>${d}</span><button type="button" onclick="cpTira('${r.id}')" aria-label="Tirar ${esc(r.brinco)}">Tirar</button></div>`;
   };
   return cpHead('Lançados', `${l.registros.length} animal(is)`, "cpIr('lancar')")

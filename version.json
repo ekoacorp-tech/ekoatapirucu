@@ -1,9 +1,19 @@
 {
-  "versao": 28,
-  "rotulo": "28 beta",
-  "data": "2026-11-23",
-  "titulo": "Base de confiança",
+  "versao": 29,
+  "rotulo": "29 beta",
+  "data": "2026-11-25",
+  "titulo": "Morte com prova",
   "notas": {
+    "29": {
+      "data": "2026-11-25",
+      "titulo": "Morte com prova",
+      "itens": [
+        "Morte e perda exigem foto do animal: no app completo e no Modo Campo, a baixa só é lançada com a foto (câmera do aparelho). A foto viaja na sincronização junto com a lida.",
+        "Validação do gestor: baixa lançada no Modo Campo chega marcada A validar. Na conferência o gestor vê a foto e a causa, e valida ou recusa (com motivo registrado). Recusada, a baixa sai da lida e o animal continua no rebanho. A lida de morte ou perda só finaliza com todas as fotos e validações.",
+        "Baixa lançada pelo gestor no app completo já entra validada (ele mesmo está lançando).",
+        "Atenção agora mostra quantas baixas por morte ou perda esperam foto ou validação. Venda não exige foto nem validação."
+      ]
+    },
     "28": {
       "data": "2026-11-23",
       "titulo": "Base de confiança",
