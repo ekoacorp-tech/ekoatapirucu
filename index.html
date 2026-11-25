@@ -1217,6 +1217,9 @@ const dosesAn = c => (c && Number(c.dosesAn) > 0) ? Number(c.dosesAn) : 1;
 const r2 = n => Math.round(n * 100) / 100;
 function consumoInsumo(id) { let n = 0; S.lidas.forEach(l => { if (l.status === 'finalizada' && l.tipo === 'sanitario' && l.cab && l.cab.insumoId === id) n += l.registros.length * dosesAn(l.cab); }); return r2(n); }
 const saldoInsumo = e => r2((e.doses || 0) - consumoInsumo(e.id));
+/* reserva: lida enviada do campo e ainda não finalizada segura as doses; sai sozinha se for finalizada (vira consumo), excluída ou voltar a aberta */
+function reservaInsumo(id, exceto) { let n = 0; S.lidas.forEach(l => { if (l.status === 'conferir' && l.tipo === 'sanitario' && l.cab && l.cab.insumoId === id && l.id !== exceto) n += l.registros.length * dosesAn(l.cab); }); return r2(n); }
+const saldoLivre = (e, exceto) => r2(saldoInsumo(e) - reservaInsumo(e.id, exceto));
 function insumoSit(e, ref) {
   const d = ref || hoje(), s = saldoInsumo(e);
   if (e.validade && e.validade < d) return { k: 'vencido', t: 'Vencido', c: 'bad' };
@@ -1225,17 +1228,18 @@ function insumoSit(e, ref) {
   return { k: 'ok', t: 'Em dia', c: 'ok' };
 }
 const custoDose = e => e && e.custo > 0 && e.doses > 0 ? e.custo / e.doses : null;
-function custoLida(l) { const e = l.cab && l.cab.insumoId ? insumoDe(l.cab.insumoId) : null, cd = custoDose(e); return cd == null ? null : cd * l.registros.length * dosesAn(l.cab); }
+function custoLida(l) { const e = l.cab && l.cab.insumoId ? insumoDe(l.cab.insumoId) : null, cd = e ? custoDose(e) : ((l.cab && l.cab.custoDose) || null); return cd == null ? null : cd * l.registros.length * dosesAn(l.cab); }
 /* o que pode ser usado numa aplicação: dentro da validade na data do manejo e com saldo; o que vence primeiro vem primeiro */
-function insumosDisp(tipo, data) { const d = data || hoje(); return entradasF().filter(e => (!tipo || e.tipo === tipo) && (!e.validade || e.validade >= d) && saldoInsumo(e) > 0).sort((a, b) => (a.validade || '9999').localeCompare(b.validade || '9999')); }
+function insumosDisp(tipo, data) { const d = data || hoje(); return entradasF().filter(e => (!tipo || e.tipo === tipo) && (!e.validade || e.validade >= d) && saldoLivre(e) > 0).sort((a, b) => (a.validade || '9999').localeCompare(b.validade || '9999')); }
 function custoSanitarioF() {
-  const lotes = {}; let total = 0, semCusto = 0, comCusto = 0;
+  const lotes = {}, sem = {}; let total = 0, semCusto = 0, comCusto = 0;
   lidasF().filter(l => l.status === 'finalizada' && l.tipo === 'sanitario').forEach(l => {
     const c = custoLida(l);
-    if (c == null) { semCusto += l.registros.length; return; }
+    if (c == null) { semCusto += l.registros.length; const k = l.cab.produto || 'Sem produto'; sem[k] = (sem[k] || 0) + l.registros.length; return; }
     total += c; comCusto += l.registros.length; const k = l.loteId || ''; lotes[k] = (lotes[k] || 0) + c;
   });
-  return { total, lotes, semCusto, comCusto };
+  const tot = comCusto + semCusto;
+  return { total, lotes, semCusto, comCusto, semProdutos: Object.entries(sem).sort((a, b) => b[1] - a[1]), cobertura: tot ? comCusto / tot : null };
 }
 /* campanha: quem deveria ter recebido e ainda não recebeu (só conta lida finalizada ligada à campanha) */
 function campanhaStatus(c) {
@@ -1284,8 +1288,8 @@ function renderInsumos() {
   }).join('');
   const linhas = ent.map(e => {
     const sit = insumoSit(e), sd = saldoInsumo(e), cd = custoDose(e);
-    return `<tr><td><b>${esc(e.produto)}</b><br><small class="muted">${esc(PROCEDIMENTOS[e.tipo] || '')}${e.fabricante ? ' · ' + esc(e.fabricante) : ''}${e.loteFab ? ' · lote ' + esc(e.loteFab) : ''}</small></td>
-      <td>${fmtD(e.validade)}<br><span class="chip ${sit.c}">${esc(sit.t)}</span></td><td class="num">${fmtN(e.doses, 0)}</td><td class="num"><b>${fmtN(sd, 0)}</b></td><td class="num hide-m">${cd == null ? '—' : brl(cd)}</td>
+    return `<tr><td><b>${esc(e.produto)}</b>${e.custo > 0 ? '' : ' <span class="chip warn">sem custo</span>'}<br><small class="muted">${esc(PROCEDIMENTOS[e.tipo] || '')}${e.fabricante ? ' · ' + esc(e.fabricante) : ''}${e.loteFab ? ' · lote ' + esc(e.loteFab) : ''}</small></td>
+      <td>${fmtD(e.validade)}<br><span class="chip ${sit.c}">${esc(sit.t)}</span></td><td class="num">${fmtN(e.doses, 0)}</td><td class="num"><b>${fmtN(sd, 0)}</b>${reservaInsumo(e.id) > 0 ? `<br><small class="muted">${fmtN(reservaInsumo(e.id), 0)} reservada(s) para conferir</small>` : ''}</td><td class="num hide-m">${cd == null ? '—' : brl(cd)}</td>
       <td><button class="btn sm" onclick="openEntrada('${e.id}')">Editar</button></td></tr>`;
   }).join('');
   const loteCst = Object.entries(cst.lotes).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<tr><td>${id ? esc(loteNome(id)) : 'Sem lote'}</td><td class="num">${brl(v)}</td></tr>`).join('');
@@ -1297,10 +1301,10 @@ function renderInsumos() {
     ${campH}
     <div class="card"><h3>Estoque de vacinas e remédios <span class="sub">${ent.length} entrada(s)</span></h3>
       ${ent.length ? `<div class="tbl-wrap"><table><thead><tr><th>Produto</th><th>Validade</th><th class="num">Entrada (doses)</th><th class="num">Saldo</th><th class="num hide-m">Custo/dose</th><th></th></tr></thead><tbody>${linhas}</tbody></table></div>` : '<div class="empty">Nenhuma entrada. Registre a compra para o app controlar validade, saldo e custo.</div>'}</div>
-    <div class="card"><h3>Custo sanitário</h3>
-      ${cst.total > 0 ? `<p><b>${brl(cst.total)}</b> em aplicações finalizadas${ativos ? ` · <b>${brl(cst.total / ativos)}</b> por animal ativo` : ''}.</p>
-      <div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Custo</th></tr></thead><tbody>${loteCst}</tbody></table></div>` : '<p class="muted">Ainda sem custo calculado. Ele aparece quando uma lida usa um produto do estoque que tenha o custo da compra informado.</p>'}
-      ${cst.semCusto ? `<p class="hint">${cst.semCusto} aplicação(ões) ficaram fora do custo: produto digitado à mão ou entrada sem o valor da compra.</p>` : ''}</div>`;
+    <div class="card"><h3>Custo sanitário ${cst.cobertura == null ? '' : cst.cobertura >= 0.9 ? '<span class="chip ok">Cobertura alta</span>' : cst.cobertura >= 0.6 ? '<span class="chip warn">Cobertura parcial</span>' : '<span class="chip bad">Cobertura baixa</span>'}</h3>
+      ${cst.total > 0 ? `<p><b>${brl(cst.total)}</b> em aplicações finalizadas${ativos ? ` · <b>${brl(cst.total / ativos)}</b> por animal ativo${cst.cobertura < 1 ? ' (estimativa: parte das aplicações está fora do custo)' : ''}` : ''}.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Lote</th><th class="num">Custo</th></tr></thead><tbody>${loteCst}</tbody></table></div>` : '<p class="muted">Ainda sem custo calculado. Ele aparece quando uma lida usa um produto do estoque com o valor da compra informado, ou quando se informa o custo por dose na lida.</p>'}
+      ${cst.semCusto ? `<p class="hint"><b>Cobertura do custo: ${Math.round((cst.cobertura || 0) * 100)}%</b> das aplicações (${cst.comCusto} de ${cst.comCusto + cst.semCusto}). Fora do custo: ${esc(cst.semProdutos.slice(0, 5).map(([n, q]) => n + ' (' + q + ')').join(', '))}. Para entrar, informe o custo da compra na entrada ou o custo por dose na lida.</p>` : ''}</div>`;
 }
 function openEntrada(id) {
   const x = id ? insumoDe(id) : null, prods = [...new Set(entradasF().map(e => e.produto))];
@@ -1377,7 +1381,7 @@ function sanCabHtml(l, dis) {
   let h = '';
   if (ents.length || ins) {
     const disp = insumosDisp(null, l.data), lista = ins && !disp.includes(ins) ? disp.concat([ins]) : disp;
-    h += fld('lIns', 'Produto do estoque', `<select id="lIns"${dis} onchange="escolheInsumo(this.value)"><option value="">Outro produto (fora do estoque)</option>${lista.map(e => `<option value="${e.id}"${c.insumoId === e.id ? ' selected' : ''}>${esc(e.produto)} · val. ${fmtD(e.validade)} · saldo ${fmtN(saldoInsumo(e), 0)}</option>`).join('')}</select>`, false, 'Escolher do estoque baixa as doses e calcula o custo. Vencido ou sem saldo não aparece.');
+    h += fld('lIns', 'Produto do estoque', `<select id="lIns"${dis} onchange="escolheInsumo(this.value)"><option value="">Outro produto (fora do estoque)</option>${lista.map(e => `<option value="${e.id}"${c.insumoId === e.id ? ' selected' : ''}>${esc(e.produto)} · val. ${fmtD(e.validade)} · livre ${fmtN(saldoLivre(e, l.id), 0)}</option>`).join('')}</select>`, false, 'Escolher do estoque baixa as doses e calcula o custo. Vencido ou sem saldo não aparece.');
   }
   return h;
 }
@@ -1386,8 +1390,10 @@ function sanCabHtml2(l, dis) {
   if (ins) h += fld('lDa', 'Doses por animal', `<input id="lDa" inputmode="decimal" value="${esc(String(dosesAn(c)).replace('.', ','))}"${dis} onchange="setDosesAn(this.value)">`, false, 'Normalmente 1.');
   if (campanhasF().length || c.campanhaId) h += fld('lCamp', 'Campanha', `<select id="lCamp"${dis} onchange="setCampanha(this.value)"><option value="">Nenhuma</option>${campanhasF().concat(c.campanhaId && !campanhasF().some(x => x.id === c.campanhaId) && campanhaDe(c.campanhaId) ? [campanhaDe(c.campanhaId)] : []).map(x => `<option value="${x.id}"${c.campanhaId === x.id ? ' selected' : ''}>${esc(x.nome)}</option>`).join('')}</select>`, false, 'Ligue à campanha para ela contar quem já recebeu.');
   if (ins) {
-    const need = r2((l.registros || []).length * dosesAn(c)), sd = saldoInsumo(ins), custo = custoLida(l), venc = ins.validade && ins.validade < l.data;
-    h += `<div class="field" style="grid-column:1/-1"><div class="alert ${venc || need > sd ? 'bad' : 'info'}"><span>${venc ? `<b>Produto vencido em ${fmtD(ins.validade)}.</b> ` : ''}Esta lida usa <b>${fmtN(need, 0)}</b> de <b>${fmtN(sd, 0)}</b> dose(s) em estoque${need > sd ? ' (<b>falta saldo</b>)' : ''}${custo != null ? ` · custo ${brl(custo)}${(l.registros || []).length ? ` (${brl(custo / l.registros.length)} por animal)` : ''}` : ''}.</span></div></div>`;
+    const need = r2((l.registros || []).length * dosesAn(c)), res = reservaInsumo(ins.id, l.id), sd = r2(saldoInsumo(ins) - res), custo = custoLida(l), venc = ins.validade && ins.validade < l.data;
+    h += `<div class="field" style="grid-column:1/-1"><div class="alert ${venc || need > sd ? 'bad' : 'info'}"><span>${venc ? `<b>Produto vencido em ${fmtD(ins.validade)}.</b> ` : ''}Esta lida usa <b>${fmtN(need, 0)}</b> de <b>${fmtN(sd, 0)}</b> dose(s) livres${res > 0 ? ` (${fmtN(res, 0)} reservada(s) por lidas esperando conferência)` : ''}${need > sd ? ' (<b>falta saldo</b>)' : ''}${custo != null ? ` · custo ${brl(custo)}${(l.registros || []).length ? ` (${brl(custo / l.registros.length)} por animal)` : ''}` : ' · <b>sem custo</b>: a entrada não tem o valor da compra'}.</span></div></div>`;
+  } else {
+    h += fld('lCd', 'Custo por dose (R$)', `<input id="lCd" inputmode="decimal" value="${c.custoDose ? esc(String(c.custoDose).replace('.', ',')) : ''}"${dis} onchange="setCustoDoseManual(this.value)">`, false, 'Opcional. Para produto fora do estoque entrar no custo.');
   }
   return h;
 }
@@ -1395,6 +1401,12 @@ function escolheInsumo(id) {
   const l = curLida(); if (!l || l.status === 'finalizada') return;
   if (!id) { delete l.cab.insumoId; delete l.cab.dosesAn; }
   else { const e = insumoDe(id); if (!e) return; l.cab.insumoId = id; l.cab.produto = e.produto; l.cab.procedimento = e.tipo; }
+  l.editadoEm = nowISO(); save(); renderLidaEditor();
+}
+function setCustoDoseManual(v) {
+  const l = curLida(); if (!l || l.status === 'finalizada') return; const n = v.trim() ? parseNum(v) : null;
+  if (n != null && (!(n > 0) || n > 1e6)) { alert('Informe o custo por dose em reais (ex.: 8,50).'); renderLidaEditor(); return; }
+  if (n == null) delete l.cab.custoDose; else l.cab.custoDose = Math.round(n * 100) / 100;
   l.editadoEm = nowISO(); save(); renderLidaEditor();
 }
 function setDosesAn(v) {
@@ -2096,7 +2108,7 @@ function finalizeLida() {
     if (!e) errs.push('O produto do estoque desta lida não existe mais. Escolha outro ou use "Outro produto".');
     else {
       if (e.validade && e.validade < l.data) errs.push(`${e.produto} estava vencido em ${fmtD(e.validade)}, antes da data do manejo. Não é possível registrar a aplicação com este produto.`);
-      const sd = saldoInsumo(e); if (need > sd) errs.push(`Falta saldo de ${e.produto}: a lida usa ${fmtN(need, 0)} dose(s) e há ${fmtN(sd, 0)}. Registre a entrada ou reduza os animais.`);
+      const res = reservaInsumo(e.id, l.id), sd = r2(saldoInsumo(e) - res); if (need > sd) errs.push(`Falta saldo de ${e.produto}: a lida usa ${fmtN(need, 0)} dose(s) e há ${fmtN(sd, 0)} livre(s)${res > 0 ? ` (${fmtN(res, 0)} reservada(s) por lidas esperando conferência)` : ''}. Registre a entrada ou reduza os animais.`);
     }
   }
   if (l.tipo === 'sanitario' && c.carenciaAte && c.carenciaAte < l.data) errs.push('A carência termina antes da data do manejo.');
@@ -3795,7 +3807,7 @@ const AJUDA = {
 AJUDA.insumos = { t: 'Insumos', g: 'Gestão',
   s: 'Controle de vacinas e remédios: o que entrou, a validade, o saldo, o custo e as campanhas obrigatórias.',
   p: ['Em Nova entrada, registre a compra: produto, validade, quantidade em doses e o custo total (opcional).', 'Na lida sanitária, escolha o Produto do estoque: o app baixa as doses e calcula o custo.', 'Para algo que não pode faltar, crie uma Campanha com produto, categorias e prazo.', 'Em Fazer lida da campanha, o app abre a lida pronta; use Só quem falta na campanha.'],
-  r: ['Produto vencido ou sem saldo não pode ser usado: o app não deixa finalizar a lida.', 'O estoque só baixa quando a lida é finalizada pelo gestor.', 'O custo só aparece para produto do estoque com o valor da compra informado.', 'Campanha conta só quem recebeu em lida finalizada ligada a ela.'],
+  r: ['Produto vencido ou sem saldo não pode ser usado: o app não deixa finalizar a lida.', 'O estoque só baixa quando a lida é finalizada pelo gestor, mas lida do campo esperando conferência já reserva as doses.', 'O custo só entra para produto do estoque com o valor da compra informado (ou custo por dose digitado na lida). O resto fica fora do custo e a tela mostra a cobertura.', 'Campanha conta só quem recebeu em lida finalizada ligada a ela.'],
   d: [['Como contar as doses?', '1 dose = 1 aplicação em 1 animal. Um frasco de 50 ml com dose de 2 ml tem 25 doses.'], ['Apliquei fora do app, e agora?', 'Registre a lida com o produto do estoque na data do manejo. Se o produto já estava vencido nessa data, o app recusa.']] };
 const AJUDA_GRUPOS = ['Visão geral', 'Campo', 'Cadastros', 'Mapa', 'Gestão', 'Dados'];
 function ajudaKey() {
@@ -4333,7 +4345,7 @@ const SAN = {
     return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
     const c = r.cab || {};
-    const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null, insumoId: okId(c.insumoId) ? String(c.insumoId) : undefined, campanhaId: okId(c.campanhaId) ? String(c.campanhaId) : undefined, dosesAn: okNum(c.dosesAn, 100) || undefined };
+    const cab = { motivo: str(c.motivo, 20), procedimento: str(c.procedimento, 20), produto: str(c.produto, 80), dose: str(c.dose, 40), carenciaAte: okDate(c.carenciaAte), proximaEm: okDate(c.proximaEm), loteDestinoId: okId(c.loteDestinoId) ? String(c.loteDestinoId) : null, insumoId: okId(c.insumoId) ? String(c.insumoId) : undefined, campanhaId: okId(c.campanhaId) ? String(c.campanhaId) : undefined, dosesAn: okNum(c.dosesAn, 100) || undefined, custoDose: okNum(c.custoDose, 1e6) || undefined };
     const regs = (Array.isArray(r.registros) ? r.registros : []).slice(0, 5000).map(x => x && okId(x.id) && okId(x.animalId) ? { id: String(x.id), animalId: String(x.animalId), brinco: normBrinco(x.brinco).slice(0, 30), peso: okNum(x.peso, 1500), mover: x.mover === true, obs: str(x.obs, 80), bezerroBrinco: normBrinco(x.bezerroBrinco).slice(0, 30) || undefined, sexo: x.sexo === 'F' ? 'F' : (x.sexo === 'M' ? 'M' : undefined),
       fotoId: okId(x.fotoId) ? String(x.fotoId) : undefined, origem: x.origem === 'campo' ? 'campo' : undefined,
       val: x.val && x.val.st === 'ok' && okIso(x.val.em) ? { st: 'ok', auto: x.val.auto === true ? true : undefined, por: str(x.val.por, 40), em: okIso(x.val.em) } : undefined } : null).filter(Boolean);
@@ -4911,7 +4923,7 @@ function cpPasso() {
   if (passo === 'produto') {
     const rec = cpRecentes('produto', l => l.cab.procedimento === n.cab.procedimento);
     const est = insumosDisp(n.cab.procedimento, hoje());
-    return head('Qual produto?') + `${est.length ? `<p class="cp-sec">Do estoque</p><div class="cp-opc">${est.map(e => cpBtn(esc(e.produto), `vence ${fmtD(e.validade)} · saldo ${fmtN(saldoInsumo(e), 0)} dose(s)`, `cpSetInsumo('${e.id}')`, n.cab.insumoId === e.id ? 'on' : '', 'i-san')).join('')}</div>` : ''}${rec.length ? `<p class="cp-sec">Usados antes nesta fazenda</p><div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'último uso ' + fmtD(r.l.data), `cpSetN('produto','${cpJs(cpEsc(r.v))}',true)`, n.cab.produto === r.v ? 'on' : '')).join('')}</div><p class="cp-sec">Ou escreva</p>` : ''}
+    return head('Qual produto?') + `${est.length ? `<p class="cp-sec">Do estoque</p><div class="cp-opc">${est.map(e => cpBtn(esc(e.produto), `vence ${fmtD(e.validade)} · livre ${fmtN(saldoLivre(e), 0)} dose(s)`, `cpSetInsumo('${e.id}')`, n.cab.insumoId === e.id ? 'on' : '', 'i-san')).join('')}</div>` : ''}${rec.length ? `<p class="cp-sec">Usados antes nesta fazenda</p><div class="cp-opc">${rec.map(r => cpBtn(esc(r.v), 'último uso ' + fmtD(r.l.data), `cpSetN('produto','${cpJs(cpEsc(r.v))}',true)`, n.cab.produto === r.v ? 'on' : '')).join('')}</div><p class="cp-sec">Ou escreva</p>` : ''}
       <input id="cpProd" class="cp-input" maxlength="80" placeholder="Ex.: Aftosa, Ivermectina" value="${esc(n.cab.produto || '')}" ${rec.length ? '' : 'data-foco'} onkeydown="if(event.key==='Enter')cpProdOk()">
       ${cpBtn('Continuar', '', 'cpProdOk()', 'pri')}` + fim;
   }
