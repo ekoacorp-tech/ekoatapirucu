@@ -1,9 +1,18 @@
 {
-  "versao": 31,
-  "rotulo": "31 beta",
+  "versao": 32,
+  "rotulo": "32 beta",
   "data": "2026-11-25",
-  "titulo": "Peso de venda e Ordem de Lida",
+  "titulo": "Ordens de lida de todas as fazendas",
   "notas": {
+    "32": {
+      "data": "2026-11-25",
+      "titulo": "Ordens de lida de todas as fazendas",
+      "itens": [
+        "A tela Ordens de lida abre unificada quando há mais de uma fazenda: sugestões e ordens das fazendas juntas, agrupadas pelo nome da fazenda. O seletor permite ver só a fazenda ativa.",
+        "A ordem continua pertencendo a uma fazenda só: criar pela sugestão ou pela ordem manual grava a fazenda de origem (no modal, escolha fazenda e lote). O campo de cada fazenda vê só as ordens dela.",
+        "Fazer agora uma ordem de outra fazenda troca para essa fazenda e abre a lida nela. Criar todas cria uma ordem por sugestão, cada uma na sua fazenda."
+      ]
+    },
     "31": {
       "data": "2026-11-25",
       "titulo": "Peso de venda e Ordem de Lida",
