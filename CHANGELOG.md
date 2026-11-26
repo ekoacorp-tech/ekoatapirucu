@@ -2,6 +2,11 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [32] — 2026-11-25 — Ordens de lida de todas as fazendas
+- A tela Ordens de lida abre unificada quando há mais de uma fazenda: sugestões e ordens das fazendas juntas, agrupadas pelo nome da fazenda. O seletor permite ver só a fazenda ativa.
+- A ordem continua pertencendo a uma fazenda só: criar pela sugestão ou pela ordem manual grava a fazenda de origem (no modal, escolha fazenda e lote). O campo de cada fazenda vê só as ordens dela.
+- Fazer agora uma ordem de outra fazenda troca para essa fazenda e abre a lida nela. Criar todas cria uma ordem por sugestão, cada uma na sua fazenda.
+
 ## [31] — 2026-11-25 — Peso de venda e Ordem de Lida
 - Peso esperado para a venda, por animal: informe no cadastro (Editar cadastro) ou, ao adicionar animais, o mesmo valor para todos. Fica visível na ficha do animal.
 - Previsão da data de atingimento: o app usa o ganho médio das pesagens dos últimos 120 dias. Só calcula com 2 ou mais pesagens que cubram 21+ dias e com ganho positivo; sem isso mostra "sem base" e o motivo, sem inventar data. Mostra a confiança (alta ou média) e deixa claro que é estimativa.

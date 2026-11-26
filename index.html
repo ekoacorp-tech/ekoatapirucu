@@ -965,7 +965,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 31;
+const APP_VERSION = 32;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1282,16 +1282,21 @@ function irOrdens(fid) { if (fid && fid !== S.fazendaAtiva) { S.fazendaAtiva = f
 function irInsumos(fid) { if (fid && fid !== S.fazendaAtiva) { S.fazendaAtiva = fid; calc = null; renderFarmSel(); } goView('insumos'); }
 
 /* ===== v31 — Ordem de Lida: o gestor manda, o campo executa, a lida volta para conferência ===== */
-const ordensF = () => S.sanidade.filter(x => x.fazendaId === S.fazendaAtiva && x.kind === 'ordem' && x.ativo !== false);
+const ordensDe = fid => S.sanidade.filter(x => x.fazendaId === fid && x.kind === 'ordem' && x.ativo !== false);
+const ordensF = () => ordensDe(S.fazendaAtiva);
+let ordTodas = null;   /* null = padrão: todas as fazendas quando há mais de uma */
+const ordFids = () => (ordTodas === null ? S.fazendas.length > 1 : ordTodas) ? S.fazendas.map(f => f.id) : [S.fazendaAtiva];
+const fazNome = id => (S.fazendas.find(f => f.id === id) || {}).nome || '—';
+const sugestoesEscopo = () => ordFids().flatMap(fid => sugestoesOrdem(fid));
 const ordemDe = id => S.sanidade.find(x => x.id === id && x.kind === 'ordem') || null;
 const ORDEM_ST = { a_fazer: 'A fazer', feita: 'Feita', cancelada: 'Cancelada' };
 const lidasDaOrdem = o => S.lidas.filter(l => l.cab && l.cab.ordemId === o.id);
 function ordemVinculo(o) { const ls = lidasDaOrdem(o); return { ls, duplicada: ls.filter(l => l.status === 'finalizada' || l.status === 'conferir').length > 1 }; }
 /* sugestões: cada animal entra em uma ordem só, na ordem de importância */
-function sugestoesOrdem() {
-  const fid = S.fazendaAtiva, hj = hoje(), st = Object.values(computeF(fid)).filter(s => s.ativo && s.lote && (S.lotes.find(l => l.id === s.lote) || {}).ativo !== false), usado = new Set(), out = [];
+function sugestoesOrdem(fid) {
+  fid = fid || S.fazendaAtiva; const hj = hoje(), st = Object.values(computeF(fid)).filter(s => s.ativo && s.lote && (S.lotes.find(l => l.id === s.lote) || {}).ativo !== false), usado = new Set(), out = [];
   const grupo = (cod, fn, f) => { const g = {}; st.filter(s => !usado.has(s.a.id) && fn(s)).forEach(s => (g[s.lote] = g[s.lote] || []).push(s));
-    Object.entries(g).forEach(([lid, arr]) => { arr.forEach(s => usado.add(s.a.id)); out.push(Object.assign({ cod, loteId: lid, tipo: 'pesagem', cab: { motivo: 'rotina' }, animalIds: arr.map(s => s.a.id).slice(0, 500), n: arr.length, prazo: null }, f(arr.length, arr))); }); };
+    Object.entries(g).forEach(([lid, arr]) => { arr.forEach(s => usado.add(s.a.id)); out.push(Object.assign({ fid, cod, loteId: lid, tipo: 'pesagem', cab: { motivo: 'rotina' }, animalIds: arr.map(s => s.a.id).slice(0, 500), n: arr.length, prazo: null }, f(arr.length, arr))); }); };
   grupo('perda_peso', s => s.gmd != null && s.gmd < 0, n => ({ titulo: `Reconferir peso de ${n} animal(is) que perderam peso`, motivo: 'GMD negativo na última pesagem. Pese de novo e examine: verme, doença, falta de pasto ou de água.' }));
   grupo('sem_manejo', s => s.atrasado, n => ({ titulo: `${n} animal(is) sem manejo há mais de ${DIAS_ATRASO} dias`, motivo: 'Passar no curral e pesar para atualizar o rebanho.' }));
   grupo('pesagem_vencida', s => !s.ultimaPesagem || diasEntre(s.ultimaPesagem, hj) > DIAS_PESAGEM_VENCIDA, n => ({ titulo: `Pesagem vencida: ${n} animal(is) sem pesar há mais de ${DIAS_PESAGEM_VENCIDA} dias`, motivo: 'Sem pesagem recente o ganho de peso e a previsão de venda perdem base.' }));
@@ -1299,10 +1304,10 @@ function sugestoesOrdem() {
   grupo('conferencia_venda', s => conf.has(s.a.id), n => ({ titulo: `Conferir peso de venda: ${n} animal(is) perto da data prevista`, motivo: 'A data prevista para atingir o peso de venda está próxima. A pesagem confirma se a expectativa se realiza.', cab: { motivo: 'venda' } }));
   grupo('carencia', s => s.emCarencia && s.carenciaAte <= addDias(hj, 7), n => ({ titulo: `Carência termina em até 7 dias: ${n} animal(is)`, motivo: 'Em breve podem sair. Pese para decidir a venda.', cab: { motivo: 'venda' } }));
   aplicacoesAtrasadas([fid]).forEach(l => { const ids = (l.registros || []).map(r => r.animalId).filter(id => st.some(s => s.a.id === id)); if (!ids.length || !l.loteId) return;
-    out.push({ cod: 'aplic_atrasada', loteId: l.loteId, tipo: 'sanitario', cab: { procedimento: l.cab.procedimento, produto: l.cab.produto || '' }, animalIds: ids.slice(0, 500), n: ids.length, prazo: l.cab.proximaEm, titulo: `Aplicação atrasada: ${[PROCEDIMENTOS[l.cab.procedimento] || '', l.cab.produto || ''].filter(Boolean).join(' ')}`, motivo: `Estava prevista para ${fmtD(l.cab.proximaEm)}.` }); });
-  campanhasF().forEach(c => { const sc = campanhaStatus(c); if (!sc.falta.length) return; const g = {}; sc.falta.forEach(x => { if (x.lote) (g[x.lote] = g[x.lote] || []).push(x.a.id); });
-    Object.entries(g).forEach(([lid, ids]) => out.push({ cod: 'campanha', loteId: lid, tipo: 'sanitario', cab: { procedimento: c.tipo, produto: c.produto || '', campanhaId: c.id }, animalIds: ids.slice(0, 500), n: ids.length, prazo: c.ate, titulo: `Campanha ${c.nome}: faltam ${ids.length} animal(is)`, motivo: sc.atraso ? `O prazo venceu em ${fmtD(c.ate)}.` : `Prazo até ${fmtD(c.ate)}.` })); });
-  const ab = ordensF().filter(o => o.status === 'a_fazer');
+    out.push({ fid, cod: 'aplic_atrasada', loteId: l.loteId, tipo: 'sanitario', cab: { procedimento: l.cab.procedimento, produto: l.cab.produto || '' }, animalIds: ids.slice(0, 500), n: ids.length, prazo: l.cab.proximaEm, titulo: `Aplicação atrasada: ${[PROCEDIMENTOS[l.cab.procedimento] || '', l.cab.produto || ''].filter(Boolean).join(' ')}`, motivo: `Estava prevista para ${fmtD(l.cab.proximaEm)}.` }); });
+  S.sanidade.filter(x => x.fazendaId === fid && x.kind === 'campanha' && x.ativo !== false).forEach(c => { const sc = campanhaStatus(c); if (!sc.falta.length) return; const g = {}; sc.falta.forEach(x => { if (x.lote) (g[x.lote] = g[x.lote] || []).push(x.a.id); });
+    Object.entries(g).forEach(([lid, ids]) => out.push({ fid, cod: 'campanha', loteId: lid, tipo: 'sanitario', cab: { procedimento: c.tipo, produto: c.produto || '', campanhaId: c.id }, animalIds: ids.slice(0, 500), n: ids.length, prazo: c.ate, titulo: `Campanha ${c.nome}: faltam ${ids.length} animal(is)`, motivo: sc.atraso ? `O prazo venceu em ${fmtD(c.ate)}.` : `Prazo até ${fmtD(c.ate)}.` })); });
+  const ab = ordensDe(fid).filter(o => o.status === 'a_fazer');
   return out.filter(x => !ab.some(o => o.cod === x.cod && o.loteId === x.loteId && (o.cab.produto || '') === (x.cab.produto || '') && (o.cab.campanhaId || '') === (x.cab.campanhaId || '')));
 }
 function criaOrdem(d) {
@@ -1310,8 +1315,8 @@ function criaOrdem(d) {
   S.sanidade.push(o); return o;
 }
 function geraOrdemSug(i, todas) {
-  const sg = sugestoesOrdem(); const lista = todas ? sg : [sg[i]]; let n = 0;
-  lista.forEach(x => { if (!x) return; criaOrdem({ titulo: x.titulo, motivo: x.motivo, cod: x.cod, tipo: x.tipo, loteId: x.loteId, cab: x.cab, animalIds: x.animalIds, prazo: x.prazo }); n++; });
+  const sg = sugestoesEscopo(); const lista = todas ? sg : [sg[i]]; let n = 0;
+  lista.forEach(x => { if (!x) return; criaOrdem({ fazendaId: x.fid, titulo: x.titulo, motivo: x.motivo, cod: x.cod, tipo: x.tipo, loteId: x.loteId, cab: x.cab, animalIds: x.animalIds, prazo: x.prazo }); n++; });
   if (n) { save(); updateCounts(); renderOrdens(); showToast(n === 1 ? 'Ordem criada. Mande na carga para o campo.' : `${n} ordens criadas. Mande na carga para o campo.`); }
 }
 function mudaOrdem(id, st) {
@@ -1321,20 +1326,23 @@ function mudaOrdem(id, st) {
 }
 function openOrdem() {
   if (!farm()) { openFarm(); return; }
-  if (!lotesF().length) { alert('Cadastre um lote primeiro.'); return; }
+  if (!S.lotes.length) { alert('Cadastre um lote primeiro.'); return; }
   openModal('Nova ordem de lida', `<div class="grid">
-    ${fld('oLote', 'Lote', `<select id="oLote">${loteOpts('', 'Selecione')}</select>`, true)}
+    ${fld('oFaz', 'Fazenda', `<select id="oFaz" onchange="ordLotes()">${S.fazendas.map(f => `<option value="${f.id}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('')}</select>`, true, 'É o endereço da ordem: só o campo dessa fazenda vai vê-la.')}
+    ${fld('oLote', 'Lote', `<select id="oLote"></select>`, true)}
     ${fld('oTipo', 'Manejo', `<select id="oTipo"><option value="pesagem">Pesagem</option><option value="sanitario">Sanitário</option></select>`, true)}
     ${fld('oTit', 'O que fazer', `<input id="oTit" maxlength="80" placeholder="Ex.: Pesar o lote para a venda de sexta">`, true)}
     ${fld('oPrazo', 'Prazo (opcional)', `<input type="date" id="oPrazo" min="${hoje()}">`)}
     ${fld('oPara', 'Para quem (opcional)', `<input id="oPara" maxlength="40" placeholder="Nome do operador">`, false, 'A fazenda é o endereço da ordem. O operador é só uma indicação.')}
     </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveOrdem()">Criar ordem</button>`);
+  ordLotes();
 }
+function ordLotes() { const fz = $('oFaz').value; $('oLote').innerHTML = '<option value="">Selecione</option>' + S.lotes.filter(l => l.fazendaId === fz && l.ativo !== false).map(l => `<option value="${l.id}">${esc(l.nome)}</option>`).join(''); }
 function saveOrdem() {
   ['oLote', 'oTit'].forEach(i => fieldErr(i, ''));
   const lote = $('oLote').value, tit = str($('oTit').value, 80), tipo = $('oTipo').value === 'sanitario' ? 'sanitario' : 'pesagem';
   let ok = true; if (!lote) { fieldErr('oLote', 'Escolha o lote.'); ok = false; } if (!tit) { fieldErr('oTit', 'Diga o que fazer.'); ok = false; } if (!ok) return;
-  criaOrdem({ titulo: tit, tipo, loteId: lote, cab: tipo === 'pesagem' ? { motivo: 'rotina' } : { procedimento: 'vacina' }, prazo: $('oPrazo').value || null, para: str($('oPara').value, 40) });
+  criaOrdem({ fazendaId: $('oFaz').value, titulo: tit, tipo, loteId: lote, cab: tipo === 'pesagem' ? { motivo: 'rotina' } : { procedimento: 'vacina' }, prazo: $('oPrazo').value || null, para: str($('oPara').value, 40) });
   save(); closeModal(); updateCounts(); renderOrdens(); showToast('Ordem criada. Mande na carga para o campo.');
 }
 /* cab da lida a partir da ordem */
@@ -1347,30 +1355,37 @@ function iniciaLidaOrdem(oid) {
   const o = ordemDe(oid); if (!o) return;
   if (!syncMeta.device) { openDeviceModal(() => iniciaLidaOrdem(oid)); return; }
   if (!(syncMeta.operador && syncMeta.operador.dia === hoje())) { comOperador(() => iniciaLidaOrdem(oid)); return; }
+  if (o.fazendaId !== S.fazendaAtiva) { S.fazendaAtiva = o.fazendaId; calc = null; renderFarmSel(); }
   const ja = lidasDaOrdem(o).find(l => l.status === 'aberta'); if (ja) { openLida(ja.id); return; }
   const l = stampNew({ fazendaId: o.fazendaId, tipo: o.tipo, data: hoje(), loteId: o.loteId || '', status: 'aberta', cab: cabDaOrdem(o), registros: [], obs: '', finalizadaEm: null });
   if (o.tipo === 'sanitario') { const st = compute(); o.animalIds.forEach(id => { if (st[id] && st[id].ativo) l.registros.push({ id: uuid(), animalId: id, brinco: st[id].a.brinco }); }); }
   S.lidas.push(l); save(); openLida(l.id);
 }
+function ordEscopo(t) { ordTodas = t; renderOrdens(); }
 function renderOrdens() {
   const box = $('ordensBody'); if (!box) return;
   if (!farm()) { box.innerHTML = '<div class="empty">Cadastre uma fazenda primeiro.</div>'; return; }
-  const sg = sugestoesOrdem(), all = ordensF().slice().sort((a, b) => (b.criadaEm || '').localeCompare(a.criadaEm || '')), af = all.filter(o => o.status === 'a_fazer'), feitas = all.filter(o => o.status !== 'a_fazer').slice(0, 10);
+  const fids = ordFids(), multi = S.fazendas.length > 1, todas = fids.length > 1;
+  const sg = sugestoesEscopo(), all = fids.flatMap(fid => ordensDe(fid)).sort((a, b) => (b.criadaEm || '').localeCompare(a.criadaEm || '')), af = all.filter(o => o.status === 'a_fazer'), feitas = all.filter(o => o.status !== 'a_fazer').slice(0, 10);
   const linha = (o) => {
     const v = ordemVinculo(o), lt = loteNome(o.loteId), atras = o.prazo && o.prazo < hoje() && o.status === 'a_fazer';
     const st = o.status === 'a_fazer' ? (atras ? '<span class="chip bad">Prazo vencido</span>' : '<span class="chip info">A fazer</span>') : o.status === 'feita' ? '<span class="chip ok">Feita</span>' : '<span class="chip">Cancelada</span>';
     return `<div class="card"><h3>${esc(o.titulo)} ${st}${v.duplicada ? ' <span class="chip warn">2 lidas para a mesma ordem</span>' : ''}</h3>
-      <p class="muted">${esc(TIPOS[o.tipo].nome)} · lote ${esc(lt)}${o.animalIds.length ? ' · ' + o.animalIds.length + ' animal(is)' : ' · lote todo'}${o.prazo ? ' · prazo ' + fmtD(o.prazo) : ''}${o.para ? ' · para ' + esc(o.para) : ''}</p>
+      <p class="muted">${multi ? '<b>' + esc(fazNome(o.fazendaId)) + '</b> · ' : ''}${esc(TIPOS[o.tipo].nome)} · lote ${esc(lt)}${o.animalIds.length ? ' · ' + o.animalIds.length + ' animal(is)' : ' · lote todo'}${o.prazo ? ' · prazo ' + fmtD(o.prazo) : ''}${o.para ? ' · para ' + esc(o.para) : ''}</p>
       ${o.motivo ? `<p class="hint">${esc(o.motivo)}</p>` : ''}
       ${v.ls.length ? `<p class="hint">Lida(s): ${v.ls.map(l => `<a href="#" onclick="openLida('${l.id}');return false;">${fmtD(l.data)} (${l.status === 'conferir' ? 'esperando conferência' : l.status === 'aberta' ? 'aberta' : 'finalizada'})</a>`).join(', ')}</p>` : ''}
       <div class="actions">${o.status === 'a_fazer' ? `<button class="btn sm primary" onclick="iniciaLidaOrdem('${o.id}')">Fazer agora aqui</button><button class="btn sm danger" onclick="mudaOrdem('${o.id}','cancelada')">Cancelar</button>` : `<button class="btn sm" onclick="mudaOrdem('${o.id}','a_fazer')">Reabrir</button>`}</div></div>`;
   };
+  /* com várias fazendas, agrupa por fazenda: cada ordem continua sendo da fazenda dela */
+  const porFaz = (lista, fn) => !todas ? lista.map(fn).join('') : fids.map(fid => { const l = lista.filter(x => (x.fid || x.fazendaId) === fid); return l.length ? `<p class="cp-sec" style="margin:10px 0 4px;color:var(--cinza,#5B6B80);font-weight:700">${esc(fazNome(fid))} · ${l.length}</p>` + l.map(fn).join('') : ''; }).join('');
+  const sugH = x => `<div class="ordem-sug"><div><b>${esc(x.titulo)}</b><br><small class="muted">lote ${esc(loteNome(x.loteId))} · ${esc(x.motivo)}</small></div><button class="btn sm primary" onclick="geraOrdemSug(${sg.indexOf(x)})">Criar ordem</button></div>`;
   box.innerHTML = `
+    ${multi ? `<div class="toolbar" style="margin-bottom:10px"><div class="seg" role="group" aria-label="Escopo"><button class="${todas ? 'on' : ''}" onclick="ordEscopo(true)">Todas as fazendas</button><button class="${!todas ? 'on' : ''}" onclick="ordEscopo(false)">Só ${esc(farm().nome)}</button></div></div>` : ''}
     <div class="card"><h3>Sugeridas pelo app ${sg.length ? `<span class="chip warn">${sg.length}</span>` : ''}</h3>
-      ${sg.length ? `<p class="hint">Nada vira ordem sem você. Cada animal aparece em uma sugestão só, na ordem de importância.</p>` + sg.map((x, i) => `<div class="ordem-sug"><div><b>${esc(x.titulo)}</b><br><small class="muted">lote ${esc(loteNome(x.loteId))} · ${esc(x.motivo)}</small></div><button class="btn sm primary" onclick="geraOrdemSug(${i})">Criar ordem</button></div>`).join('') + (sg.length > 1 ? `<div class="actions" style="margin-top:8px"><button class="btn sm" onclick="geraOrdemSug(0,true)">Criar todas (${sg.length})</button></div>` : '') : '<p class="muted">Nada sugerido agora: pesagens, aplicações e campanhas em dia.</p>'}</div>
+      ${sg.length ? `<p class="hint">Nada vira ordem sem você. Cada animal aparece em uma sugestão só, na ordem de importância. A ordem criada vai só para a fazenda dela.</p>` + porFaz(sg, sugH) + (sg.length > 1 ? `<div class="actions" style="margin-top:8px"><button class="btn sm" onclick="geraOrdemSug(0,true)">Criar todas (${sg.length})</button></div>` : '') : '<p class="muted">Nada sugerido agora: pesagens, aplicações e campanhas em dia.</p>'}</div>
     <h3 style="margin:14px 0 6px">A fazer ${af.length ? `<span class="chip info">${af.length}</span>` : ''}</h3>
-    ${af.length ? af.map(linha).join('') : '<div class="card empty">Nenhuma ordem aberta. Crie uma sugerida ou uma nova ordem.</div>'}
-    ${af.length ? '<p class="hint">Para o campo receber, gere a carga e envie o arquivo. Quando o campo concluir, a lida volta para você conferir.</p>' : ''}
+    ${af.length ? porFaz(af, linha) : '<div class="card empty">Nenhuma ordem aberta. Crie uma sugerida ou uma nova ordem.</div>'}
+    ${af.length ? '<p class="hint">Para o campo receber, gere a carga e envie o arquivo. Cada celular vê só as ordens da fazenda em que está trabalhando.</p>' : ''}
     ${feitas.length ? '<h3 style="margin:14px 0 6px">Feitas e canceladas (últimas 10)</h3>' + feitas.map(linha).join('') : ''}`;
 }
 /* ---- tela Insumos ---- */
