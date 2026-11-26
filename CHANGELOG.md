@@ -2,6 +2,24 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [35] — 2026-11-25 — Alimentação
+- Alimentação do lote: registre suplemento mineral, proteinado, ração ou volumoso por período, com a quantidade consumida e o custo. O app mostra o custo de alimentação do lote, o custo por cabeça por dia e os kg por cabeça por dia.
+- Sistema do lote (pasto, semiconfinamento ou confinamento) no cadastro do lote. No confinamento, o app calcula quantos kg de alimento (matéria natural) foram usados por kg de ganho de peso no período.
+- A alimentação entra no resultado do lote. Alimentação sem valor informado fica fora do custo e o resultado avisa.
+
+## [34] — 2026-11-25 — Resultado do lote
+- Resultado do lote na tela Compra e venda: receita das vendas menos o custo de compra, o sanitário e a alimentação, com a margem por cabeça, o custo por @ e o ponto de equilíbrio em R$/@.
+- O custo é repartido entre os animais que ficaram (vendidos e ativos): mortes e perdas pesam no resultado de quem sobrou. Lote ainda com animais mostra resultado parcial.
+- O resultado diz o que está fora da conta: compra não registrada, aplicações sem custo, alimentação não registrada, venda sem arrobas. Não esconde pendência.
+- Simulador de venda do restante: com peso, ganho, preço da @, rendimento e custo por dia, compara vender hoje ou esperar 15, 30, 45, 60 e 90 dias. É conta com números constantes, não previsão.
+
+## [33] — 2026-11-25 — Compra e venda do lote
+- Nova tela Compra e venda (menu e Mais): registre a compra do lote (cabeças, valor, frete, peso na origem, procedência, GTA ou nota) e a venda (cabeças, valor recebido, arrobas de carcaça, peso na fazenda e no destino, comprador, GTA ou nota). Só lote, data, cabeças e valor são obrigatórios.
+- Cálculos automáticos: R$ por cabeça, R$ por @, rendimento real de carcaça (@ × 15 kg ÷ peso vivo; fora de 40% a 65% o app pede para conferir), quebra de transporte na compra e quebra até o destino na venda.
+- A venda pode ser ligada à lida de baixa por venda: traz a data, as cabeças e o peso na fazenda. Registrar a venda não baixa os animais; a baixa continua sendo pela lida.
+- Indicadores dos últimos 12 meses: desfrute (vendidos ÷ rebanho médio), idade ao abate e dias da entrada até a venda, calculados das lidas e do nascimento.
+- Compras e vendas viajam na sincronização. Registros sem lote, sem data ou sem valor são descartados na importação.
+
 ## [32] — 2026-11-25 — Ordens de lida de todas as fazendas
 - A tela Ordens de lida abre unificada quando há mais de uma fazenda: sugestões e ordens das fazendas juntas, agrupadas pelo nome da fazenda. O seletor permite ver só a fazenda ativa.
 - A ordem continua pertencendo a uma fazenda só: criar pela sugestão ou pela ordem manual grava a fazenda de origem (no modal, escolha fazenda e lote). O campo de cada fazenda vê só as ordens dela.

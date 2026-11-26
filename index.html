@@ -75,7 +75,7 @@ button,input,select,textarea{font-size:16px;color:inherit}
 .main{flex:1;padding:22px 28px 40px;min-width:0}
 .view{display:none;max-width:1100px;margin:0 auto}
 body[data-view="home"] #v-home,body[data-view="lidas"] #v-lidas,body[data-view="lida"] #v-lida,body[data-view="rebanho"] #v-rebanho,
-body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa,body[data-view="insumos"] #v-insumos,body[data-view="ordens"] #v-ordens{display:block}
+body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa,body[data-view="insumos"] #v-insumos,body[data-view="ordens"] #v-ordens,body[data-view="negocio"] #v-negocio{display:block}
 .topbar{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .topbar h2{font-size:1.15rem;color:var(--brand-navy)}
 .topbar p{font-size:.84rem;color:var(--text-secondary);margin-top:2px}
@@ -802,6 +802,7 @@ th{font-size:.75rem}
       <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span class="s-lbl">Mapa da fazenda</span></button>
       <button data-nav="insumos" onclick="goView('insumos')"><svg><use href="#i-san"/></svg><span class="s-lbl">Insumos</span></button>
       <button data-nav="ordens" onclick="goView('ordens')"><svg><use href="#i-lida"/></svg><span class="s-lbl">Ordens de lida</span></button>
+      <button data-nav="negocio" onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Compra e venda</span></button>
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Painel</span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
@@ -907,6 +908,11 @@ th{font-size:.75rem}
       <div class="actions"><button class="btn" onclick="openOrdem()">Nova ordem</button><button class="btn primary" onclick="exportSync({carga:true})">Gerar carga para o campo</button></div></div>
     <div id="ordensBody"></div>
   </section>
+  <section class="view" id="v-negocio">
+    <div class="topbar"><div><h2>Compra e venda</h2><p>O dinheiro nas pontas: o que entrou, o que saiu e o quanto custou e rendeu</p></div>
+      <div class="actions"><button class="btn" onclick="openCompra()">Registrar compra</button><button class="btn primary" onclick="openVenda()">Registrar venda</button></div></div>
+    <div id="negocioBody"></div>
+  </section>
   <section class="view" id="v-insumos">
     <div class="topbar"><div><h2>Insumos</h2><p>Vacinas e remédios: estoque, validade, custo e campanhas obrigatórias</p></div>
       <div class="actions"><button class="btn" onclick="openCampanha()">Nova campanha</button><button class="btn primary" onclick="openEntrada()">Nova entrada</button></div></div>
@@ -925,6 +931,7 @@ th{font-size:.75rem}
       <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
       <button onclick="goView('insumos')"><svg><use href="#i-san"/></svg><div>Insumos<small>Estoque de vacinas e remédios, custo e campanhas</small></div></button>
       <button onclick="goView('ordens')"><svg><use href="#i-lida"/></svg><div>Ordens de lida<small>O que fazer no campo, com sugestões do app</small></div></button>
+      <button onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><div>Compra e venda<small>Preço de compra, venda, @ e resultado por lote</small></div></button>
       <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, pastos e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
@@ -965,7 +972,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 32;
+const APP_VERSION = 35;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1771,6 +1778,7 @@ function goView(v, semHistorico) {
   if (v === 'mapa') renderMapa();
   if (v === 'insumos') renderInsumos();
   if (v === 'ordens') renderOrdens();
+  if (v === 'negocio') renderNegocio();
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
   renderNavBar();
   poeAjuda();
@@ -1883,6 +1891,255 @@ function renderHome() {
   const ult = S.lidas.slice().sort((a, b) => (b.editadoEm || '').localeCompare(a.editadoEm || '')).slice(0, 6);
   $('homeLidas').innerHTML = ult.length ? `<div class="lida-list">${ult.map(lidaItem).join('')}</div>` : '<div class="empty">Nenhuma lida ainda. Toque em <b>Nova lida</b> para começar.</div>';
 }
+/* =========================================================================
+   v33 · Compra e venda do lote — o dinheiro nas pontas
+   Documentos em S.sanidade com kind 'compra' e 'venda' (viajam na sincronização).
+   Tudo opcional além de lote, data, cabeças e valor. Nada aqui altera o rebanho.
+   ========================================================================= */
+const KG_ARROBA_CARCACA = 15;
+const rs = n => n == null || !isFinite(n) ? '—' : 'R$ ' + fmtN(n, 2);
+const negLote = (k, lid) => S.sanidade.filter(x => x.kind === k && x.loteId === lid && x.ativo !== false).sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+const negDe = (k, id) => S.sanidade.find(x => x.id === id && x.kind === k) || null;
+function compraInfo(c) {
+  const cab = c.qtd > 0 ? (c.valor + (c.frete || 0)) / c.qtd : null;
+  const ps = S.animais.filter(a => a.fazendaId === c.fazendaId && a.loteId === c.loteId && a.entradaEm === c.data && a.pesoEntrada > 0).map(a => a.pesoEntrada);
+  const med = ps.length ? ps.reduce((t, x) => t + x, 0) / ps.length : null;
+  return { cab, arroba: c.pesoOrigem > 0 && cab != null ? cab / (c.pesoOrigem / 30) : null, med, quebra: c.pesoOrigem > 0 && med ? (c.pesoOrigem - med) / c.pesoOrigem * 100 : null };
+}
+function vendaInfo(v) {
+  return { cab: v.qtd > 0 ? v.valor / v.qtd : null, arroba: v.arrobas > 0 ? v.valor / v.arrobas : null, kg: v.pesoFaz > 0 ? v.valor / v.pesoFaz : null,
+    rend: v.arrobas > 0 && v.pesoFaz > 0 ? v.arrobas * KG_ARROBA_CARCACA / v.pesoFaz * 100 : null, quebra: v.pesoFaz > 0 && v.pesoDestino > 0 ? (v.pesoFaz - v.pesoDestino) / v.pesoFaz * 100 : null };
+}
+/* indicadores dos últimos 12 meses: desfrute, idade ao abate, dias na fazenda até a venda */
+function indicadoresVenda(fid, hj) {
+  const d1 = hj, d0 = addDias(hj, -365), sts = Object.values(computeF(fid));
+  const vend = sts.filter(s => s.baixa && s.baixa.motivo === 'venda' && s.baixa.data >= d0 && s.baixa.data <= d1);
+  const ini = sts.filter(s => vivoEm(s, addDias(d0, -1))).length, fim = sts.filter(s => vivoEm(s, d1)).length, med = (ini + fim) / 2;
+  const idade = vend.filter(s => s.a.nascimento && s.a.nascimento < s.baixa.data).map(s => diasEntre(s.a.nascimento, s.baixa.data) / 30.44);
+  const dias = vend.filter(s => s.a.entradaEm && s.a.entradaEm <= s.baixa.data).map(s => diasEntre(s.a.entradaEm, s.baixa.data));
+  const m = a => a.length ? a.reduce((t, x) => t + x, 0) / a.length : null;
+  return { vendidos: vend.length, desfrute: med > 0 ? vend.length / med * 100 : null, idadeMeses: m(idade), nIdade: idade.length, diasFaz: m(dias), nDias: dias.length };
+}
+function negCard(l, stL) {
+  const ativos = stL.filter(s => s.ativo).length, vendidos = stL.filter(s => s.baixa && s.baixa.motivo === 'venda').length;
+  const cs = negLote('compra', l.id), vs = negLote('venda', l.id);
+  const lin = (x, tipo) => {
+    if (tipo === 'compra') { const i = compraInfo(x); return `<tr><td><b>Compra</b> ${fmtD(x.data)}${x.procedencia ? '<br><small class="muted">de ' + esc(x.procedencia) + '</small>' : ''}${x.docs ? '<br><small class="muted">' + esc(x.docs) + '</small>' : ''}</td>
+      <td class="num">${fmtN(x.qtd, 0)} cab.</td><td class="num"><b>${rs(x.valor)}</b>${x.frete ? '<br><small class="muted">frete ' + rs(x.frete) + '</small>' : ''}</td>
+      <td><small>${rs(i.cab)} por cabeça${i.arroba != null ? '<br>' + rs(i.arroba) + ' por @ vivo na origem' : ''}${i.quebra != null ? `<br>quebra de transporte ${fmtN(i.quebra, 1)}%` : ''}</small></td>
+      <td><button class="btn sm" onclick="openCompra('${x.id}')">Editar</button></td></tr>`; }
+    const i = vendaInfo(x);
+    return `<tr><td><b>Venda</b> ${fmtD(x.data)}${x.comprador ? '<br><small class="muted">para ' + esc(x.comprador) + '</small>' : ''}${x.docs ? '<br><small class="muted">' + esc(x.docs) + '</small>' : ''}</td>
+      <td class="num">${fmtN(x.qtd, 0)} cab.</td><td class="num"><b>${rs(x.valor)}</b>${x.arrobas ? '<br><small class="muted">' + fmtN(x.arrobas, 1) + ' @ de carcaça</small>' : ''}</td>
+      <td><small>${rs(i.cab)} por cabeça${i.arroba != null ? '<br>' + rs(i.arroba) + ' por @' : ''}${i.rend != null ? `<br>rendimento ${fmtN(i.rend, 1)}%${i.rend < 40 || i.rend > 65 ? ' <b>(confira)</b>' : ''}` : ''}${i.quebra != null ? `<br>quebra até o destino ${fmtN(i.quebra, 1)}%` : ''}</small></td>
+      <td><button class="btn sm" onclick="openVenda('${x.id}')">Editar</button></td></tr>`;
+  };
+  const rows = cs.map(x => lin(x, 'compra')).concat(vs.map(x => lin(x, 'venda'))).join('') + alimRows(l.id);
+  const falta = !cs.length && (ativos + vendidos) > 0 ? '<span class="chip warn">sem compra registrada</span>' : '';
+  return `<div class="card"><h3>${esc(l.nome)} ${falta}</h3>
+    <p class="muted">${ativos} animal(is) no lote · ${vendidos} vendido(s) · pasto ${esc((pastoDe(l.pastoId) || {}).nome || '—')}</p>${alimResumoHtml(l)}
+    ${rows ? `<div class="tbl-wrap"><table class="tbl"><tbody>${rows}</tbody></table></div>` : '<p class="hint">Nenhuma compra ou venda registrada neste lote.</p>'}
+    ${typeof resultadoLoteHtml === 'function' ? resultadoLoteHtml(l, stL) : ''}
+    <div class="actions"><button class="btn sm" onclick="openCompra(null,'${l.id}')">+ Compra</button><button class="btn sm" onclick="openVenda(null,'${l.id}')">+ Venda</button><button class="btn sm" onclick="openAlimento(null,'${l.id}')">+ Alimentação</button></div></div>`;
+}
+function renderNegocio() {
+  const box = $('negocioBody'); if (!box) return;
+  if (!farm()) { box.innerHTML = '<div class="empty">Cadastre uma fazenda primeiro.</div>'; return; }
+  const hj = hoje(), ind = indicadoresVenda(S.fazendaAtiva, hj), st = Object.values(compute());
+  const rec = S.sanidade.filter(x => x.kind === 'venda' && x.fazendaId === S.fazendaAtiva && x.ativo !== false && x.data >= addDias(hj, -365)), totRec = rec.reduce((t, x) => t + x.valor, 0);
+  const lotes = lotesF().filter(l => l.ativo !== false || negLote('compra', l.id).length || negLote('venda', l.id).length).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  box.innerHTML = `<div class="kpis">
+    ${kpi('Desfrute (12 meses)', ind.desfrute != null ? fmtN(ind.desfrute, 1) + '%' : '—', 'teal', `${ind.vendidos} vendido(s) ÷ rebanho médio`)}
+    ${kpi('Idade ao abate', ind.idadeMeses != null ? fmtN(ind.idadeMeses, 1) + ' meses' : '—', 'navy', ind.nIdade ? `${ind.nIdade} animal(is) com nascimento` : 'precisa do nascimento do animal')}
+    ${kpi('Dias até a venda', ind.diasFaz != null ? fmtN(ind.diasFaz, 0) + ' dias' : '—', 'navy', 'da entrada na fazenda à venda')}
+    ${kpi('Receita registrada (12 meses)', rec.length ? rs(totRec) : '—', 'gold', rec.length ? rec.length + ' venda(s)' : 'nenhuma venda registrada')}
+  </div>${lotes.length ? lotes.map(l => negCard(l, st.filter(s => s.lote === l.id))).join('') : '<div class="empty">Cadastre um lote para registrar compras e vendas.</div>'}`;
+}
+const negLoteOpts = sel => lotesF().filter(l => l.ativo !== false).map(l => `<option value="${esc(l.id)}"${l.id === sel ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
+const numOpt = (id, max, msgs) => { const t = $(id).value.trim(); if (!t) return { v: null, ok: true }; const n = parseNum(t); if (!(n > 0) || n > max) { fieldErr(id, 'Valor inválido.'); return { v: null, ok: false }; } return { v: Math.round(n * 100) / 100, ok: true }; };
+function openCompra(id, loteId) {
+  const x = id ? negDe('compra', id) : null; if (id && !x) return;
+  openModal(x ? 'Editar compra' : 'Registrar compra de animais', `<p class="hint">Só o que você sabe. Lote, data, cabeças e valor bastam; o resto melhora a conta.</p><div class="grid">
+    ${fld('cLote', 'Lote que recebeu', `<select id="cLote">${negLoteOpts(x ? x.loteId : loteId)}</select>`, true)}
+    ${fld('cData', 'Data da compra', `<input type="date" id="cData" value="${esc(x ? x.data : hoje())}">`, true)}
+    ${fld('cQtd', 'Cabeças compradas', `<input id="cQtd" inputmode="numeric" value="${x ? x.qtd : ''}">`, true)}
+    ${fld('cValor', 'Valor dos animais (R$ total)', `<input id="cValor" inputmode="decimal" value="${x ? fmtN(x.valor, 2).replace(/\./g, '') : ''}" placeholder="Ex.: 150000,00">`, true)}
+    ${fld('cFrete', 'Frete (R$)', `<input id="cFrete" inputmode="decimal" value="${x && x.frete ? fmtN(x.frete, 2).replace(/\./g, '') : ''}">`)}
+    ${fld('cPesoOr', 'Peso médio na origem (kg)', `<input id="cPesoOr" inputmode="decimal" value="${x && x.pesoOrigem ? x.pesoOrigem : ''}">`, false, 'Com ele, o app mostra a quebra de transporte frente ao peso de entrada.')}
+    ${fld('cProc', 'Procedência (vendedor ou fazenda)', `<input id="cProc" maxlength="60" value="${esc(x ? x.procedencia : '')}">`)}
+    ${fld('cDocs', 'GTA / nota fiscal', `<input id="cDocs" maxlength="40" value="${esc(x ? x.docs : '')}">`)}</div>`,
+    `${x ? `<button class="btn danger" onclick="arquivaNeg('${x.id}')">Excluir</button>` : ''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveCompra('${x ? x.id : ''}')">Salvar</button>`);
+}
+function saveCompra(id) {
+  const x = id ? negDe('compra', id) : null;
+  ['cLote', 'cData', 'cQtd', 'cValor', 'cFrete', 'cPesoOr'].forEach(k => fieldErr(k, ''));
+  let ok = true; const lote = $('cLote').value, data = $('cData').value, q = parseNum($('cQtd').value), val = parseNum($('cValor').value);
+  if (!lote) { fieldErr('cLote', 'Escolha o lote.'); ok = false; }
+  if (!validDate(data) || data > hoje()) { fieldErr('cData', 'Data inválida ou no futuro.'); ok = false; }
+  if (!(q >= 1) || q > 5000) { fieldErr('cQtd', 'Informe as cabeças (1 a 5.000).'); ok = false; }
+  if (!(val > 0) || val > 1e9) { fieldErr('cValor', 'Informe o valor (maior que zero).'); ok = false; }
+  const fr = numOpt('cFrete', 1e9), po = numOpt('cPesoOr', 1500); if (!fr.ok || !po.ok) ok = false;
+  if (!ok) return;
+  const d = { loteId: lote, data, qtd: Math.round(q), valor: Math.round(val * 100) / 100, frete: fr.v, pesoOrigem: po.v, procedencia: str($('cProc').value, 60), docs: str($('cDocs').value, 40) };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'compra', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast('Compra registrada.');
+}
+const lidasVendaLivres = (lid, exceto) => S.lidas.filter(l => l.tipo === 'baixa' && l.status === 'finalizada' && l.cab && l.cab.motivo === 'venda' && l.loteId === lid && !S.sanidade.some(v => v.kind === 'venda' && v.ativo !== false && v.lidaId === l.id && v.id !== exceto));
+function vendaLoteMuda() { const lid = $('vLote').value, x = $('vId').value, ls = lidasVendaLivres(lid, x); $('vLida').innerHTML = '<option value="">— sem vínculo —</option>' + ls.map(l => `<option value="${esc(l.id)}">${fmtD(l.data)} · ${l.registros.length} animal(is)</option>`).join(''); }
+function vendaPreenche() {
+  const l = S.lidas.find(y => y.id === $('vLida').value); if (!l) return;
+  $('vData').value = l.data; $('vQtd').value = l.registros.length;
+  const ps = l.registros.map(r => r.peso).filter(p => p > 0); if (ps.length === l.registros.length) $('vPesoFaz').value = String(Math.round(ps.reduce((t, p) => t + p, 0) * 10) / 10).replace('.', ',');
+}
+function openVenda(id, loteId) {
+  const x = id ? negDe('venda', id) : null; if (id && !x) return; const lid = x ? x.loteId : loteId, ls = lidasVendaLivres(lid, id || '');
+  openModal(x ? 'Editar venda' : 'Registrar venda', `<input type="hidden" id="vId" value="${esc(id || '')}"><p class="hint">Registre o lado comercial da venda. A baixa dos animais continua sendo feita pela lida de Baixa.</p><div class="grid">
+    ${fld('vLote', 'Lote', `<select id="vLote" onchange="vendaLoteMuda()">${negLoteOpts(lid)}</select>`, true)}
+    ${fld('vLida', 'Lida de baixa por venda', `<select id="vLida" onchange="vendaPreenche()"><option value="">— sem vínculo —</option>${ls.map(l => `<option value="${esc(l.id)}"${x && x.lidaId === l.id ? ' selected' : ''}>${fmtD(l.data)} · ${l.registros.length} animal(is)</option>`).join('')}</select>`, false, 'Escolha para preencher a data, as cabeças e o peso na fazenda.')}
+    ${fld('vData', 'Data da venda', `<input type="date" id="vData" value="${esc(x ? x.data : hoje())}">`, true)}
+    ${fld('vQtd', 'Cabeças vendidas', `<input id="vQtd" inputmode="numeric" value="${x ? x.qtd : ''}">`, true)}
+    ${fld('vValor', 'Valor recebido (R$ total)', `<input id="vValor" inputmode="decimal" value="${x ? fmtN(x.valor, 2).replace(/\./g, '') : ''}">`, true)}
+    ${fld('vArrobas', 'Arrobas de carcaça (total)', `<input id="vArrobas" inputmode="decimal" value="${x && x.arrobas ? x.arrobas : ''}">`, false, 'Do romaneio do frigorífico. Com ele, o app calcula R$/@ e o rendimento real.')}
+    ${fld('vPesoFaz', 'Peso vivo na fazenda (kg, total)', `<input id="vPesoFaz" inputmode="decimal" value="${x && x.pesoFaz ? x.pesoFaz : ''}">`)}
+    ${fld('vPesoDest', 'Peso vivo no destino (kg, total)', `<input id="vPesoDest" inputmode="decimal" value="${x && x.pesoDestino ? x.pesoDestino : ''}">`, false, 'Mostra a quebra do transporte até o frigorífico.')}
+    ${fld('vComp', 'Comprador ou frigorífico', `<input id="vComp" maxlength="60" value="${esc(x ? x.comprador : '')}">`)}
+    ${fld('vDocs', 'GTA / nota fiscal', `<input id="vDocs" maxlength="40" value="${esc(x ? x.docs : '')}">`)}</div>`,
+    `${x ? `<button class="btn danger" onclick="arquivaNeg('${x.id}')">Excluir</button>` : ''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveVenda('${x ? x.id : ''}')">Salvar</button>`);
+}
+function saveVenda(id) {
+  const x = id ? negDe('venda', id) : null;
+  ['vLote', 'vData', 'vQtd', 'vValor', 'vArrobas', 'vPesoFaz', 'vPesoDest'].forEach(k => fieldErr(k, ''));
+  let ok = true; const lote = $('vLote').value, data = $('vData').value, q = parseNum($('vQtd').value), val = parseNum($('vValor').value);
+  if (!lote) { fieldErr('vLote', 'Escolha o lote.'); ok = false; }
+  if (!validDate(data) || data > hoje()) { fieldErr('vData', 'Data inválida ou no futuro.'); ok = false; }
+  if (!(q >= 1) || q > 5000) { fieldErr('vQtd', 'Informe as cabeças (1 a 5.000).'); ok = false; }
+  if (!(val > 0) || val > 1e9) { fieldErr('vValor', 'Informe o valor recebido.'); ok = false; }
+  const ar = numOpt('vArrobas', 1e6), pf = numOpt('vPesoFaz', 1e8), pd = numOpt('vPesoDest', 1e8); if (!ar.ok || !pf.ok || !pd.ok) ok = false;
+  if (!ok) return;
+  const d = { loteId: lote, data, qtd: Math.round(q), valor: Math.round(val * 100) / 100, arrobas: ar.v, pesoFaz: pf.v, pesoDestino: pd.v, lidaId: $('vLida').value || null, comprador: str($('vComp').value, 60), docs: str($('vDocs').value, 40) };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'venda', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast('Venda registrada.');
+}
+function arquivaNeg(id) {
+  const x = S.sanidade.find(y => y.id === id && (y.kind === 'compra' || y.kind === 'venda')); if (!x) return;
+  if (!confirm(`Excluir esta ${x.kind === 'compra' ? 'compra' : 'venda'} de ${fmtD(x.data)}? Os animais e as lidas não são alterados.`)) return;
+  x.ativo = false; touch(x); save(); closeModal(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast('Excluída.');
+}
+
+/* =========================================================================
+   v34 · Resultado do lote e simulador de venda
+   Receita − custo de compra − sanitário (− alimentação), repartidos entre os animais que ficaram
+   (vendidos + ativos): a morte e a perda pesam em quem sobrou. Mostra o que ficou sem custo.
+   ========================================================================= */
+function resultadoLote(l, stL) {
+  const vs = negLote('venda', l.id), cs = negLote('compra', l.id);
+  if (!vs.length && !cs.length) return null;
+  const ativos = stL.filter(s => s.ativo).length, vendBx = stL.filter(s => s.baixa && s.baixa.motivo === 'venda').length, denom = ativos + vendBx;
+  const vendDoc = vs.reduce((t, v) => t + v.qtd, 0), share = denom > 0 ? Math.min(1, vendDoc / denom) : null;
+  const rec = vs.reduce((t, v) => t + v.valor, 0), arr = vs.reduce((t, v) => t + (v.arrobas || 0), 0), semArr = vs.filter(v => !(v.arrobas > 0)).length;
+  const compraTot = cs.reduce((t, c) => t + c.valor + (c.frete || 0), 0), cst = custoSanitarioF(), sanTot = (cst.lotes && cst.lotes[l.id]) || 0;
+  const al = typeof custoAlimLote === 'function' ? custoAlimLote(l.id) : null, alTot = al ? al.total : 0;
+  const at = t => share == null ? null : t * share;
+  const cCompra = at(compraTot), cSan = at(sanTot), cAl = at(alTot);
+  const custo = (cCompra || 0) + (cSan || 0) + (cAl || 0), margem = vs.length && share != null ? rec - custo : null;
+  const falta = [];
+  if (vs.length && !cs.length) falta.push('compra não registrada: o custo dos animais está fora da conta');
+  if (cs.length && cs.reduce((t, c) => t + c.qtd, 0) < denom) falta.push(`compra cobre ${cs.reduce((t, c) => t + c.qtd, 0)} cabeça(s) e o lote tem ${denom}`);
+  if (cst.cobertura != null && cst.cobertura < 1 && sanTot > 0) falta.push(`sanitário: só ${fmtN(cst.cobertura * 100, 0)}% das aplicações têm custo`);
+  if (!al) falta.push('alimentação não registrada: o custo de alimentar está fora da conta'); else if (!al.total) falta.push('alimentação registrada sem valor: fica fora do custo');
+  if (vs.length && semArr) falta.push(`${semArr} venda(s) sem arrobas de carcaça: sem custo por @`);
+  if (vendDoc > denom && denom > 0) falta.push(`vendas registradas (${vendDoc} cab.) passam dos animais do lote (${denom}): confira`);
+  return { vs, cs, ativos, vendBx, denom, share, rec, arr, semArr, cCompra, cSan, cAl, custo, margem, falta, encerrado: ativos === 0 && vendBx > 0, custoArroba: vs.length && !semArr && arr > 0 ? custo / arr : null, recArroba: vs.length && !semArr && arr > 0 ? rec / arr : null };
+}
+function resultadoLoteHtml(l, stL) {
+  const r = resultadoLote(l, stL); if (!r || !r.vs.length) return r && r.cs.length ? `<p class="hint">Resultado aparece quando houver uma venda registrada.</p>` : '';
+  const linha = (n, v, neg) => `<tr><td>${n}</td><td class="num">${v == null ? '—' : (neg ? '− ' : '') + rs(v)}</td></tr>`;
+  const cor = r.margem == null ? '' : r.margem >= 0 ? 'ok' : 'bad';
+  return `<div class="res-lote" style="margin-top:10px"><h4>Resultado ${r.encerrado ? 'do lote encerrado' : `parcial · ${r.ativos} animal(is) ainda no lote`}</h4>
+    <div class="tbl-wrap"><table class="tbl"><tbody>${linha('Receita das vendas', r.rec)}${linha('Compra dos animais vendidos', r.cCompra, 1)}${linha('Sanitário', r.cSan, 1)}${r.cAl ? linha('Alimentação', r.cAl, 1) : ''}
+      <tr><td><b>Margem</b></td><td class="num"><span class="chip ${cor}"><b>${rs(r.margem)}</b></span></td></tr></tbody></table></div>
+    <p><small>${r.margem != null && r.share ? `Por cabeça vendida: <b>${rs(r.margem / r.vs.reduce((t, v) => t + v.qtd, 0))}</b>` : ''}${r.custoArroba != null ? ` · Custo por @: <b>${rs(r.custoArroba)}</b> · Preço médio recebido: <b>${rs(r.recArroba)}</b>/@ · Ponto de equilíbrio: <b>${rs(r.custoArroba)}</b>/@` : ''}</small></p>
+    ${r.falta.length ? `<div class="aviso warn"><b>Este resultado está incompleto:</b><ul class="sq">${r.falta.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>` : '<p class="hint">Sem pendências de custo registradas.</p>'}
+    <p class="hint">Custos repartidos entre os animais que ficaram (vendidos e ativos); mortes e perdas pesam no resultado de quem sobrou.</p>
+    ${r.ativos ? `<div class="actions"><button class="btn sm teal" onclick="openSimulador('${l.id}')">Simular venda do restante</button></div>` : ''}</div>`;
+}
+/* Simulador: vale esperar mais N dias? Mantém preço, rendimento e ganho constantes — é aritmética, não previsão. */
+function openSimulador(lid) {
+  const l = S.lotes.find(x => x.id === lid); if (!l) return;
+  const st = Object.values(compute()).filter(s => s.lote === lid && s.ativo), ps = st.map(s => s.ultimoPeso).filter(p => p > 0), gm = st.map(s => s.gmd).filter(g => g != null);
+  const pm = ps.length ? ps.reduce((t, x) => t + x, 0) / ps.length : null, gmd = gm.length ? gm.reduce((t, x) => t + x, 0) / gm.length : null;
+  const vs = negLote('venda', lid).filter(v => v.arrobas > 0).slice(-1)[0], rend0 = vs && vs.pesoFaz ? vendaInfo(vs).rend : 50, preco0 = vs ? vs.valor / vs.arrobas : '';
+  const al = typeof custoAlimLote === 'function' ? custoAlimLote(lid) : null, cdia0 = al && al.cabDia ? al.cabDia : '';
+  openModal('Simular venda do restante · ' + l.nome, `<p class="hint">${st.length} animal(is) ativos · peso médio ${fmtN(pm, 1)} kg · ganho médio ${gmd != null ? fmtN(gmd, 3) + ' kg/dia' : 'sem base'}. É uma conta com preço, rendimento e ganho constantes, não uma previsão.</p><div class="grid">
+    ${fld('sPeso', 'Peso médio hoje (kg)', `<input id="sPeso" inputmode="decimal" oninput="simulaVenda()" value="${pm != null ? String(Math.round(pm * 10) / 10).replace('.', ',') : ''}">`)}
+    ${fld('sGmd', 'Ganho por dia (kg)', `<input id="sGmd" inputmode="decimal" oninput="simulaVenda()" value="${gmd != null ? String(Math.round(gmd * 1000) / 1000).replace('.', ',') : ''}">`)}
+    ${fld('sPreco', 'Preço da @ de carcaça (R$)', `<input id="sPreco" inputmode="decimal" oninput="simulaVenda()" value="${preco0 === '' ? '' : String(Math.round(preco0 * 100) / 100).replace('.', ',')}">`, true)}
+    ${fld('sRend', 'Rendimento de carcaça (%)', `<input id="sRend" inputmode="decimal" oninput="simulaVenda()" value="${String(Math.round(rend0 * 10) / 10).replace('.', ',')}">`, false, vs ? 'Vem da última venda com arrobas.' : 'Sem venda com arrobas: 50% como ponto de partida.')}
+    ${fld('sCusto', 'Custo por cabeça por dia (R$)', `<input id="sCusto" inputmode="decimal" oninput="simulaVenda()" value="${cdia0 === '' ? '' : String(Math.round(cdia0 * 100) / 100).replace('.', ',')}">`, false, 'Alimentação, sal, mão de obra. Sem ele, esperar parece sempre bom.')}</div><div id="simOut"></div>`, `<button class="btn" onclick="closeModal()">Fechar</button>`, true);
+  simulaVenda();
+}
+function simulaVenda() {
+  const g = id => parseNum($(id).value), p0 = g('sPeso'), gm = g('sGmd'), pr = g('sPreco'), rd = g('sRend'), cd = isNaN(g('sCusto')) ? 0 : g('sCusto'), out = $('simOut');
+  if (!(p0 > 0) || !(pr > 0) || !(rd > 0) || isNaN(gm)) { out.innerHTML = '<p class="hint">Preencha peso, ganho, preço da @ e rendimento.</p>'; return; }
+  const val = d => (p0 + gm * d) * rd / 100 / KG_ARROBA_CARCACA * pr - cd * d, base = val(0), dias = [0, 15, 30, 45, 60, 90];
+  const best = dias.reduce((b, d) => val(d) > val(b) ? d : b, 0);
+  out.innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Vender em</th><th>Peso (kg)</th><th>@ de carcaça</th><th>Líquido por cabeça</th><th>Diferença</th></tr></thead><tbody>${dias.map(d => `<tr${d === best ? ' style="font-weight:700"' : ''}><td>${d ? d + ' dias' : 'Hoje'}${d === best ? ' ★' : ''}</td><td class="num">${fmtN(p0 + gm * d, 1)}</td><td class="num">${fmtN((p0 + gm * d) * rd / 100 / KG_ARROBA_CARCACA, 2)}</td><td class="num">${rs(val(d))}</td><td class="num">${d ? (val(d) - base >= 0 ? '+' : '−') + ' ' + rs(Math.abs(val(d) - base)) : '—'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="hint">${best === 0 ? 'Com estes números, esperar não compensa: o ganho de peso não paga o custo do dia.' : `Com estes números, o melhor ponto é em ${best} dias (★).`} Preço da @ e ganho podem mudar; ganho costuma cair quando o animal fica pronto.</p>`;
+}
+
+/* =========================================================================
+   v35 · Alimentação: regime do lote e suplemento/ração/volumoso como evento e custo
+   Documentos em S.sanidade com kind 'alimento' (data = início, ate = fim do período).
+   ========================================================================= */
+const REGIMES = { pasto: 'Pasto', semi: 'Semiconfinamento', confinamento: 'Confinamento' };
+const ALIM_CAT = { mineral: 'Suplemento mineral', proteico: 'Proteinado', racao: 'Ração / concentrado', volumoso: 'Volumoso (silagem, feno)', outro: 'Outro' };
+function custoAlimLote(lid) {
+  const ds = negLote('alimento', lid); if (!ds.length) return null;
+  const total = ds.reduce((t, d) => t + (d.valor || 0), 0), kg = ds.reduce((t, d) => t + (d.kg || 0), 0), l = S.lotes.find(x => x.id === lid), st = l ? Object.values(computeF(l.fazendaId)) : [];
+  let cabDias = 0; ds.forEach(d => { const n = st.filter(s => vivoEm(s, d.ate) && loteEm(s, d.ate) === lid).length; cabDias += n * (diasEntre(d.data, d.ate) + 1); });
+  const comValor = ds.filter(d => d.valor > 0), cdVal = comValor.reduce((t, d) => t + d.valor, 0);
+  let cabDiasVal = 0; comValor.forEach(d => { const n = st.filter(s => vivoEm(s, d.ate) && loteEm(s, d.ate) === lid).length; cabDiasVal += n * (diasEntre(d.data, d.ate) + 1); });
+  let conv = null;
+  if (l && l.regime === 'confinamento' && kg > 0) { const d0 = ds.map(d => d.data).sort()[0], d1 = ds.map(d => d.ate).sort().slice(-1)[0], g = analise([l.fazendaId], d0, d1, { lote: lid }).ganho; if (g > 0) conv = kg / g; }
+  return { total, kg, docs: ds, cabDias, cabDia: cabDiasVal > 0 ? cdVal / cabDiasVal : null, kgCabDia: cabDias > 0 && kg > 0 ? kg / cabDias : null, conv };
+}
+function alimRows(lid) {
+  return negLote('alimento', lid).map(x => `<tr><td><b>Alimentação</b> ${fmtD(x.data)} a ${fmtD(x.ate)}<br><small class="muted">${esc(ALIM_CAT[x.cat] || '')}</small></td><td class="num">${esc(x.produto)}</td>
+    <td class="num"><b>${x.valor ? rs(x.valor) : 'sem valor'}</b>${x.kg ? '<br><small class="muted">' + fmtN(x.kg, 0) + ' kg</small>' : ''}</td><td></td><td><button class="btn sm" onclick="openAlimento('${x.id}')">Editar</button></td></tr>`).join('');
+}
+function alimResumoHtml(l) {
+  const a = custoAlimLote(l.id), reg = l.regime ? `<span class="chip info">${esc(REGIMES[l.regime])}</span> ` : '';
+  if (!a) return reg ? `<p class="muted">${reg}sem alimentação registrada</p>` : '';
+  return `<p><small>${reg}Alimentação: <b>${rs(a.total)}</b>${a.cabDia != null ? ` · ${rs(a.cabDia)} por cabeça por dia` : ''}${a.kgCabDia != null ? ` · ${fmtN(a.kgCabDia, 2)} kg por cabeça por dia` : ''}${a.conv != null ? ` · <b>${fmtN(a.conv, 1)} kg de alimento por kg de ganho</b> (matéria natural, não seca)` : ''}</small></p>`;
+}
+function openAlimento(id, loteId) {
+  const x = id ? negDe('alimento', id) : null; if (id && !x) return;
+  openModal(x ? 'Editar alimentação' : 'Registrar alimentação do lote', `<p class="hint">Um lançamento por produto e período, com o total que o lote consumiu.</p><div class="grid">
+    ${fld('aLote', 'Lote', `<select id="aLote">${negLoteOpts(x ? x.loteId : loteId)}</select>`, true)}
+    ${fld('aCat', 'Tipo', `<select id="aCat">${opts(ALIM_CAT, x ? x.cat : 'mineral')}</select>`, true)}
+    ${fld('aProd', 'Produto', `<input id="aProd" maxlength="60" value="${esc(x ? x.produto : '')}" placeholder="Ex.: Mineral 80, silagem de milho">`, true)}
+    ${fld('aDe', 'De', `<input type="date" id="aDe" value="${esc(x ? x.data : addDias(hoje(), -30))}">`, true)}
+    ${fld('aAte', 'Até', `<input type="date" id="aAte" value="${esc(x ? x.ate : hoje())}">`, true)}
+    ${fld('aKg', 'Quantidade consumida (kg, total)', `<input id="aKg" inputmode="decimal" value="${x && x.kg ? x.kg : ''}">`, false, 'Matéria natural, como veio do cocho ou do saco.')}
+    ${fld('aValor', 'Custo (R$, total)', `<input id="aValor" inputmode="decimal" value="${x && x.valor ? fmtN(x.valor, 2).replace(/\./g, '') : ''}">`, false, 'Sem valor, o item não entra no custo do lote.')}</div>`,
+    `${x ? `<button class="btn danger" onclick="arquivaNeg('${x.id}')">Excluir</button>` : ''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAlimento('${x ? x.id : ''}')">Salvar</button>`);
+}
+function saveAlimento(id) {
+  const x = id ? negDe('alimento', id) : null; ['aLote', 'aProd', 'aDe', 'aAte', 'aKg', 'aValor'].forEach(k => fieldErr(k, ''));
+  let ok = true; const lote = $('aLote').value, de = $('aDe').value, ate = $('aAte').value, prod = str($('aProd').value, 60);
+  if (!lote) { fieldErr('aLote', 'Escolha o lote.'); ok = false; }
+  if (!prod) { fieldErr('aProd', 'Informe o produto.'); ok = false; }
+  if (!validDate(de)) { fieldErr('aDe', 'Data inválida.'); ok = false; }
+  if (!validDate(ate) || ate > hoje()) { fieldErr('aAte', 'Data inválida ou no futuro.'); ok = false; } else if (validDate(de) && ate < de) { fieldErr('aAte', 'O fim vem antes do início.'); ok = false; }
+  else if (validDate(de) && diasEntre(de, ate) > 366) { fieldErr('aAte', 'Período de mais de um ano: divida em lançamentos menores.'); ok = false; }
+  const kg = numOpt('aKg', 1e9), vl = numOpt('aValor', 1e9); if (!kg.ok || !vl.ok) ok = false;
+  if (ok && !kg.v && !vl.v) { fieldErr('aKg', 'Informe a quantidade ou o custo.'); ok = false; }
+  if (!ok) return;
+  const d = { loteId: lote, data: de, ate, produto: prod, cat: $('aCat').value in ALIM_CAT ? $('aCat').value : 'outro', kg: kg.v, valor: vl.v };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'alimento', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast('Alimentação registrada.');
+}
+
 /* v27: dicionário dos números do app. Cada um diz o que é, como é calculado e o que fazer. */
 const KPI_AJUDA = {
   'Animais ativos': ['Animais que estão hoje na fazenda.', 'Cadastrados e não baixados (venda, morte ou perda).', 'Compare com a contagem do curral. Diferença é sinal de baixa ou lida pendente.'],
@@ -3993,6 +4250,12 @@ AJUDA.insumos = { t: 'Insumos', g: 'Gestão',
   p: ['Em Nova entrada, registre a compra: produto, validade, quantidade em doses e o custo total (opcional).', 'Na lida sanitária, escolha o Produto do estoque: o app baixa as doses e calcula o custo.', 'Para algo que não pode faltar, crie uma Campanha com produto, categorias e prazo.', 'Em Fazer lida da campanha, o app abre a lida pronta; use Só quem falta na campanha.'],
   r: ['Produto vencido ou sem saldo não pode ser usado: o app não deixa finalizar a lida.', 'O estoque só baixa quando a lida é finalizada pelo gestor, mas lida do campo esperando conferência já reserva as doses.', 'O custo só entra para produto do estoque com o valor da compra informado (ou custo por dose digitado na lida). O resto fica fora do custo e a tela mostra a cobertura.', 'Campanha conta só quem recebeu em lida finalizada ligada a ela.'],
   d: [['Como contar as doses?', '1 dose = 1 aplicação em 1 animal. Um frasco de 50 ml com dose de 2 ml tem 25 doses.'], ['Apliquei fora do app, e agora?', 'Registre a lida com o produto do estoque na data do manejo. Se o produto já estava vencido nessa data, o app recusa.']] };
+AJUDA.negocio = { t: 'Compra e venda', g: 'Gestão',
+  s: 'O lado comercial do lote: o que foi pago na compra e o que foi recebido na venda.',
+  p: ['Em Registrar compra, informe lote, data, cabeças e valor. Frete, peso na origem, procedência e GTA ou nota são opcionais.', 'Em Registrar venda, escolha a lida de baixa por venda para trazer data, cabeças e peso. Informe o valor recebido e, se tiver o romaneio, as arrobas de carcaça.', 'Os números do topo (desfrute, idade ao abate, dias até a venda) saem das lidas e das datas de nascimento, sem digitar nada.'],
+  r: ['Registrar a venda aqui não baixa os animais: a baixa continua sendo feita pela lida de Baixa.', 'Rendimento real = arrobas de carcaça × 15 kg ÷ peso vivo na fazenda. Fora de 40% a 65%, o app pede para conferir.', 'Quebra de transporte = peso na origem menos o peso médio de entrada, sobre o peso na origem.', 'Desfrute = vendidos nos últimos 12 meses ÷ rebanho médio do período.'],
+  d: [['Preciso preencher tudo?', 'Não. Só lote, data, cabeças e valor. Quanto mais campos, mais completa a conta.'], ['O dinheiro vai para onde?', 'Fica neste app e viaja na sincronização, como o resto. Não há integração com financeiro.']] };
+
 const AJUDA_GRUPOS = ['Visão geral', 'Campo', 'Cadastros', 'Mapa', 'Gestão', 'Dados'];
 function ajudaKey() {
   if (currentView === 'lida') { const l = curLida(); return l ? 'lida-' + l.tipo : 'lidas'; }
@@ -4157,6 +4420,7 @@ function openLote(id) {
   openModal(x ? 'Editar lote' : 'Novo lote', `<div class="grid">
     ${fld('loNome', 'Nome do lote', `<input id="loNome" maxlength="60" value="${esc(x ? x.nome : '')}" placeholder="Ex.: Recria 2026">`, true, 'O grupo de animais, não o lugar.')}
     ${fld('loPasto', 'Pasto que o lote ocupa', `<select id="loPasto">${ps.map(p => `<option value="${esc(p.id)}"${x && x.pastoId === p.id ? ' selected' : ''}>${esc(p.nome)}</option>`).join('')}</select>`, true, x ? 'Para registrar a rotação com data, use "Mover de pasto".' : 'Onde o lote começa.')}
+    ${fld('loRegime', 'Sistema de alimentação', `<select id="loRegime"><option value="">Não informado</option>${opts(REGIMES, x ? x.regime : '')}</select>`, false, 'Pasto, semiconfinamento ou confinamento. Separa o ganho e a conversão alimentar.')}
     ${x ? fld('loAtivo', 'Situação', `<select id="loAtivo"><option value="1"${x.ativo !== false ? ' selected' : ''}>Ativo</option><option value="0"${x.ativo === false ? ' selected' : ''}>Inativo</option></select>`) : ''}
     </div>`, `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveLote('${id || ''}')">Salvar</button>`);
 }
@@ -4170,12 +4434,12 @@ function saveLote(id) {
   if (x) {
     const ativo = $('loAtivo') ? $('loAtivo').value === '1' : true;
     if (!ativo && Object.values(compute()).some(s => s.ativo && s.lote === x.id)) { alert('O lote ainda tem animais ativos. Troque-os de lote antes de inativar.'); return; }
-    Object.assign(x, { nome, ativo });
+    Object.assign(x, { nome, ativo, regime: $('loRegime').value || undefined });
     if (pid && pid !== x.pastoId) aplicaMudancaPasto(x, pid, hoje());
     if (!ativo) { const o = ocupAberta(x); if (o) o.ate = hoje(); }
     touch(x);
   } else {
-    const l = stampNew({ fazendaId: S.fazendaAtiva, nome, pastoId: pid || null, ocupacoes: [], ativo: true });
+    const l = stampNew({ fazendaId: S.fazendaAtiva, nome, pastoId: pid || null, ocupacoes: [], ativo: true, regime: $('loRegime').value || undefined });
     if (pid) l.ocupacoes = [{ p: pid, de: hoje(), ate: null }];
     S.lotes.push(l);
   }
@@ -4519,6 +4783,12 @@ const SAN = {
         animalIds: (Array.isArray(r.animalIds) ? r.animalIds : []).slice(0, 500).filter(x => okId(x)).map(String), para: str(r.para, 40), prazo: okDate(r.prazo), status: ['a_fazer', 'feita', 'cancelada'].includes(r.status) ? r.status : 'a_fazer', lidaId: okId(r.lidaId) ? String(r.lidaId) : null, criadaEm: okDate(r.criadaEm), ativo: r.ativo !== false }); }
     if (r.kind === 'campanha') { if (!str(r.nome) || !okDate(r.ate)) return null;
       return Object.assign(m, { kind: 'campanha', fazendaId: String(r.fazendaId), nome: str(r.nome, 60), tipo: PROCEDIMENTOS[r.tipo] ? r.tipo : 'vacina', produto: str(r.produto, 80), categorias: (Array.isArray(r.categorias) ? r.categorias : []).slice(0, 30).map(x => str(x, 40)).filter(Boolean), de: okDate(r.de), ate: okDate(r.ate), ativo: r.ativo !== false }); }
+    if (r.kind === 'alimento') { const dt = okDate(r.data), at = okDate(r.ate); if (!dt || !at || at < dt || !str(r.produto) || !okId(r.loteId) || !(okNum(r.kg, 1e9) || okNum(r.valor, 1e9))) return null;
+      return Object.assign(m, { kind: 'alimento', fazendaId: String(r.fazendaId), loteId: String(r.loteId), data: dt, ate: at, produto: str(r.produto, 60), cat: ['mineral', 'proteico', 'racao', 'volumoso', 'outro'].includes(r.cat) ? r.cat : 'outro', kg: okNum(r.kg, 1e9) || null, valor: okNum(r.valor, 1e9) || null, ativo: r.ativo !== false }); }
+    if (r.kind === 'compra' || r.kind === 'venda') { const dt = okDate(r.data), q = okInt(r.qtd, 5000), v = okNum(r.valor, 1e9); if (!dt || !q || !v || !okId(r.loteId)) return null;
+      const base = { kind: r.kind, fazendaId: String(r.fazendaId), loteId: String(r.loteId), data: dt, qtd: q, valor: v, docs: str(r.docs, 40), ativo: r.ativo !== false };
+      return Object.assign(m, r.kind === 'compra' ? Object.assign(base, { frete: okNum(r.frete, 1e9) || null, pesoOrigem: okNum(r.pesoOrigem, 1500) || null, procedencia: str(r.procedencia, 60) })
+        : Object.assign(base, { arrobas: okNum(r.arrobas, 1e6) || null, pesoFaz: okNum(r.pesoFaz, 1e8) || null, pesoDestino: okNum(r.pesoDestino, 1e8) || null, lidaId: okId(r.lidaId) ? String(r.lidaId) : null, comprador: str(r.comprador, 60) })); }
     if (!str(r.produto)) return null;
     return Object.assign(m, { kind: 'entrada', fazendaId: String(r.fazendaId), tipo: PROCEDIMENTOS[r.tipo] ? r.tipo : 'vacina', produto: str(r.produto, 80), fabricante: str(r.fabricante, 60), loteFab: str(r.loteFab, 40), validade: okDate(r.validade), doses: okNum(r.doses, 1e7), custo: okNum(r.custo, 1e9) || null, compraEm: okDate(r.compraEm), ativo: r.ativo !== false }); },
   fazendas: r => { const m = baseMeta(r); if (!m || !str(r.nome)) return null; return Object.assign(m, { nome: str(r.nome, 80), municipio: str(r.municipio, 80), areaHa: okNum(r.areaHa, 1e6), car: str(r.car, 60), geo: okGeo(r.geo, 'perimetro') }); },
@@ -4528,7 +4798,7 @@ const SAN = {
       ativo: r.ativo !== false, geo: okGeo(r.geo, 'poligono') }); },
   lotes: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !str(r.nome)) return null;
     const oc = (Array.isArray(r.ocupacoes) ? r.ocupacoes : []).slice(0, 500).map(o => o && okId(o.p) && okDate(o.de) ? { p: String(o.p), de: okDate(o.de), ate: okDate(o.ate) } : null).filter(Boolean).sort((a, b) => a.de.localeCompare(b.de));
-    return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pastoId: okId(r.pastoId) ? String(r.pastoId) : null, ocupacoes: oc, ativo: r.ativo !== false }); },
+    return Object.assign(m, { fazendaId: String(r.fazendaId), nome: str(r.nome, 60), pastoId: okId(r.pastoId) ? String(r.pastoId) : null, ocupacoes: oc, ativo: r.ativo !== false, regime: ['pasto', 'semi', 'confinamento'].includes(r.regime) ? r.regime : undefined }); },
   animais: r => { const m = baseMeta(r); const b = normBrinco(r && r.brinco).slice(0, 30); if (!m || !okId(r.fazendaId) || !b) return null;
     return Object.assign(m, { fazendaId: String(r.fazendaId), brinco: b, sexo: r.sexo === 'F' ? 'F' : 'M', loteId: okId(r.loteId) ? String(r.loteId) : null, nascimento: okDate(r.nascimento), entradaEm: okDate(r.entradaEm), raca: str(r.raca, 40), categoria: str(r.categoria, 40), caracteristica: str(r.caracteristica, 120), pesoEntrada: okNum(r.pesoEntrada, 1500), pesoVenda: okNum(r.pesoVenda, 1500) || undefined, maeId: okId(r.maeId) ? String(r.maeId) : null, origemEntrada: r.origemEntrada === 'nascimento' ? 'nascimento' : 'cadastro', lidaOrigemId: okId(r.lidaOrigemId) ? String(r.lidaOrigemId) : null }); },
   lidas: r => { const m = baseMeta(r); if (!m || !okId(r.fazendaId) || !TIPOS[r.tipo] || !okDate(r.data) || (r.status !== 'finalizada' && r.status !== 'conferir')) return null;
@@ -4542,7 +4812,7 @@ const SAN = {
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
 const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo', 'editadoPor'].forEach(k => delete c[k]); return JSON.stringify(c); };
-const rotulo = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+const rotulo = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
 const stampOf = o => o.editadoEm || o.criadoEm || '';
 const tombOf = id => S.excluidos.find(t => t.id === id);
 async function onImportFile(ev) {
@@ -4636,7 +4906,7 @@ function planImport(pkg) {
     aplic.filter(a => bloq.has(a.id)).forEach(a => plan.brincosDup.push(a.brinco));
     CHV.forEach(k => { pa[k] = pa[k].filter(x => !bloq.has(x.id)); });
   }
-  const rot = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+  const rot = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
   plan.conflitos = [];
   Object.entries(plan.cols).forEach(([col, p]) => {
     p.conflitosImp.forEach(x => plan.conflitos.push({ col, id: x.id, rotulo: rot(col, S[col].find(y => y.id === x.id) || x), vence: 'arquivo', rec: S[col].find(y => y.id === x.id) || null }));
