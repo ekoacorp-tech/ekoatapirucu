@@ -1,6 +1,6 @@
 # Sincronização entre aparelhos
 
-Sem servidor, os aparelhos trocam dados por **arquivo**: um exporta, o outro importa. Funciona nos dois sentidos e foi desenhado para **nunca perder nem duplicar** dados. É o mesmo desenho do Ekoa Saber, aplicado a quatro coleções.
+Sem servidor, os aparelhos trocam dados por **arquivo**: um exporta, o outro importa. Funciona nos dois sentidos e foi desenhado para **nunca perder nem duplicar** dados. É o mesmo desenho do Ekoa Saber, aplicado a seis coleções: fazendas, pastos, lotes, animais, lidas e sanidade.
 
 ```mermaid
 sequenceDiagram
@@ -23,14 +23,28 @@ sequenceDiagram
 | Fazendas, lotes, animais | Lidas em aberto (rascunho do aparelho) |
 | Lidas **finalizadas** (R16) e lidas **conferir** (concluídas no Modo Campo, ainda sem efeito no rebanho) | Lixeira local |
 | Registro de exclusões | Nome e histórico de sincronização do aparelho |
+| Coleção `sanidade`: insumos, campanhas, ordens de lida, compras, vendas, alimentação e manejos de pasto (ver Modelo de dados) | Na **carga para o campo**: compras, vendas, alimentação e todos os valores em R$ (ver abaixo) |
 
-## Formato do arquivo (formato 2)
+### Carga para o campo sem financeiro (desde a versão 36)
+
+O botão **Gerar carga para o campo** gera um arquivo com `paraCampo: true` e `semFinanceiro: true`. Ele não leva os registros `compra`, `venda` e `alimento`, e zera `custo` dos insumos, `valor` dos manejos de pasto e `cab.custoDose` das lidas. Leva todo o operacional: rebanho, lidas, estoque em doses, campanhas, ordens e manejos de pasto (sem valor).
+
+| Situação | Resultado |
+|---|---|
+| Aparelho importa um arquivo com `paraCampo` | Passa a ser **de campo**: some a tela Custos e resultado, o formulário de manejo de pasto não pede custo, e as exportações dele também saem `semFinanceiro` |
+| Aparelho de campo importa um arquivo completo do escritório | Volta a ser de gestão |
+| Escritório importa um arquivo `semFinanceiro` | Mantém os valores locais (`custo`, `valor`, `custoDose`) que o arquivo não trouxe, sem acusar conflito |
+
+A proteção é do conteúdo do arquivo. O perfil de campo e o PIN são conveniência de tela; o arquivo completo do escritório continua contendo tudo.
+
+## Formato do arquivo (formato 3)
 
 ```text
 { app: "ekoa-tapirucu", formato: 3, versaoApp, exportadoEm, exportadoEmLocal, fusoHorario, exportId,
   dispositivo: { id, nome },
-  resumo: { fazendas, lotes, animais, lidas, registros, excluidos },
-  dados: { fazendas: [...], pastos: [...], lotes: [...], animais: [...], lidas: [...] },
+  resumo: { fazendas, pastos, lotes, animais, sanidade, lidas, registros, excluidos },
+  semFinanceiro?, paraCampo?,          // desde a versão 36
+  dados: { fazendas: [...], pastos: [...], lotes: [...], animais: [...], lidas: [...], sanidade: [...] },
   fotos: { "<id do animal>": { d: "data:image/jpeg;base64,…", em, por } },
   excluidos: [ { id, tipo, em, no: { id, nome } } ],
   integridade: SHA-256 de { dados, excluidos, fotos } }
@@ -44,7 +58,7 @@ Nome do arquivo: `Tapirucu_<aparelho>_<aaaa-mm-dd_HHhMM>.json`, na **hora local*
 |---|---|---|
 | 1 | 1 a 3 | Sem geolocalização |
 | 2 | 4 a 9 | Fazenda com `car` e `geo`; lote com `geo` |
-| 3 | 10 em diante | Pasto separado do lote (com `ocupacoes`), fotos dos animais |
+| 3 | 10 em diante | Pasto separado do lote (com `ocupacoes`), fotos dos animais. Novos tipos dentro de `sanidade` (v30 a v37) não mudam o número do formato. Por isso, mantenha todos os aparelhos na mesma versão: um aparelho antigo avisa que o arquivo é de versão mais nova e pode descartar ou ler errado um tipo que ainda não conhece |
 
 Arquivos de formato 1 e 2 são convertidos na importação pela mesma regra determinística da migração local (ver **Modelo de dados**), então um arquivo da versão 9 entra na versão 10 sem conflito. Como `fotos` é omitido quando não há nenhuma, arquivos antigos continuam passando na verificação de integridade.
 
@@ -77,6 +91,7 @@ Excluir gera um **registro de exclusão** (ID, tipo, data e aparelho), que viaja
 - **Prévia** antes de aplicar, por coleção: o que entra, o que atualiza, o que fica.
 - **Desfazer última importação**, com a cópia de segurança feita antes de aplicar.
 - **Integridade obrigatória:** arquivo alterado, corrompido ou sem integridade é recusado.
+- **Validação campo a campo:** todo registro é limpo por regra do seu tipo; registro sem os campos mínimos é descartado e contado na prévia (ex.: compra sem lote ou sem valor, alimentação com fim antes do início, manejo de pasto feito sem data).
 - **Arquivo errado:** PDF, CSV, planilha ou arquivo do Ekoa Saber recebem mensagem explicando qual arquivo usar.
 - **Arquivo repetido**, **mais antigo** que outro já importado do mesmo aparelho, ou **do próprio aparelho:** aviso na prévia. No caso do próprio aparelho, a prévia orienta: exporte no aparelho de origem e importe no de destino.
 - **Nome do aparelho:** cada aparelho tem nome próprio (ex.: "Celular do João", "Computador do escritório"). O app alerta se o nome digitado for igual ao de uma fazenda, porque isso confunde a origem do arquivo.

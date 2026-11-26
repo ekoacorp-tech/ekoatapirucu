@@ -4,9 +4,9 @@
 
 # Ekoa Tapiruçu
 
-**Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação e alertas de cada lote.**
+**Registre o manejo do rebanho no campo, mesmo sem internet, e acompanhe peso, ganho diário, lotação, custos e resultado de cada lote.**
 
-[![Versão](https://img.shields.io/badge/versão-20%20beta-C9922E?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/versão-37%20beta-C9922E?style=flat-square)](CHANGELOG.md)
 [![Fase](https://img.shields.io/badge/fase-1%20%C2%B7%20piloto-3B8A97?style=flat-square)](#onde-o-piloto-se-encaixa)
 [![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-23505F?style=flat-square)](#instalação)
 [![Offline](https://img.shields.io/badge/funciona-offline-3B8A97?style=flat-square)](#princípios-de-engenharia)
@@ -24,7 +24,7 @@ Na fazenda, a falta de gestão raramente é falta de sistema. O que falta é o *
 
 O Tapiruçu resolve primeiro essa ponta: cada pesagem, vacina, troca de lote, morte ou nascimento vira um registro com data, lote, aparelho e versão. A partir daí o app calcula, no próprio celular, os indicadores que mostram como o rebanho está evoluindo.
 
-> **Lida de campo → Rebanho atualizado → Indicador → Decisão**
+> **Lida de campo → Rebanho atualizado → Indicador → Custo e resultado → Decisão**
 
 ## O que ele faz
 
@@ -100,6 +100,30 @@ flowchart LR
 | **Nascimento** | Vaca, brinco do bezerro, sexo, peso | Bezerro entra no rebanho, no lote da mãe |
 | **Mudar de pasto** | Lote, pasto de destino, data | Rotação registrada: dias de ocupação e de descanso por pasto |
 
+### Planejamento e estoque (v29 a v32)
+
+- **Morte com prova** (v29): baixa por morte ou perda com foto e validação do gestor.
+- **Vacinas e medicamentos** (v30): entrada de insumo com fabricante, lote, validade, doses e valor de compra; saldo, estoque baixo, vencimento, doses **reservadas** por aplicações do campo ainda por conferir, campanhas e custo sanitário por lote, com a cobertura do que ficou sem custo.
+- **Peso de venda** (v31): peso-alvo por animal; o app prevê a data de atingimento pelo histórico de pesagens e avisa quando é hora de pesar para conferir.
+- **Ordens de lida** (v31 e v32): o escritório cria a ordem (o que fazer, em quais animais, até quando) ou aceita uma sugestão do app (perda de peso, sem manejo, pesagem vencida, conferência de venda, carência, aplicação atrasada, campanha). A ordem vai ao campo na carga, vira lida e volta feita. Visão unificada de todas as fazendas.
+
+### Custos e resultado (v33 a v37)
+
+| Frente | O que registra | O que o app calcula |
+|---|---|---|
+| **Compra do lote** | Cabeças, valor, frete, peso na origem, procedência, GTA ou nota | R$ por cabeça, R$ por @ na origem, quebra de transporte |
+| **Venda do lote** | Cabeças, valor, arrobas de carcaça, peso na fazenda e no destino, comprador, GTA ou nota; ligada à lida de baixa | R$ por @, rendimento real de carcaça, quebra até o destino |
+| **Alimentação** | Produto, tipo, período, kg e custo por lote; sistema do lote (pasto, semi, confinamento) | Custo e kg por cabeça por dia; kg de alimento por kg de ganho no confinamento |
+| **Manejo de pasto** | Apontamento do que fazer (adubação, calagem, roçada, invasoras, reforma, cerca, água), prazo, responsável; depois o feito com custo e período de rateio | Rateio diário pelos lotes no pasto, pela UA de cada um; **pasto sem rebanho**; valor a apropriar; manutenção esperada por tempo desde o último manejo |
+| **Resultado do lote** | (calculado) | Receita − compra − sanitário − alimentação − pasto, margem por cabeça, custo e preço por @, ponto de equilíbrio, lista do que está fora da conta e **simulador de venda** (hoje × 15 a 90 dias) |
+| **Visão da fazenda** | (calculado) | Custo operacional de 12 meses, custo por cabeça-dia, custo por @ produzida, composição dos custos, desfrute, idade ao abate e dias até a venda |
+
+Os custos do lote são repartidos entre os animais que ficaram (vendidos e ativos): morte e perda pesam em quem sobrou. Todo resultado mostra o que ficou sem custo, em vez de esconder a pendência.
+
+### Operação e Gestão (v36)
+
+O menu é dividido em **Operação** (início, lidas, rebanho, mapa, ordens, Modo Campo) e **Gestão** (painel, custos e resultado, insumos, cadastros). A separação está no **arquivo**, não só na tela: a carga para o campo sai sem compra, venda, alimentação e qualquer custo, e o aparelho que a recebe vira de campo, sem a tela de custos. Na volta, o escritório mantém os valores que já tinha. PIN e perfil são conveniência, não criptografia: quem tem o arquivo completo vê tudo.
+
 ### Modo Campo
 
 Ligado por aparelho, deixa o app simples para quem trabalha no curral: **uma pergunta por tela**, botões grandes e teclado numérico próprio. Cobre todos os manejos acima, funciona com leitor de brinco por Bluetooth e protege a saída com PIN.
@@ -107,12 +131,13 @@ Ligado por aparelho, deixa o app simples para quem trabalha no curral: **uma per
 - **Manejo a realizar:** o início mostra, por lote e pasto, os animais sem manejo há mais de 30 dias e as aplicações sanitárias agendadas (vencidas ou dos próximos 7 dias). Tocar no lote mostra os brincos pendentes e deixa escolher a lida, já com o lote preenchido. Repetir uma aplicação agendada traz produto e dose prontos.
 - **Característica do animal:** a lista da lida pode mostrar o texto de cada animal (chifre, mancha, temperamento), buscar por ele e editá-lo ali mesmo.
 - **Conferência no escritório:** a lida concluída no campo chega como "Do campo, para conferir" e só altera o rebanho quando o gestor finaliza.
+- **Ordens do escritório:** o Manejo a realizar mostra também as ordens de lida recebidas na carga; ao concluir, a ordem volta como feita.
 
 ### Senha, biometria e e-mail
 
 O app pode pedir uma **senha ao abrir** (com digital ou rosto do aparelho e a opção "lembrar por 1 h a 7 dias"), pensada para demonstrações. Ela **não criptografa os dados**. No cadastro da senha o e-mail é opcional: recebe uma mensagem de boas-vindas e, se a senha for esquecida, um **código de 8 caracteres** que vale 15 minutos. O e-mail fica só no aparelho; o envio é feito pelo serviço descrito em [E-mail e recuperação da senha](docs/email.md), com aviso de privacidade dentro do app.
 
-Fora do piloto, por decisão de escopo: financeiro, custos e rateio, simulação de venda, reprodução completa, balança e leitor de brinco, integração com o ERP. O mapa da fazenda já está disponível; o manejo de rotação (dias de ocupação e de descanso por piquete) é a próxima etapa.
+Fora do piloto, por decisão de escopo: financeiro completo (contas a pagar e receber, fluxo de caixa), reprodução completa, integração com balança e com o ERP. Custos e resultado por lote entraram nas versões 33 a 37 como gestão do rebanho, sem substituir o financeiro do ERP.
 
 ## Onde o piloto se encaixa
 
@@ -180,8 +205,19 @@ docs/           arquitetura, sincronização, modelo de dados, homologação e p
 - [x] Modo Campo para o curral, com conferência no escritório
 - [x] Senha de abertura, biometria e recuperação por e-mail
 - [x] Manejo a realizar e característica do animal no Modo Campo
+- [x] Relatório em PDF (fazenda, pasto, lote, rebanho, animal)
+- [x] Painel em escada e base de confiança dos números
+- [x] Morte e perda com prova (foto e validação)
+- [x] Vacinas e medicamentos: estoque, validade, reserva, campanhas e custo sanitário
+- [x] Peso de venda com previsão de atingimento
+- [x] Ordens de lida do escritório para o campo, com sugestões e visão unificada
+- [x] Compra e venda do lote, resultado do lote e simulador de venda
+- [x] Alimentação e sistema do lote
+- [x] Operação × Gestão: carga para o campo sem financeiro
+- [x] Custos do pasto com rateio diário por UA e visão financeira da fazenda
+- [ ] Manejo de pasto e condição corporal no Modo Campo
+- [ ] Teste em aparelhos reais com gestor e vaqueiro
 - [ ] Indicadores definitivos da chave mestra (Fase 0)
-- [ ] Relatório em PDF por lote e por fazenda
 - [ ] Integração com o ERP pela API oficial, com fila e reenvio (Fase 2)
 - [ ] Add-on Sankhya de gestão (Fase 3)
 
@@ -199,4 +235,4 @@ A **Ekoa** aproxima **processos, tecnologia, informação e pessoas** para gerar
 
 <sub>© 2026 Ekoa Tech. Todos os direitos reservados. O código está visível para avaliação e estudo; o uso, a cópia ou a redistribuição dependem de autorização da Ekoa.<br>
 Sankhya e JetBov são marcas de seus respectivos titulares. O Ekoa Tapiruçu é um produto independente da Ekoa e não tem vínculo com elas.<br>
-As telas desta página usam dados fictícios.</sub>
+As telas desta página usam dados fictícios e são da versão 20; as telas das versões 29 a 37 ainda não têm imagem aqui.</sub>

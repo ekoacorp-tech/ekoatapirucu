@@ -101,13 +101,14 @@ geo: {
 | `brinco` | alfanumérico (30) | Sim | Único na fazenda; diferencia maiúsculas e minúsculas (R02) |
 | `sexo` | `M` / `F` | Sim | |
 | `loteId` | ID | Sim | **Lote de entrada.** O lote atual é derivado das lidas de troca. |
-| `entradaEm` | data | Sim | Só animais com entrada participam do rateio de custos (R07, fase futura) |
+| `entradaEm` | data | Sim | Base de dias na fazenda, idade e rateio de custos |
 | `nascimento` | data | Não | |
 | `raca`, `categoria` | texto (40) | Não | Sugestões em lista, texto livre aceito |
 | `caracteristica` | texto (120) | Não | Sinal físico ou de comportamento que ajuda a confirmar o animal no curral |
 | `pesoEntrada` | decimal (kg) | Não | Primeiro ponto do histórico de peso |
 | `origemEntrada` | `cadastro` / `nascimento` | Sim | |
 | `maeId`, `lidaOrigemId` | ID | Cond. | Preenchidos quando o animal nasce por lida de nascimento |
+| `pesoVenda` | decimal (kg) | Não | Peso-alvo de venda (v31). Base da previsão de atingimento e da conferência de peso |
 
 A **foto** do animal não fica no registro: vive em `fotos[animalId] = { d, em, por }`, fora das coleções versionadas, para não pesar na comparação de versões. É reduzida no aparelho (720 px, JPEG) antes de ser guardada, viaja no arquivo de sincronização e a mais recente (`em`) vence.
 
@@ -133,8 +134,8 @@ Remover um animal só é permitido para cadastro errado e se ele não estiver em
 
 | Tipo | Campos |
 |---|---|
-| Pesagem | `motivo` (rotina, entrada, desmame, pré-venda, outro) |
-| Sanitário | `procedimento` (vacina, vermífugo, medicamento, outro), `produto` (obrig.), `dose`, `carenciaAte` (R14), `proximaEm` |
+| Pesagem | `motivo` (rotina, entrada, desmame, pré-venda, outro); `ordemId` quando nasce de uma ordem de lida |
+| Sanitário | `procedimento` (vacina, vermífugo, medicamento, outro), `produto` (obrig.), `dose`, `carenciaAte` (R14), `proximaEm`; `insumoId` e `dosesAn` (doses por animal) quando sai do estoque; `custoDose` (R$) quando o produto não está no estoque; `campanhaId`, `ordemId` |
 | Troca de lote | `loteDestinoId` (obrig.) |
 | Baixa | `motivo` (morte, perda, venda) |
 | Nascimento | (sem cabeçalho) |
@@ -148,7 +149,38 @@ Remover um animal só é permitido para cadastro errado e se ele não estiver em
 | `peso` | Pesagem (kg) e nascimento (opcional) |
 | `mover` | `true` quando, ao finalizar, o usuário escolheu trocar o animal para o lote do manejo (R04) |
 | `obs` | Causa da baixa |
+| `esp` | Pesagem: peso esperado para a data, gravado ao finalizar (v31), para comparar previsto × real |
 | `bezerroBrinco`, `sexo` | Nascimento. Brinco vazio vira brinco da vaca + `-MMAA` (R17) |
+
+## Lote: sistema de alimentação
+
+| Campo | Tipo | Obrig. | Observação |
+|---|---|---|---|
+| `regime` | `pasto` / `semi` / `confinamento` | Não | Desde a v35. No confinamento, o app calcula a conversão (kg de alimento por kg de ganho) |
+
+## Coleção `sanidade`: documentos por `kind`
+
+Uma coleção versionada guarda os documentos de planejamento, estoque e custo. Todos têm os campos comuns de rastreabilidade, `fazendaId` e `ativo` (falso = excluído).
+
+| `kind` | Desde | Campos principais | Regras |
+|---|---|---|---|
+| `entrada` | v30 | `tipo`, `produto` (obrig.), `fabricante`, `loteFab`, `validade`, `doses`, `custo` (R$ total), `compraEm` | Saldo = doses − aplicadas. Lidas `conferir` reservam doses. Custo por dose = `custo` ÷ `doses` |
+| `campanha` | v30 | `nome`, `tipo`, `produto`, `categorias[]`, `de`, `ate` | Gera sugestão de aplicação para os animais não atendidos |
+| `ordem` | v31 | `loteId`, `tipo` (pesagem, sanitario), `titulo`, `motivo`, `cod` (origem da sugestão), `cab`, `animalIds[]` (até 500), `para`, `prazo`, `status` (a_fazer, feita, cancelada), `lidaId` | Pertence a uma fazenda; o campo vê só as da fazenda ativa. Vira lida com `cab.ordemId` |
+| `compra` | v33 | `loteId`, `data`, `qtd`, `valor` (obrig.); `frete`, `pesoOrigem`, `procedencia`, `docs` | Sem lote, data, cabeças ou valor é descartada na importação |
+| `venda` | v33 | `loteId`, `data`, `qtd`, `valor` (obrig.); `arrobas` (de carcaça), `pesoFaz`, `pesoDestino`, `lidaId` (baixa por venda), `comprador`, `docs` | Não baixa animais: a baixa é sempre pela lida. Uma lida de baixa liga a uma venda só |
+| `alimento` | v35 | `loteId`, `data` (início), `ate` (fim), `produto`, `cat` (mineral, proteico, racao, volumoso, outro), `kg` e/ou `valor` | Fim não pode ser antes do início; exige `kg` ou `valor` |
+| `pastoManejo` | v37 | `pastoId`, `tipo` (adubacao, calagem, rocada, herbicida, reforma, cerca, agua, outro), `descricao`, `status` (a_fazer, feito, cancelado), `prazo`, `data` (feito em), `valor`, `meses` (rateio), `para` | Feito exige data. O custo é rateado por dia no período de `meses` |
+
+### Como os custos nascem
+
+| Número | Regra |
+|---|---|
+| Custo sanitário do lote | Doses aplicadas × custo por dose do insumo, ou `custoDose` da lida. Cobertura = aplicações com custo ÷ total |
+| Rateio do pasto | `valor` ÷ dias do período (`meses` × 30,44). Cada dia vai para os lotes no pasto, proporcional à UA (peso ÷ 450). Dia sem animal = **pasto sem rebanho**. Dias futuros = **a apropriar** |
+| Resultado do lote | Receita das vendas − (compra + sanitário + alimentação + pasto) × fatia vendida. Fatia = cabeças vendidas ÷ (vendidos + ativos) |
+| Rendimento de carcaça | `arrobas` × 15 ÷ `pesoFaz`. Fora de 40% a 65%, o app pede conferência |
+| Desfrute (12 meses) | Vendidos ÷ rebanho médio do período |
 
 ## Ponte para a Fase 2 (API)
 
