@@ -2,6 +2,19 @@
 
 Todas as mudanças relevantes do Ekoa Tapiruçu. A versão publicada fica em [`version.json`](version.json), e o próprio app avisa quando há atualização.
 
+## [37] — 2026-11-25 — Custos do pasto e visão financeira
+- Manejo de pasto como apontamento: em Ordens de lida › Manejo de pasto, registre o que fazer (adubação, calagem, roçada, controle de invasoras, reforma, cerca, água) com prazo e responsável, e depois o feito com a data e o custo aplicado.
+- Manutenção esperada: o app aponta o pasto sem adubação há mais de 12 meses, sem controle de invasoras há mais de 6 e sem calagem há mais de 3 anos. Nada vira tarefa sem você.
+- Rateio do custo do pasto: o custo é dividido por dia no período de rateio (padrão por tipo, ajustável) e vai para os lotes que estavam no pasto naquele dia, pela UA de cada um. Dia sem animal vira custo de pasto sem rebanho. O que ainda não venceu fica a apropriar.
+- A manutenção de pasto entra no resultado do lote, pela mesma divisão dos outros custos.
+- Tela Custos e resultado com a visão da fazenda: custo operacional dos últimos 12 meses (sanitário, alimentação e pasto), custo por cabeça por dia, custo por @ produzida (estimada pelo ganho de peso), pasto sem rebanho, composição dos custos com a compra e a receita, e a tabela de pastos com manejos, R$/ha, o que foi para os lotes, o ocioso e o a apropriar.
+
+## [36] — 2026-11-25 — Operação e Gestão separadas
+- A carga para o campo sai sem dinheiro: não leva compra, venda, alimentação, custo de insumo, custo de manejo de pasto nem custo por dose. Leva o operacional (rebanho, lidas, estoque em doses, ordens e manejos de pasto). A proteção está no arquivo, não só na tela.
+- O aparelho que recebe a carga passa a ser de campo: some a tela Custos e resultado e os valores em R$. Se receber um arquivo completo do escritório, volta a ser de gestão.
+- A volta do campo também sai marcada sem financeiro. Ao importar, o escritório mantém os valores que já tinha (custo do insumo, custo por dose, custo do pasto) e não acusa conflito falso.
+- Menu separado em Operação (início, lidas, rebanho, mapa, ordens, Modo Campo) e Gestão (painel, custos e resultado, insumos, cadastros). A tela Compra e venda passa a se chamar Custos e resultado.
+
 ## [35] — 2026-11-25 — Alimentação
 - Alimentação do lote: registre suplemento mineral, proteinado, ração ou volumoso por período, com a quantidade consumida e o custo. O app mostra o custo de alimentação do lote, o custo por cabeça por dia e os kg por cabeça por dia.
 - Sistema do lote (pasto, semiconfinamento ou confinamento) no cadastro do lote. No confinamento, o app calcula quantos kg de alimento (matéria natural) foram usados por kg de ganho de peso no período.

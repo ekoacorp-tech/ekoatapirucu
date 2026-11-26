@@ -78,6 +78,11 @@ body[data-view="home"] #v-home,body[data-view="lidas"] #v-lidas,body[data-view="
 body[data-view="painel"] #v-painel,body[data-view="sync"] #v-sync,body[data-view="cadastros"] #v-cadastros,body[data-view="mais"] #v-mais,body[data-view="mapa"] #v-mapa,body[data-view="insumos"] #v-insumos,body[data-view="ordens"] #v-ordens,body[data-view="negocio"] #v-negocio{display:block}
 .topbar{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .topbar h2{font-size:1.15rem;color:var(--brand-navy)}
+.nav-grp{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin:10px 14px 2px;color:inherit}
+body.side-min .side-nav .nav-grp{visibility:hidden;height:6px;margin:4px 0}
+.menu-list .nav-grp{color:var(--text-muted,#5B6B80);margin:14px 4px 4px}
+body.perfil-campo [data-fin]{display:none!important}
+.aviso-campo{background:var(--bg-surface);border:1px dashed var(--border-color);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.9rem}
 .topbar p{font-size:.84rem;color:var(--text-secondary);margin-top:2px}
 .actions{display:flex;flex-wrap:wrap;gap:8px}
 .card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;padding:16px 18px;margin-bottom:14px}
@@ -796,14 +801,16 @@ th{font-size:.75rem}
     </div>
     <div class="farm-pick s-lbl"><label for="farmSel">Fazenda</label><select id="farmSel" onchange="setFarm(this.value)"></select></div>
     <nav class="side-nav">
+      <p class="nav-grp">Operação</p>
       <button data-nav="home" onclick="goView('home')"><svg><use href="#i-home"/></svg><span class="s-lbl">Início</span></button>
       <button data-nav="lidas" onclick="goView('lidas')"><svg><use href="#i-lida"/></svg><span class="s-lbl">Lidas</span><span class="count" id="cAbertas" hidden></span></button>
       <button data-nav="rebanho" onclick="goView('rebanho')"><svg><use href="#i-rebanho"/></svg><span class="s-lbl">Rebanho</span></button>
       <button data-nav="mapa" onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><span class="s-lbl">Mapa da fazenda</span></button>
-      <button data-nav="insumos" onclick="goView('insumos')"><svg><use href="#i-san"/></svg><span class="s-lbl">Insumos</span></button>
       <button data-nav="ordens" onclick="goView('ordens')"><svg><use href="#i-lida"/></svg><span class="s-lbl">Ordens de lida</span></button>
-      <button data-nav="negocio" onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Compra e venda</span></button>
+      <p class="nav-grp">Gestão</p>
       <button data-nav="painel" onclick="goView('painel')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Painel</span></button>
+      <button data-nav="negocio" data-fin onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><span class="s-lbl">Custos e resultado</span></button>
+      <button data-nav="insumos" onclick="goView('insumos')"><svg><use href="#i-san"/></svg><span class="s-lbl">Insumos</span></button>
       <button data-nav="cadastros" onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><span class="s-lbl">Fazenda, pastos e lotes</span></button>
       <button data-nav="sync" onclick="goView('sync')"><svg><use href="#i-sync"/></svg><span class="s-lbl">Sincronizar</span><span class="count" id="cPend" hidden></span></button>
       <button onclick="ativarCampo()"><svg><use href="#i-campo"/></svg><span class="s-lbl">Modo Campo</span></button>
@@ -909,7 +916,7 @@ th{font-size:.75rem}
     <div id="ordensBody"></div>
   </section>
   <section class="view" id="v-negocio">
-    <div class="topbar"><div><h2>Compra e venda</h2><p>O dinheiro nas pontas: o que entrou, o que saiu e o quanto custou e rendeu</p></div>
+    <div class="topbar"><div><h2>Custos e resultado</h2><p>Compra, venda e custos do rebanho e do pasto, com o resultado por lote</p></div>
       <div class="actions"><button class="btn" onclick="openCompra()">Registrar compra</button><button class="btn primary" onclick="openVenda()">Registrar venda</button></div></div>
     <div id="negocioBody"></div>
   </section>
@@ -928,10 +935,11 @@ th{font-size:.75rem}
   <section class="view" id="v-mais">
     <div class="topbar"><div><h2>Mais</h2><p id="maisFarm"></p></div></div>
     <div class="menu-list">
+      <p class="nav-grp">Gestão e dados</p>
       <button onclick="goView('sync')"><svg><use href="#i-sync"/></svg><div>Sincronizar<small>Exportar, importar, lixeira e histórico</small></div></button>
       <button onclick="goView('insumos')"><svg><use href="#i-san"/></svg><div>Insumos<small>Estoque de vacinas e remédios, custo e campanhas</small></div></button>
       <button onclick="goView('ordens')"><svg><use href="#i-lida"/></svg><div>Ordens de lida<small>O que fazer no campo, com sugestões do app</small></div></button>
-      <button onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><div>Compra e venda<small>Preço de compra, venda, @ e resultado por lote</small></div></button>
+      <button data-fin onclick="goView('negocio')"><svg><use href="#i-painel"/></svg><div>Custos e resultado<small>Compra, venda, custos do rebanho e do pasto, resultado por lote</small></div></button>
       <button onclick="goView('mapa')"><svg><use href="#i-mapa"/></svg><div>Mapa da fazenda<small>Fazendas, pastos e o rebanho no mapa</small></div></button>
       <button onclick="goView('cadastros')"><svg><use href="#i-cad"/></svg><div>Fazenda, pastos e lotes<small>Cadastros base e fazenda ativa</small></div></button>
       <button onclick="goView('painel')"><svg><use href="#i-painel"/></svg><div>Painel<small>Indicadores e exportação CSV</small></div></button>
@@ -972,7 +980,7 @@ th{font-size:.75rem}
    PWA offline-first. Dados no IndexedDB do aparelho. Sem dependências.
    Mudar APP_VERSION junto com sw.js (V) e version.json a cada publicação.
    ========================================================================= */
-const APP_VERSION = 35;
+const APP_VERSION = 37;
 const APP_ID = 'ekoa-tapirucu';
 const SYNC_FORMAT = 3;            // 3: pasto (lugar) separado do lote (grupo); formatos 1 e 2 continuam importáveis
 const DB_NAME = 'ekoa_tapirucu';     // identificador estável: não alterar
@@ -1393,7 +1401,7 @@ function renderOrdens() {
     <h3 style="margin:14px 0 6px">A fazer ${af.length ? `<span class="chip info">${af.length}</span>` : ''}</h3>
     ${af.length ? porFaz(af, linha) : '<div class="card empty">Nenhuma ordem aberta. Crie uma sugerida ou uma nova ordem.</div>'}
     ${af.length ? '<p class="hint">Para o campo receber, gere a carga e envie o arquivo. Cada celular vê só as ordens da fazenda em que está trabalhando.</p>' : ''}
-    ${feitas.length ? '<h3 style="margin:14px 0 6px">Feitas e canceladas (últimas 10)</h3>' + feitas.map(linha).join('') : ''}`;
+    ${feitas.length ? '<h3 style="margin:14px 0 6px">Feitas e canceladas (últimas 10)</h3>' + feitas.map(linha).join('') : ''}` + pastoManejoHtml();
 }
 /* ---- tela Insumos ---- */
 function renderInsumos() {
@@ -1418,7 +1426,7 @@ function renderInsumos() {
       <td><button class="btn sm" onclick="openEntrada('${e.id}')">Editar</button></td></tr>`;
   }).join('');
   const loteCst = Object.entries(cst.lotes).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<tr><td>${id ? esc(loteNome(id)) : 'Sem lote'}</td><td class="num">${brl(v)}</td></tr>`).join('');
-  box.innerHTML = `
+  box.innerHTML = (syncMeta.semFinanceiro ? '<div class="aviso-campo">Aparelho de campo: estoque e validade aparecem aqui; os valores em R$ ficam só no escritório.</div>' : '') + `
     ${sanItens([S.fazendaAtiva]).length ? `<div class="alert warn"><span><b>Atenção:</b> ${esc(sanItens([S.fazendaAtiva]).map(i => i.t).join(' · '))}</span></div>` : ''}
     <div class="card"><h3>Campanhas obrigatórias <span class="sub">${camps.length}</span></h3>
       <p class="hint">Uma campanha diz o que precisa ser aplicado, em quem e até quando. O app conta quem já recebeu e avisa em Atenção agora quando o prazo aperta.</p>
@@ -1778,13 +1786,13 @@ function goView(v, semHistorico) {
   if (v === 'mapa') renderMapa();
   if (v === 'insumos') renderInsumos();
   if (v === 'ordens') renderOrdens();
-  if (v === 'negocio') renderNegocio();
+  if (v === 'negocio') { if (syncMeta.semFinanceiro) { v = 'home'; currentView = v; document.body.dataset.view = v; renderHome(); } else renderNegocio(); }
   if (v === 'mais') $('maisFarm').textContent = farm() ? 'Fazenda ativa: ' + farm().nome : '';
   renderNavBar();
   poeAjuda();
   window.scrollTo({ top: 0 });
 }
-function refreshAll() { renderFarmSel(); updateCounts(); goView(currentView); if (cpLigado()) renderCampo(); }
+function refreshAll() { aplicaPerfil(); renderFarmSel(); updateCounts(); goView(currentView); if (cpLigado()) renderCampo(); }
 function renderFarmSel() {
   const sel = $('farmSel');
   sel.innerHTML = S.fazendas.length ? S.fazendas.map(f => `<option value="${esc(f.id)}"${f.id === S.fazendaAtiva ? ' selected' : ''}>${esc(f.nome)}</option>`).join('') : '<option>Nenhuma fazenda</option>';
@@ -1953,7 +1961,7 @@ function renderNegocio() {
     ${kpi('Idade ao abate', ind.idadeMeses != null ? fmtN(ind.idadeMeses, 1) + ' meses' : '—', 'navy', ind.nIdade ? `${ind.nIdade} animal(is) com nascimento` : 'precisa do nascimento do animal')}
     ${kpi('Dias até a venda', ind.diasFaz != null ? fmtN(ind.diasFaz, 0) + ' dias' : '—', 'navy', 'da entrada na fazenda à venda')}
     ${kpi('Receita registrada (12 meses)', rec.length ? rs(totRec) : '—', 'gold', rec.length ? rec.length + ' venda(s)' : 'nenhuma venda registrada')}
-  </div>${lotes.length ? lotes.map(l => negCard(l, st.filter(s => s.lote === l.id))).join('') : '<div class="empty">Cadastre um lote para registrar compras e vendas.</div>'}`;
+  </div>${financeiroHtml()}<h3 style="margin:16px 0 6px">Lotes</h3>${lotes.length ? lotes.map(l => negCard(l, st.filter(s => s.lote === l.id))).join('') : '<div class="empty">Cadastre um lote para registrar compras e vendas.</div>'}`;
 }
 const negLoteOpts = sel => lotesF().filter(l => l.ativo !== false).map(l => `<option value="${esc(l.id)}"${l.id === sel ? ' selected' : ''}>${esc(l.nome)}</option>`).join('');
 const numOpt = (id, max, msgs) => { const t = $(id).value.trim(); if (!t) return { v: null, ok: true }; const n = parseNum(t); if (!(n > 0) || n > max) { fieldErr(id, 'Valor inválido.'); return { v: null, ok: false }; } return { v: Math.round(n * 100) / 100, ok: true }; };
@@ -2039,9 +2047,10 @@ function resultadoLote(l, stL) {
   const rec = vs.reduce((t, v) => t + v.valor, 0), arr = vs.reduce((t, v) => t + (v.arrobas || 0), 0), semArr = vs.filter(v => !(v.arrobas > 0)).length;
   const compraTot = cs.reduce((t, c) => t + c.valor + (c.frete || 0), 0), cst = custoSanitarioF(), sanTot = (cst.lotes && cst.lotes[l.id]) || 0;
   const al = typeof custoAlimLote === 'function' ? custoAlimLote(l.id) : null, alTot = al ? al.total : 0;
+  const cpR = custoPastoRateio(l.fazendaId), paTot = cpR.porLote[l.id] || 0;
   const at = t => share == null ? null : t * share;
-  const cCompra = at(compraTot), cSan = at(sanTot), cAl = at(alTot);
-  const custo = (cCompra || 0) + (cSan || 0) + (cAl || 0), margem = vs.length && share != null ? rec - custo : null;
+  const cCompra = at(compraTot), cSan = at(sanTot), cAl = at(alTot), cPa = at(paTot);
+  const custo = (cCompra || 0) + (cSan || 0) + (cAl || 0) + (cPa || 0), margem = vs.length && share != null ? rec - custo : null;
   const falta = [];
   if (vs.length && !cs.length) falta.push('compra não registrada: o custo dos animais está fora da conta');
   if (cs.length && cs.reduce((t, c) => t + c.qtd, 0) < denom) falta.push(`compra cobre ${cs.reduce((t, c) => t + c.qtd, 0)} cabeça(s) e o lote tem ${denom}`);
@@ -2049,14 +2058,14 @@ function resultadoLote(l, stL) {
   if (!al) falta.push('alimentação não registrada: o custo de alimentar está fora da conta'); else if (!al.total) falta.push('alimentação registrada sem valor: fica fora do custo');
   if (vs.length && semArr) falta.push(`${semArr} venda(s) sem arrobas de carcaça: sem custo por @`);
   if (vendDoc > denom && denom > 0) falta.push(`vendas registradas (${vendDoc} cab.) passam dos animais do lote (${denom}): confira`);
-  return { vs, cs, ativos, vendBx, denom, share, rec, arr, semArr, cCompra, cSan, cAl, custo, margem, falta, encerrado: ativos === 0 && vendBx > 0, custoArroba: vs.length && !semArr && arr > 0 ? custo / arr : null, recArroba: vs.length && !semArr && arr > 0 ? rec / arr : null };
+  return { vs, cs, ativos, vendBx, denom, share, rec, arr, semArr, cCompra, cSan, cAl, cPa, custo, margem, falta, encerrado: ativos === 0 && vendBx > 0, custoArroba: vs.length && !semArr && arr > 0 ? custo / arr : null, recArroba: vs.length && !semArr && arr > 0 ? rec / arr : null };
 }
 function resultadoLoteHtml(l, stL) {
   const r = resultadoLote(l, stL); if (!r || !r.vs.length) return r && r.cs.length ? `<p class="hint">Resultado aparece quando houver uma venda registrada.</p>` : '';
   const linha = (n, v, neg) => `<tr><td>${n}</td><td class="num">${v == null ? '—' : (neg ? '− ' : '') + rs(v)}</td></tr>`;
   const cor = r.margem == null ? '' : r.margem >= 0 ? 'ok' : 'bad';
   return `<div class="res-lote" style="margin-top:10px"><h4>Resultado ${r.encerrado ? 'do lote encerrado' : `parcial · ${r.ativos} animal(is) ainda no lote`}</h4>
-    <div class="tbl-wrap"><table class="tbl"><tbody>${linha('Receita das vendas', r.rec)}${linha('Compra dos animais vendidos', r.cCompra, 1)}${linha('Sanitário', r.cSan, 1)}${r.cAl ? linha('Alimentação', r.cAl, 1) : ''}
+    <div class="tbl-wrap"><table class="tbl"><tbody>${linha('Receita das vendas', r.rec)}${linha('Compra dos animais vendidos', r.cCompra, 1)}${linha('Sanitário', r.cSan, 1)}${r.cAl ? linha('Alimentação', r.cAl, 1) : ''}${r.cPa ? linha('Manutenção de pasto', r.cPa, 1) : ''}
       <tr><td><b>Margem</b></td><td class="num"><span class="chip ${cor}"><b>${rs(r.margem)}</b></span></td></tr></tbody></table></div>
     <p><small>${r.margem != null && r.share ? `Por cabeça vendida: <b>${rs(r.margem / r.vs.reduce((t, v) => t + v.qtd, 0))}</b>` : ''}${r.custoArroba != null ? ` · Custo por @: <b>${rs(r.custoArroba)}</b> · Preço médio recebido: <b>${rs(r.recArroba)}</b>/@ · Ponto de equilíbrio: <b>${rs(r.custoArroba)}</b>/@` : ''}</small></p>
     ${r.falta.length ? `<div class="aviso warn"><b>Este resultado está incompleto:</b><ul class="sq">${r.falta.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>` : '<p class="hint">Sem pendências de custo registradas.</p>'}
@@ -2096,9 +2105,10 @@ const ALIM_CAT = { mineral: 'Suplemento mineral', proteico: 'Proteinado', racao:
 function custoAlimLote(lid) {
   const ds = negLote('alimento', lid); if (!ds.length) return null;
   const total = ds.reduce((t, d) => t + (d.valor || 0), 0), kg = ds.reduce((t, d) => t + (d.kg || 0), 0), l = S.lotes.find(x => x.id === lid), st = l ? Object.values(computeF(l.fazendaId)) : [];
-  let cabDias = 0; ds.forEach(d => { const n = st.filter(s => vivoEm(s, d.ate) && loteEm(s, d.ate) === lid).length; cabDias += n * (diasEntre(d.data, d.ate) + 1); });
+  const cabDiasDe = d => { let n = 0, dd = d.data, k = 0; while (dd <= d.ate && k < 367) { st.forEach(s => { if (vivoEm(s, dd) && loteEm(s, dd) === lid) n++; }); dd = addDias(dd, 1); k++; } return n; };   // conta dia a dia: venda ou morte no meio do período não distorce
+  let cabDias = 0; ds.forEach(d => { d._cd = cabDiasDe(d); cabDias += d._cd; });
   const comValor = ds.filter(d => d.valor > 0), cdVal = comValor.reduce((t, d) => t + d.valor, 0);
-  let cabDiasVal = 0; comValor.forEach(d => { const n = st.filter(s => vivoEm(s, d.ate) && loteEm(s, d.ate) === lid).length; cabDiasVal += n * (diasEntre(d.data, d.ate) + 1); });
+  let cabDiasVal = 0; comValor.forEach(d => { cabDiasVal += d._cd; }); ds.forEach(d => { delete d._cd; });
   let conv = null;
   if (l && l.regime === 'confinamento' && kg > 0) { const d0 = ds.map(d => d.data).sort()[0], d1 = ds.map(d => d.ate).sort().slice(-1)[0], g = analise([l.fazendaId], d0, d1, { lote: lid }).ganho; if (g > 0) conv = kg / g; }
   return { total, kg, docs: ds, cabDias, cabDia: cabDiasVal > 0 ? cdVal / cabDiasVal : null, kgCabDia: cabDias > 0 && kg > 0 ? kg / cabDias : null, conv };
@@ -2138,6 +2148,135 @@ function saveAlimento(id) {
   const d = { loteId: lote, data: de, ate, produto: prod, cat: $('aCat').value in ALIM_CAT ? $('aCat').value : 'outro', kg: kg.v, valor: vl.v };
   if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'alimento', fazendaId: S.fazendaAtiva, ativo: true }, d)));
   save(); closeModal(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast('Alimentação registrada.');
+}
+
+/* =========================================================================
+   v36 · Operação e Gestão: a carga para o campo sai sem dinheiro
+   A fronteira é o arquivo, não a tela: compra, venda, alimentação e custos não viajam para o campo.
+   ========================================================================= */
+const KINDS_FIN = ['compra', 'venda', 'alimento'];
+function dadosSemFinanceiro(d) {
+  return { lidas: d.lidas.map(l => l.cab && l.cab.custoDose != null ? Object.assign({}, l, { cab: Object.assign({}, l.cab, { custoDose: undefined }) }) : l),
+    sanidade: d.sanidade.filter(x => !KINDS_FIN.includes(x.kind)).map(x => (x.kind === 'entrada' && x.custo != null) || (x.kind === 'pastoManejo' && x.valor != null) ? Object.assign({}, x, x.kind === 'entrada' ? { custo: null } : { valor: null }) : x) };
+}
+function repoeFinanceiro(col, inc, loc) {   // o arquivo veio sem os valores: mantém os daqui
+  if (col === 'sanidade' && inc.kind === 'entrada' && inc.custo == null && loc.custo != null) inc.custo = loc.custo;
+  if (col === 'sanidade' && inc.kind === 'pastoManejo' && inc.valor == null && loc.valor != null) inc.valor = loc.valor;
+  if (col === 'lidas' && inc.cab && inc.cab.custoDose == null && loc.cab && loc.cab.custoDose != null) inc.cab.custoDose = loc.cab.custoDose;
+}
+function aplicaPerfil() { document.body.classList.toggle('perfil-campo', !!syncMeta.semFinanceiro); if (syncMeta.semFinanceiro && currentView === 'negocio') goView('home'); }
+/* =========================================================================
+   v37 · Custos do pasto: manejo de manutenção como apontamento (o que fazer) e custo aplicado,
+   rateado pelos lotes conforme as UA que ocuparam o pasto em cada dia do período de rateio.
+   Documentos em S.sanidade com kind 'pastoManejo'.
+   ========================================================================= */
+const MANEJO_PASTO = { adubacao: ['Adubação de manutenção', 12], calagem: ['Calagem', 36], rocada: ['Roçada', 6], herbicida: ['Controle de invasoras (herbicida)', 6], reforma: ['Reforma do pasto', 60], cerca: ['Cerca', 60], agua: ['Bebedouro e água', 60], outro: ['Outro', 12] };
+const pmF = fid => S.sanidade.filter(x => x.kind === 'pastoManejo' && x.fazendaId === (fid || S.fazendaAtiva) && x.ativo !== false);
+const pmDe = id => S.sanidade.find(x => x.id === id && x.kind === 'pastoManejo') || null;
+const pmNome = x => (MANEJO_PASTO[x.tipo] || MANEJO_PASTO.outro)[0];
+const cpCache = new WeakMap();
+/* Rateio diário: custo ÷ dias do período; cada dia vai para os lotes no pasto, pela UA de cada um. Dia sem animal = custo ocioso. */
+function custoPastoRateio(fid) {
+  fid = fid || S.fazendaAtiva; const sm = computeF(fid), docs = pmF(fid).filter(x => x.status === 'feito' && x.valor > 0 && x.data), sig = JSON.stringify(docs.map(d => [d.id, d.valor, d.data, d.meses, d.pastoId])) + hoje();
+  const c = cpCache.get(sm); if (c && c.sig === sig) return c.v;
+  const hj = hoje(), sts = Object.values(sm), out = { porLote: {}, porPasto: {}, ocioso: 0, alocado: 0, aApropriar: 0, total: 0 };
+  docs.forEach(d => {
+    const dias = Math.max(1, Math.round((d.meses || 12) * 30.44)), r = d.valor / dias, pp = out.porPasto[d.pastoId] = out.porPasto[d.pastoId] || { total: 0, alocado: 0, ocioso: 0, aApropriar: 0, docs: 0 };
+    pp.total += d.valor; pp.docs++; out.total += d.valor;
+    let dd = d.data, n = 0;
+    while (n < dias && dd <= hj) {
+      const ua = {}; let tot = 0;
+      sts.forEach(s => { if (!vivoEm(s, dd) || pastoEmS(s, dd) !== d.pastoId) return; const u = (pesoEm(s, dd) || s.a.pesoEntrada || UA_KG) / UA_KG, l = loteEm(s, dd); ua[l] = (ua[l] || 0) + u; tot += u; });
+      if (tot > 0) Object.entries(ua).forEach(([l, u]) => { const v = r * u / tot; out.porLote[l] = (out.porLote[l] || 0) + v; }), pp.alocado += r, out.alocado += r;
+      else { pp.ocioso += r; out.ocioso += r; }
+      dd = addDias(dd, 1); n++;
+    }
+    const resto = r * (dias - n); pp.aApropriar += resto; out.aApropriar += resto;
+  });
+  cpCache.set(sm, { sig, v: out }); return out;
+}
+/* Manutenção esperada: o que o pasto pede e ainda não tem, pelo tempo desde o último manejo do tipo. */
+function sugestoesPasto(fid) {
+  const hj = hoje(), docs = pmF(fid), out = [];
+  S.pastos.filter(p => p.fazendaId === (fid || S.fazendaAtiva) && p.ativo !== false).forEach(p => {
+    [['adubacao', 365, 'Sem adubação de manutenção há mais de 12 meses.'], ['herbicida', 180, 'Sem controle de invasoras (roçada ou herbicida) há mais de 6 meses.', 'rocada'], ['calagem', 1095, 'Sem calagem há mais de 3 anos.']].forEach(([t, lim, mot, alt]) => {
+      const ds = docs.filter(d => d.pastoId === p.id && (d.tipo === t || d.tipo === alt));
+      if (ds.some(d => d.status === 'a_fazer')) return;
+      const ult = ds.filter(d => d.status === 'feito' && d.data).map(d => d.data).sort().slice(-1)[0];
+      if (!ult || diasEntre(ult, hj) > lim) out.push({ pastoId: p.id, tipo: t, motivo: ult ? mot + ' Último: ' + fmtD(ult) + '.' : mot.replace(/ há mais de.*/, ' registrado.') });
+    });
+  });
+  return out;
+}
+function criaManejoPasto(pid, tipo, motivo) {
+  S.sanidade.push(stampNew({ kind: 'pastoManejo', fazendaId: S.fazendaAtiva, ativo: true, pastoId: pid, tipo, descricao: motivo || '', status: 'a_fazer', prazo: addDias(hoje(), 30), data: null, valor: null, meses: MANEJO_PASTO[tipo][1], para: '' }));
+  save(); if (currentView === 'ordens') renderOrdens(); if (currentView === 'negocio') renderNegocio(); showToast('Manejo de pasto criado em A fazer.');
+}
+function pastoManejoHtml() {
+  const sg = sugestoesPasto(), docs = pmF(), af = docs.filter(d => d.status === 'a_fazer').sort((a, b) => (a.prazo || '9').localeCompare(b.prazo || '9')), ft = docs.filter(d => d.status !== 'a_fazer').sort((a, b) => (b.data || b.editadoEm || '').localeCompare(a.data || a.editadoEm || '')).slice(0, 8), hj = hoje();
+  const nomeP = id => esc((pastoDe(id) || {}).nome || '—');
+  const lin = d => `<div class="card"><b>${esc(pmNome(d))}</b> · ${nomeP(d.pastoId)} ${d.status === 'a_fazer' ? (d.prazo && d.prazo < hj ? '<span class="chip bad">prazo vencido</span>' : d.prazo ? `<span class="chip info">até ${fmtD(d.prazo)}</span>` : '') : d.status === 'feito' ? `<span class="chip ok">feito ${fmtD(d.data)}</span>` : '<span class="chip">cancelado</span>'}
+    ${d.descricao ? `<br><small class="muted">${esc(d.descricao)}</small>` : ''}${d.status === 'feito' ? `<br><small data-fin>${d.valor ? rs(d.valor) + ` · rateio em ${d.meses} mes(es)` : 'sem custo informado: fora da conta'}</small>` : ''}
+    <div class="actions">${d.status === 'a_fazer' ? `<button class="btn sm teal" onclick="openManejoPasto('${d.id}',true)">Registrar feito</button>` : ''}<button class="btn sm" onclick="openManejoPasto('${d.id}')">Editar</button></div></div>`;
+  return `<h3 style="margin:18px 0 6px">Manejo de pasto ${af.length ? `<span class="chip info">${af.length} a fazer</span>` : ''}</h3>
+    <div class="actions" style="margin-bottom:8px"><button class="btn sm" onclick="openManejoPasto()">Novo manejo de pasto</button></div>
+    ${sg.length ? `<div class="card"><h3>Manutenção esperada <span class="chip warn">${sg.length}</span></h3><p class="hint">Pelo tempo desde o último manejo de cada tipo. Nada vira tarefa sem você.</p>${sg.slice(0, 12).map(x => `<p><b>${esc(MANEJO_PASTO[x.tipo][0])}</b> · ${nomeP(x.pastoId)}<br><small class="muted">${esc(x.motivo)}</small> <button class="btn sm" onclick="criaManejoPasto('${x.pastoId}','${x.tipo}',this.dataset.m)" data-m="${esc(x.motivo)}">Criar</button></p>`).join('')}</div>` : ''}
+    ${af.length ? af.map(lin).join('') : '<div class="card empty">Nenhum manejo de pasto a fazer.</div>'}
+    ${ft.length ? '<h4 style="margin:12px 0 6px">Feitos e cancelados (últimos 8)</h4>' + ft.map(lin).join('') : ''}`;
+}
+function openManejoPasto(id, concluir) {
+  const x = id ? pmDe(id) : null; if (id && !x) return; const fin = !syncMeta.semFinanceiro, feito = concluir || (x && x.status === 'feito');
+  openModal(concluir ? 'Registrar manejo de pasto feito' : x ? 'Editar manejo de pasto' : 'Novo manejo de pasto', `<div class="grid">
+    ${fld('pmPasto', 'Pasto', `<select id="pmPasto">${pastosAtivosF().map(p => `<option value="${esc(p.id)}"${x && x.pastoId === p.id ? ' selected' : ''}>${esc(p.nome)}</option>`).join('')}</select>`, true)}
+    ${fld('pmTipo', 'O que fazer', `<select id="pmTipo" onchange="const m=MANEJO_PASTO[this.value];if(m&&$('pmMeses'))$('pmMeses').value=m[1]">${Object.entries(MANEJO_PASTO).map(([k, v]) => `<option value="${k}"${x && x.tipo === k ? ' selected' : ''}>${esc(v[0])}</option>`).join('')}</select>`, true)}
+    ${fld('pmDesc', 'Descrição', `<input id="pmDesc" maxlength="80" value="${esc(x ? x.descricao : '')}" placeholder="Ex.: 200 kg/ha de NPK 20-05-20">`)}
+    ${fld('pmStatus', 'Situação', `<select id="pmStatus"><option value="a_fazer"${!feito && (!x || x.status === 'a_fazer') ? ' selected' : ''}>A fazer</option><option value="feito"${feito ? ' selected' : ''}>Feito</option><option value="cancelado"${x && x.status === 'cancelado' && !concluir ? ' selected' : ''}>Cancelado</option></select>`, true)}
+    ${fld('pmPrazo', 'Prazo', `<input type="date" id="pmPrazo" value="${esc(x && x.prazo ? x.prazo : addDias(hoje(), 30))}">`)}
+    ${fld('pmData', 'Feito em', `<input type="date" id="pmData" value="${esc(x && x.data ? x.data : hoje())}">`, false, 'Obrigatório quando a situação é Feito.')}
+    ${fin ? fld('pmValor', 'Custo aplicado (R$, total)', `<input id="pmValor" inputmode="decimal" value="${x && x.valor ? fmtN(x.valor, 2).replace(/\./g, '') : ''}">`, false, 'Insumo, máquina e mão de obra. Sem valor, o manejo não entra no custo.') : ''}
+    ${fin ? fld('pmMeses', 'Ratear em (meses)', `<input id="pmMeses" inputmode="numeric" value="${x ? x.meses : 12}">`, false, 'Por quanto tempo esse manejo serve ao pasto. O custo é dividido por dia entre os lotes que estiverem no pasto.') : ''}
+    ${fld('pmPara', 'Quem faz', `<input id="pmPara" maxlength="40" value="${esc(x ? x.para : '')}">`)}</div>`,
+    `${x ? `<button class="btn danger" onclick="excluiManejoPasto('${x.id}')">Excluir</button>` : ''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveManejoPasto('${x ? x.id : ''}')">Salvar</button>`);
+}
+function saveManejoPasto(id) {
+  const x = id ? pmDe(id) : null; ['pmPasto', 'pmData', 'pmValor', 'pmMeses', 'pmPrazo'].forEach(k => fieldErr(k, ''));
+  let ok = true; const pid = $('pmPasto').value, st = $('pmStatus').value, data = $('pmData').value, prazo = $('pmPrazo').value;
+  if (!pid) { fieldErr('pmPasto', 'Escolha o pasto.'); ok = false; }
+  if (st === 'feito' && (!validDate(data) || data > hoje())) { fieldErr('pmData', 'Informe quando foi feito (não pode ser no futuro).'); ok = false; }
+  if (prazo && !validDate(prazo)) { fieldErr('pmPrazo', 'Data inválida.'); ok = false; }
+  const vl = $('pmValor') ? numOpt('pmValor', 1e9) : { v: x ? x.valor : null, ok: true };
+  let meses = $('pmMeses') ? parseInt($('pmMeses').value, 10) : (x ? x.meses : MANEJO_PASTO[$('pmTipo').value][1]);
+  if (!(meses >= 1 && meses <= 120)) { fieldErr('pmMeses', 'De 1 a 120 meses.'); ok = false; }
+  if (!vl.ok) ok = false; if (!ok) return;
+  const d = { pastoId: pid, tipo: $('pmTipo').value in MANEJO_PASTO ? $('pmTipo').value : 'outro', descricao: str($('pmDesc').value, 80), status: st, prazo: prazo || null, data: st === 'feito' ? data : null, valor: vl.v, meses, para: str($('pmPara').value, 40) };
+  if (x) { Object.assign(x, d); touch(x); } else S.sanidade.push(stampNew(Object.assign({ kind: 'pastoManejo', fazendaId: S.fazendaAtiva, ativo: true }, d)));
+  save(); closeModal(); if (currentView === 'ordens') renderOrdens(); if (currentView === 'negocio') renderNegocio(); updateCounts(); showToast(st === 'feito' ? 'Manejo de pasto registrado como feito.' : 'Manejo de pasto salvo.');
+}
+function excluiManejoPasto(id) { const x = pmDe(id); if (!x || !confirm('Excluir este manejo de pasto? Se tinha custo, ele sai do rateio.')) return; x.ativo = false; touch(x); save(); closeModal(); if (currentView === 'ordens') renderOrdens(); if (currentView === 'negocio') renderNegocio(); }
+/* Visão financeira da fazenda: composição dos custos do rebanho e do pasto, por cabeça e por @ */
+function custosFazenda(fid) {
+  fid = fid || S.fazendaAtiva; const hj = hoje(), d0 = addDias(hj, -365), sts = Object.values(computeF(fid));
+  const ls = S.lotes.filter(l => l.fazendaId === fid), cst = custoSanitarioF(), cp = custoPastoRateio(fid);
+  const compra = S.sanidade.filter(x => x.kind === 'compra' && x.fazendaId === fid && x.ativo !== false).reduce((t, c) => t + c.valor + (c.frete || 0), 0);
+  const alim = ls.reduce((t, l) => { const a = custoAlimLote(l.id); return t + (a ? a.total : 0); }, 0);
+  const vendas = S.sanidade.filter(x => x.kind === 'venda' && x.fazendaId === fid && x.ativo !== false), receita = vendas.reduce((t, v) => t + v.valor, 0);
+  const san = cst.total || 0, pasto = cp.alocado + cp.ocioso, oper = san + alim + pasto;
+  let cabDias = 0; sts.forEach(s => { if (!s.a.entradaEm) return; const ini = s.a.entradaEm > d0 ? s.a.entradaEm : d0, fim = s.baixa && s.baixa.data < hj ? s.baixa.data : hj; if (fim >= ini) cabDias += diasEntre(ini, fim) + 1; });
+  const an = analise([fid], d0, hj), arrobas = an.arrobas;
+  return { compra, san, alim, pasto, pastoOcioso: cp.ocioso, aApropriar: cp.aApropriar, oper, receita, nVendas: vendas.length, cabDias, operCabDia: cabDias > 0 ? oper / cabDias : null, operArroba: arrobas > 0 ? oper / arrobas : null, arrobas, cobSan: cst.cobertura };
+}
+function financeiroHtml() {
+  const c = custosFazenda(), tot = c.compra + c.oper, pc = v => tot > 0 ? fmtN(v / tot * 100, 0) + '%' : '—';
+  const area = pastosAtivosF().reduce((t, p) => t + (areaPasto(p) || 0), 0), cp = custoPastoRateio();
+  const rows = pastosAtivosF().map(p => { const x = cp.porPasto[p.id]; if (!x) return ''; const a = areaPasto(p); return `<tr><td><b>${esc(p.nome)}</b></td><td class="num">${rs(x.total)}</td><td class="num">${a ? rs(x.total / a) : '—'}</td><td class="num">${rs(x.alocado)}</td><td class="num">${x.ocioso > 0.005 ? '<b>' + rs(x.ocioso) + '</b>' : rs(0)}</td><td class="num">${rs(x.aApropriar)}</td></tr>`; }).join('');
+  return `<div class="card"><h3>Custos do rebanho e do pasto</h3>
+    <div class="kpis">${kpi('Custo operacional (12 meses)', rs(c.oper), 'navy', 'sanitário + alimentação + pasto, sem a compra')}${kpi('Custo por cabeça por dia', c.operCabDia != null ? rs(c.operCabDia) : '—', 'teal', fmtN(c.cabDias, 0) + ' cabeças-dia no período')}${kpi('Custo por @ produzida (est.)', c.operArroba != null ? rs(c.operArroba) : '—', 'gold', fmtN(c.arrobas, 1) + ' @ estimadas pelo ganho de peso')}${kpi('Pasto sem rebanho', rs(c.pastoOcioso), c.pastoOcioso > 0 ? 'orange' : 'teal', 'custo de pasto em dias sem animal')}</div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Composição</th><th>R$</th><th>%</th></tr></thead><tbody>
+      <tr><td>Compra de animais</td><td class="num">${rs(c.compra)}</td><td class="num">${pc(c.compra)}</td></tr><tr><td>Sanitário${c.cobSan != null && c.cobSan < 1 ? ` <small class="muted">(cobertura ${fmtN(c.cobSan * 100, 0)}%)</small>` : ''}</td><td class="num">${rs(c.san)}</td><td class="num">${pc(c.san)}</td></tr>
+      <tr><td>Alimentação</td><td class="num">${rs(c.alim)}</td><td class="num">${pc(c.alim)}</td></tr><tr><td>Manutenção de pasto (apropriado até hoje)</td><td class="num">${rs(c.pasto)}</td><td class="num">${pc(c.pasto)}</td></tr>
+      <tr><td><b>Total</b></td><td class="num"><b>${rs(tot)}</b></td><td></td></tr><tr><td>Receita das vendas registradas</td><td class="num">${rs(c.receita)}</td><td></td></tr></tbody></table></div>
+    <p class="hint">Custo por @ produzida usa as arrobas estimadas pelo ganho de peso (30 kg de peso vivo por @); é indicador de eficiência, não resultado. Manejo de pasto só entra pela parte já apropriada; ${rs(c.aApropriar)} ainda serão rateados nos próximos meses.</p>
+    ${rows ? `<h4 style="margin:12px 0 6px">Pastos: manutenção e rateio ${area ? `<small class="muted">${fmtN(area, 1)} ha</small>` : ''}</h4><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pasto</th><th>Manejos</th><th>R$/ha</th><th>Para os lotes</th><th>Sem rebanho</th><th>A apropriar</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="hint">Nenhum manejo de pasto com custo registrado. Registre em Ordens de lida › Manejo de pasto.</p>'}</div>`;
 }
 
 /* v27: dicionário dos números do app. Cada um diz o que é, como é calculado e o que fazer. */
@@ -4250,7 +4389,7 @@ AJUDA.insumos = { t: 'Insumos', g: 'Gestão',
   p: ['Em Nova entrada, registre a compra: produto, validade, quantidade em doses e o custo total (opcional).', 'Na lida sanitária, escolha o Produto do estoque: o app baixa as doses e calcula o custo.', 'Para algo que não pode faltar, crie uma Campanha com produto, categorias e prazo.', 'Em Fazer lida da campanha, o app abre a lida pronta; use Só quem falta na campanha.'],
   r: ['Produto vencido ou sem saldo não pode ser usado: o app não deixa finalizar a lida.', 'O estoque só baixa quando a lida é finalizada pelo gestor, mas lida do campo esperando conferência já reserva as doses.', 'O custo só entra para produto do estoque com o valor da compra informado (ou custo por dose digitado na lida). O resto fica fora do custo e a tela mostra a cobertura.', 'Campanha conta só quem recebeu em lida finalizada ligada a ela.'],
   d: [['Como contar as doses?', '1 dose = 1 aplicação em 1 animal. Um frasco de 50 ml com dose de 2 ml tem 25 doses.'], ['Apliquei fora do app, e agora?', 'Registre a lida com o produto do estoque na data do manejo. Se o produto já estava vencido nessa data, o app recusa.']] };
-AJUDA.negocio = { t: 'Compra e venda', g: 'Gestão',
+AJUDA.negocio = { t: 'Custos e resultado', g: 'Gestão',
   s: 'O lado comercial do lote: o que foi pago na compra e o que foi recebido na venda.',
   p: ['Em Registrar compra, informe lote, data, cabeças e valor. Frete, peso na origem, procedência e GTA ou nota são opcionais.', 'Em Registrar venda, escolha a lida de baixa por venda para trazer data, cabeças e peso. Informe o valor recebido e, se tiver o romaneio, as arrobas de carcaça.', 'Os números do topo (desfrute, idade ao abate, dias até a venda) saem das lidas e das datas de nascimento, sem digitar nada.'],
   r: ['Registrar a venda aqui não baixa os animais: a baixa continua sendo feita pela lida de Baixa.', 'Rendimento real = arrobas de carcaça × 15 kg ÷ peso vivo na fazenda. Fora de 40% a 65%, o app pede para conferir.', 'Quebra de transporte = peso na origem menos o peso médio de entrada, sobre o peso na origem.', 'Desfrute = vendidos nos últimos 12 meses ÷ rebanho médio do período.'],
@@ -4724,10 +4863,12 @@ async function exportSync(opts) {
   if (abertas.length && !confirm(`${abertas.length} lida(s) ainda em lançamento NÃO entram na exportação (viajam as finalizadas e as concluídas no Modo Campo). Exportar mesmo assim?`)) return;
   const agora = nowISO();
   const lidas = S.lidas.filter(l => l.status === 'finalizada' || l.status === 'conferir');
+  const semFin = carga || !!syncMeta.semFinanceiro, dadosX = semFin ? dadosSemFinanceiro({ lidas, sanidade: S.sanidade }) : { lidas, sanidade: S.sanidade };
   const pkg = {
     app: APP_ID, formato: SYNC_FORMAT, versaoApp: APP_VERSION, exportadoEm: agora, exportadoEmLocal: fmtDT(agora) + ' (' + offsetTxt(agora) + ')', fusoHorario: FUSO, exportId: uuid(), dispositivo: deviceRef(),
-    resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, sanidade: S.sanidade.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
-    dados: { fazendas: S.fazendas, pastos: S.pastos, lotes: S.lotes, animais: S.animais, lidas, sanidade: S.sanidade },
+    resumo: { fazendas: S.fazendas.length, pastos: S.pastos.length, lotes: S.lotes.length, animais: S.animais.length, sanidade: dadosX.sanidade.length, lidas: lidas.length, registros: lidas.reduce((t, l) => t + l.registros.length, 0), excluidos: S.excluidos.length },
+    semFinanceiro: semFin || undefined, paraCampo: carga || undefined,
+    dados: { fazendas: S.fazendas, pastos: S.pastos, lotes: S.lotes, animais: S.animais, lidas: dadosX.lidas, sanidade: dadosX.sanidade },
     fotos: S.fotos && Object.keys(S.fotos).length ? S.fotos : undefined,
     excluidos: S.excluidos
   };
@@ -4783,6 +4924,8 @@ const SAN = {
         animalIds: (Array.isArray(r.animalIds) ? r.animalIds : []).slice(0, 500).filter(x => okId(x)).map(String), para: str(r.para, 40), prazo: okDate(r.prazo), status: ['a_fazer', 'feita', 'cancelada'].includes(r.status) ? r.status : 'a_fazer', lidaId: okId(r.lidaId) ? String(r.lidaId) : null, criadaEm: okDate(r.criadaEm), ativo: r.ativo !== false }); }
     if (r.kind === 'campanha') { if (!str(r.nome) || !okDate(r.ate)) return null;
       return Object.assign(m, { kind: 'campanha', fazendaId: String(r.fazendaId), nome: str(r.nome, 60), tipo: PROCEDIMENTOS[r.tipo] ? r.tipo : 'vacina', produto: str(r.produto, 80), categorias: (Array.isArray(r.categorias) ? r.categorias : []).slice(0, 30).map(x => str(x, 40)).filter(Boolean), de: okDate(r.de), ate: okDate(r.ate), ativo: r.ativo !== false }); }
+    if (r.kind === 'pastoManejo') { if (!okId(r.pastoId)) return null; const st = ['a_fazer', 'feito', 'cancelado'].includes(r.status) ? r.status : 'a_fazer', dt = okDate(r.data); if (st === 'feito' && !dt) return null;
+      return Object.assign(m, { kind: 'pastoManejo', fazendaId: String(r.fazendaId), pastoId: String(r.pastoId), tipo: MANEJO_PASTO[r.tipo] ? r.tipo : 'outro', descricao: str(r.descricao, 80), status: st, prazo: okDate(r.prazo), data: dt, valor: okNum(r.valor, 1e9) || null, meses: okInt(r.meses, 120) || 12, para: str(r.para, 40), ativo: r.ativo !== false }); }
     if (r.kind === 'alimento') { const dt = okDate(r.data), at = okDate(r.ate); if (!dt || !at || at < dt || !str(r.produto) || !okId(r.loteId) || !(okNum(r.kg, 1e9) || okNum(r.valor, 1e9))) return null;
       return Object.assign(m, { kind: 'alimento', fazendaId: String(r.fazendaId), loteId: String(r.loteId), data: dt, ate: at, produto: str(r.produto, 60), cat: ['mineral', 'proteico', 'racao', 'volumoso', 'outro'].includes(r.cat) ? r.cat : 'outro', kg: okNum(r.kg, 1e9) || null, valor: okNum(r.valor, 1e9) || null, ativo: r.ativo !== false }); }
     if (r.kind === 'compra' || r.kind === 'venda') { const dt = okDate(r.data), q = okInt(r.qtd, 5000), v = okNum(r.valor, 1e9); if (!dt || !q || !v || !okId(r.loteId)) return null;
@@ -4812,7 +4955,7 @@ const SAN = {
 };
 const sig = o => { const c = Object.assign({}, o); delete c.exportadoEm; delete c.vv; return JSON.stringify(c); };
 const sigC = o => { const c = Object.assign({}, o); ['exportadoEm', 'vv', 'versao', 'editadoEm', 'editadoNo', 'editadoPor'].forEach(k => delete c[k]); return JSON.stringify(c); };
-const rotulo = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+const rotulo = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : r.kind === 'pastoManejo' ? 'Manejo de pasto ' + pmNome(r) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
 const stampOf = o => o.editadoEm || o.criadoEm || '';
 const tombOf = id => S.excluidos.find(t => t.id === id);
 async function onImportFile(ev) {
@@ -4856,6 +4999,7 @@ function planImport(pkg) {
       if (!inc || seen.has(inc.id)) { plan.invalidos++; return; }
       seen.add(inc.id);
       const loc = S[col].find(x => x.id === inc.id), tb = tombOf(inc.id);
+      if (pkg.semFinanceiro && loc) repoeFinanceiro(col, inc, loc);
       if (!loc && tb) { if (stampOf(inc) > tb.em) p.restaurados.push(inc); else p.excluidosAqui.push(inc); return; }
       if (!loc) { p.novos.push(inc); return; }
       if (col === 'lidas' && loc.status === 'aberta') { // reaberta aqui: a edição local em andamento vence
@@ -4906,7 +5050,7 @@ function planImport(pkg) {
     aplic.filter(a => bloq.has(a.id)).forEach(a => plan.brincosDup.push(a.brinco));
     CHV.forEach(k => { pa[k] = pa[k].filter(x => !bloq.has(x.id)); });
   }
-  const rot = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
+  const rot = (col, r) => col === 'sanidade' ? (r.kind === 'campanha' ? 'Campanha ' + r.nome : r.kind === 'ordem' ? 'Ordem ' + r.titulo : r.kind === 'compra' ? 'Compra de ' + fmtD(r.data) : r.kind === 'venda' ? 'Venda de ' + fmtD(r.data) : r.kind === 'alimento' ? 'Alimentação de ' + fmtD(r.data) : r.kind === 'pastoManejo' ? 'Manejo de pasto ' + pmNome(r) : 'Insumo ' + r.produto) : col === 'animais' ? r.brinco : col === 'lidas' ? `${(TIPOS[r.tipo] || {}).nome || 'Lida'} de ${fmtD(r.data)}` : r.nome;
   plan.conflitos = [];
   Object.entries(plan.cols).forEach(([col, p]) => {
     p.conflitosImp.forEach(x => plan.conflitos.push({ col, id: x.id, rotulo: rot(col, S[col].find(y => y.id === x.id) || x), vence: 'arquivo', rec: S[col].find(y => y.id === x.id) || null }));
@@ -4957,6 +5101,8 @@ async function applyImport() {
   syncMeta.imports.unshift({ em: nowISO(), arquivo, de: pkg.dispositivo ? pkg.dispositivo.nome : 'Aparelho sem nome', exportadoEm: pkg.exportadoEm, ...res, excluidos: plan.excluirAqui.length }); syncMeta.imports = syncMeta.imports.slice(0, 3);
   if (pkg.exportId) syncMeta.importedIds = [{ id: pkg.exportId, em: nowISO() }, ...(syncMeta.importedIds || [])].slice(0, 30);
   if (pkg.dispositivo && pkg.exportadoEm) { syncMeta.lastFrom = syncMeta.lastFrom || {}; if (!syncMeta.lastFrom[pkg.dispositivo.id] || pkg.exportadoEm > syncMeta.lastFrom[pkg.dispositivo.id]) syncMeta.lastFrom[pkg.dispositivo.id] = pkg.exportadoEm; }
+  if (pkg.paraCampo === true) syncMeta.semFinanceiro = true; else if (!pkg.semFinanceiro) syncMeta.semFinanceiro = false;
+  aplicaPerfil();
   saveSyncMeta(); pendingImport = null; closeModal(); refreshAll();
   showToast(`Importação concluída: ${res.novos} novo(s), ${res.atualizados} atualizado(s).`);
 }
